@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "neato_2dnav")
+set(neato_2dnav_MAINTAINER "Michael Ferguson <ferguson@cs.albany.edu>")
+set(neato_2dnav_DEPRECATED "")
+set(neato_2dnav_VERSION "0.2.0")
+set(neato_2dnav_BUILD_DEPENDS )
+set(neato_2dnav_RUN_DEPENDS "neato_node")
+set(neato_2dnav_BUILDTOOL_DEPENDS "catkin")

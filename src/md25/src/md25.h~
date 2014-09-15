@@ -1,0 +1,125 @@
+/********************************************************************
+ * @filename    MD25.h
+ * @author      Thomas B. Joergensen (thomas.bal.jorgensen@gmail.com)
+ * @date        06 FEB 2012
+ * @version     1.0
+ * @target      mbed (NXP LPC1768 - ARM Cortex M3 - 32-bit)
+ *
+ * @desciption  A library for interacting with the MD25 DC motor
+ *              controller. Find more at:
+ *              http://www.robot-electronics.co.uk/htm/md25tech.htm
+ *              http://www.robot-electronics.co.uk/htm/md25i2c.htm
+ *******************************************************************/
+
+/* Includes */
+#include <iostream>
+#include <string>
+#include <ros/ros.h>
+#include <geometry_msgs/Twist.h>
+#include <stdio.h>   /* Standard input/output definitions */
+#include <string.h>  /* String function definitions */
+#include <unistd.h>  /* UNIX standard function definitions */
+#include <fcntl.h>   /* File control definitions */
+#include <errno.h>   /* Error number definitions */
+#include <termios.h> /* POSIX terminal control definitions */
+
+/* COMMANDS */
+#define CMD_GET_SPEED1				0x21    // R    | Get the current speed of motor 1
+#define CMD_GET_SPEED2				0x22    // R    | Get the current speed of motor 2
+#define CMD_GET_ENC1                0x23    // R    | Motor1 encoder count, 4 bytes returned high byte first (signed)
+#define CMD_GET_ENC2                0x24    // R    | Motor2 encoder count, 4 bytes returned high byte first (signed)
+#define CMD_GET_ENCS				0x25	// R	| Motors encoder count, 8 bytes returned (motor 1 then motor 2) high byte first (signed)
+#define CMD_GET_VOLT	            0x26    // R    | The supply battery voltage
+#define CMD_GET_CURRENT1		    0x27    // R    | The current through motor 1
+#define CMD_GET_CURRENT2 	        0x28    // R    | The current through motor 2
+#define CMD_GET_ACCELERATION        0x2A    // R    | Get acceleration 
+#define CMD_GET_MODE				0x2B    // R    | Get mode
+#define CMD_SET_ACCELERATION        0x33    // W    | Set acceleration of both motors
+#define CMD_SET_SPEED1              0x31    // W    | Motor1 speed (mode 0,1) or speed (mode 2,3)
+#define CMD_SET_SPEED2              0x32    // W    | Motor2 speed (mode 0,1) or turn (mode 2,3) 
+#define CMD_SET_MODE                0x34    // W    | Mode of operation (see below)
+#define CMD_RESET_ENCODERS          0x35    // W    | Resets the encoder registers to zero
+#define CMD_ENABLE_TIMEOUT          0x38    // W    | Enables a continuous spin
+#define CMD_DISABLE_TIMEOUT         0x39    // W    | Enables 2 second timeout of motors when no command
+
+
+/* MODES */
+#define MODE_0                      0x00    // The meaning of the speed registers is literal speeds in the range of 0 (Full Reverse), 128 (Stop), 255 (Full Forward) (Default Setting).
+#define MODE_1                      0x01    // The meaning of the speed registers is literal speeds in the range of -128 (Full Reverse), 0 (Stop), 127 (Full Forward).
+#define MODE_2                      0x02    // Speed1 control both motors speed, and speed2 becomes the turn value. Data is in the range of 0 (Full Reverse), 128 (Stop), 255 (Full  Forward).
+#define MODE_3                      0x03    // Speed1 control both motors speed, and speed2 becomes the turn value. Data is in the range of -128 (Full Reverse), 0 (Stop), 127 (Full Forward).
+
+
+#define SYNC_BYTE                   0x00    // Add this before any command
+
+/*MODEL OF ROBOT*/
+#define WHEEL_DIAMETER 				0.1
+#define SEMI_AXE_LENGTH				0.15
+
+
+using namespace std;
+
+class MD25 {
+private:
+    /* Communication */
+    char* name_port;
+    int port_opened;
+    /* Variables */
+    int mode;
+	ros::NodeHandle n_;
+	geometry_msgs::Twist twist;
+
+	/*Attributes*/
+	float twist_linear;
+	float twist_angular;	
+	int hex_vel1;
+	int hex_vel2;
+
+
+    
+    /* Generic methods */
+/*    void write(int port_opened, char *data, int bytes);
+    int read(int port_opened, char *data, int command, int bytes);*/
+public:
+    /* Constructor and Destructor */
+    MD25();
+    ~MD25(void);
+    
+ 
+    
+    /* Control and data methods */
+    int set_mode(int mode);                 // Set the mode of operation (0 - 3) (default: 0).
+    
+    
+
+    int reset_encoders();                   // Resets the encoder registers.
+    
+    
+    
+    int set_timeout(bool enabled);          // Enable/disable 2 sec timeout of motors when no coms (default: enabled).
+    
+
+    int set_speed1(int speed);              // Set the speed of motor 1 (if mode 0 or 1) or linear twist (if mode 2 or 3).
+    int set_speed2(int speed);              // Set the speed of motor 2 (if mode 0 or 1) or angular twist (if mode 2 or 3).
+    
+    int set_acceleration(int acceleration); // Set a desired acceleration rate.
+
+	void get_state();
+
+	void spin();
+	void twistCb(const geometry_msgs::Twist& twist);
+	float get_Twist_linear(){ return twist_linear;}
+	float get_Twist_angular(){ return twist_angular;}
+	
+private :
+	int get_mode();                         // Get the current mode of operation.
+    int get_encoder1();                     // Encoder 1 position.
+    int get_encoder2();                     // Encoder 2 position.
+	int get_current1();						// Returns the current through motor 1.
+    int get_current2();						// Returns the current through motor 2.
+    int get_speed1();						// Returns the current requested speed of motor 1.
+    int get_speed2();						// Returns the current requested speed of motor 2.
+    int get_acceleration();                 // Get the set desired acceleration rate.    
+    int get_volt();							// Returns the input battery voltage level.
+
+};

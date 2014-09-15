@@ -1,0 +1,8 @@
+prefix=/home/serveur/catkin_ws/devel
+
+Name: neato_2dnav
+Description: Description of neato_2dnav
+Version: 0.2.0
+Cflags: 
+Libs: -L/home/serveur/catkin_ws/devel/lib 
+Requires: 

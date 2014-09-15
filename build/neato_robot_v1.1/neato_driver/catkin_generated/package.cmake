@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "neato_driver")
+set(neato_driver_MAINTAINER "Michael Ferguson <ferguson@cs.albany.edu>")
+set(neato_driver_DEPRECATED "")
+set(neato_driver_VERSION "0.2.0")
+set(neato_driver_BUILD_DEPENDS )
+set(neato_driver_RUN_DEPENDS "python-serial")
+set(neato_driver_BUILDTOOL_DEPENDS "catkin")

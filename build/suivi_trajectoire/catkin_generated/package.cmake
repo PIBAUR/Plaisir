@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "suivi_trajectoire")
+set(suivi_trajectoire_MAINTAINER "serveur <serveur@todo.todo>")
+set(suivi_trajectoire_DEPRECATED "")
+set(suivi_trajectoire_VERSION "0.0.0")
+set(suivi_trajectoire_BUILD_DEPENDS "geometry_msgs" "roscpp" "tf")
+set(suivi_trajectoire_RUN_DEPENDS "geometry_msgs" "roscpp" "tf")
+set(suivi_trajectoire_BUILDTOOL_DEPENDS "catkin")

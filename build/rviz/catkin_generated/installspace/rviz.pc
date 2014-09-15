@@ -1,0 +1,8 @@
+prefix=/home/serveur/catkin_ws/install
+
+Name: rviz
+Description: Description of rviz
+Version: 1.9.36
+Cflags: -I/home/serveur/catkin_ws/install/include -I/usr/include/eigen3 -I/usr/include/OGRE -I/usr/include
+Libs: -L/home/serveur/catkin_ws/install/lib -lrviz -ldefault_plugin -lOgreMain -lpthread -l:/usr/lib/i386-linux-gnu/libGLU.so -l:/usr/lib/i386-linux-gnu/libGL.so -l:/usr/lib/i386-linux-gnu/libSM.so -l:/usr/lib/i386-linux-gnu/libICE.so -l:/usr/lib/i386-linux-gnu/libX11.so -l:/usr/lib/i386-linux-gnu/libXext.so
+Requires: 

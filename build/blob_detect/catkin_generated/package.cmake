@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "blob_detect")
+set(blob_detect_MAINTAINER "serveur <serveur@todo.todo>")
+set(blob_detect_DEPRECATED "")
+set(blob_detect_VERSION "0.0.0")
+set(blob_detect_BUILD_DEPENDS "roscpp" "sensor_msgs" "cv_bridge" "nav_msgs" "std_msgs" "image_transport")
+set(blob_detect_RUN_DEPENDS "roscpp" "sensor_msgs" "cv_bridge" "nav_msgs" "std_msgs" "image_transport")
+set(blob_detect_BUILDTOOL_DEPENDS "catkin")

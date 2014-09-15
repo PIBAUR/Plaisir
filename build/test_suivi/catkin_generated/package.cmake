@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "test_suivi")
+set(test_suivi_MAINTAINER "serveur <serveur@todo.todo>")
+set(test_suivi_DEPRECATED "")
+set(test_suivi_VERSION "0.0.0")
+set(test_suivi_BUILD_DEPENDS "roscpp" "rospy" "std_msgs")
+set(test_suivi_RUN_DEPENDS "roscpp" "rospy" "std_msgs")
+set(test_suivi_BUILDTOOL_DEPENDS "catkin")

@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/serveur/catkin_ws/src/hector_localization/world_magnetic_model/src/WMM_Linux/GeomagnetismHeader.h
+
+/home/serveur/catkin_ws/src/hector_localization/world_magnetic_model/src/WMM_Linux/GeomagnetismLibrary.c
+stdio.h
+-
+string.h
+-
+math.h
+-
+stdlib.h
+-
+ctype.h
+-
+assert.h
+-
+GeomagnetismHeader.h
+/home/serveur/catkin_ws/src/hector_localization/world_magnetic_model/src/WMM_Linux/GeomagnetismHeader.h
+

@@ -1,0 +1,8 @@
+prefix=/home/serveur/catkin_ws/install
+
+Name: suivi_trajectoire
+Description: Description of suivi_trajectoire
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/serveur/catkin_ws/install/lib 
+Requires: 

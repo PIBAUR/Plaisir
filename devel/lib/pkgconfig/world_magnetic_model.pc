@@ -1,0 +1,8 @@
+prefix=/home/serveur/catkin_ws/devel
+
+Name: world_magnetic_model
+Description: Description of world_magnetic_model
+Version: 0.1.1
+Cflags: -I/home/serveur/catkin_ws/src/hector_localization/world_magnetic_model/src/WMM_Linux
+Libs: -L/home/serveur/catkin_ws/devel/lib -lGeomagnetismLibrary
+Requires: 

@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "md25")
+set(md25_MAINTAINER "artlab <artlab@todo.todo>")
+set(md25_DEPRECATED "")
+set(md25_VERSION "0.0.0")
+set(md25_BUILD_DEPENDS "geometry_msgs" "roscpp" "std_msgs")
+set(md25_RUN_DEPENDS "geometry_msgs" "roscpp" "std_msgs")
+set(md25_BUILDTOOL_DEPENDS "catkin")

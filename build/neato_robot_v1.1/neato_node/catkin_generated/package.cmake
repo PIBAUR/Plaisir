@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "neato_node")
+set(neato_node_MAINTAINER "Michael Ferguson <ferguson@cs.albany.edu>")
+set(neato_node_DEPRECATED "")
+set(neato_node_VERSION "0.2.0")
+set(neato_node_BUILD_DEPENDS )
+set(neato_node_RUN_DEPENDS "neato_driver" "rospy" "sensor_msgs" "geometry_msgs" "nav_msgs" "tf")
+set(neato_node_BUILDTOOL_DEPENDS "catkin")

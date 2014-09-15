@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "neato_robot")
+set(neato_robot_MAINTAINER "Michael Ferguson <ferguson@cs.albany.edu>")
+set(neato_robot_DEPRECATED "")
+set(neato_robot_VERSION "0.2.0")
+set(neato_robot_BUILD_DEPENDS )
+set(neato_robot_RUN_DEPENDS "neato_driver" "neato_node" "neato_2dnav")
+set(neato_robot_BUILDTOOL_DEPENDS "catkin")

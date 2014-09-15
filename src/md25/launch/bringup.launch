@@ -1,0 +1,15 @@
+<launch>
+  
+  <machine name="neato" address="192.168.150.100" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+  
+  <rosparam command="load" file="/home/serveur/catkin_ws/params/myparams.yaml"/>
+  
+  <node pkg="tf" type="static_transform_publisher" name="laser_to_base" 
+    args="-0.180 0 0.045 0 0 0 base_link laser_frame 100"/>
+
+  <node name="MD25" pkg="md25" type="md25_node" output="screen">
+  </node>
+  
+  <node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen"/>
+
+</launch>

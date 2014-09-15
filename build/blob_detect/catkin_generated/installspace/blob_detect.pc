@@ -1,0 +1,8 @@
+prefix=/home/serveur/catkin_ws/install
+
+Name: blob_detect
+Description: Description of blob_detect
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/serveur/catkin_ws/install/lib 
+Requires: 

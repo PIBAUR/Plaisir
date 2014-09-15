@@ -1,0 +1,30 @@
+<launch>
+
+  <!-- Declare robot machine -->
+  <machine name="plaisir01" address="192.168.150.100" user="odroid" default="false" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+  <!-- Declare server machine -->
+  <machine name="server" address="192.168.150.1" user="serveur" default="true" env-loader="/home/serveur/catkin_ws/devel/env.sh"/>
+
+  <!-- Launch tf laser to base -->
+  <rosparam command="load" file="/home/serveur/catkin_ws/params/myparams.yaml"/>
+  
+  <!-- transformatio entre le repère du robot et lidar    -->
+  <!-- x = -0.083, y = 0, z = 0.15 m                      -->
+  <!-- ang_x = 0, ang_y = 0 , ang_z = 0                   -->
+  <!-- frame parent : repere_robot = base_link            -->
+  <!-- frame enfant : repere_lidar = base_laser_link      -->
+  <!-- frequence publication de la transformation = 20 Hz -->
+
+  <node pkg="tf" type="static_transform_publisher" name="laser_to_base" 
+    args="-0.083 0 0.15 0 0 0 base_link base_laser_link 20"/>
+  
+  <!-- run node for md25 -->
+  <node machine="plaisir01" name="MD25" pkg="md25" type="md25_node" output="screen"/>
+  <!-- run node for lidar -->
+  <node machine="plaisir01" name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen">
+    <!-- remap from="/scan" to ="/base_scan"/-->
+  </node>
+  
+  <node name="rviz" pkg="rviz" type="rviz"/>
+
+</launch>
