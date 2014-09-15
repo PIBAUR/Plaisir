@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/serveur/catkin_ws/src/hector_navigation/hector_path_follower/build/devel/setup.sh

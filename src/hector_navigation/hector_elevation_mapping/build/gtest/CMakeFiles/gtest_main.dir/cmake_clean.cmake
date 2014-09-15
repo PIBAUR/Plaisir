@@ -1,0 +1,10 @@
+FILE(REMOVE_RECURSE
+  "CMakeFiles/gtest_main.dir/src/gtest_main.cc.o"
+  "/home/serveur/catkin_ws/src/hector_navigation/hector_elevation_mapping/lib/libgtest_main.pdb"
+  "/home/serveur/catkin_ws/src/hector_navigation/hector_elevation_mapping/lib/libgtest_main.so"
+)
+
+# Per-language clean rules from dependency scanning.
+FOREACH(lang CXX)
+  INCLUDE(CMakeFiles/gtest_main.dir/cmake_clean_${lang}.cmake OPTIONAL)
+ENDFOREACH(lang)
