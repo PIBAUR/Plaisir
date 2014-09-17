@@ -1,8 +1,8 @@
-prefix=/home/serveur/catkin_ws/devel
+prefix=/home/artlab/catkin_ws/devel
 
 Name: md25
 Description: Description of md25
 Version: 0.0.0
 Cflags: 
-Libs: -L/home/serveur/catkin_ws/devel/lib 
+Libs: -L/home/artlab/catkin_ws/devel/lib 
 Requires: 

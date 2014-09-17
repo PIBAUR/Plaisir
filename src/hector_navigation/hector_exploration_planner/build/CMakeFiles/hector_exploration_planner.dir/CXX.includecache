@@ -48,9 +48,9 @@ hector_exploration_planner/exploration_transform_vis.h
 boost/shared_array.hpp
 -
 
-/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/src/hector_exploration_planner.cpp
+/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/src/hector_exploration_planner.cpp
 hector_exploration_planner/hector_exploration_planner.h
-/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/src/hector_exploration_planner/hector_exploration_planner.h
+/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/src/hector_exploration_planner/hector_exploration_planner.h
 visualization_msgs/Marker.h
 -
 visualization_msgs/MarkerArray.h

@@ -7,4 +7,4 @@
 # new environment variables
 
 # modified environment variables
-export PWD="/home/serveur/catkin_ws/build"
+export PWD="/home/artlab/catkin_ws/build"

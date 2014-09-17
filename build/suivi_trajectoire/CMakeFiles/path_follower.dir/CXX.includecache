@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/serveur/catkin_ws/src/suivi_trajectoire/src/path_follower.cpp
+/home/artlab/catkin_ws/src/suivi_trajectoire/src/path_follower.cpp
 ros/ros.h
 -
 geometry_msgs/Twist.h

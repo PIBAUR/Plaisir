@@ -6,9 +6,9 @@
 
 #IncludeRegexTransform: 
 
-/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_node/src/exploration_node.cpp
+/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_node/src/exploration_node.cpp
 ros/ros.h
-/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_node/src/ros/ros.h
+/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_node/src/ros/ros.h
 hector_exploration_planner/hector_exploration_planner.h
 -
 costmap_2d/costmap_2d_ros.h
@@ -16,7 +16,7 @@ costmap_2d/costmap_2d_ros.h
 hector_nav_msgs/GetRobotTrajectory.h
 -
 
-/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/include/hector_exploration_planner/exploration_transform_vis.h
+/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/include/hector_exploration_planner/exploration_transform_vis.h
 sensor_msgs/PointCloud.h
 -
 ros/ros.h
@@ -24,7 +24,7 @@ ros/ros.h
 costmap_2d/costmap_2d.h
 -
 
-/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h
+/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h
 ros/ros.h
 -
 costmap_2d/costmap_2d.h

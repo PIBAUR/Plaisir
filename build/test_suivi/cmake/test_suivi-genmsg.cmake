@@ -20,7 +20,7 @@ add_custom_target(test_suivi_generate_messages ALL)
 
 ### Generating Services
 _generate_srv_cpp(test_suivi
-  "/home/serveur/catkin_ws/src/test_suivi/srv/SendPose.srv"
+  "/home/artlab/catkin_ws/src/test_suivi/srv/SendPose.srv"
   "${MSG_I_FLAGS}"
   "/opt/ros/groovy/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/groovy/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/groovy/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/groovy/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/groovy/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/test_suivi
@@ -49,7 +49,7 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS test_suivi_generate_messages_cpp)
 
 ### Generating Services
 _generate_srv_lisp(test_suivi
-  "/home/serveur/catkin_ws/src/test_suivi/srv/SendPose.srv"
+  "/home/artlab/catkin_ws/src/test_suivi/srv/SendPose.srv"
   "${MSG_I_FLAGS}"
   "/opt/ros/groovy/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/groovy/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/groovy/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/groovy/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/groovy/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/test_suivi
@@ -78,7 +78,7 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS test_suivi_generate_messages_lisp)
 
 ### Generating Services
 _generate_srv_py(test_suivi
-  "/home/serveur/catkin_ws/src/test_suivi/srv/SendPose.srv"
+  "/home/artlab/catkin_ws/src/test_suivi/srv/SendPose.srv"
   "${MSG_I_FLAGS}"
   "/opt/ros/groovy/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/groovy/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/groovy/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/groovy/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/groovy/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/test_suivi

@@ -1,7 +1,7 @@
 FILE(REMOVE_RECURSE
   "CMakeFiles/md25_node.dir/src/md25.cpp.o"
-  "/home/serveur/catkin_ws/devel/lib/md25/md25_node.pdb"
-  "/home/serveur/catkin_ws/devel/lib/md25/md25_node"
+  "/home/artlab/catkin_ws/devel/lib/md25/md25_node.pdb"
+  "/home/artlab/catkin_ws/devel/lib/md25/md25_node"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -6,15 +6,15 @@
 
 #IncludeRegexTransform: 
 
-/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_controller/src/simple_exploration_controller.cpp
+/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_controller/src/simple_exploration_controller.cpp
 ros/ros.h
-/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_controller/src/ros/ros.h
+/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_controller/src/ros/ros.h
 hector_path_follower/hector_path_follower.h
 -
 hector_nav_msgs/GetRobotTrajectory.h
 -
 
-/home/serveur/catkin_ws/src/hector_navigation/hector_path_follower/include/hector_path_follower/hector_path_follower.h
+/home/artlab/catkin_ws/src/hector_navigation/hector_path_follower/include/hector_path_follower/hector_path_follower.h
 ros/ros.h
 -
 tf/tf.h

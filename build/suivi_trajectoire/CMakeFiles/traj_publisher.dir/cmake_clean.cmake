@@ -1,7 +1,7 @@
 FILE(REMOVE_RECURSE
   "CMakeFiles/traj_publisher.dir/src/bezier_to_trajectoire.cpp.o"
-  "/home/serveur/catkin_ws/devel/lib/suivi_trajectoire/traj_publisher.pdb"
-  "/home/serveur/catkin_ws/devel/lib/suivi_trajectoire/traj_publisher"
+  "/home/artlab/catkin_ws/devel/lib/suivi_trajectoire/traj_publisher.pdb"
+  "/home/artlab/catkin_ws/devel/lib/suivi_trajectoire/traj_publisher"
 )
 
 # Per-language clean rules from dependency scanning.

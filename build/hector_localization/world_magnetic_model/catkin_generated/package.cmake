@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "world_magnetic_model")
-set(world_magnetic_model_MAINTAINER "Johannes Meyer <meyer@fsr.tu-darmstadt.de>")
-set(world_magnetic_model_DEPRECATED "")
-set(world_magnetic_model_VERSION "0.1.1")
-set(world_magnetic_model_BUILD_DEPENDS )
-set(world_magnetic_model_RUN_DEPENDS )
-set(world_magnetic_model_BUILDTOOL_DEPENDS "catkin")

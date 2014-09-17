@@ -3,7 +3,7 @@
 
 CMakeFiles/hector_path_follower.dir/src/hector_path_follower.cpp.o
  ../include/hector_path_follower/hector_path_follower.h
- /home/serveur/catkin_ws/src/hector_navigation/hector_path_follower/src/hector_path_follower.cpp
+ /home/artlab/catkin_ws/src/hector_navigation/hector_path_follower/src/hector_path_follower.cpp
  /opt/ros/groovy/include/XmlRpcDecl.h
  /opt/ros/groovy/include/XmlRpcValue.h
  /opt/ros/groovy/include/geometry_msgs/Point.h

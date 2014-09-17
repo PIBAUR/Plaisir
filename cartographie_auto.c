@@ -66,7 +66,7 @@ int main(){
                             printf("=================================================\n");
                             printf("===================SAVE MAP======================\n");
                             printf("=================================================\n");
-                            execlp("rosrun", "rosrun", "map_server", "map_saver", "-f", "/home/serveur/catkin_ws/maps/last_map", NULL);
+                            execlp("rosrun", "rosrun", "map_server", "map_saver", "-f", "/home/artlab/catkin_ws/maps/last_map", NULL);
                             printf("fils 3 running...\n");
                             break;
                         default://pere : attends entree pour kill fils 1 & 2

@@ -1,1 +1,0 @@
-/usr/bin/gcc  -fPIC    -shared -Wl,-soname,libGeomagnetismLibrary.so -o /home/serveur/catkin_ws/devel/lib/libGeomagnetismLibrary.so CMakeFiles/GeomagnetismLibrary.dir/src/WMM_Linux/GeomagnetismLibrary.c.o 

@@ -1,8 +1,0 @@
-prefix=/home/serveur/catkin_ws/install
-
-Name: neato_driver
-Description: Description of neato_driver
-Version: 0.2.0
-Cflags: 
-Libs: -L/home/serveur/catkin_ws/install/lib 
-Requires: 

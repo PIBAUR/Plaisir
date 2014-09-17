@@ -1,8 +1,8 @@
-# Install script for directory: /home/serveur/catkin_ws/src/rplidar_ros
+# Install script for directory: /home/artlab/catkin_ws/src/rplidar_ros
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  SET(CMAKE_INSTALL_PREFIX "/home/serveur/catkin_ws/install")
+  SET(CMAKE_INSTALL_PREFIX "/home/artlab/catkin_ws/install")
 ENDIF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 STRING(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -33,17 +33,17 @@ IF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 ENDIF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/serveur/catkin_ws/build/rplidar_ros/catkin_generated/installspace/rplidar_ros.pc")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/artlab/catkin_ws/build/rplidar_ros/catkin_generated/installspace/rplidar_ros.pc")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rplidar_ros/cmake" TYPE FILE FILES
-    "/home/serveur/catkin_ws/build/rplidar_ros/catkin_generated/installspace/rplidar_rosConfig.cmake"
-    "/home/serveur/catkin_ws/build/rplidar_ros/catkin_generated/installspace/rplidar_rosConfig-version.cmake"
+    "/home/artlab/catkin_ws/build/rplidar_ros/catkin_generated/installspace/rplidar_rosConfig.cmake"
+    "/home/artlab/catkin_ws/build/rplidar_ros/catkin_generated/installspace/rplidar_rosConfig-version.cmake"
     )
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rplidar_ros" TYPE FILE FILES "/home/serveur/catkin_ws/src/rplidar_ros/package.xml")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rplidar_ros" TYPE FILE FILES "/home/artlab/catkin_ws/src/rplidar_ros/package.xml")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 

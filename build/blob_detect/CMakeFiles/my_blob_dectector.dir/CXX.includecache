@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/serveur/catkin_ws/src/blob_detect/src/blob.cpp
+/home/artlab/catkin_ws/src/blob_detect/src/blob.cpp
 ros/ros.h
 -
 image_transport/image_transport.h

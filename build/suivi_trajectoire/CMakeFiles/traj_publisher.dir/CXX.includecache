@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/serveur/catkin_ws/src/suivi_trajectoire/src/bezier_to_trajectoire.cpp
+/home/artlab/catkin_ws/src/suivi_trajectoire/src/bezier_to_trajectoire.cpp
 ros/ros.h
 -
 geometry_msgs/PoseArray.h

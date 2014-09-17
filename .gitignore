@@ -1,2 +1,4 @@
-/.pydevproject
-/.project
+/.settings/
+/.catkin_workspace
+/carto2
+/build/

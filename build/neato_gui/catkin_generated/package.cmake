@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "neato_gui")
-set(neato_gui_MAINTAINER "serveur <serveur@todo.todo>")
-set(neato_gui_DEPRECATED "")
-set(neato_gui_VERSION "0.0.0")
-set(neato_gui_BUILD_DEPENDS "nav_msgs" "sensor_msgs" "roscpp" "rospy" "rqt_gui" "rqt_gui_py" "std_msgs" "rostf")
-set(neato_gui_RUN_DEPENDS "nav_msgs" "sensor_msgs" "roscpp" "rospy" "rqt_gui" "rqt_gui_py" "std_msgs" "roswtf")
-set(neato_gui_BUILDTOOL_DEPENDS "catkin")

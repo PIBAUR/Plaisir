@@ -1,7 +1,7 @@
 FILE(REMOVE_RECURSE
   "CMakeFiles/gtest_main.dir/src/gtest_main.cc.o"
-  "/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_controller/lib/libgtest_main.pdb"
-  "/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_controller/lib/libgtest_main.so"
+  "/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_controller/lib/libgtest_main.pdb"
+  "/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_controller/lib/libgtest_main.so"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -32,10 +32,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner
+CMAKE_SOURCE_DIR = /home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/build
+CMAKE_BINARY_DIR = /home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/build
 
 # Utility rule file for doxygen.
 
@@ -43,7 +43,7 @@ CMAKE_BINARY_DIR = /home/serveur/catkin_ws/src/hector_navigation/hector_explorat
 include CMakeFiles/doxygen.dir/progress.make
 
 CMakeFiles/doxygen:
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/build/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/build/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "doxygen found"
 
 doxygen: CMakeFiles/doxygen
@@ -59,6 +59,6 @@ CMakeFiles/doxygen.dir/clean:
 .PHONY : CMakeFiles/doxygen.dir/clean
 
 CMakeFiles/doxygen.dir/depend:
-	cd /home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner /home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner /home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/build /home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/build /home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/build/CMakeFiles/doxygen.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner /home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner /home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/build /home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/build /home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/build/CMakeFiles/doxygen.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/doxygen.dir/depend
 

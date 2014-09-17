@@ -1,8 +1,0 @@
-prefix=/home/serveur/catkin_ws/install
-
-Name: teleop_twist_keyboard
-Description: Description of teleop_twist_keyboard
-Version: 0.5.0
-Cflags: 
-Libs: -L/home/serveur/catkin_ws/install/lib 
-Requires: 

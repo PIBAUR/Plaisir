@@ -1,4 +1,4 @@
-# Install script for directory: /home/serveur/catkin_ws/src/hector_navigation/hector_elevation_visualization/src
+# Install script for directory: /home/artlab/catkin_ws/src/hector_navigation/hector_elevation_visualization/src
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)

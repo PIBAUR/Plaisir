@@ -38,9 +38,9 @@ hector_exploration_planner/exploration_transform_vis.h
 boost/shared_array.hpp
 -
 
-/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/src/hector_exploration_base_global_planner_plugin.cpp
+/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/src/hector_exploration_base_global_planner_plugin.cpp
 hector_exploration_planner/hector_exploration_base_global_planner_plugin.h
-/home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/src/hector_exploration_planner/hector_exploration_base_global_planner_plugin.h
+/home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/src/hector_exploration_planner/hector_exploration_base_global_planner_plugin.h
 
 /opt/ros/groovy/include/XmlRpcDecl.h
 ros/macros.h

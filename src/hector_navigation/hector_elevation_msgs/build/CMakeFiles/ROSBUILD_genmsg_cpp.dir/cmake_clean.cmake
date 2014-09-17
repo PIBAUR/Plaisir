@@ -3,8 +3,8 @@ FILE(REMOVE_RECURSE
   "../msg_gen"
   "../src/hector_elevation_msgs/msg"
   "CMakeFiles/ROSBUILD_genmsg_cpp"
-  "../msg_gen/cpp/include/hector_elevation_msgs/ElevationMapMetaData.h"
   "../msg_gen/cpp/include/hector_elevation_msgs/ElevationGrid.h"
+  "../msg_gen/cpp/include/hector_elevation_msgs/ElevationMapMetaData.h"
 )
 
 # Per-language clean rules from dependency scanning.

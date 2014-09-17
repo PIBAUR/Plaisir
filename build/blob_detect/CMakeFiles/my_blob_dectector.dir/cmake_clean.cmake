@@ -1,7 +1,7 @@
 FILE(REMOVE_RECURSE
   "CMakeFiles/my_blob_dectector.dir/src/blob.cpp.o"
-  "/home/serveur/catkin_ws/devel/lib/blob_detect/my_blob_dectector.pdb"
-  "/home/serveur/catkin_ws/devel/lib/blob_detect/my_blob_dectector"
+  "/home/artlab/catkin_ws/devel/lib/blob_detect/my_blob_dectector.pdb"
+  "/home/artlab/catkin_ws/devel/lib/blob_detect/my_blob_dectector"
 )
 
 # Per-language clean rules from dependency scanning.

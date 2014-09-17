@@ -4,8 +4,8 @@ FILE(REMOVE_RECURSE
   "../src/hector_elevation_msgs/msg"
   "CMakeFiles/ROSBUILD_genmsg_py"
   "../src/hector_elevation_msgs/msg/__init__.py"
-  "../src/hector_elevation_msgs/msg/_ElevationMapMetaData.py"
   "../src/hector_elevation_msgs/msg/_ElevationGrid.py"
+  "../src/hector_elevation_msgs/msg/_ElevationMapMetaData.py"
 )
 
 # Per-language clean rules from dependency scanning.

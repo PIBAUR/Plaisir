@@ -1,7 +1,7 @@
 FILE(REMOVE_RECURSE
   "CMakeFiles/rplidarNodeClient.dir/src/client.cpp.o"
-  "/home/serveur/catkin_ws/devel/lib/rplidar_ros/rplidarNodeClient.pdb"
-  "/home/serveur/catkin_ws/devel/lib/rplidar_ros/rplidarNodeClient"
+  "/home/artlab/catkin_ws/devel/lib/rplidar_ros/rplidarNodeClient.pdb"
+  "/home/artlab/catkin_ws/devel/lib/rplidar_ros/rplidarNodeClient"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -5,7 +5,7 @@ CMakeFiles/hector_exploration_planner.dir/src/hector_exploration_planner.cpp.o
  ../cfg/cpp/hector_exploration_planner/ExplorationPlannerConfig.h
  ../include/hector_exploration_planner/exploration_transform_vis.h
  ../include/hector_exploration_planner/hector_exploration_planner.h
- /home/serveur/catkin_ws/src/hector_navigation/hector_exploration_planner/src/hector_exploration_planner.cpp
+ /home/artlab/catkin_ws/src/hector_navigation/hector_exploration_planner/src/hector_exploration_planner.cpp
  /opt/ros/groovy/include/XmlRpcDecl.h
  /opt/ros/groovy/include/XmlRpcValue.h
  /opt/ros/groovy/include/dynamic_reconfigure/BoolParameter.h

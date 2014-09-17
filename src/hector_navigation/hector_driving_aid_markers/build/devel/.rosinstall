@@ -1,2 +1,2 @@
 - setup-file:
-    local-name: /home/serveur/catkin_ws/src/hector_navigation/hector_driving_aid_markers/build/devel/setup.sh
+    local-name: /home/artlab/catkin_ws/src/hector_navigation/hector_driving_aid_markers/build/devel/setup.sh

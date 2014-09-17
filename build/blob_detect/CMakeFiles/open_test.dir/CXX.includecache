@@ -6,11 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/serveur/catkin_ws/src/blob_detect/src/open_test.cpp
+/home/artlab/catkin_ws/src/blob_detect/src/open_test.cpp
 opencv2/highgui/highgui.hpp
-/home/serveur/catkin_ws/src/blob_detect/src/opencv2/highgui/highgui.hpp
+/home/artlab/catkin_ws/src/blob_detect/src/opencv2/highgui/highgui.hpp
 opencv2/imgproc/imgproc.hpp
-/home/serveur/catkin_ws/src/blob_detect/src/opencv2/imgproc/imgproc.hpp
+/home/artlab/catkin_ws/src/blob_detect/src/opencv2/imgproc/imgproc.hpp
 iostream
 -
 stdio.h

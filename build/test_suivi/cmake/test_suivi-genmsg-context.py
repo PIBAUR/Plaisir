@@ -1,7 +1,7 @@
 # generated from genmsg/cmake/pkg-genmsg.context.in
 
 messages_str = ""
-services_str = "/home/serveur/catkin_ws/src/test_suivi/srv/SendPose.srv"
+services_str = "/home/artlab/catkin_ws/src/test_suivi/srv/SendPose.srv"
 pkg_name = "test_suivi"
 dependencies_str = "std_msgs;geometry_msgs"
 langs = "gencpp;genlisp;genpy"

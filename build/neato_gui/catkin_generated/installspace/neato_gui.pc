@@ -1,8 +1,0 @@
-prefix=/home/serveur/catkin_ws/install
-
-Name: neato_gui
-Description: Description of neato_gui
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/serveur/catkin_ws/install/lib 
-Requires: 

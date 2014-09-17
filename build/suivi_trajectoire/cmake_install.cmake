@@ -1,8 +1,8 @@
-# Install script for directory: /home/serveur/catkin_ws/src/suivi_trajectoire
+# Install script for directory: /home/artlab/catkin_ws/src/suivi_trajectoire
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  SET(CMAKE_INSTALL_PREFIX "/home/serveur/catkin_ws/install")
+  SET(CMAKE_INSTALL_PREFIX "/home/artlab/catkin_ws/install")
 ENDIF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 STRING(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -33,17 +33,17 @@ IF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 ENDIF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/serveur/catkin_ws/build/suivi_trajectoire/catkin_generated/installspace/suivi_trajectoire.pc")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/artlab/catkin_ws/build/suivi_trajectoire/catkin_generated/installspace/suivi_trajectoire.pc")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/suivi_trajectoire/cmake" TYPE FILE FILES
-    "/home/serveur/catkin_ws/build/suivi_trajectoire/catkin_generated/installspace/suivi_trajectoireConfig.cmake"
-    "/home/serveur/catkin_ws/build/suivi_trajectoire/catkin_generated/installspace/suivi_trajectoireConfig-version.cmake"
+    "/home/artlab/catkin_ws/build/suivi_trajectoire/catkin_generated/installspace/suivi_trajectoireConfig.cmake"
+    "/home/artlab/catkin_ws/build/suivi_trajectoire/catkin_generated/installspace/suivi_trajectoireConfig-version.cmake"
     )
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/suivi_trajectoire" TYPE FILE FILES "/home/serveur/catkin_ws/src/suivi_trajectoire/package.xml")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/suivi_trajectoire" TYPE FILE FILES "/home/artlab/catkin_ws/src/suivi_trajectoire/package.xml")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 

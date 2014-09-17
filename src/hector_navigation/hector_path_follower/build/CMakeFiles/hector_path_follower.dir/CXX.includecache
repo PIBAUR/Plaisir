@@ -20,7 +20,7 @@ geometry_msgs/PoseStamped.h
 geometry_msgs/Twist.h
 -
 
-/home/serveur/catkin_ws/src/hector_navigation/hector_path_follower/src/hector_path_follower.cpp
+/home/artlab/catkin_ws/src/hector_navigation/hector_path_follower/src/hector_path_follower.cpp
 hector_path_follower/hector_path_follower.h
 -
 
