@@ -1,8 +1,0 @@
-prefix=/home/artlab/catkin_ws/install
-
-Name: test_suivi
-Description: Description of test_suivi
-Version: 0.0.0
-Cflags: -I/home/artlab/catkin_ws/install/include
-Libs: -L/home/artlab/catkin_ws/install/lib 
-Requires: 
