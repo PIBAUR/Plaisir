@@ -1,2 +1,0 @@
-- setup-file:
-    local-name: /home/artlab/catkin_ws/src/hector_navigation/hector_costmap/build/devel/setup.sh
