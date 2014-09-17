@@ -1,8 +1,0 @@
-prefix=/home/artlab/catkin_ws/install
-
-Name: md25
-Description: Description of md25
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/artlab/catkin_ws/install/lib 
-Requires: 
