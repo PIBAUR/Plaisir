@@ -50,11 +50,7 @@ int main(){
                     printf("===================Fils crées====================\n");
                     printf("=========APPUYER <<ENTREE>> POUR QUITTER=========\n");
                     printf("=================================================\n");
-                    char c = '\0';
-                    while(c!='\n'){
-                        c = getchar();
-                    }
-                    
+
                     pid3 = fork();
                     switch(pid3){
                         //fils 3 :
@@ -62,12 +58,16 @@ int main(){
                             printf("error\n\n");
                             break;
                         case 0: //fils : exec rosrun map_server map_saver
-                            sleep(1);
+                            sleep(10);
                             printf("=================================================\n");
-                            printf("===================SAVE MAP======================\n");
+                            printf("==========SIMPLE EXPLORATION CONTROLLER========\n");
                             printf("=================================================\n");
-                            execlp("rosrun", "rosrun", "map_server", "map_saver", "-f", "/home/artlab/catkin_ws/maps/last_map", NULL);
+                            execlp("rosrun", "rosrun", "hector_exploration_controller", "simple_exploration_controller", NULL);
                             printf("fils 3 running...\n");
+                            while(1){
+                                printf("fils 3 running...\n");
+                                sleep(1);
+                            }
                             break;
                         default://pere : attends entree pour kill fils 1 & 2
                             printf("wait for 3...\n");
