@@ -2,7 +2,7 @@
   
   <machine name="neato" address="192.168.150.100" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
   
-  <rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
+   <rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
   
   <node pkg="tf" type="static_transform_publisher" name="laser_to_base" 
     args="-0.100 0 0.045 0 0 0 base_link base_laser_link 100"/>
