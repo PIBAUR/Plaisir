@@ -1,8 +1,8 @@
 <launch>
     <!-- Declare neato machine -->
-    <machine name="plaisir" address="192.168.150.100" user="odroid" default="false" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+    <machine name="plaisir01" address="192.168.150.100" user="odroid" default="false" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
     <!-- Declare server machine -->
-    <machine name="server" address="192.168.150.1" user="artlab" default="true" env-loader="/home/artlab/catkin_ws/devel/env.sh"/>
+    <machine name="server" address="192.168.150.1" user="$(env USER)" default="true" env-loader="/home/serveur/catkin_ws/devel/env.sh"/>
 
     <!-- Launch mapping  -->
     <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
@@ -33,7 +33,7 @@
       <!-- Laser scan parameters -->
       <param name="laser_min_dist" value="0.30" />
       <param name="laser_max_dist" value="5.0" />
-      <param name="output_timing" value="flase" />
+      <param name="output_timing" value="false" />
       <param name="scan_subscriber_queue_size" value="100" />
       <!-- Debug parameters -->
       <param name="pub_drawings" value="true"/>
@@ -46,5 +46,5 @@
     <node pkg="hector_exploration_node" type="exploration_planner_node" name="hector_exploration_node" output="screen">
       <rosparam file="$(find hector_exploration_node)/config/costmap.yaml" command="load" />
     </node>
-    <node pkg="hector_exploration_controller" type="simple_exploration_controller" name="simple_exploration_controller" output="screen"/>
+    <!--node pkg="hector_exploration_controller" type="simple_exploration_controller" name="simple_exploration_controller" output="screen"/-->
 </launch>
