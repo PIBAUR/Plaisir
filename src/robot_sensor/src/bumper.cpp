@@ -81,12 +81,14 @@ public:
 MyGPIO::MyGPIO(int pin)
 {
 	std::stringstream filename;
+	std::stringstream filenamevalue, filenamedirection;
 	pin_ = pin;
-	int a = GPIO_Map[pin_];
+	std::map<int,int> map = GPIO_TABLE::GPIO_Map;
 	//setting file name to access value
-	filename<<"/sys/class/gpio/gpio"<<"/";
-	file_value_.open(filename<<"value");
-	file_direction_.open(filename<<"direction");
+	filenamevalue<<"/sys/class/gpio/gpio"<<map[pin_]<<"/value";
+	filenamedirection<<"/sys/class/gpio/gpio"<<map[pin_]<<"/direction";
+	file_value_.open(filenamevalue.str().c_str());
+	file_direction_.open(filenamedirection.str().c_str());
 	
 	ROS_ERROR_STREAM_COND_NAMED(!(file_value_.is_open() && file_value_.is_open()),
 			"Bumper","Impossible to open files for pin"<< pin_);
@@ -95,9 +97,9 @@ MyGPIO::MyGPIO(int pin)
 
 MyGPIO::~MyGPIO()
 {
-	file_value_.is_close();
-	file_direction_.is_close();
-	ROS_ERROR_STREAM_COND_NAMED(!(file_value_.is_close() && file_value_.is_close()),
+	file_value_.close();
+	file_direction_.close();
+	ROS_ERROR_STREAM_COND_NAMED((file_value_.is_open() || file_value_.is_open()),
 			"Bumper","Impossible to close files for pin"<< pin_);
 }
 
@@ -108,7 +110,7 @@ bool MyGPIO::get_level()
 	file_value_.seekg (0, file_value_.beg);
 	file_value_.read(&c,1) ;
 	level_ = 48 - (int)c;
-	return level_
+	return level_;
 }
 
 
