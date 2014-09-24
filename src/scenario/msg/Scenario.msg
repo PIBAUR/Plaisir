@@ -1,2 +1,3 @@
 string video
-bezier_curve/BezierCurve[] path
+bezier_curve/BezierCurve[] curves
+Header header
