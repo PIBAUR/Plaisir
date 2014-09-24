@@ -3,5 +3,7 @@
 /carto2
 /build/
 /devel/
+/gpioreader.cpp
+/gpioreader
 /.pydevproject
 /.project
