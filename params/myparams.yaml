@@ -1,3 +1,10 @@
-wheel_diameter: 0.1                 ## diametre des roues
-semi_axe_length: 0.175              ## demi axe du robot
-md25_serial_port: "/dev/ttyUSB0"    ## port serie du md25
+## diametre des roues
+wheel_diameter: 0.1                
+
+## demi axe du robot
+semi_axe_length: 0.175              
+
+## port serie du md25
+md25_serial_port: "/dev/ttyUSB0"    
+
+

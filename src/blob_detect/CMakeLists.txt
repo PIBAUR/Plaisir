@@ -114,6 +114,7 @@ add_executable(blob_detect_node src/im_convert.cpp)
 add_executable(my_blob_dectector src/blob.cpp)
 add_executable(open_test src/open_test.cpp)
 add_executable(lasermap src/lasermap.cpp)
+add_executable(clean_map src/clean_map.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -127,6 +128,7 @@ target_link_libraries ( blob_detect_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES}
 target_link_libraries ( my_blob_dectector ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
 target_link_libraries ( open_test ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
 target_link_libraries ( lasermap ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
+target_link_libraries ( clean_map ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
 
 
 #############

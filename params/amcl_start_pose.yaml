@@ -1,0 +1,8 @@
+## Value (x) for the starting position on the map. (in meters)
+initial_pose_x: 0.0
+
+## Value (y) for the starting position on the map. (in meters)
+initial_pose_y: 0.0
+
+## Value (yaw) for the starting position on the map. (in radian)
+initial_pose_a: 0.0
