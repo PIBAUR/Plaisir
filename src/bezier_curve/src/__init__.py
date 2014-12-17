@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from geometry_msgs.msg import Point
-from bezier_curve.msg import BezierCurve
+from scenario_msgs.msg import BezierCurve
 
 """ method to calculate the value of a point of a bezier curve 
 

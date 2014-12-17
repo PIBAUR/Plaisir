@@ -5,11 +5,11 @@ project(scenario)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  bezier_curve
   roscpp
   rospy
   std_msgs
-  message_generation
+  geometry_msgs
+  scenario_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -45,11 +45,13 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
-# Generate messages in the 'msg' folder
- add_message_files(
-   FILES
-   Scenario.msg
- )
+## Generate messages in the 'msg' folder
+# add_message_files(
+#   FILES
+#   Scenario.msg
+#   Pose2DArray.msg
+#   VideoAndRef.msg
+#)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -66,11 +68,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 # Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs
-   bezier_curve
- )
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs
+#  geometry_msgs
+#)
 
 ###################################
 ## catkin specific configuration ##
@@ -84,7 +86,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES scenario
-  CATKIN_DEPENDS bezier_curve roscpp rospy std_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs scenario_msgs
 #  DEPENDS system_lib
 )
 
@@ -106,15 +108,18 @@ include_directories(
 
 ## Declare a cpp executable
 # add_executable(scenario_node src/scenario_node.cpp)
+add_executable(scenario_test src/scenario.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(scenario_node scenario_generate_messages_cpp)
+add_dependencies(scenario_test scenario_msg_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(scenario_node
 #   ${catkin_LIBRARIES}
 # )
+target_link_libraries(scenario_test ${catkin_LIBRARIES})
 
 #############
 ## Install ##

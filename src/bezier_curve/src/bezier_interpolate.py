@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from geometry_msgs.msg import Point
-from scenario.msg import Scenario
-from bezier_curve import bezierCurve
+from scenario_msgs.msg import Scenario
+from scenario_msgs.msg import bezierCurve
 from rospy 
 from geometry_msgs.msg import PoseArray
 
