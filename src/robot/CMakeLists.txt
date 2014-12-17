@@ -116,8 +116,8 @@ include_directories(
 
 ## Declare a cpp executable
 # add_executable(robot_node src/robot_node.cpp)
-add_executable(serveur_action src/serveur_action_test.cpp)
-add_executable(client_action src/client_action_test.cpp)
+#add_executable(serveur_action src/serveur_action_test.cpp)
+#add_executable(client_action src/client_action_test.cpp)
 add_executable(stop_action src/stop_action.cpp)
 add_executable(emergency_stop_action src/emergency_action.cpp)
 add_executable(low_battery_action src/low_battery_action.cpp)
@@ -130,8 +130,8 @@ add_executable(action_selector src/action_selector.cpp)
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(robot_node robot_generate_messages_cpp)
-add_dependencies(serveur_action ${robot_EXPORTED_TARGETS})
-add_dependencies(client_action  ${robot_EXPORTED_TARGETS})
+#add_dependencies(serveur_action ${robot_EXPORTED_TARGETS})
+#add_dependencies(client_action  ${robot_EXPORTED_TARGETS})
 add_dependencies(emergency_stop_action  ${robot_EXPORTED_TARGETS})
 add_dependencies(stop_action  ${robot_EXPORTED_TARGETS})
 add_dependencies(low_battery_action  ${robot_EXPORTED_TARGETS})
@@ -144,8 +144,8 @@ add_dependencies(action_selector  ${robot_EXPORTED_TARGETS})
 # target_link_libraries(robot_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(serveur_action  ${catkin_LIBRARIES})
-target_link_libraries(client_action  ${catkin_LIBRARIES})
+#target_link_libraries(serveur_action  ${catkin_LIBRARIES})
+#target_link_libraries(client_action  ${catkin_LIBRARIES})
 target_link_libraries(emergency_stop_action  ${catkin_LIBRARIES})
 target_link_libraries(stop_action  ${catkin_LIBRARIES})
 target_link_libraries(low_battery_action  ${catkin_LIBRARIES})
