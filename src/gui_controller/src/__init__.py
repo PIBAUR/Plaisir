@@ -5,6 +5,8 @@ import sys
 import os
 from functools import partial
 import signal
+from mpl_toolkits.axisartist.axis_artist import BezierPath
+from scenario_msgs.msg._VideoPlayer import VideoPlayer
 
 if "-eclipse-debug" in sys.argv:
     os.environ["PYTHONPATH"] = "/home/artlab/catkin_ws/devel/lib/python2.7/dist-packages:/opt/ros/groovy/lib/python2.7/dist-packages"
@@ -42,8 +44,7 @@ import rospy
 import rospkg
 from std_msgs.msg import *
 from geometry_msgs.msg import *
-from bezier_curve.msg import BezierCurve
-from scenario.msg import Scenario
+from scenario_msgs.msg import *
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -235,15 +236,25 @@ class ScenarioController():
     
     
     def send(self):
-        self.scenario.video = "test_video.mp4"
+        self.scenario.video_player = VideoPlayer()
+        self.scenario.video_player.video_paths = ["test_video.mp4"]
         header = Header()
         header.frame_id = "map"
         header.stamp = rospy.Time.now()
-        startPoint = Point(0, 0, 0)
-        endPoint = Point(1, 0, 0)
+        aPoint = Point(0, 0, 0)
+        bPoint = Point(1, 0, 0)
+        cPoint = Point(2, 1, 0)
+        dPoint = Point(1, 2, 0)
+        ePoint = Point(0, 1, 0)
+        fPoint = Point(0, 0, 0)
         self.scenario.header = header
-        self.scenario.curves = [BezierCurve(startPoint, endPoint, startPoint, endPoint),
-                                BezierCurve(endPoint, startPoint, endPoint, startPoint)]
+        self.scenario.bezier_paths = BezierPath()
+        self.scenario.bezier_paths.curves = [BezierCurve(aPoint, bPoint, Point(aPoint.x + .25, aPoint.y, 0), Point(bPoint.x -.25, bPoint.y -.25, 0)),
+                                             BezierCurve(bPoint, cPoint, Point(bPoint.x + .25, bPoint.y + .25, 0), Point(cPoint.x + 0, cPoint.y -.25, 0)),
+                                             BezierCurve(cPoint, dPoint, Point(cPoint.x + 0, cPoint.y + .25, 0), Point(dPoint.x + .25, dPoint.y + 0, 0)),
+                                             BezierCurve(dPoint, ePoint, Point(dPoint.x + -.25, dPoint.y, 0), Point(ePoint.x + .25, ePoint.y + .25, 0)),
+                                             BezierCurve(ePoint, fPoint, Point(ePoint.x -.25, ePoint.y -.25, 0), Point(fPoint.x -.25, fPoint.y + .25, 0)),
+                                             ]
         rospy.loginfo(str(self.scenario))
         self.publisher.publish(self.scenario)
 

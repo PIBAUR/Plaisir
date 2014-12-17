@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(suivi_trajectoire)
+project(path_follower)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -81,7 +81,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES suivi_trajectoire
+#  LIBRARIES path_follower
 #  CATKIN_DEPENDS geometry_msgs roscpp tf
 #  DEPENDS system_lib
 )
@@ -98,21 +98,21 @@ include_directories(
 )
 
 ## Declare a cpp library
-# add_library(suivi_trajectoire
-#   src/${PROJECT_NAME}/suivi_trajectoire.cpp
+# add_library(path_follower
+#   src/${PROJECT_NAME}/path_follower.cpp
 # )
 
 ## Declare a cpp executable
-# add_executable(suivi_trajectoire_node src/suivi_trajectoire_node.cpp)
+# add_executable(path_follower_node src/path_follower_node.cpp)
 add_executable(path_follower src/path_follower.cpp)
-add_executable(traj_publisher src/bezier_to_trajectoire.cpp)
+add_executable(traj_publisher src/bezier_to_path.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(suivi_trajectoire_node suivi_trajectoire_generate_messages_cpp)
+# add_dependencies(path_follower_node path_follower_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(suivi_trajectoire_node
+# target_link_libraries(path_follower_node
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(path_follower ${catkin_LIBRARIES})
@@ -133,7 +133,7 @@ target_link_libraries(traj_publisher ${catkin_LIBRARIES})
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS suivi_trajectoire suivi_trajectoire_node
+# install(TARGETS path_follower path_follower_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -158,7 +158,7 @@ target_link_libraries(traj_publisher ${catkin_LIBRARIES})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_suivi_trajectoire.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_path_follower.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

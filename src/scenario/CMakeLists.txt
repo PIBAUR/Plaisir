@@ -108,18 +108,18 @@ include_directories(
 
 ## Declare a cpp executable
 # add_executable(scenario_node src/scenario_node.cpp)
-add_executable(scenario_test src/scenario.cpp)
+# add_executable(scenario_test src/scenario.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(scenario_node scenario_generate_messages_cpp)
-add_dependencies(scenario_test scenario_msg_generate_messages_cpp)
+# add_dependencies(scenario_test scenario_msg_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(scenario_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(scenario_test ${catkin_LIBRARIES})
+# target_link_libraries(scenario_test ${catkin_LIBRARIES})
 
 #############
 ## Install ##

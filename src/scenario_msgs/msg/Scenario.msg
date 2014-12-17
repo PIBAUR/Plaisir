@@ -1,22 +1,22 @@
 #definition du message pour la communications des scenarios
 
-#Header pour enregistrer la date du scénario
+#Header pour enregistrer la date du scenario
 Header header
 
-#nom/path du scénario
+#nom/path du scenario
 string name
 
-#Liste des coures de beziers
+#Liste des courbes de beziers
 scenario_msgs/BezierPath  bezier_paths
 
 #destination du scenario 
-geometry_msgs/Pose2D cible
+geometry_msgs/Pose2D target
 
 ###### deprecated
 ####path des videos pour chaque scenario
 ###string[] videos_paths
-####point de référence sur les courbes
+####point de reference sur les courbes
 ###scenario_msgs/Pose2DArray references
 
 ### new solution
-scenario_msgs/VideoAndRef video_and_ref
+scenario_msgs/VideoPlayer video_player

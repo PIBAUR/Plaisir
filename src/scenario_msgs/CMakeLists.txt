@@ -52,7 +52,7 @@ add_message_files(
   BezierPath.msg
   Scenario.msg
   Pose2DArray.msg
-  VideoAndRef.msg
+  VideoPlayer.msg
 )
 
 

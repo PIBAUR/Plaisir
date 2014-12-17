@@ -1,6 +1,6 @@
 #path des videos pour chaque scenario
-string[] videos_paths
+string[] video_paths
 
-#point de référence pour les videos sur a courbes
+#point de reference pour les videos sur a courbes
 scenario_msgs/Pose2DArray references
 

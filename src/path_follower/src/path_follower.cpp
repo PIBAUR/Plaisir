@@ -23,10 +23,10 @@ void PathCB(const geometry_msgs::PoseArray &msg)
     size_path = path.poses.size();
 } 
 
-void compute_cmd(double &lin, double &ang)
+void compute_cmd(tf::TransformListener &tf_listener, double &lin, double &ang)
 {
-    ros::NodeHandle n2;
-    tf::TransformListener tf_listener;
+    //ros::NodeHandle n2;
+	//tf::TransformListener tf_listener;
     tf::StampedTransform tf_robot;
 
     try
@@ -43,7 +43,7 @@ void compute_cmd(double &lin, double &ang)
     x_robot = tf_robot.getOrigin().x();
     y_robot =  tf_robot.getOrigin().y();
     double val_q_robot =  2 * tf_robot.getRotation().z() * tf_robot.getRotation().w();
-    theta_robot = asin(val_q_robot);
+    theta_robot = tf::getYaw(tf_robot.getRotation());
     
     double dx;
     double dy;
@@ -61,10 +61,14 @@ void compute_cmd(double &lin, double &ang)
     du = sqrt(dx*dx + dy*dy);
     dth = theta_des - theta_robot;
     
+
+
+
+
     //a
-    double alpha = atan2(dy,dx) - theta_robot;
-    
-    while(alpha > PI)
+    double alpha = atan2(dy,dx);
+    alpha +=theta_robot;
+    /**while(alpha > PI)
     {
         alpha-=2*PI;
     }
@@ -73,10 +77,21 @@ void compute_cmd(double &lin, double &ang)
     {
         alpha+=2*PI;
     }
-    
+
+
+        while(alpha > PI)
+        {
+            alpha-=2*PI;
+        }
+
+        while(alpha < -PI)
+        {
+            alpha+=2*PI;
+        }*/
     double cmd_lin, cmd_ang;
+    ROS_WARN("plop : %f\t %f\t %f ",alpha,theta_robot,atan2(dy,dx));
     ang = alpha;
-    lin = 0.15;
+    lin = 0.01;
 }
 
 
@@ -86,9 +101,10 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "path_follower");
 	ros::NodeHandle n;
     
-	ros::Subscriber path_sub = n.subscribe("path", 1,PathCB);
-	ros::Publisher cmd_pub = n.advertise<geometry_msgs::Twist>("cmd_vel",1);
-    
+	ros::Subscriber path_sub = n.subscribe("path", 1, PathCB);
+	ros::Publisher cmd_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+	tf::TransformListener tf_listener;
+
     geometry_msgs::Twist cmd;
     
     cmd.linear.y=0;
@@ -111,7 +127,7 @@ int main(int argc, char **argv)
             }
             else
             {
-                compute_cmd(cmd.linear.x,cmd.angular.z);
+                compute_cmd(tf_listener, cmd.linear.x, cmd.angular.z);
                 cmd_pub.publish(cmd);
             }
         }
