@@ -29,8 +29,9 @@ if "-eclipse-debug" in sys.argv:
     sys.exit()
 
 # debug
-if True:
+if False:
     try:
+        sys.path.append("/opt/eclipse/plugins/org.python.pydev_3.7.1.201409021729/pysrc")
         import pydevd
         pydevd.settrace(stdoutToServer = True, stderrToServer = True)
     except:
@@ -239,9 +240,10 @@ class ScenarioController():
         header.frame_id = "map"
         header.stamp = rospy.Time.now()
         startPoint = Point(0, 0, 0)
-        endPoint = Point(1, 1, 0)
-        self.scenario.path = [BezierCurve(header, startPoint, endPoint, startPoint, endPoint),
-                              BezierCurve(header, endPoint, startPoint, endPoint, startPoint)]
+        endPoint = Point(1, 0, 0)
+        self.scenario.header = header
+        self.scenario.curves = [BezierCurve(startPoint, endPoint, startPoint, endPoint),
+                                BezierCurve(endPoint, startPoint, endPoint, startPoint)]
         rospy.loginfo(str(self.scenario))
         self.publisher.publish(self.scenario)
 
