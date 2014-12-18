@@ -14,17 +14,16 @@ def scenarioCallback(data):
     path.header = data.header
     
     for curve in data.bezier_paths.curves:
-        step = .1
-        i = -step
-        while i <= 1:
-            i += step
-            
+        step = .05
+        i = 0
+        while i <= 1:  
             p = Pose()
             p.position = getBezierCurveResult(i, curve)
             theta = getBezierCurveTangentResult(i, curve)
             p.orientation.z = math.sin(theta / 2)
             p.orientation.w = math.cos(theta / 2)
             path.poses.append(p)
+            i += step
 
     pathPublisher.publish(path)
 
