@@ -5,16 +5,18 @@ import rospy
 from scenario_msgs.msg import Scenario
 from geometry_msgs.msg import PoseArray, Pose, Point
 
+# consts
+DEFAULT_BEZIER_CURVE_STEP = .05
+
 def scenarioCallback(data):
     pathPublisher = rospy.Publisher("path", PoseArray)
-    step = 0.1
+    step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
     
     path = PoseArray()
     path.poses = []
     path.header = data.header
     
     for curve in data.bezier_paths.curves:
-        step = .05
         i = 0
         while i <= 1:  
             p = Pose()
@@ -24,8 +26,9 @@ def scenarioCallback(data):
             p.orientation.w = math.cos(theta / 2)
             path.poses.append(p)
             i += step
-
+            
     pathPublisher.publish(path)
+
 
 """ method to calculate the value of a point of a bezier curve 
 
