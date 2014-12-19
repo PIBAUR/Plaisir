@@ -16,19 +16,20 @@ class ScenarioController():
         header = Header()
         header.frame_id = "map"
         header.stamp = rospy.Time.now()
-        aPoint = Point(0, 0, 0)
-        bPoint = Point(1, 0, 0)
-        cPoint = Point(2, 1, 0)
-        dPoint = Point(1, 2, 0)
-        ePoint = Point(0, 1, 0)
-        fPoint = Point(0, 0, 0)
+        scale = .6
+        aPoint = Point(0 * scale, 0 * scale, 0 * scale)
+        bPoint = Point(1 * scale, 0 * scale, 0 * scale)
+        cPoint = Point(2 * scale, 1 * scale, 0 * scale)
+        dPoint = Point(1 * scale, 2 * scale, 0 * scale)
+        ePoint = Point(0 * scale, 1 * scale, 0 * scale)
+        fPoint = Point(0 * scale, 0 * scale, 0 * scale)
         self.scenario.header = header
         self.scenario.bezier_paths = BezierPath()
-        self.scenario.bezier_paths.curves = [BezierCurve(aPoint, bPoint, Point(aPoint.x + .25, aPoint.y, 0), Point(bPoint.x -.25, bPoint.y -.25, 0)),
-                                             BezierCurve(bPoint, cPoint, Point(bPoint.x + .25, bPoint.y + .25, 0), Point(cPoint.x + 0, cPoint.y -.25, 0)),
-                                             BezierCurve(cPoint, dPoint, Point(cPoint.x + 0, cPoint.y + .25, 0), Point(dPoint.x + .5, dPoint.y + 0, 0)),
-                                             BezierCurve(dPoint, ePoint, Point(dPoint.x -.5, dPoint.y, 0), Point(ePoint.x + .25, ePoint.y + .25, 0)),
-                                             BezierCurve(ePoint, fPoint, Point(ePoint.x -.25, ePoint.y -.25, 0), Point(fPoint.x -.25, fPoint.y + .25, 0)),
+        self.scenario.bezier_paths.curves = [BezierCurve(aPoint, bPoint, Point(aPoint.x + .25 * scale, aPoint.y, 0 * scale), Point(bPoint.x -.25 * scale, bPoint.y -.25 * scale, 0)),
+                                             BezierCurve(bPoint, cPoint, Point(bPoint.x + .25 * scale, bPoint.y + .25 * scale, 0), Point(cPoint.x + 0 * scale, cPoint.y -.25 * scale, 0)),
+                                             BezierCurve(cPoint, dPoint, Point(cPoint.x + 0 * scale, cPoint.y + .25 * scale, 0), Point(dPoint.x + .5 * scale, dPoint.y + 0 * scale, 0)),
+                                             BezierCurve(dPoint, ePoint, Point(dPoint.x -.5 * scale, dPoint.y, 0), Point(ePoint.x + .25 * scale, ePoint.y + .25 * scale, 0)),
+                                             BezierCurve(ePoint, fPoint, Point(ePoint.x -.25 * scale, ePoint.y -.25 * scale, 0), Point(fPoint.x -.25 * scale, fPoint.y + .25 * scale, 0)),
                                              ]
         rospy.loginfo(str(self.scenario))
         self.publisher.publish(self.scenario)

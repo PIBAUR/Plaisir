@@ -7,16 +7,10 @@ Header header
 string name
 
 #Liste des courbes de beziers
-scenario_msgs/BezierPath  bezier_paths
+scenario_msgs/BezierPath bezier_paths
 
 #destination du scenario 
 geometry_msgs/Pose2D target
 
-###### deprecated
-####path des videos pour chaque scenario
-###string[] videos_paths
-####point de reference sur les courbes
-###scenario_msgs/Pose2DArray references
-
-### new solution
+#video
 scenario_msgs/VideoPlayer video_player
