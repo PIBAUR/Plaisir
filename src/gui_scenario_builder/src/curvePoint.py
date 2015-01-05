@@ -1,3 +1,5 @@
+import math
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -6,22 +8,18 @@ from bezier_curve.msg import BezierCurve
 
 from src.bezier_curve.src import bezier_interpolate
 
-blue = QColor(79, 128 ,255)
-
-anchorPen = QPen(blue);
-anchorPen.setCapStyle(Qt.SquareCap);
-anchorPen.setWidth(1);
-
-controlPen = QPen(blue);
-controlPen.setCapStyle(Qt.RoundCap);
-controlPen.setWidth(5);
-
-linePen = QPen(blue);
-linePen.setCapStyle(Qt.RoundCap);
-linePen.setWidth(1);
-
 
 class CurvePoint():
+    ANCHOR_SIZE = 5.0
+    CONTROL_SIZE = 4.0
+    
+    blue = QColor(79, 128 ,255)
+    
+    anchorPen = QPen(blue);
+    controlPen = QPen(blue);
+    linePen = QPen(blue);
+    
+    
     def __init__(self, anchor, control1 = None, control2 = None):
         self.anchor = anchor
         self.control1 = control1
@@ -32,20 +30,31 @@ class CurvePoint():
         if self.control2 is None: 
             self.control2 = QPoint(anchor.x(), anchor.y())
         
+        # set graphics params
+        CurvePoint.anchorPen.setCapStyle(Qt.SquareCap);
+        CurvePoint.anchorPen.setWidth(1);
+        
+        CurvePoint.controlPen.setCapStyle(Qt.RoundCap);
+        CurvePoint.controlPen.setWidth(CurvePoint.ANCHOR_SIZE);
+        
+        CurvePoint.linePen.setCapStyle(Qt.RoundCap);
+        CurvePoint.linePen.setWidth(1);
+        
         
     def drawKnobs(self, painter):
         # draw control
-        painter.setPen(controlPen)
+        painter.setPen(CurvePoint.controlPen)
         painter.drawPoint(self.control1)
         painter.drawPoint(self.control2)
         
         # draw line
-        painter.setPen(linePen)
-        painter.drawLine(self.control1, self.control2)
+        painter.setPen(CurvePoint.linePen)
+        painter.drawLine(self.control1, self.anchor)
+        painter.drawLine(self.control2, self.anchor)
         
         # draw anchor
-        painter.setPen(anchorPen);
-        rect = QRectF(self.anchor.x() - 2, self.anchor.y() - 2, 4, 4)
+        painter.setPen(CurvePoint.anchorPen);
+        rect = QRectF(self.anchor.x() - CurvePoint.CONTROL_SIZE / 2, self.anchor.y() - CurvePoint.CONTROL_SIZE / 2, CurvePoint.CONTROL_SIZE, CurvePoint.CONTROL_SIZE)
         painter.fillRect(rect, QColor(255, 255, 255))
         painter.drawRect(rect)
     
@@ -70,8 +79,27 @@ class CurvePoint():
             
             if previousBezierPoint is not None:
                 # draw line
-                painter.setPen(linePen)
+                painter.setPen(CurvePoint.linePen)
                 painter.drawLine(QPoint(previousBezierPoint.x, previousBezierPoint.y), QPoint(bezierPoint.x, bezierPoint.y))
             
             previousBezierPoint = bezierPoint
             
+    
+    def getItemUnderMouse(self, x, y):
+        if self.isControlUnderPoint(self.control1, x, y):
+            return (self.control1, self)
+        elif self.isControlUnderPoint(self.control2, x, y):
+            return (self.control2, self)
+        elif self.isAnchorUnderPoint(self.anchor, x, y):
+            return (self.anchor, self)
+        else:
+            return None
+    
+    
+    def isControlUnderPoint(self, control, x, y):
+        return (math.sqrt(math.pow(control.x() - x, 2) + math.pow(control.y() - y, 2))) <= (CurvePoint.CONTROL_SIZE)
+
+    
+    def isAnchorUnderPoint(self, anchor, x, y):
+        return anchor.x() - CurvePoint.ANCHOR_SIZE <= x and anchor.x() + CurvePoint.ANCHOR_SIZE >= x and anchor.y() - CurvePoint.ANCHOR_SIZE <= y and anchor.y() + CurvePoint.ANCHOR_SIZE >= y
+    
