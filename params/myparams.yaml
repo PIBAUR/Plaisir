@@ -1,3 +1,6 @@
+## nombre de robots
+num_robots: 7                
+
 ## diametre des roues
 wheel_diameter: 0.1                
 

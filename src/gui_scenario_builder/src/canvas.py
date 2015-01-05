@@ -7,10 +7,12 @@ class Canvas(QWidget):
     ADD_ACTION = 0
     REMOVE_ACTION = 1
     
-    def __init__(self, x, y, widht, height):
+    def __init__(self, saveCallback, x, y, widht, height):
         super(QWidget, self).__init__()
         
         self.setGeometry(x, y, widht, height)
+        
+        self.saveCallback = saveCallback
         
         # vars
         self.currentAction = None
@@ -28,10 +30,10 @@ class Canvas(QWidget):
     
     def paintEvent(self, e):
         painter = QPainter(self)
-        painter.begin(self)
+        #painter.begin(self)
         self.drawBackground(painter)
         self.drawPoints(painter)
-        painter.end()
+        #painter.end()
         
         
     def mousePressEvent(self, event):
@@ -67,6 +69,8 @@ class Canvas(QWidget):
         
     def mouseReleaseEvent(self, event):
         self.update()
+        
+        self.saveCallback()
         
         
     def mouseMoveEvent(self, event):
