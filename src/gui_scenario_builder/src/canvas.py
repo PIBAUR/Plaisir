@@ -1,3 +1,5 @@
+import math
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -19,7 +21,8 @@ class Canvas(QWidget):
         self.showControls = False
         self.breakTangent = False
         
-        self.points = []
+        self.currentRobot = None
+        self.otherRobots = []
         self.isEditing = False
         self.currentPoint = None
         self.currentItem = None
@@ -30,10 +33,15 @@ class Canvas(QWidget):
     
     def paintEvent(self, e):
         painter = QPainter(self)
-        #painter.begin(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        
         self.drawBackground(painter)
-        self.drawPoints(painter)
-        #painter.end()
+        
+        self.drawTemporization(painter, self.currentRobot)
+        self.drawPoints(painter, self.currentRobot, self.showControls)
+        
+        for otherRobot in self.otherRobots:
+            self.drawPoints(painter, otherRobot, False)
         
         
     def mousePressEvent(self, event):
@@ -42,7 +50,7 @@ class Canvas(QWidget):
         itemUnderMouseResult = None
         
         # get item under the mouse (= clicked item)
-        for point in self.points:
+        for point in self.currentRobot.points:
             itemUnderMouseResult = point.getItemUnderMouse(event.x(), event.y())
             if itemUnderMouseResult is not None:
                 self.currentItem = itemUnderMouseResult[0]
@@ -59,10 +67,10 @@ class Canvas(QWidget):
         elif self.currentAction == Canvas.ADD_ACTION:
             # set anchor
             self.currentPoint = CurvePoint(QPoint(event.x(), event.y()))
-            self.points.append(self.currentPoint)
+            self.currentRobot.points.append(self.currentPoint)
         elif self.currentAction == Canvas.REMOVE_ACTION:
             if self.currentItem is not None and self.currentItem == self.currentPoint.anchor:
-                self.points.remove(self.currentPoint)
+                self.currentRobot.points.remove(self.currentPoint)
             
         self.update()
     
@@ -110,13 +118,32 @@ class Canvas(QWidget):
         painter.fillRect(QRectF(0, 0, self.width(), self.height()), QColor(200, 200, 200))
     
     
-    def drawPoints(self, painter):
-        for i in range(len(self.points)):
-            point = self.points[i]
+    def drawPoints(self, painter, robot, showControls):
+        for i in range(len(robot.points)):
+            point = robot.points[i]
             
-            if self.showControls:
+            if i + 1 < len(robot.points):
+                nextPoint = robot.points[i + 1]
+                point.drawCurve(painter, nextPoint, robot.color)
+            
+            if showControls:
                 point.drawKnobs(painter)
+                
+                
+    def drawTemporization(self, painter, robot):
+        if len(robot.points) > 1:
+            for video in robot.videos:
+                startTimePosition = video.startTime * (len(robot.points) - 1)
+                startPointIndex = int(math.floor(startTimePosition))
+                startTimePositionRelative = startTimePosition - startPointIndex
+                
+                startTimeCurvePoint = robot.points[startPointIndex]
+                startTimeCurvePoint.drawTimePosition(painter, robot.points[startPointIndex + 1], startTimePositionRelative, video.color)
+                
+        """for i in range(len(robot.points)):
+            point = robot.points[i]
             
-            if i + 1 < len(self.points):
-                nextPoint = self.points[i + 1]
-                point.drawCurve(painter, nextPoint)
+            if i + 1 < len(robot.points):
+                nextPoint = robot.points[i + 1]
+                point.drawCurve(painter, nextPoint, robot.color)
+"""

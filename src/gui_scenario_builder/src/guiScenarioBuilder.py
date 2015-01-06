@@ -10,6 +10,8 @@ from PyQt4 import uic
 
 from canvas import Canvas
 from robot import Robot
+from video import Video
+from src.bezier_curve.src import bezier_interpolate
         
 class GuiScenarioBuilder(QMainWindow):
     def __init__(self):
@@ -24,12 +26,12 @@ class GuiScenarioBuilder(QMainWindow):
         
         # robots
         self.robots = [Robot()]
-        self.currentRobot = None
         self.ui.robots_list.currentItemChanged.connect(self.handleRobotsListSelectionChanged)
         
         # canvas
         absoluteCoords = self.ui.canvasContainer.mapToGlobal(self.ui.pos())
         self.canvas = Canvas(self.save, absoluteCoords.x(), absoluteCoords.y(), self.ui.canvasContainer.width(), self.ui.canvasContainer.height())
+        self.canvas.currentRobot = self.robots[0]
         self.ui.layout().addWidget(self.canvas)
         
         # toggle points for editing
@@ -43,19 +45,24 @@ class GuiScenarioBuilder(QMainWindow):
         
         for actionButton in self.actionButtons.keys():
             actionButton.clicked.connect(partial(self.handleActionButtonClicked, actionButton))
-            
+        
+        # temporalization
+        self.temporalizationSplitter = None
+        self.updateTemporalization()
+        
         # other buttons
         self.ui.showControls_button.clicked.connect(self.handleShowControlsButtonClicked)
         self.handleShowControlsButtonClicked(False)
         self.ui.breakTangent_button.clicked.connect(self.handleBreakTangentButtonClicked)
         self.handleBreakTangentButtonClicked(False)
+        self.ui.addVideo_button.clicked.connect(self.handleAddVideoButtonClicked)
         
         self.ui.addRobot_button.clicked.connect(self.handleAddRobotButtonClicked)
         self.updateRobots()
         
     
     def save(self):
-        self.currentRobot.points = self.canvas.points
+        pass
     
     
     def updateRobots(self):
@@ -70,25 +77,59 @@ class GuiScenarioBuilder(QMainWindow):
         # clear and rebuild everything
         self.ui.robots_list.clear()
         for i in range(len(self.robots)):
+            robot = self.robots[i]
+            
             itemWidget = QWidget()
             itemWidget.setLayout(QHBoxLayout())
             
+            colorWidget = QWidget()
+            colorWidget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            colorWidget.setMinimumSize(15, 15)
+            colorWidget.setStyleSheet("background: " + robot.color.name() + ";")
             label = QLabel("Robot " + str(i + 1))
+            visibleCheckbox = QCheckBox()
+            visibleCheckbox.setChecked(True)
+            visibleCheckbox.stateChanged.connect(partial(self.handleVisibleCheckboxChanged, visibleCheckbox, robot))
             deleteButton = QPushButton("X")
+            if len(self.robots) <= 1:
+                deleteButton.setEnabled(False)
             deleteButton.setMaximumSize(27, 27)
-            deleteButton.clicked.connect(partial(self.handleRemoveRobotButton, self.robots[i]))
+            deleteButton.clicked.connect(partial(self.handleRemoveRobotButton, robot))
+            itemWidget.layout().addWidget(colorWidget)
             itemWidget.layout().addWidget(label)
+            itemWidget.layout().addWidget(visibleCheckbox)
             itemWidget.layout().addWidget(deleteButton)
             
             item = QListWidgetItem()
             item.setSizeHint(itemWidget.sizeHint())
-            
             
             self.ui.robots_list.addItem(item)
             self.ui.robots_list.setItemWidget(item, itemWidget)
         
         # if not, select first item
         self.ui.robots_list.setCurrentRow(previousSelectedRow)
+    
+    
+    def updateTemporalization(self):
+        if self.temporalizationSplitter is not None:
+            for child in self.temporalizationSplitter.children():
+                child.hide()
+                del child
+            
+            
+            self.ui.temporalization_widget.layout().removeWidget(self.temporalizationSplitter)
+            del self.temporalizationSplitter
+        
+        self.temporalizationSplitter = QSplitter(Qt.Horizontal)
+        self.temporalizationSplitter.splitterMoved.connect(self.handleTemporalizationSplitterMoved)
+        self.temporalizationSplitter.setChildrenCollapsible(False)
+        self.ui.temporalization_widget.layout().addWidget(self.temporalizationSplitter)
+        
+        for video in self.canvas.currentRobot.videos:
+            videoButton = QPushButton("video")
+            videoButton.setStyleSheet("background: " + video.color.name() + ";")
+            videoButton.setMinimumWidth(1)
+            self.temporalizationSplitter.addWidget(videoButton)
     
     
     def handleActionButtonClicked(self, button):
@@ -114,9 +155,11 @@ class GuiScenarioBuilder(QMainWindow):
     def handleRobotsListSelectionChanged(self, item):
         index = self.ui.robots_list.indexFromItem(item).row()
         if index >= 0:
-            self.currentRobot = self.robots[index]
-            self.canvas.points = self.currentRobot.points
+            self.canvas.currentRobot = self.robots[index]
+            self.canvas.otherRobots = [robot for robot in self.robots if robot.visible]
             self.canvas.update()
+            
+            self.updateTemporalization()
         
     
     def handleAddRobotButtonClicked(self, event):
@@ -125,7 +168,43 @@ class GuiScenarioBuilder(QMainWindow):
         self.updateRobots()
     
     
+    def handleVisibleCheckboxChanged(self, checkbox, robot):
+        robot.visible = checkbox.isChecked()
+        self.canvas.otherRobots = [robot for robot in self.robots if robot.visible]
+        self.canvas.update()
+        
+        
     def handleRemoveRobotButton(self, robotToRemove):
         self.robots.remove(robotToRemove)
         
         self.updateRobots()
+    
+    
+    def handleAddVideoButtonClicked(self, event):
+        self.canvas.currentRobot.videos.append(Video(None))
+        self.updateTemporalization()
+        
+        self.temporalizationSplitter.refresh()
+        self.handleTemporalizationSplitterMoved(-1, -1)
+        
+    
+    def handleTemporalizationSplitterMoved(self, position, index):
+        sizes = self.temporalizationSplitter.sizes()
+        handleWidth = self.temporalizationSplitter.handleWidth()
+        previousPosition = 0
+        i = 0
+        for size in sizes:
+            withHandleSize = size + (handleWidth / (2 if (i == 0 or i == len(sizes) - 1) else 1) if len(sizes) > 1 else 0)
+            startPosition = previousPosition
+            endPosition = startPosition + withHandleSize
+            
+            startTime = float(startPosition) / float(self.temporalizationSplitter.width())
+            endTime = float(endPosition) / float(self.temporalizationSplitter.width())
+            
+            self.canvas.currentRobot.videos[i].startTime = startTime
+            self.canvas.currentRobot.videos[i].endTime = endTime
+            
+            previousPosition += withHandleSize
+            i += 1
+        
+        self.canvas.update()

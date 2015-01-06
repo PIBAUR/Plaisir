@@ -13,11 +13,13 @@ class CurvePoint():
     ANCHOR_SIZE = 5.0
     CONTROL_SIZE = 4.0
     
-    blue = QColor(79, 128 ,255)
+    blue = QColor(79, 128, 255)
     
     anchorPen = QPen(blue);
     controlPen = QPen(blue);
     linePen = QPen(blue);
+    curvePen = QPen(blue);
+    timePositionPen = QPen(blue);
     
     
     def __init__(self, anchor, control1 = None, control2 = None):
@@ -40,8 +42,17 @@ class CurvePoint():
         CurvePoint.linePen.setCapStyle(Qt.RoundCap);
         CurvePoint.linePen.setWidth(1);
         
+        CurvePoint.curvePen.setCapStyle(Qt.RoundCap);
+        CurvePoint.curvePen.setWidth(2);
+        
+        CurvePoint.timePositionPen.setCapStyle(Qt.RoundCap);
+        CurvePoint.timePositionPen.setWidth(2);
+        
         
     def drawKnobs(self, painter):
+        # disable antialiasing, and enable at the end
+        painter.setRenderHint(QPainter.Antialiasing, False)
+        
         # draw control
         painter.setPen(CurvePoint.controlPen)
         painter.drawPoint(self.control1)
@@ -57,33 +68,58 @@ class CurvePoint():
         rect = QRectF(self.anchor.x() - CurvePoint.CONTROL_SIZE / 2, self.anchor.y() - CurvePoint.CONTROL_SIZE / 2, CurvePoint.CONTROL_SIZE, CurvePoint.CONTROL_SIZE)
         painter.fillRect(rect, QColor(255, 255, 255))
         painter.drawRect(rect)
-    
-    
-    def drawCurve(self, painter, nextPoint):
-        anchor1 = Point(self.anchor.x(), self.anchor.y(), 0)
-        anchor2 = Point(nextPoint.anchor.x(), nextPoint.anchor.y(), 0)
-        control1 = Point(self.control2.x(), self.control2.y(), 0)
-        control2 = Point(nextPoint.control1.x(), nextPoint.control1.y(), 0)
         
-        curveToDraw = BezierCurve()
-        curveToDraw.anchor_1 = anchor1
-        curveToDraw.anchor_2 = anchor2
-        curveToDraw.control_1 = control1
-        curveToDraw.control_2 = control2
+        painter.setRenderHint(QPainter.Antialiasing, True)
+    
+    
+    def drawCurve(self, painter, nextPoint, color):
+        curveToDraw = self.getBezierCurveWithNextPoint(nextPoint)
         
         previousBezierPoint = None
-        numPoints = 100
-        for i in range(0, numPoints):
+        numPoints = 70
+        for i in range(0, numPoints + 1):
             u = float(i) / numPoints
             bezierPoint = bezier_interpolate.getBezierCurveResult(u, curveToDraw)
             
             if previousBezierPoint is not None:
                 # draw line
-                painter.setPen(CurvePoint.linePen)
+                CurvePoint.curvePen.setColor(color)
+                painter.setPen(CurvePoint.curvePen)
                 painter.drawLine(QPoint(previousBezierPoint.x, previousBezierPoint.y), QPoint(bezierPoint.x, bezierPoint.y))
             
             previousBezierPoint = bezierPoint
+    
+    
+    def drawTimePosition(self, painter, nextPoint, u, color):
+        curveToDraw = self.getBezierCurveWithNextPoint(nextPoint)
+        
+        bezierPoint = bezier_interpolate.getBezierCurveResult(u, curveToDraw)
+        tangentAngle = bezier_interpolate.getBezierCurveTangentResult(u + (.01 if u == 0 else 0), curveToDraw)
+        tangentAngle += math.pi / 2
+        
+        # draw point
+        CurvePoint.timePositionPen.setColor(color)
+        painter.setPen(CurvePoint.timePositionPen)
+        timeCursorPoint = QPoint(bezierPoint.x, bezierPoint.y)
+        topTimeCursorPoint = QPoint()
+        topTimeCursorPoint.setX(timeCursorPoint.x() + 10 * math.cos(tangentAngle))
+        topTimeCursorPoint.setY(timeCursorPoint.y() + 10 * math.sin(tangentAngle))
+        bottomTimeCursorPoint = QPoint()
+        bottomTimeCursorPoint.setX(timeCursorPoint.x() + 10 * math.cos(math.pi + tangentAngle))
+        bottomTimeCursorPoint.setY(timeCursorPoint.y() + 10 * math.sin(math.pi + tangentAngle))
+        painter.drawLine(timeCursorPoint, topTimeCursorPoint)
+        painter.drawLine(timeCursorPoint, bottomTimeCursorPoint)
             
+    
+    def getBezierCurveWithNextPoint(self, nextPoint):
+        result = BezierCurve()
+        result.anchor_1 = Point(self.anchor.x(), self.anchor.y(), 0)
+        result.anchor_2 = Point(nextPoint.anchor.x(), nextPoint.anchor.y(), 0)
+        result.control_1 = Point(self.control2.x(), self.control2.y(), 0)
+        result.control_2 = Point(nextPoint.control1.x(), nextPoint.control1.y(), 0)
+        
+        return result
+        
     
     def getItemUnderMouse(self, x, y):
         if self.isControlUnderPoint(self.control1, x, y):
