@@ -14,7 +14,7 @@
 
 /* Includes */
 #include "md25.h"
-
+#include "sstream"
 /*** CONSTRUCTOR AND DESTRUCTOR ***/
 
 MD25::MD25() :
@@ -24,17 +24,29 @@ MD25::MD25() :
 {
     /*** Initialisation des messages ****/
     /* odometry */
-    odom_msg.header.frame_id = "/odom";
+    std::string tf_prefix;
+    std::stringstream frame_id;
+
+    if (nh_.getParam("tf_prefix", tf_prefix))
+    {
+        frame_id << tf_prefix <<"/odom";
+    }
+    else
+        frame_id<<"/odom";
+
+    odom_msg.header.frame_id = frame_id.str();
+
     odom_msg.pose.pose.position.z = 0.0;
     odom_msg.twist.twist.linear.y = 0.0;
     odom_msg.twist.twist.linear.z = 0.0;
     odom_msg.twist.twist.angular.x = 0.0;
     odom_msg.twist.twist.angular.y = 0.0;
-    publish_odom= nh_.advertise<nav_msgs::Odometry> ("/odom", 50);
+    publish_odom= nh_.advertise<nav_msgs::Odometry> ("odom", 50);
 
     /* tf */
-    odom_tf.header.frame_id = "/odom";
-    odom_tf.child_frame_id = "/base_link";
+    odom_tf.header.frame_id = "odom";
+    //odom_msg.header.frame_id = odom_tf.header.frame_id;
+    odom_tf.child_frame_id = "base_link";
     odom_tf.transform.translation.z = 0.0;
 
     /* Time */
@@ -433,7 +445,7 @@ void MD25::set_acceleration(unsigned char acceleration)
 {
     if(acceleration > 10)
     {
-        ROS_WARN_STREAM_NAMED("MD25_node","acceleration value not valid");
+        ROS_WARN_STREAM_NAMED("MD25","acceleration value not valid");
         return;
     }
     unsigned char command[3] = {SYNC_BYTE, CMD_SET_ACCELERATION, acceleration};
@@ -623,10 +635,10 @@ void MD25::stop()
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "MD25");
+    ros::init(argc, argv, "md25");
     ros::NodeHandle n;
     MD25 m;
-    ros :: Subscriber sub = n.subscribe("/cmd_vel", 1, &MD25::twistCb, &m);
+    ros :: Subscriber sub = n.subscribe("cmd_vel", 1, &MD25::twistCb, &m);
     ros::Rate loop_rate(LOOP_RATE);
     loop_rate.sleep();
 // ecrire traitement des valeurs twist
