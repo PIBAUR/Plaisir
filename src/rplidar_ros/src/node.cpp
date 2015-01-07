@@ -137,11 +137,19 @@ int main(int argc, char * argv[]) {
     ros::NodeHandle nh;
     ros::Publisher scan_pub = nh.advertise<sensor_msgs::LaserScan>("scan", 1000);
     ros::NodeHandle nh_private("~");
-    nh_private.param<std::string>("serial_port", serial_port, "/dev/ttyUSB0"); 
+    nh_private.param<std::string>("serial_port", serial_port, "/dev/ttyUSB1");
     nh_private.param<int>("serial_baudrate", serial_baudrate, 115200); 
-    nh_private.param<std::string>("frame_id", frame_id, "laser_frame");
+    nh_private.param<std::string>("frame_id", frame_id, "base_laser_link");
     nh_private.param<bool>("inverted", inverted, "false");
     nh_private.param<bool>("angle_compensate", angle_compensate, "true");
+
+   std::string tf_prefix;
+
+    if (nh.getParam("tf_prefix", tf_prefix))
+    {
+        frame_id = tf_prefix + "/" + frame_id;
+    }
+
 
     u_result     op_result;
 
