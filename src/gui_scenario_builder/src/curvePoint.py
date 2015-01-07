@@ -46,7 +46,7 @@ class CurvePoint():
         CurvePoint.curvePen.setWidth(2);
         
         CurvePoint.timePositionPen.setCapStyle(Qt.RoundCap);
-        CurvePoint.timePositionPen.setWidth(2);
+        CurvePoint.timePositionPen.setWidth(3);
         
         
     def drawKnobs(self, painter):
@@ -97,18 +97,26 @@ class CurvePoint():
         tangentAngle = bezier_interpolate.getBezierCurveTangentResult(u + (.01 if u == 0 else 0), curveToDraw)
         tangentAngle += math.pi / 2
         
-        # draw point
+        # draw cursor
         CurvePoint.timePositionPen.setColor(color)
         painter.setPen(CurvePoint.timePositionPen)
         timeCursorPoint = QPoint(bezierPoint.x, bezierPoint.y)
         topTimeCursorPoint = QPoint()
         topTimeCursorPoint.setX(timeCursorPoint.x() + 10 * math.cos(tangentAngle))
         topTimeCursorPoint.setY(timeCursorPoint.y() + 10 * math.sin(tangentAngle))
+        topRightTimeCursorPoint = QPoint()
+        topRightTimeCursorPoint.setX(topTimeCursorPoint.x() + 5 * math.cos(tangentAngle - math.pi / 2))
+        topRightTimeCursorPoint.setY(topTimeCursorPoint.y() + 5 * math.sin(tangentAngle - math.pi / 2))
         bottomTimeCursorPoint = QPoint()
         bottomTimeCursorPoint.setX(timeCursorPoint.x() + 10 * math.cos(math.pi + tangentAngle))
         bottomTimeCursorPoint.setY(timeCursorPoint.y() + 10 * math.sin(math.pi + tangentAngle))
+        bottomRightTimeCursorPoint = QPoint()
+        bottomRightTimeCursorPoint.setX(bottomTimeCursorPoint.x() + 5 * math.cos(tangentAngle - math.pi / 2))
+        bottomRightTimeCursorPoint.setY(bottomTimeCursorPoint.y() + 5 * math.sin(tangentAngle - math.pi / 2))
         painter.drawLine(timeCursorPoint, topTimeCursorPoint)
+        painter.drawLine(topTimeCursorPoint, topRightTimeCursorPoint)
         painter.drawLine(timeCursorPoint, bottomTimeCursorPoint)
+        painter.drawLine(bottomTimeCursorPoint, bottomRightTimeCursorPoint)
             
     
     def getBezierCurveWithNextPoint(self, nextPoint):

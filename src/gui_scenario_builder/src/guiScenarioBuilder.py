@@ -1,5 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import os
 from functools import partial
+import math
 
 import rospkg
 import rospy
@@ -23,6 +26,8 @@ class GuiScenarioBuilder(QMainWindow):
         
         self.ui = uic.loadUi(ui_file)
         self.ui.show()
+        
+        self.lastVideoDirectory = ""
         
         # robots
         self.robots = [Robot()]
@@ -55,12 +60,13 @@ class GuiScenarioBuilder(QMainWindow):
         self.handleShowControlsButtonClicked(False)
         self.ui.breakTangent_button.clicked.connect(self.handleBreakTangentButtonClicked)
         self.handleBreakTangentButtonClicked(False)
+        self.ui.videoPositions_button.clicked.connect(self.handleVideoPositionsButtonClicked)
+        self.handleVideoPositionsButtonClicked(False)
         self.ui.addVideo_button.clicked.connect(self.handleAddVideoButtonClicked)
-        
         self.ui.addRobot_button.clicked.connect(self.handleAddRobotButtonClicked)
         self.updateRobots()
         
-    
+        
     def save(self):
         pass
     
@@ -111,6 +117,7 @@ class GuiScenarioBuilder(QMainWindow):
     
     
     def updateTemporalization(self):
+        # delete previous one
         if self.temporalizationSplitter is not None:
             for child in self.temporalizationSplitter.children():
                 child.hide()
@@ -120,16 +127,40 @@ class GuiScenarioBuilder(QMainWindow):
             self.ui.temporalization_widget.layout().removeWidget(self.temporalizationSplitter)
             del self.temporalizationSplitter
         
+        # init a new one
         self.temporalizationSplitter = QSplitter(Qt.Horizontal)
         self.temporalizationSplitter.splitterMoved.connect(self.handleTemporalizationSplitterMoved)
         self.temporalizationSplitter.setChildrenCollapsible(False)
         self.ui.temporalization_widget.layout().addWidget(self.temporalizationSplitter)
         
+        # add buttons
+        videoSizes = []
+        handleWidth = self.temporalizationSplitter.handleWidth()
+        splitterWidth = self.temporalizationSplitter.width() - handleWidth * (len(self.canvas.currentRobot.videos) - 1)
+        i = 0
         for video in self.canvas.currentRobot.videos:
-            videoButton = QPushButton("video")
-            videoButton.setStyleSheet("background: " + video.color.name() + ";")
+            videoButton = QPushButton(video.niceName)
+            videoButton.setStyleSheet("background: " + video.color.name() + "; text-align: left;")
             videoButton.setMinimumWidth(1)
+            
             self.temporalizationSplitter.addWidget(videoButton)
+            
+            # icon
+            videoButton.setIcon(video.thumbnailIcon);
+            iconHeight = self.ui.temporalization_widget.height() * 1.55
+            videoButton.setIconSize(QSize(iconHeight / video.thumbnailRatio, iconHeight))
+            
+            # get size for the end
+            videoSize = (video.endTime - video.startTime) * splitterWidth
+            if len(self.canvas.currentRobot.videos) > 1:
+                videoSize -= handleWidth / (2 if (i == 0 or i == len(videoSizes) - 1) else 1)
+            
+            videoSizes.append(videoSize)
+            
+            i += 1
+        
+        # set good videoSizes
+        self.temporalizationSplitter.setSizes(videoSizes)
     
     
     def handleActionButtonClicked(self, button):
@@ -180,8 +211,33 @@ class GuiScenarioBuilder(QMainWindow):
         self.updateRobots()
     
     
+    def handleVideoPositionsButtonClicked(self, event):
+        self.canvas.showTemporization = self.ui.videoPositions_button.isChecked()
+        self.canvas.update()
+    
+    
     def handleAddVideoButtonClicked(self, event):
-        self.canvas.currentRobot.videos.append(Video(None))
+        # get a file
+        filePaths = QFileDialog.getOpenFileNames(self, u"Ajouter une vidéo", self.lastVideoDirectory, u"Vidéos: *.mp4, *.mov (*.mov *.mp4)")
+        
+        for filePath in filePaths:
+            filePath = str(filePath)
+            self.lastVideoDirectory = os.path.dirname(filePath)
+            
+            # create video
+            newVideo = Video(filePath)
+            
+            # set time to the middle of the last one
+            newVideo.endTime = 1.0
+            if len(self.canvas.currentRobot.videos) == 0:
+                newVideo.startTime = 0.0
+            else:
+                lastVideo = self.canvas.currentRobot.videos[-1]
+                lastVideo.endTime = float(lastVideo.startTime + (lastVideo.endTime - lastVideo.startTime) / 2)
+                newVideo.startTime = float(lastVideo.endTime)
+                
+            self.canvas.currentRobot.videos.append(newVideo)
+        
         self.updateTemporalization()
         
         self.temporalizationSplitter.refresh()
@@ -190,21 +246,31 @@ class GuiScenarioBuilder(QMainWindow):
     
     def handleTemporalizationSplitterMoved(self, position, index):
         sizes = self.temporalizationSplitter.sizes()
+        splitterWidth = self.temporalizationSplitter.width()
         handleWidth = self.temporalizationSplitter.handleWidth()
         previousPosition = 0
         i = 0
         for size in sizes:
-            withHandleSize = size + (handleWidth / (2 if (i == 0 or i == len(sizes) - 1) else 1) if len(sizes) > 1 else 0)
+            withHandleSize = size
+            # add the handle width
+            if len(sizes) > 1:
+                withHandleSize += handleWidth / (2 if (i == 0 or i == len(sizes) - 1) else 1)
+            
             startPosition = previousPosition
             endPosition = startPosition + withHandleSize
             
-            startTime = float(startPosition) / float(self.temporalizationSplitter.width())
-            endTime = float(endPosition) / float(self.temporalizationSplitter.width())
+            startTime = float(startPosition) / float(splitterWidth)
+            endTime = float(endPosition) / float(splitterWidth)
             
             self.canvas.currentRobot.videos[i].startTime = startTime
             self.canvas.currentRobot.videos[i].endTime = endTime
             
             previousPosition += withHandleSize
             i += 1
+        
+        # display tooltip
+        if position >= 0:
+            percent = math.floor(self.canvas.currentRobot.videos[index].startTime * 1000) / 10
+            QToolTip.showText(QCursor.pos(), str(percent) + " %")
         
         self.canvas.update()

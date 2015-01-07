@@ -19,6 +19,7 @@ class Canvas(QWidget):
         # vars
         self.currentAction = None
         self.showControls = False
+        self.showTemporization = True
         self.breakTangent = False
         
         self.currentRobot = None
@@ -37,7 +38,9 @@ class Canvas(QWidget):
         
         self.drawBackground(painter)
         
-        self.drawTemporization(painter, self.currentRobot)
+        if self.showTemporization:
+            self.drawTemporization(painter, self.currentRobot)
+        
         self.drawPoints(painter, self.currentRobot, self.showControls)
         
         for otherRobot in self.otherRobots:
@@ -139,11 +142,3 @@ class Canvas(QWidget):
                 
                 startTimeCurvePoint = robot.points[startPointIndex]
                 startTimeCurvePoint.drawTimePosition(painter, robot.points[startPointIndex + 1], startTimePositionRelative, video.color)
-                
-        """for i in range(len(robot.points)):
-            point = robot.points[i]
-            
-            if i + 1 < len(robot.points):
-                nextPoint = robot.points[i + 1]
-                point.drawCurve(painter, nextPoint, robot.color)
-"""

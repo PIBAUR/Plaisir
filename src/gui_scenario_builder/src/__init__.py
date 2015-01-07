@@ -10,6 +10,15 @@ from PyQt4.QtGui import *
 from guiScenarioBuilder import GuiScenarioBuilder
 
 
+######################
+######################
+######################
+######################
+
+import os
+import gst
+
+
 def sigintHandler(*args):
     """ Handler for the SIGINT signal. """
     sys.stderr.write('\r')
