@@ -10,6 +10,7 @@ import rospy
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4 import uic
+from PyQt4.phonon import Phonon
 
 from canvas import Canvas
 from robot import Robot
@@ -28,6 +29,7 @@ class GuiScenarioBuilder(QMainWindow):
         self.ui.show()
         
         self.lastVideoDirectory = ""
+        self.currentVideoMediaSource = None
         
         # robots
         self.robots = [Robot()]
@@ -51,6 +53,19 @@ class GuiScenarioBuilder(QMainWindow):
         for actionButton in self.actionButtons.keys():
             actionButton.clicked.connect(partial(self.handleActionButtonClicked, actionButton))
         
+        # video player
+        self.videoPlayer = Phonon.VideoPlayer()
+        self.ui.videoContainer_widget.layout().addWidget(self.videoPlayer.videoWidget())
+        self.videoPlayer.finished.connect(self.handleVideoPlayerFinished)
+        
+        self.ui.playPauseVideo_button.clicked.connect(self.handlePlayPauseVideoButtonClicked)
+        self.ui.videoSeek_slider.valueChanged.connect(self.handleVideoSeekSliderValueChanged)
+        
+        self.videoPlayingTimer = QTimer()
+        self.videoPlayingTimer.setInterval(30)
+        self.videoPlayingTimer.timeout.connect(self.handleVideoPlaying)
+        self.videoPlayingTimer.start()
+        
         # temporalization
         self.temporalizationSplitter = None
         self.updateTemporalization()
@@ -65,8 +80,8 @@ class GuiScenarioBuilder(QMainWindow):
         self.ui.addVideo_button.clicked.connect(self.handleAddVideoButtonClicked)
         self.ui.addRobot_button.clicked.connect(self.handleAddRobotButtonClicked)
         self.updateRobots()
-        
-        
+
+    
     def save(self):
         pass
     
@@ -142,6 +157,8 @@ class GuiScenarioBuilder(QMainWindow):
             videoButton = QPushButton(video.niceName)
             videoButton.setStyleSheet("background: " + video.color.name() + "; text-align: left;")
             videoButton.setMinimumWidth(1)
+            videoButton.setCheckable(True)
+            videoButton.clicked.connect(partial(self.updateVideo, videoButton))
             
             self.temporalizationSplitter.addWidget(videoButton)
             
@@ -161,8 +178,59 @@ class GuiScenarioBuilder(QMainWindow):
         
         # set good videoSizes
         self.temporalizationSplitter.setSizes(videoSizes)
+        
+        self.updateVideo()
     
+
+    def updateVideo(self, checkedVideoButton = None):
+        previousMedia = self.currentVideoMediaSource
+        
+        videoToPlay = None
+        # check each timeline buttons
+        for i in range(self.temporalizationSplitter.count()):
+            videoButton = self.temporalizationSplitter.widget(i)
+            # uncheck others
+            if videoButton != checkedVideoButton and checkedVideoButton is not None:
+                videoButton.setChecked(False)
+            # check if they have focus to display video
+            if videoButton.isChecked():
+                # put the video on the player
+                videoToPlay = self.canvas.currentRobot.videos[i]
+                break
+        
+        if videoToPlay is None:
+            self.videoPlayer.stop()
+            self.currentVideoMediaSource = None
+        elif videoToPlay.media != previousMedia:
+            # stop current video
+            self.videoPlayer.stop()
+            self.videoPlayer.videoWidget().hide()
+            self.videoPlayer.videoWidget().show()
+            self.ui.videoSeek_slider.setValue(0)
+            self.ui.playPauseVideo_button.setText(">")
+            
+            # load new one
+            self.videoPlayer.load(videoToPlay.media)
+            self.currentVideoMediaSource = videoToPlay.media
+            self.ui.video_groupBox.setTitle(u"Vidéo (" + os.path.basename(videoToPlay.niceName) + ")")
+            
+        # set enable or not
+        self.ui.video_groupBox.setEnabled(videoToPlay is not None)
+        if not self.ui.video_groupBox.isEnabled():
+            self.ui.video_groupBox.setTitle(u"Vidéo")
+        
     
+    def sendVideoToCanvas(self):
+        videoWidget = self.videoPlayer.videoWidget()
+        videoWidgetAbsoluteCoords = videoWidget.mapToGlobal(QPoint(0, 0))
+        snapshotRect = QRect(videoWidgetAbsoluteCoords.x(), videoWidgetAbsoluteCoords.y(), videoWidget.width(), videoWidget.height())
+        snapshotPixmap = QPixmap.grabWindow(self.videoPlayer.winId(), snapshotRect.x(), snapshotRect.y(), snapshotRect.width(), snapshotRect.height())
+        
+        self.canvas.videoPixmap = snapshotPixmap
+        self.canvas.update()
+        del snapshotPixmap
+        
+        
     def handleActionButtonClicked(self, button):
         if button.isChecked():
             for actionButton in self.actionButtons.keys():
@@ -274,3 +342,38 @@ class GuiScenarioBuilder(QMainWindow):
             QToolTip.showText(QCursor.pos(), str(percent) + " %")
         
         self.canvas.update()
+    
+    
+    def handleVideoPlaying(self):
+        if self.currentVideoMediaSource is None:
+            self.ui.videoSeek_slider.setValue(0)
+            
+        if self.videoPlayer.isPlaying():
+            value = float(self.videoPlayer.currentTime()) / self.videoPlayer.totalTime()
+            self.ui.videoSeek_slider.setValue(value * self.ui.videoSeek_slider.maximum())
+            
+            # update canvas
+            self.sendVideoToCanvas()
+        
+    
+    def handlePlayPauseVideoButtonClicked(self):
+        if self.videoPlayer.isPlaying():
+            self.videoPlayer.pause()
+            self.ui.playPauseVideo_button.setText(">") 
+        else:
+            self.videoPlayer.play()
+            self.ui.playPauseVideo_button.setText("||") 
+    
+    
+    def handleVideoPlayerFinished(self):
+        self.videoPlayer.stop()
+        self.ui.videoSeek_slider.setValue(0)
+        self.videoPlayer.videoWidget().hide()
+        self.videoPlayer.videoWidget().show()
+        self.ui.playPauseVideo_button.setText(">")
+        
+    
+    def handleVideoSeekSliderValueChanged(self, value):
+        if not self.videoPlayer.isPlaying():
+            sliderValue = float(value) / self.ui.videoSeek_slider.maximum()
+            self.videoPlayer.seek(sliderValue * self.videoPlayer.totalTime())

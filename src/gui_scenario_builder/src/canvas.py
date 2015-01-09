@@ -30,6 +30,7 @@ class Canvas(QWidget):
         self.currentAnchorOrigins = None
         self.currentControl1Origins = None
         self.currentControl2Origins = None
+        self.videoPixmap = None
     
     
     def paintEvent(self, e):
@@ -45,6 +46,8 @@ class Canvas(QWidget):
         
         for otherRobot in self.otherRobots:
             self.drawPoints(painter, otherRobot, False)
+        
+        self.drawVideo(painter)
         
         
     def mousePressEvent(self, event):
@@ -142,3 +145,9 @@ class Canvas(QWidget):
                 
                 startTimeCurvePoint = robot.points[startPointIndex]
                 startTimeCurvePoint.drawTimePosition(painter, robot.points[startPointIndex + 1], startTimePositionRelative, video.color)
+    
+    
+    def drawVideo(self, painter):
+        if self.videoPixmap is not None:
+            painter.rotate(32)
+            painter.drawPixmap(0, 0, self.videoPixmap)

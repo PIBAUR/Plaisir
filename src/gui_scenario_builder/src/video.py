@@ -4,6 +4,7 @@ import random
 import gst
 
 from PyQt4.QtGui import *
+from PyQt4.phonon import Phonon
 
 class Video():
     currentHue = 50
@@ -13,6 +14,7 @@ class Video():
         self.filePath = filePath
         
         # only for display
+        self.media = Phonon.MediaSource(filePath)
         imageBuffer = self.getFrameFromVideo(filePath)
         image = QImage.fromData(imageBuffer)
         pixmap = QPixmap.fromImage(image)
