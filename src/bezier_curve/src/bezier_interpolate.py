@@ -7,12 +7,14 @@ from geometry_msgs.msg import PoseArray, Pose, Point
 
 # consts
 DEFAULT_BEZIER_CURVE_STEP = .05
+path = PoseArray()
+pathPublisher = rospy.Publisher("path", PoseArray)
+step=0
 
 def scenarioCallback(data):
-    pathPublisher = rospy.Publisher("path", PoseArray)
-    step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
+    ("path", PoseArray)
     
-    path = PoseArray()
+    
     path.poses = []
     path.header = data.header
     
@@ -80,4 +82,6 @@ def getBezierCurveTangentResult(u, bezierCurve):
 if __name__ == "__main__":
     rospy.init_node('bezier_interpolate', anonymous = True)
     rospy.Subscriber("scenario", Scenario, scenarioCallback)
+    pathPublisher = rospy.Publisher("path", PoseArray)
+    step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
     rospy.spin()
