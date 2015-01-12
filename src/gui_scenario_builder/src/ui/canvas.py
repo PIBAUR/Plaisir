@@ -4,6 +4,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from curvePoint import CurvePoint
+#from src.gui_scenario_builder.src.curvePoint import CurvePoint
 
 class Canvas(QWidget):
     ADD_ACTION = 0
@@ -19,7 +20,7 @@ class Canvas(QWidget):
         # vars
         self.currentAction = None
         self.showControls = False
-        self.showTemporization = True
+        self.showTemporalization = True
         self.breakTangent = False
         
         self.currentRobot = None
@@ -31,6 +32,7 @@ class Canvas(QWidget):
         self.currentControl1Origins = None
         self.currentControl2Origins = None
         self.videoPixmap = None
+        self.currentTimelinePosition = 0
     
     
     def paintEvent(self, e):
@@ -39,7 +41,7 @@ class Canvas(QWidget):
         
         self.drawBackground(painter)
         
-        if self.showTemporization:
+        if self.showTemporalization:
             self.drawTemporization(painter, self.currentRobot)
         
         self.drawPoints(painter, self.currentRobot, self.showControls)
@@ -47,7 +49,8 @@ class Canvas(QWidget):
         for otherRobot in self.otherRobots:
             self.drawPoints(painter, otherRobot, False)
         
-        self.drawVideo(painter)
+        self.drawTimelineCursor(painter, self.currentRobot, self.currentTimelinePosition)
+        self.drawVideo(painter, self.currentRobot, self.currentTimelinePosition)
         
         
     def mousePressEvent(self, event):
@@ -145,9 +148,35 @@ class Canvas(QWidget):
                 
                 startTimeCurvePoint = robot.points[startPointIndex]
                 startTimeCurvePoint.drawTimePosition(painter, robot.points[startPointIndex + 1], startTimePositionRelative, video.color)
+                
+                
+    def drawTimelineCursor(self, painter, robot, timePosition):
+        if len(robot.points) > 1:
+            timePosition *= len(robot.points) - 1
+            pointIndex = int(math.floor(timePosition))
+            timePositionRelative = timePosition - pointIndex
+            
+            timeCurvePoint = robot.points[pointIndex]
+            timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, QColor(255, 0, 0), "point")
     
     
-    def drawVideo(self, painter):
-        if self.videoPixmap is not None:
-            painter.rotate(32)
-            painter.drawPixmap(0, 0, self.videoPixmap)
+    def drawVideo(self, painter, robot, timePosition):
+        if len(robot.points) > 1:
+            timePosition *= len(robot.points) - 1
+            pointIndex = int(math.floor(timePosition))
+            timePositionRelative = timePosition - pointIndex
+            
+            timeCurvePoint = robot.points[pointIndex]
+            result = timeCurvePoint.getPositionAndAngle(painter, robot.points[pointIndex + 1], timePositionRelative)
+            position = result[0]
+            angle = 180. * result[1] / math.pi
+            
+            if self.videoPixmap is not None:
+                transform = QTransform() 
+                transform.translate(position.x(), position.y())
+                transform.scale(.5, .5)
+                transform.rotate(angle)
+                transform.translate(-self.videoPixmap.width() / 2, -self.videoPixmap.height() / 2)
+                painter.setTransform(transform)
+                
+                painter.drawPixmap(0, 0, self.videoPixmap)#position.x(), position.y(), self.videoPixmap)# - self.videoPixmap.width() / 2, position.y() - self.videoPixmap.height() / 2, self.videoPixmap)

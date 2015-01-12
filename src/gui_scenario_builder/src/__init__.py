@@ -7,7 +7,8 @@ import signal
 import rospy
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from guiScenarioBuilder import GuiScenarioBuilder
+
+from ui import GuiScenarioBuilder
 
 
 def sigintHandler(*args):

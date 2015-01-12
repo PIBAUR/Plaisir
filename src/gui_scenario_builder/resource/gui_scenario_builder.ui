@@ -247,6 +247,13 @@
                </layout>
               </item>
               <item>
+               <widget class="QCheckBox" name="continuousPlaying_checkbox">
+                <property name="text">
+                 <string>lecture continue</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_7">
                 <property name="spacing">
                  <number>0</number>
@@ -285,8 +292,6 @@
              </layout>
             </item>
            </layout>
-           <zorder>horizontalLayoutWidget</zorder>
-           <zorder>horizontalLayoutWidget</zorder>
           </widget>
          </item>
         </layout>
@@ -420,7 +425,6 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <zorder>video_groupBox</zorder>
               </widget>
              </item>
             </layout>
@@ -434,7 +438,7 @@
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>120</height>
+            <height>150</height>
            </size>
           </property>
           <property name="title">
@@ -447,27 +451,41 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
-              <widget class="QWidget" name="temporalization_widget" native="true">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="autoFillBackground">
-                <bool>false</bool>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">#temporalization_widget { background: #cccccc; border: 1px dashed black; }</string>
-               </property>
-               <layout class="QHBoxLayout" name="horizontalLayout_3"/>
-              </widget>
+              <layout class="QVBoxLayout" name="verticalLayout_10">
+               <item>
+                <widget class="QWidget" name="temporalization_widget" native="true">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="autoFillBackground">
+                  <bool>false</bool>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">#temporalization_widget { background: #cccccc; border: 1px dashed black; }</string>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_3"/>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSlider" name="timeline_slider">
+                 <property name="maximum">
+                  <number>999</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item>
               <widget class="QPushButton" name="addVideo_button">
