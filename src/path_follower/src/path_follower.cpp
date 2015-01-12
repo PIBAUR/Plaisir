@@ -29,13 +29,13 @@ void compute_cmd(tf::TransformListener &tf_listener, double &lin, double &ang)
 
     try
     {
-    	tf_listener.lookupTransform(path.header.frame_id,"base_link", ros::Time(0), tf_robot);
+        tf_listener.lookupTransform(path.header.frame_id,"base_link", ros::Time(0), tf_robot);
     }
     catch (tf::TransformException ex)
     {
-		ROS_ERROR("%s",ex.what());
-		ros::Duration(1.0).sleep();
-		return;
+        ROS_ERROR("%s",ex.what());
+        ros::Duration(1.0).sleep();
+        return;
     }
 
     double x_robot, y_robot, theta_robot;
@@ -44,8 +44,8 @@ void compute_cmd(tf::TransformListener &tf_listener, double &lin, double &ang)
     double alpha;
     
     x_robot = tf_robot.getOrigin().x();
-	y_robot =  tf_robot.getOrigin().y();
-	theta_robot = tf::getYaw(tf_robot.getRotation());
+    y_robot =  tf_robot.getOrigin().y();
+    theta_robot = tf::getYaw(tf_robot.getRotation());
 
     x_des =  path.poses[index_path].position.x;
     y_des =  path.poses[index_path].position.y;
@@ -65,16 +65,16 @@ void compute_cmd(tf::TransformListener &tf_listener, double &lin, double &ang)
     //ROS_WARN("plop : %f\t %f\t %f ",alpha,theta_robot,atan2(dy,dx));
     ang = alpha-theta_robot;
     while(ang<-PI)
-        	ang+=2*PI;
+            ang+=2*PI;
     while(ang>=PI)
-        	ang-=2*PI;
+            ang-=2*PI;
     ang*=K_TH;
 
     lin = 0.15;
     /*if(abs(ang)<PI/2)
-    	lin = 0.05;
+        lin = 0.05;
     else
-    	lin = 0.0;*/
+        lin = 0.0;*/
 }
 
 
@@ -82,11 +82,11 @@ void compute_cmd(tf::TransformListener &tf_listener, double &lin, double &ang)
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "path_follower");
-	ros::NodeHandle n;
+    ros::NodeHandle n;
     
-	ros::Subscriber path_sub = n.subscribe("path", 1, PathCB);
-	ros::Publisher cmd_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
-	tf::TransformListener tf_listener;
+    ros::Subscriber path_sub = n.subscribe("path", 1, PathCB);
+    ros::Publisher cmd_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+    tf::TransformListener tf_listener;
 
     geometry_msgs::Twist cmd;
     
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
     du = 10;
     
     ros::Rate loop(60);
-	while(ros::ok()){
+    while(ros::ok()){
         if(size_path !=0 && index_path<size_path)
         {
             if(du<0.10)
@@ -108,20 +108,20 @@ int main(int argc, char **argv)
                 index_path++;
                 du=10;
             }
-			compute_cmd(tf_listener, cmd.linear.x, cmd.angular.z);
-			cmd_pub.publish(cmd);
+            compute_cmd(tf_listener, cmd.linear.x, cmd.angular.z);
+            cmd_pub.publish(cmd);
         }
         else if( index_path=size_path)
                 {
-                	cmd.linear.x = 0;
-                	cmd.angular.z = 0;
-                	cmd_pub.publish(cmd);
+                    cmd.linear.x = 0;
+                    cmd.angular.z = 0;
+                    cmd_pub.publish(cmd);
                 }
 
-		ros::spinOnce();
-		loop.sleep();
-	}
-	ros::spin();
+        ros::spinOnce();
+        loop.sleep();
+    }
+    ros::spin();
     return 0;
     
 }
