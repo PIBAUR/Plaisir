@@ -1,7 +1,7 @@
 import random
 from PyQt4.QtGui import *
 
-from video import Video
+from media import Media
 
 class Robot():
     currentHue = 0
@@ -9,7 +9,7 @@ class Robot():
     
     def __init__(self):
         self.points = []
-        self.videos = []
+        self.medias = []
         
         # only for display
         self.color = self.getColor()

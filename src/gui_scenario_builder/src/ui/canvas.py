@@ -10,17 +10,16 @@ class Canvas(QWidget):
     ADD_ACTION = 0
     REMOVE_ACTION = 1
     
-    def __init__(self, saveCallback, x, y, widht, height):
+    def __init__(self, saveCallback):
         super(QWidget, self).__init__()
-        
-        self.setGeometry(x, y, widht, height)
         
         self.saveCallback = saveCallback
         
         # vars
         self.currentAction = None
         self.showControls = False
-        self.showTemporalization = True
+        self.showTemporalization = False
+        self.showMedia = False
         self.breakTangent = False
         
         self.currentRobot = None
@@ -31,7 +30,7 @@ class Canvas(QWidget):
         self.currentAnchorOrigins = None
         self.currentControl1Origins = None
         self.currentControl2Origins = None
-        self.videoPixmap = None
+        self.mediaPixmap = None
         self.currentTimelinePosition = 0
     
     
@@ -48,9 +47,12 @@ class Canvas(QWidget):
         
         for otherRobot in self.otherRobots:
             self.drawPoints(painter, otherRobot, False)
+            self.drawTimelineCursor(painter, otherRobot, self.currentTimelinePosition)
         
-        self.drawTimelineCursor(painter, self.currentRobot, self.currentTimelinePosition)
-        self.drawVideo(painter, self.currentRobot, self.currentTimelinePosition)
+        if self.showMedia:
+            self.drawMedia(painter, self.currentRobot, self.currentTimelinePosition)
+        else:
+            self.drawTimelineCursor(painter, self.currentRobot, self.currentTimelinePosition)
         
         
     def mousePressEvent(self, event):
@@ -125,6 +127,7 @@ class Canvas(QWidget):
     
     def drawBackground(self, painter):
         painter.fillRect(QRectF(0, 0, self.width(), self.height()), QColor(200, 200, 200))
+        #TODO: grid with scale changing
     
     
     def drawPoints(self, painter, robot, showControls):
@@ -141,13 +144,13 @@ class Canvas(QWidget):
                 
     def drawTemporization(self, painter, robot):
         if len(robot.points) > 1:
-            for video in robot.videos:
-                startTimePosition = video.startTime * (len(robot.points) - 1)
+            for media in robot.medias:
+                startTimePosition = media.startTime * (len(robot.points) - 1)
                 startPointIndex = int(math.floor(startTimePosition))
                 startTimePositionRelative = startTimePosition - startPointIndex
                 
                 startTimeCurvePoint = robot.points[startPointIndex]
-                startTimeCurvePoint.drawTimePosition(painter, robot.points[startPointIndex + 1], startTimePositionRelative, video.color)
+                startTimeCurvePoint.drawTimePosition(painter, robot.points[startPointIndex + 1], startTimePositionRelative, media.color)
                 
                 
     def drawTimelineCursor(self, painter, robot, timePosition):
@@ -160,7 +163,7 @@ class Canvas(QWidget):
             timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, QColor(255, 0, 0), "point")
     
     
-    def drawVideo(self, painter, robot, timePosition):
+    def drawMedia(self, painter, robot, timePosition):
         if len(robot.points) > 1:
             timePosition *= len(robot.points) - 1
             pointIndex = int(math.floor(timePosition))
@@ -171,12 +174,12 @@ class Canvas(QWidget):
             position = result[0]
             angle = 180. * result[1] / math.pi
             
-            if self.videoPixmap is not None:
+            if self.mediaPixmap is not None:
                 transform = QTransform() 
                 transform.translate(position.x(), position.y())
                 transform.scale(.5, .5)
                 transform.rotate(angle)
-                transform.translate(-self.videoPixmap.width() / 2, -self.videoPixmap.height() / 2)
+                transform.translate(-self.mediaPixmap.width() / 2, -self.mediaPixmap.height() / 2)
                 painter.setTransform(transform)
                 
-                painter.drawPixmap(0, 0, self.videoPixmap)#position.x(), position.y(), self.videoPixmap)# - self.videoPixmap.width() / 2, position.y() - self.videoPixmap.height() / 2, self.videoPixmap)
+                painter.drawPixmap(0, 0, self.mediaPixmap)#position.x(), position.y(), self.mediaPixmap)# - self.mediaPixmap.width() / 2, position.y() - self.mediaPixmap.height() / 2, self.mediaPixmap)

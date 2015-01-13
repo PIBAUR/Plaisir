@@ -11,55 +11,227 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Création de scénario</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <item>
-       <widget class="QGroupBox" name="groupBox_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="title">
-         <string>Informations</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <layout class="QFormLayout" name="formLayout">
-           <property name="fieldGrowthPolicy">
-            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Informations</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="3">
+          <widget class="QLabel" name="label_4">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
            </property>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Nom</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEdit"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>Categorie</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="comboBox"/>
-           </item>
-          </layout>
+           <property name="text">
+            <string>Fréquence</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="7">
+          <widget class="QRadioButton" name="radioButton_8">
+           <property name="text">
+            <string>furieux</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">behaviour_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="1" column="7">
+          <widget class="QRadioButton" name="radioButton_4">
+           <property name="text">
+            <string>calme</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">behaviour_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QRadioButton" name="radioButton">
+           <property name="text">
+            <string>intermédiaire</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">frequency_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QRadioButton" name="radioButton_2">
+           <property name="text">
+            <string>quotidien</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">frequency_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="2" column="5">
+          <widget class="QRadioButton" name="radioButton_7">
+           <property name="text">
+            <string>cible mobile</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">target_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="1" column="5">
+          <widget class="QRadioButton" name="radioButton_6">
+           <property name="text">
+            <string>cible fixe</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">target_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="0" column="7">
+          <widget class="QLabel" name="label_6">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Comportement</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3">
+          <widget class="QRadioButton" name="radioButton_3">
+           <property name="text">
+            <string>évenement</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">frequency_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="2" column="7">
+          <widget class="QRadioButton" name="radioButton_5">
+           <property name="text">
+            <string>énervé</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">behaviour_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="0" column="5">
+          <widget class="QLabel" name="label_5">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Cible</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="9">
+          <widget class="QLabel" name="label_7">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>etc...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Nom</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Categorie</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="comboBox"/>
+         </item>
+         <item row="0" column="2" rowspan="4">
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4" rowspan="4">
+          <widget class="Line" name="line_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="6" rowspan="4">
+          <widget class="Line" name="line_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="8" rowspan="4">
+          <widget class="Line" name="line_4">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
          </item>
         </layout>
-       </widget>
-      </item>
-     </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="Line" name="line_5">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -73,7 +245,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>300</width>
           <height>300</height>
          </size>
         </property>
@@ -84,6 +256,9 @@
          </size>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_9">
+         <property name="margin">
+          <number>0</number>
+         </property>
          <item>
           <widget class="QGroupBox" name="groupBox">
            <property name="sizePolicy">
@@ -167,7 +342,14 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="video_groupBox">
+          <widget class="Line" name="line_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="media_groupBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -187,7 +369,7 @@
             </size>
            </property>
            <property name="title">
-            <string>Vidéo</string>
+            <string>Aperçu</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_11">
             <item>
@@ -210,7 +392,7 @@
                 <item>
                  <widget class="QPushButton" name="deleteVideo_button">
                   <property name="text">
-                   <string>Supprimer la vidéo</string>
+                   <string>Supprimer</string>
                   </property>
                  </widget>
                 </item>
@@ -222,7 +404,7 @@
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QWidget" name="videoContainer_widget" native="true">
+                 <widget class="QWidget" name="mediaContainer_widget" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                     <horstretch>0</horstretch>
@@ -259,7 +441,7 @@
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QPushButton" name="playPauseVideo_button">
+                 <widget class="QPushButton" name="playPauseMedia_button">
                   <property name="maximumSize">
                    <size>
                     <width>27</width>
@@ -272,7 +454,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSlider" name="videoSeek_slider">
+                 <widget class="QSlider" name="mediaSeek_slider">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -403,9 +585,22 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="videoPositions_button">
+                <widget class="QPushButton" name="mediaPositions_button">
                  <property name="text">
-                  <string>video positions</string>
+                  <string>média positions</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="showMedia_button">
+                 <property name="text">
+                  <string>média</string>
                  </property>
                  <property name="checkable">
                   <bool>true</bool>
@@ -434,7 +629,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_4">
+         <widget class="QGroupBox" name="timeline_groupBox">
           <property name="maximumSize">
            <size>
             <width>16777215</width>
@@ -455,7 +650,7 @@
                <item>
                 <widget class="QWidget" name="temporalization_widget" native="true">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -470,13 +665,16 @@
                   <bool>false</bool>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">#temporalization_widget { background: #cccccc; border: 1px dashed black; }</string>
+                  <string notr="true">#temporalization_widget { background: #cccccc; border: 1px dashed black;}</string>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_3"/>
                 </widget>
                </item>
                <item>
                 <widget class="QSlider" name="timeline_slider">
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
                  <property name="maximum">
                   <number>999</number>
                  </property>
@@ -488,32 +686,52 @@
               </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="addVideo_button">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>44</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>30</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true"/>
-               </property>
-               <property name="text">
-                <string>+</string>
-               </property>
-              </widget>
+              <layout class="QVBoxLayout" name="verticalLayout_11">
+               <item>
+                <widget class="QPushButton" name="addMedia_button">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>44</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>44</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>+</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Expanding</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
              </item>
             </layout>
            </item>
@@ -529,4 +747,9 @@
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="frequency_buttonGroup"/>
+  <buttongroup name="target_buttonGroup"/>
+  <buttongroup name="behaviour_buttonGroup"/>
+ </buttongroups>
 </ui>

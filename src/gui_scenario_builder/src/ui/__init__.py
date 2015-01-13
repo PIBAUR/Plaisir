@@ -13,21 +13,20 @@ from PyQt4 import uic
 
 from canvas import Canvas
 from robot import Robot
-from video import Video
+from media import Media
 from src.bezier_curve.src import bezier_interpolate
 
-from robotVideoPlayer import RobotVideoPlayer
+from robotMediaPlayer import RobotMediaPlayer
 from temporalization import Temporalization
         
-class GuiScenarioBuilder(QMainWindow):
+class GuiScenarioBuilder():
     def __init__(self):
-        super(QMainWindow, self).__init__()
-        
         # load ui
         #TODO: ui_file = os.path.join(rospkg.RosPack().get_path('gui_scenario_builder'), 'resource', 'gui_scenario_builder.ui')
         ui_file = "/home/artlab/catkin_ws/src/gui_scenario_builder/resource/gui_scenario_builder.ui"
         
         self.ui = uic.loadUi(ui_file)
+        self.ui.resizeEvent = self.resizeEvent
         self.ui.show()
         
         # robots
@@ -35,8 +34,7 @@ class GuiScenarioBuilder(QMainWindow):
         self.ui.robots_list.currentItemChanged.connect(self.handleRobotsListSelectionChanged)
         
         # canvas
-        absoluteCoords = self.ui.canvasContainer.mapToGlobal(self.ui.pos())
-        self.canvas = Canvas(self.save, absoluteCoords.x(), absoluteCoords.y(), self.ui.canvasContainer.width(), self.ui.canvasContainer.height())
+        self.canvas = Canvas(self.save)
         self.canvas.currentRobot = self.robots[0]
         self.ui.layout().addWidget(self.canvas)
         
@@ -52,21 +50,25 @@ class GuiScenarioBuilder(QMainWindow):
         for actionButton in self.actionButtons.keys():
             actionButton.clicked.connect(partial(self.handleActionButtonClicked, actionButton))
         
-        # video player
-        self.robotVideoPlayer = RobotVideoPlayer(self.ui, self.canvas)
+        # media player
+        self.robotMediaPlayer = RobotMediaPlayer(self.ui, self.canvas)
         # temporalization
-        self.temporalization = Temporalization(self, self.ui, self.canvas, self.robotVideoPlayer)
-        self.robotVideoPlayer.temporalization = self.temporalization
+        self.temporalization = Temporalization(self.ui, self.canvas, self.robotMediaPlayer)
+        self.robotMediaPlayer.temporalization = self.temporalization
         
         # other buttons
         self.ui.showControls_button.clicked.connect(self.handleShowControlsButtonClicked)
         self.handleShowControlsButtonClicked(False)
         self.ui.breakTangent_button.clicked.connect(self.handleBreakTangentButtonClicked)
         self.handleBreakTangentButtonClicked(False)
-        self.ui.videoPositions_button.clicked.connect(self.handleVideoPositionsButtonClicked)
-        self.handleVideoPositionsButtonClicked(False)
+        self.ui.mediaPositions_button.clicked.connect(self.handleMediaPositionsButtonClicked)
+        self.handleMediaPositionsButtonClicked(False)
+        self.ui.showMedia_button.clicked.connect(self.handleShowMediaButtonClicked)
+        self.handleShowMediaButtonClicked(False)
         self.ui.addRobot_button.clicked.connect(self.handleAddRobotButtonClicked)
         self.updateRobots()
+        
+        self.resizeEvent()
 
     
     def save(self):
@@ -117,6 +119,21 @@ class GuiScenarioBuilder(QMainWindow):
         # if not, select first item
         self.ui.robots_list.setCurrentRow(previousSelectedRow)
         
+    
+    def resizeEvent(self, event = None):
+        # canvas
+        absoluteCoords = self.ui.canvasContainer.mapToGlobal(QPoint(0, 0))
+        absoluteCoords -= self.ui.mapToGlobal(QPoint(0, 0))
+        self.canvas.setGeometry(absoluteCoords.x(), absoluteCoords.y(), self.ui.canvasContainer.width(), self.ui.canvasContainer.height())
+        self.canvas.update()
+        # temporalization
+        self.ui.temporalization_widget.setMaximumWidth(self.ui.timeline_groupBox.width() - 76)
+        addMediaButtonSize = self.ui.temporalization_widget.height()
+        self.ui.addMedia_button.setMinimumSize(addMediaButtonSize, addMediaButtonSize)
+        self.ui.addMedia_button.setMaximumSize(addMediaButtonSize, addMediaButtonSize)
+        # media player ratio
+        self.ui.mediaContainer_widget.setMaximumHeight(self.ui.mediaContainer_widget.width() * (16 / 10))#TODO: rospy.get_param("monitor_screen_width_ratio") / rospy.get_param("monitor_screen_height_ratio"))
+        
         
     def handleActionButtonClicked(self, button):
         if button.isChecked():
@@ -166,7 +183,10 @@ class GuiScenarioBuilder(QMainWindow):
         self.updateRobots()
     
     
-    def handleVideoPositionsButtonClicked(self, event):
-        self.canvas.showTemporalization = self.ui.videoPositions_button.isChecked()
+    def handleMediaPositionsButtonClicked(self, event):
+        self.canvas.showTemporalization = self.ui.mediaPositions_button.isChecked()
         self.canvas.update()
+        
     
+    def handleShowMediaButtonClicked(self, event):
+        self.canvas.showMedia = self.ui.showMedia_button.isChecked()

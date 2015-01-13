@@ -7,22 +7,21 @@ import math
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from video import Video
+from media import Media
 
 class Temporalization():
-    def __init__(self, uiMain, ui, canvas, robotVideoPlayer):
-        self.uiMain = uiMain
+    def __init__(self, ui, canvas, robotMediaPlayer):
         self.ui = ui
         self.canvas = canvas
-        self.robotVideoPlayer = robotVideoPlayer
+        self.robotMediaPlayer = robotMediaPlayer
         
-        self.lastVideoDirectory = ""
+        self.lastMediaDirectory = ""
         self.timelineValueIsSetByCode = False
         self.temporalizationSplitter = None
         
         self.update()
         self.ui.timeline_slider.valueChanged.connect(self.handleTimelineSliderValueChanged)
-        self.ui.addVideo_button.clicked.connect(self.handleAddVideoButtonClicked)
+        self.ui.addMedia_button.clicked.connect(self.handleAddMediaButtonClicked)
     
     
     def update(self):
@@ -43,103 +42,105 @@ class Temporalization():
         self.ui.temporalization_widget.layout().addWidget(self.temporalizationSplitter)
         
         # add buttons
-        videoSizes = []
+        mediaSizes = []
         handleWidth = self.temporalizationSplitter.handleWidth()
-        splitterWidth = self.temporalizationSplitter.width() - handleWidth * (len(self.canvas.currentRobot.videos) - 1)
+        splitterWidth = self.temporalizationSplitter.width() - handleWidth * (len(self.canvas.currentRobot.medias) - 1)
         i = 0
-        for video in self.canvas.currentRobot.videos:
-            videoButton = QPushButton(video.niceName)
-            videoButton.setStyleSheet("background: " + video.color.name() + "; text-align: left;")
-            videoButton.setMinimumWidth(1)
-            videoButton.setCheckable(True)
-            videoButton.clicked.connect(partial(self.updateVideo, videoButton))
+        for media in self.canvas.currentRobot.medias:
+            mediaButton = QPushButton(media.niceName)
+            mediaButton.setStyleSheet("background: " + media.color.name() + "; text-align: left;")
+            mediaButton.setMinimumWidth(1)
+            mediaButton.setCheckable(True)
+            mediaButton.clicked.connect(partial(self.updateMedia, mediaButton))
             
-            self.temporalizationSplitter.addWidget(videoButton)
+            self.temporalizationSplitter.addWidget(mediaButton)
             
             # icon
-            videoButton.setIcon(video.thumbnailIcon);
+            mediaButton.setIcon(media.thumbnailIcon);
             iconHeight = self.ui.temporalization_widget.height() * 1.55
-            videoButton.setIconSize(QSize(iconHeight / video.thumbnailRatio, iconHeight))
+            mediaButton.setIconSize(QSize(iconHeight / media.thumbnailRatio, iconHeight))
             
             # get size for the end
-            videoSize = (video.endTime - video.startTime) * splitterWidth
-            if len(self.canvas.currentRobot.videos) > 1:
-                videoSize -= handleWidth / (2 if (i == 0 or i == len(videoSizes) - 1) else 1)
+            mediaSize = (media.endTime - media.startTime) * splitterWidth
+            if len(self.canvas.currentRobot.medias) > 1:
+                mediaSize -= handleWidth / (2 if (i == 0 or i == len(mediaSizes) - 1) else 1)
             
-            videoSizes.append(videoSize)
+            mediaSizes.append(mediaSize)
             
             i += 1
         
-        # set good videoSizes
-        self.temporalizationSplitter.setSizes(videoSizes)
+        # set good mediaSizes
+        self.temporalizationSplitter.setSizes(mediaSizes)
         self.handleTimelineSliderValueChanged()
     
 
-    def updateVideo(self, checkedVideoButton = None):
-        previousMedia = self.robotVideoPlayer.currentVideoMediaSource
+    def updateMedia(self, checkedMediaButton = None):
+        previousMedia = self.robotMediaPlayer.currentVideoMediaSource
         
-        videoToPlay = None
+        mediaToPlay = None
         # check each timeline buttons
         for i in range(self.temporalizationSplitter.count()):
-            videoButton = self.temporalizationSplitter.widget(i)
+            mediaButton = self.temporalizationSplitter.widget(i)
             # uncheck others
-            if videoButton != checkedVideoButton and checkedVideoButton is not None:
-                videoButton.setChecked(False)
-            # check if they have focus to display video
-            if videoButton.isChecked():
-                # put the video on the player
-                videoToPlay = self.canvas.currentRobot.videos[i]
+            if mediaButton != checkedMediaButton and checkedMediaButton is not None:
+                mediaButton.setChecked(False)
+            # check if they have focus to display media
+            if mediaButton.isChecked():
+                # put the media on the player
+                mediaToPlay = self.canvas.currentRobot.medias[i]
         
-        if videoToPlay is None or videoToPlay.media != previousMedia:
-            self.robotVideoPlayer.stop()
-            self.robotVideoPlayer.setCurrentVideo(videoToPlay)
+        if mediaToPlay is None or mediaToPlay.media != previousMedia:
+            self.robotMediaPlayer.stop()
+            self.robotMediaPlayer.setCurrentMedia(mediaToPlay)
     
     
-    def setTimelineValueCurrentVideo(self, value):
+    def setTimelineValueCurrentMedia(self, value):
         self.timelineValueIsSetByCode = True
-        if self.robotVideoPlayer.currentVideo is not None:
-            newTimelineValue = self.robotVideoPlayer.currentVideo.startTime + value * (self.robotVideoPlayer.currentVideo.endTime - self.robotVideoPlayer.currentVideo.startTime)
+        if self.robotMediaPlayer.currentMedia is not None:
+            newTimelineValue = self.robotMediaPlayer.currentMedia.startTime + value * (self.robotMediaPlayer.currentMedia.endTime - self.robotMediaPlayer.currentMedia.startTime)
             newTimelineValue *= self.ui.timeline_slider.maximum()
             self.ui.timeline_slider.setValue(newTimelineValue)
         self.timelineValueIsSetByCode = False
         
     
-    def playNextVideo(self):
-        currentVideoIndex = self.canvas.currentRobot.videos.index(self.robotVideoPlayer.currentVideo)
-        if currentVideoIndex < len(self.canvas.currentRobot.videos) - 1:
-            videoButton = self.temporalizationSplitter.widget(currentVideoIndex + 1)
-            videoButton.setChecked(True)
-            self.updateVideo(videoButton)
-            self.robotVideoPlayer.videoPlayer.seek(0)
-            self.robotVideoPlayer.play()
+    def playNextMedia(self):
+        #TODO: conditions depending on the type of media
+        currentMediaIndex = self.canvas.currentRobot.medias.index(self.robotMediaPlayer.currentMedia)
+        if currentMediaIndex < len(self.canvas.currentRobot.medias) - 1:
+            mediaButton = self.temporalizationSplitter.widget(currentMediaIndex + 1)
+            mediaButton.setChecked(True)
+            self.updateMedia(mediaButton)
+            self.robotMediaPlayer.videoPlayer.seek(0)
+            self.robotMediaPlayer.play()
         else:
-            videoButton = self.temporalizationSplitter.widget(0)
-            videoButton.setChecked(True)
-            self.updateVideo(videoButton)
-            self.robotVideoPlayer.stop()
+            mediaButton = self.temporalizationSplitter.widget(0)
+            mediaButton.setChecked(True)
+            self.updateMedia(mediaButton)
+            self.robotMediaPlayer.stop()
     
     
-    def handleAddVideoButtonClicked(self, event):
+    def handleAddMediaButtonClicked(self, event):
         # get a file
-        filePaths = QFileDialog.getOpenFileNames(self.uiMain, u"Ajouter une vidéo", self.lastVideoDirectory, u"Vidéos: *.mp4, *.mov (*.mov *.mp4)")
+        #TODO: conditions depending on the type of media
+        filePaths = QFileDialog.getOpenFileNames(self.ui, u"Ajouter un média", self.lastMediaDirectory, u"Vidéos: *.mp4, *.mov (*.mov *.mp4)")
         
         for filePath in filePaths:
             filePath = str(filePath)
-            self.lastVideoDirectory = os.path.dirname(filePath)
+            self.lastMediaDirectory = os.path.dirname(filePath)
             
-            # create video
-            newVideo = Video(filePath)
+            # create media
+            newMedia = Media(filePath)
             
             # set time to the middle of the last one
-            newVideo.endTime = 1.0
-            if len(self.canvas.currentRobot.videos) == 0:
-                newVideo.startTime = 0.0
+            newMedia.endTime = 1.0
+            if len(self.canvas.currentRobot.medias) == 0:
+                newMedia.startTime = 0.0
             else:
-                lastVideo = self.canvas.currentRobot.videos[-1]
-                lastVideo.endTime = float(lastVideo.startTime + (lastVideo.endTime - lastVideo.startTime) / 2)
-                newVideo.startTime = float(lastVideo.endTime)
+                lastMedia = self.canvas.currentRobot.medias[-1]
+                lastMedia.endTime = float(lastMedia.startTime + (lastMedia.endTime - lastMedia.startTime) / 2)
+                newMedia.startTime = float(lastMedia.endTime)
                 
-            self.canvas.currentRobot.videos.append(newVideo)
+            self.canvas.currentRobot.medias.append(newMedia)
         
         self.update()
         
@@ -165,15 +166,15 @@ class Temporalization():
             startTime = float(startPosition) / float(splitterWidth)
             endTime = float(endPosition) / float(splitterWidth)
             
-            self.canvas.currentRobot.videos[i].startTime = startTime
-            self.canvas.currentRobot.videos[i].endTime = endTime
+            self.canvas.currentRobot.medias[i].startTime = startTime
+            self.canvas.currentRobot.medias[i].endTime = endTime
             
             previousPosition += withHandleSize
             i += 1
         
         # display tooltip
         if position >= 0:
-            percent = math.floor(self.canvas.currentRobot.videos[index].startTime * 1000) / 10
+            percent = math.floor(self.canvas.currentRobot.medias[index].startTime * 1000) / 10
             QToolTip.showText(QCursor.pos(), str(percent) + " %")
         
         self.handleTimelineSliderValueChanged()
@@ -186,22 +187,22 @@ class Temporalization():
         
         value = float(value) / (self.ui.timeline_slider.maximum() + 1)
         if not self.timelineValueIsSetByCode:
-            # set current video
-            if len(self.canvas.currentRobot.videos) > 0:
+            # set current media
+            if len(self.canvas.currentRobot.medias) > 0:
                 i = 0
-                for video in self.canvas.currentRobot.videos:
-                    if value >= video.startTime and value < video.endTime:
+                for media in self.canvas.currentRobot.medias:
+                    if value >= media.startTime and value < media.endTime:
                         break
                     i += 1
                 
-                video = self.canvas.currentRobot.videos[i]
-                videoSeek = (value - video.startTime) / (video.endTime - video.startTime)
-                self.robotVideoPlayer.seek(videoSeek)
-                videoButton = self.temporalizationSplitter.widget(i)
-                videoButton.setChecked(True)
-                self.updateVideo(videoButton)
+                media = self.canvas.currentRobot.medias[i]
+                mediaSeek = (value - media.startTime) / (media.endTime - media.startTime)
+                self.robotMediaPlayer.seek(mediaSeek)
+                mediaButton = self.temporalizationSplitter.widget(i)
+                mediaButton.setChecked(True)
+                self.updateMedia(mediaButton)
             else:
-                self.updateVideo()
+                self.updateMedia()
             
         # update canvas
         self.canvas.currentTimelinePosition = value

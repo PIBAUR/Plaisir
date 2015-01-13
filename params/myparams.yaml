@@ -13,4 +13,6 @@ md25_serial_port: "/dev/ttyUSB0"
 ## pas de discretisation des courbes de beziers
 bezier_curve_step: 0.1    
 
-
+## format des medias sur l ecran
+monitor_screen_width_ratio: 16
+monitor_screen_height_ratio: 10

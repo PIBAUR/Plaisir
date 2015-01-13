@@ -6,7 +6,7 @@ import gst
 from PyQt4.QtGui import *
 from PyQt4.phonon import Phonon
 
-class Video():
+class Media():
     currentHue = 50
     currentLuminosity = 100
     
@@ -15,7 +15,7 @@ class Video():
         
         # only for display
         self.media = Phonon.MediaSource(filePath)
-        imageBuffer = self.getFrameFromVideo(filePath)
+        imageBuffer = self.getFrameFromMedia(filePath)
         image = QImage.fromData(imageBuffer)
         pixmap = QPixmap.fromImage(image)
         self.thumbnailIcon = QIcon(pixmap)
@@ -27,18 +27,19 @@ class Video():
     
     def getColor(self):
         color = QColor()
-        color.setHsl(Video.currentHue, 127, Video.currentLuminosity)
-        Video.currentHue += 25
-        if Video.currentHue > 255:
-            Video.currentHue = 0
-            Video.currentLuminosity -= 25
-            if Video.currentLuminosity <= 25:
-                Video.currentLuminosity = 100
+        color.setHsl(Media.currentHue, 127, Media.currentLuminosity)
+        Media.currentHue += 25
+        if Media.currentHue > 255:
+            Media.currentHue = 0
+            Media.currentLuminosity -= 25
+            if Media.currentLuminosity <= 25:
+                Media.currentLuminosity = 100
         
         return color
         
     
-    def getFrameFromVideo(self, path, offset = 0):
+    def getFrameFromMedia(self, path, offset = 0):
+        #TODO: conditions depending on the type of media
         pipeline = gst.parse_launch('playbin2')
         pipeline.props.uri = 'file://' + os.path.abspath(path)
         pipeline.props.audio_sink = gst.element_factory_make('fakesink')
