@@ -34,14 +34,12 @@ class GuiScenarioBuilder():
         self.ui.robots_list.currentItemChanged.connect(self.handleRobotsListSelectionChanged)
         
         # canvas
-        self.canvas = Canvas(self.save)
+        self.canvas = Canvas(self.ui, self.save)
         self.canvas.currentRobot = self.robots[0]
         self.ui.layout().addWidget(self.canvas)
         
         # toggle points for editing
-        self.actionButtons = {self.ui.addPoint_button: Canvas.ADD_ACTION,
-                         self.ui.removePoint_button: Canvas.REMOVE_ACTION,
-                         }
+        self.actionButtons = {self.ui.addPoint_button: Canvas.ADD_ACTION, self.ui.removePoint_button: Canvas.REMOVE_ACTION}
         
         self.toggledActionButton = self.ui.addPoint_button
         self.canvas.currentAction = self.actionButtons[self.toggledActionButton]
@@ -53,7 +51,7 @@ class GuiScenarioBuilder():
         # media player
         self.robotMediaPlayer = RobotMediaPlayer(self.ui, self.canvas)
         # temporalization
-        self.temporalization = Temporalization(self.ui, self.canvas, self.robotMediaPlayer)
+        self.temporalization = Temporalization(self.ui, self.canvas, self.robotMediaPlayer, self.save)
         self.robotMediaPlayer.temporalization = self.temporalization
         
         # other buttons
@@ -69,11 +67,11 @@ class GuiScenarioBuilder():
         self.updateRobots()
         
         self.resizeEvent()
-
+    
     
     def save(self):
-        pass
-    
+        print [robot.save() for robot in self.robots]
+
     
     def updateRobots(self):
         # get previous row
@@ -118,6 +116,8 @@ class GuiScenarioBuilder():
         
         # if not, select first item
         self.ui.robots_list.setCurrentRow(previousSelectedRow)
+        
+        self.save()
         
     
     def resizeEvent(self, event = None):

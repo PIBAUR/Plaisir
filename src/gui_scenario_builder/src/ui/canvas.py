@@ -4,16 +4,23 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from curvePoint import CurvePoint
-#from src.gui_scenario_builder.src.curvePoint import CurvePoint
 
 class Canvas(QWidget):
     ADD_ACTION = 0
     REMOVE_ACTION = 1
     
-    def __init__(self, saveCallback):
+    gridColor = QColor(150, 150, 150)
+    grey = QColor(200, 200, 200)
+    gridPen = QPen(gridColor);
+    
+    def __init__(self, ui, saveCallback):
         super(QWidget, self).__init__()
         
+        self.ui = ui
         self.saveCallback = saveCallback
+        
+        Canvas.gridPen.setCapStyle(Qt.SquareCap);
+        Canvas.gridPen.setWidth(1);
         
         # vars
         self.currentAction = None
@@ -36,9 +43,10 @@ class Canvas(QWidget):
     
     def paintEvent(self, e):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        
+
         self.drawBackground(painter)
+        
+        painter.setRenderHint(QPainter.Antialiasing, True)
         
         if self.showTemporalization:
             self.drawTemporization(painter, self.currentRobot)
@@ -60,6 +68,8 @@ class Canvas(QWidget):
         self.currentPoint = None
         itemUnderMouseResult = None
         
+        mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
+        
         # get item under the mouse (= clicked item)
         for point in self.currentRobot.points:
             itemUnderMouseResult = point.getItemUnderMouse(event.x(), event.y())
@@ -71,13 +81,15 @@ class Canvas(QWidget):
         self.isEditing = self.currentAction != Canvas.REMOVE_ACTION and itemUnderMouseResult is not None
         
         if self.isEditing:
-                self.currentItemOffset = QPoint(event.x() - self.currentItem.x(), event.y() - self.currentItem.y())
+                currentItemOffsetX, currentItemOffsetY = self.addSnapToGrid(mouseX - self.currentItem.x(), mouseY - self.currentItem.y())
+                self.currentItemOffset = QPoint(currentItemOffsetX, currentItemOffsetY)
+                
                 self.currentAnchorOrigins = QPoint(self.currentPoint.anchor.x(), self.currentPoint.anchor.y())
                 self.currentControl1Origins = QPoint(self.currentPoint.control1.x(), self.currentPoint.control1.y())
                 self.currentControl2Origins = QPoint(self.currentPoint.control2.x(), self.currentPoint.control2.y())
         elif self.currentAction == Canvas.ADD_ACTION:
             # set anchor
-            self.currentPoint = CurvePoint(QPoint(event.x(), event.y()))
+            self.currentPoint = CurvePoint(QPoint(mouseX, mouseY))
             self.currentRobot.points.append(self.currentPoint)
         elif self.currentAction == Canvas.REMOVE_ACTION:
             if self.currentItem is not None and self.currentItem == self.currentPoint.anchor:
@@ -93,10 +105,12 @@ class Canvas(QWidget):
         
         
     def mouseMoveEvent(self, event):
+        mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
+        
         if self.isEditing:
             if self.currentItem is not None:
-                self.currentItem.setX(event.x() - self.currentItemOffset.x())
-                self.currentItem.setY(event.y() - self.currentItemOffset.y())
+                self.currentItem.setX(mouseX - self.currentItemOffset.x())
+                self.currentItem.setY(mouseY - self.currentItemOffset.y())
                 # move controls with anchor
                 if self.currentItem == self.currentPoint.anchor:
                     self.currentPoint.control1.setX(self.currentControl1Origins.x() + (self.currentItem.x() - self.currentAnchorOrigins.x()))
@@ -116,8 +130,8 @@ class Canvas(QWidget):
         elif self.currentAction == Canvas.ADD_ACTION:
             if self.currentPoint is not None:
                 # set tangent
-                self.currentPoint.control2.setX(event.x())
-                self.currentPoint.control2.setY(event.y())
+                self.currentPoint.control2.setX(mouseX)
+                self.currentPoint.control2.setY(mouseY)
                 # invert 2nd tangent
                 self.currentPoint.control1.setX(2 * self.currentPoint.anchor.x() - self.currentPoint.control2.x())
                 self.currentPoint.control1.setY(2 * self.currentPoint.anchor.y() - self.currentPoint.control2.y())
@@ -125,9 +139,33 @@ class Canvas(QWidget):
                 self.update()
     
     
+    def getGridSize(self):
+        return 10 * self.ui.zoomCanvas_slider.value()
+        
+    
+    def addSnapToGrid(self, mouseX, mouseY):
+        if self.ui.snapToGrid_button.isChecked():
+            gridSize = self.getGridSize()
+            mouseX = round(mouseX / gridSize) * gridSize
+            mouseY = round(mouseY / gridSize) * gridSize
+        
+        return mouseX, mouseY
+        
+        
     def drawBackground(self, painter):
-        painter.fillRect(QRectF(0, 0, self.width(), self.height()), QColor(200, 200, 200))
-        #TODO: grid with scale changing
+        painter.fillRect(QRectF(0, 0, self.width(), self.height()), Canvas.grey)
+        
+        # grid
+        painter.setPen(Canvas.gridPen)
+        gridSize = self.getGridSize()
+        numCols = int(math.floor(self.width() / gridSize)) + 1
+        for i in range(numCols):
+            col = i * gridSize
+            painter.drawLine(QPoint(col, 0), QPoint(col, self.height()))
+        numRows = int(math.floor(self.height() / gridSize)) + 1
+        for i in range(numRows):
+            row = i * gridSize
+            painter.drawLine(QPoint(0, row), QPoint(self.width(), row))
     
     
     def drawPoints(self, painter, robot, showControls):

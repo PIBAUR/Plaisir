@@ -14,7 +14,15 @@ class Robot():
         # only for display
         self.color = self.getColor()
         self.visible = True
-        
+    
+    
+    def save(self):
+        result = {}
+        result["points"] = [point.save() for point in self.points]
+        result["medias"] = [media.save() for media in self.medias]
+        result["color"] = self.color.name()
+                
+        return result    
     
     def getColor(self):
         color = QColor()
@@ -27,3 +35,4 @@ class Robot():
                 Robot.currentLuminosity = 100
         
         return color
+    

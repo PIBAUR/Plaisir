@@ -33,7 +33,7 @@ class RobotMediaPlayer():
     
     
     def play(self):
-        self.videoPlayer.play()
+        self.videoPlayer.play(self.currentVideoMediaSource)
         self.ui.playPauseMedia_button.setText("||")
     
     
@@ -117,5 +117,6 @@ class RobotMediaPlayer():
     def handleMediaSeekSliderValueChanged(self, value):
         if not self.mediaSeekValueIsSetByCode:
             sliderValue = float(value) / self.ui.mediaSeek_slider.maximum()
+            self.videoPlayer.pause()
             self.videoPlayer.seek(sliderValue * self.videoPlayer.totalTime())
             self.temporalization.setTimelineValueCurrentMedia(sliderValue)

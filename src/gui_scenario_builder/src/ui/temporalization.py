@@ -10,10 +10,11 @@ from PyQt4.QtCore import *
 from media import Media
 
 class Temporalization():
-    def __init__(self, ui, canvas, robotMediaPlayer):
+    def __init__(self, ui, canvas, robotMediaPlayer, saveCallback):
         self.ui = ui
         self.canvas = canvas
         self.robotMediaPlayer = robotMediaPlayer
+        self.saveCallback = saveCallback
         
         self.lastMediaDirectory = ""
         self.timelineValueIsSetByCode = False
@@ -22,6 +23,7 @@ class Temporalization():
         self.update()
         self.ui.timeline_slider.valueChanged.connect(self.handleTimelineSliderValueChanged)
         self.ui.addMedia_button.clicked.connect(self.handleAddMediaButtonClicked)
+        self.ui.deleteMedia_button.clicked.connect(self.handleDeleteMediaButtonClicked)
     
     
     def update(self):
@@ -72,6 +74,8 @@ class Temporalization():
         # set good mediaSizes
         self.temporalizationSplitter.setSizes(mediaSizes)
         self.handleTimelineSliderValueChanged()
+        
+        self.saveCallback()
     
 
     def updateMedia(self, checkedMediaButton = None):
@@ -146,6 +150,24 @@ class Temporalization():
         
         self.temporalizationSplitter.refresh()
         self.handleTemporalizationSplitterMoved(-1, -1)
+    
+    
+    def handleDeleteMediaButtonClicked(self, event):
+        mediaToDelete = self.robotMediaPlayer.currentMedia
+        # replace times to fill the gap 
+        if len(self.canvas.currentRobot.medias) > 1:
+            mediaToDeleteIndex = self.canvas.currentRobot.medias.index(mediaToDelete)
+            if mediaToDeleteIndex == len(self.canvas.currentRobot.medias) - 1:
+                self.canvas.currentRobot.medias[mediaToDeleteIndex - 1].endTime = mediaToDelete.endTime
+            else:
+                self.canvas.currentRobot.medias[mediaToDeleteIndex + 1].startTime = mediaToDelete.startTime
+            
+        # remove it
+        self.canvas.currentRobot.medias.remove(mediaToDelete)
+        mediaToDelete.destroy()
+        mediaToDelete = None
+        
+        self.update()
         
     
     def handleTemporalizationSplitterMoved(self, position, index):
@@ -179,6 +201,8 @@ class Temporalization():
         
         self.handleTimelineSliderValueChanged()
         self.canvas.update()
+        
+        self.saveCallback()
     
     
     def handleTimelineSliderValueChanged(self, value = -1):

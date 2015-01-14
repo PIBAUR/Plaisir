@@ -51,6 +51,15 @@ class CurvePoint():
         
         CurvePoint.timePositionPointPen.setCapStyle(Qt.RoundCap);
         CurvePoint.timePositionPointPen.setWidth(10);
+    
+    
+    def save(self):
+        result = {}
+        result["anchor"] = (self.anchor.x(), self.anchor.y())
+        result["control1"] = (self.control1.x(), self.control1.y())
+        result["control2"] = (self.control2.x(), self.control2.y())
+        
+        return result
         
         
     def drawKnobs(self, painter):

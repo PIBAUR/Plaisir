@@ -12,6 +12,8 @@ class Media():
     
     def __init__(self, filePath):
         self.filePath = filePath
+        self.startTime = -1
+        self.endTime = -1
         
         # only for display
         self.media = Phonon.MediaSource(filePath)
@@ -23,7 +25,21 @@ class Media():
         
         self.niceName = (".").join(os.path.basename(self.filePath).split(".")[0:-1])
         self.color = self.getColor()
+    
+    
+    def save(self):
+        result = {}
+        result["filePath"] = self.filePath
+        result["startTime"] = self.startTime
+        result["endTime"] = self.endTime
+        result["color"] = self.color.name()
         
+        return result
+    
+        
+    def destroy(self):
+        del self.media
+    
     
     def getColor(self):
         color = QColor()
