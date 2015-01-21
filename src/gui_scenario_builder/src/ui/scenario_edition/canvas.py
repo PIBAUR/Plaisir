@@ -3,7 +3,7 @@ import math
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from curvePoint import CurvePoint
+from data.curvePoint import CurvePoint
 
 class Canvas(QWidget):
     ADD_ACTION = 0
@@ -13,11 +13,10 @@ class Canvas(QWidget):
     grey = QColor(200, 200, 200)
     gridPen = QPen(gridColor);
     
-    def __init__(self, ui, saveCallback):
+    def __init__(self, ui):
         super(QWidget, self).__init__()
         
         self.ui = ui
-        self.saveCallback = saveCallback
         
         Canvas.gridPen.setCapStyle(Qt.SquareCap);
         Canvas.gridPen.setWidth(1);
@@ -100,8 +99,6 @@ class Canvas(QWidget):
         
     def mouseReleaseEvent(self, event):
         self.update()
-        
-        self.saveCallback()
         
         
     def mouseMoveEvent(self, event):

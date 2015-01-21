@@ -8,8 +8,8 @@ import rospy
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
-from ui import GuiScenarioBuilder
-
+from data.scenario import Scenario
+from ui.scenario_edition import ScenarioEdition
 
 def sigintHandler(*args):
     """ Handler for the SIGINT signal. """
@@ -32,11 +32,7 @@ if __name__ == '__main__':
         #rospy.init_node('gui_scenario_builder', anonymous = True)
         
         app = QApplication(sys.argv)
-        guiController = GuiScenarioBuilder()
-        
-        timer = QTimer()
-        timer.start(500)  # You may change this if you wish.
-        timer.timeout.connect(lambda: None)
+        scenarioEdition = ScenarioEdition()
         
         sys.exit(app.exec_())
     except rospy.ROSInterruptException:

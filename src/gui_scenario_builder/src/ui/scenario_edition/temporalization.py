@@ -7,20 +7,18 @@ import math
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from media import Media
+from data.media import Media
 
 class Temporalization():
-    def __init__(self, ui, canvas, robotMediaPlayer, saveCallback):
+    def __init__(self, ui, canvas, robotMediaPlayer):
         self.ui = ui
         self.canvas = canvas
         self.robotMediaPlayer = robotMediaPlayer
-        self.saveCallback = saveCallback
         
         self.lastMediaDirectory = ""
         self.timelineValueIsSetByCode = False
         self.temporalizationSplitter = None
         
-        self.update()
         self.ui.timeline_slider.valueChanged.connect(self.handleTimelineSliderValueChanged)
         self.ui.addMedia_button.clicked.connect(self.handleAddMediaButtonClicked)
         self.ui.deleteMedia_button.clicked.connect(self.handleDeleteMediaButtonClicked)
@@ -74,8 +72,6 @@ class Temporalization():
         # set good mediaSizes
         self.temporalizationSplitter.setSizes(mediaSizes)
         self.handleTimelineSliderValueChanged()
-        
-        self.saveCallback()
     
 
     def updateMedia(self, checkedMediaButton = None):
@@ -201,8 +197,6 @@ class Temporalization():
         
         self.handleTimelineSliderValueChanged()
         self.canvas.update()
-        
-        self.saveCallback()
     
     
     def handleTimelineSliderValueChanged(self, value = -1):

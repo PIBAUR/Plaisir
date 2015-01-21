@@ -32,9 +32,15 @@ class Media():
         result["filePath"] = self.filePath
         result["startTime"] = self.startTime
         result["endTime"] = self.endTime
-        result["color"] = self.color.name()
+        result["color"] = str(self.color.name())
         
         return result
+    
+    
+    def load(self, data):
+        self.startTime = data["startTime"]
+        self.endTime = data["endTime"]
+        self.color = QColor(data["color"])
     
         
     def destroy(self):
@@ -72,3 +78,10 @@ class Media():
         pipeline.set_state(gst.STATE_NULL)
         
         return imageBuffer
+    
+    
+    @staticmethod
+    def reinit():
+        Media.currentHue = 50
+        Media.currentLuminosity = 100
+        
