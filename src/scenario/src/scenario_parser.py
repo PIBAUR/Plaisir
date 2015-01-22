@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import rospy
 from scenario_msgs.msg import Scenario, BezierPath, VideoPlayer
 

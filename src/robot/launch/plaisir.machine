@@ -15,5 +15,6 @@
 	
 		<node name="path_follower" pkg="path_follower" type="path_follower"/>
 		<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py"/>
+		<node name="scenario_parser" pkg="scenario" type="scenario_parser.py"/>
 	</group>
 </launch>
