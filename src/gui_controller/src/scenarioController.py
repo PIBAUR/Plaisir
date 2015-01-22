@@ -23,8 +23,8 @@ class ScenarioController():
         dPoint = Point(1 * scale, 2 * scale, 0 * scale)
         ePoint = Point(0 * scale, 1 * scale, 0 * scale)
         fPoint = Point(0 * scale, 0 * scale, 0 * scale)
-        self.scenario.header = header
         self.scenario.bezier_paths = BezierPath()
+        self.scenario.bezier_paths.header = header
         self.scenario.bezier_paths.curves = [BezierCurve(aPoint, bPoint, Point(aPoint.x + .25 * scale, aPoint.y, 0 * scale), Point(bPoint.x -.25 * scale, bPoint.y -.25 * scale, 0)),
                                              BezierCurve(bPoint, cPoint, Point(bPoint.x + .25 * scale, bPoint.y + .25 * scale, 0), Point(cPoint.x + 0 * scale, cPoint.y -.25 * scale, 0)),
                                              BezierCurve(cPoint, dPoint, Point(cPoint.x + 0 * scale, cPoint.y + .25 * scale, 0), Point(dPoint.x + .5 * scale, dPoint.y + 0 * scale, 0)),
