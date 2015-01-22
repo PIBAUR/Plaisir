@@ -1,8 +1,5 @@
 #definition du message pour la communications des scenarios
 
-#Header pour enregistrer la date du scenario
-Header header
-
 #nom/path du scenario
 string name
 
