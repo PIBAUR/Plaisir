@@ -13,8 +13,7 @@ def scenarioCB(data) :
     videoplayer_msg = data.video_player    
     bpath_pub.publish(bcurves_msg)
     videoplayer_publish(videoplayer_msg)
-
-
+ 
 
 if __name__ == '__main__':
     rospy.init_node('listener', anonymous=True)
