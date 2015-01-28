@@ -3,7 +3,7 @@ import math
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from data.curvePoint import CurvePoint
+from src.scenario_lib.src.items.curvePoint import CurvePoint
 
 class Canvas(QWidget):
     ADD_ACTION = 0
@@ -13,13 +13,16 @@ class Canvas(QWidget):
     grey = QColor(200, 200, 200)
     gridPen = QPen(gridColor);
     
-    def __init__(self, ui):
+    def __init__(self, ui, changeCallback):
         super(QWidget, self).__init__()
         
         self.ui = ui
+        self.changeCallback = changeCallback
         
         Canvas.gridPen.setCapStyle(Qt.SquareCap);
         Canvas.gridPen.setWidth(1);
+        
+        self.ui.zoomCanvas_slider.valueChanged.connect(self.handleZoomSliderValueChanged)
         
         # vars
         self.currentAction = None
@@ -62,7 +65,7 @@ class Canvas(QWidget):
             self.drawTimelineCursor(painter, self.currentRobot, self.currentTimelinePosition)
         
         
-    def mousePressEvent(self, event):
+    def titleMousePressEvent(self, event):
         self.currentItem = None
         self.currentPoint = None
         itemUnderMouseResult = None
@@ -97,11 +100,13 @@ class Canvas(QWidget):
         self.update()
     
         
-    def mouseReleaseEvent(self, event):
+    def titleMouseReleaseEvent(self, event):
         self.update()
         
+        self.changeCallback()
         
-    def mouseMoveEvent(self, event):
+        
+    def titleMouseMoveEvent(self, event):
         mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
         
         if self.isEditing:
@@ -136,6 +141,10 @@ class Canvas(QWidget):
                 self.update()
     
     
+    def handleZoomSliderValueChanged(self, value):
+        self.changeCallback()
+        
+        
     def getGridSize(self):
         return 10 * self.ui.zoomCanvas_slider.value()
         

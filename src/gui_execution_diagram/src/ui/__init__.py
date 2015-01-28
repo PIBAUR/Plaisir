@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os
+from functools import partial
+import math
+
+import rospkg
+import rospy
+
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+from PyQt4 import uic
+
+from canvas import Canvas
+
+from src.scenario_lib.src.items.scenario import Scenario
+from src.scenario_lib.src.items.diagram import Diagram
+
+
+class ExecutionDiagram():
+    def __init__(self):
+        self.currentFilePath = None
+        self.currentDiagram = None
+        self.lastChangesSaved = True
+        
+        # load ui
+        try:
+            ui_file = os.path.join(rospkg.RosPack().get_path('execution_diagram'), 'resource', 'execution_diagram.ui')
+        except Exception:
+            ui_file = "/home/artlab/catkin_ws/src/gui_execution_diagram/resource/execution_diagram.ui"
+        
+        self.ui = uic.loadUi(ui_file)
+        
+        # canvas
+        self.canvas = Canvas(self.ui, self.changeCallback)
+        self.ui.layout().addWidget(self.canvas)
+        
+        # menu
+        self.ui.actionNew.triggered.connect(self.newDiagram)
+        self.ui.actionOpen.triggered.connect(self.openDiagram)
+        self.ui.actionSave.triggered.connect(self.saveDiagram)
+        self.ui.actionSaveAs.triggered.connect(self.saveAsDiagram)
+        self.ui.actionNew.setShortcut('Ctrl+N')
+        self.ui.actionOpen.setShortcut('Ctrl+O')
+        self.ui.actionSave.setShortcut('Ctrl+S')
+        self.ui.actionSaveAs.setShortcut('Ctrl+Shift+S')
+        
+        # load datas
+        self.newDiagram()
+        
+        self.ui.resizeEvent = self.resizeEvent
+        self.ui.show()
+        self.resizeEvent()
+        
+    
+    # menu actions
+    def newDiagram(self):
+        self.loadDiagram(Diagram())
+        self.lastChangesSaved = True
+        self.updateWindowTitle()
+        
+    
+    def openDiagram(self):
+        # hide and show because of a bug which shows a blank qfiledialog
+        self.canvas.hide()
+        filePathToOpen = QFileDialog.getOpenFileName(self.ui, u"Ouvrir un diagramme", "", u"Diagramme d'exécution: *.dge (*.dge)")
+        self.canvas.show()
+        
+        if filePathToOpen != "":
+            self.currentFilePath = filePathToOpen 
+            diagramToOpen = Diagram.loadFile(self.currentFilePath)
+            self.loadDiagram(diagramToOpen)
+            self.lastChangesSaved = True
+            self.updateWindowTitle()
+        
+    
+    def saveDiagram(self):
+        if self.currentFilePath is None:
+            self.saveAsDiagram()
+        else:
+            self.currentScenario.save(self.currentFilePath)
+            self.lastChangesSaved = True
+            self.updateWindowTitle()
+        
+    
+    def saveAsDiagram(self):
+        # hide and show because of a bug which shows a blank qfiledialog
+        self.canvas.hide()
+        filePathToOpen = QFileDialog.getSaveFileName(self.ui, u"Sauvegarder le scénario", "", u"Scénario: *.sce (*.sce)")
+        self.canvas.show()
+        
+        filePathToOpen = str(filePathToOpen)
+            
+        
+        if filePathToOpen != "":
+            if not filePathToOpen.endswith(".sce"):
+                filePathToOpen += ".sce"
+            self.currentFilePath = filePathToOpen
+            self.saveDiagram()
+            self.lastChangesSaved = True
+        
+    
+    def loadDiagram(self, diagram):
+        del self.currentDiagram
+        
+        self.currentDiagram = diagram
+        
+        # update
+        self.canvas.update()
+        self.lastChangesSaved = True
+    
+    
+    def changeCallback(self):
+        self.lastChangesSaved = False
+        self.updateWindowTitle()
+    
+    
+    def updateWindowTitle(self):
+        self.ui.setWindowTitle(u"Diagramme d'exécution - " + ("*" if not self.lastChangesSaved else "") + (self.currentFilePath if self.currentFilePath is not None else u"nouveau diagramme"))
+        
+    
+    def resizeEvent(self, event = None):
+        # canvas
+        absoluteCoords = self.ui.canvasContainer.mapToGlobal(QPoint(0, 0))
+        absoluteCoords -= self.ui.mapToGlobal(QPoint(0, 0))
+        self.canvas.setGeometry(absoluteCoords.x(), absoluteCoords.y(), self.ui.canvasContainer.width(), self.ui.canvasContainer.height())
+        self.canvas.update()

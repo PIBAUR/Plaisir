@@ -7,13 +7,14 @@ import math
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from data.media import Media
+from src.scenario_lib.src.items.media import Media
 
 class Temporalization():
-    def __init__(self, ui, canvas, robotMediaPlayer):
+    def __init__(self, ui, canvas, robotMediaPlayer, changeCallback):
         self.ui = ui
         self.canvas = canvas
         self.robotMediaPlayer = robotMediaPlayer
+        self.changeCallback = changeCallback
         
         self.lastMediaDirectory = ""
         self.timelineValueIsSetByCode = False
@@ -72,6 +73,8 @@ class Temporalization():
         # set good mediaSizes
         self.temporalizationSplitter.setSizes(mediaSizes)
         self.handleTimelineSliderValueChanged()
+        
+        self.changeCallback()
     
 
     def updateMedia(self, checkedMediaButton = None):
@@ -122,7 +125,11 @@ class Temporalization():
     def handleAddMediaButtonClicked(self, event):
         # get a file
         #TODO: conditions depending on the type of media
+        
+        # hide and show because of a bug which shows a blank qfiledialog
+        self.canvas.hide()
         filePaths = QFileDialog.getOpenFileNames(self.ui, u"Ajouter un média", self.lastMediaDirectory, u"Vidéos: *.mp4, *.mov (*.mov *.mp4)")
+        self.canvas.show()
         
         for filePath in filePaths:
             filePath = str(filePath)
@@ -197,6 +204,8 @@ class Temporalization():
         
         self.handleTimelineSliderValueChanged()
         self.canvas.update()
+        
+        self.changeCallback()
     
     
     def handleTimelineSliderValueChanged(self, value = -1):
