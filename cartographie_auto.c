@@ -3,13 +3,15 @@
 #include <signal.h>
 
 int main(){
-    printf("hello_world\n\n");
-    
+    printf("=================================================\n");
+    printf("====================START MAPPING================\n");
+    printf("=================================================\n");
+
     pid_t pid1;
     pid_t pid2;
     pid_t pid3;
     pid1 = fork();
-    
+
     switch(pid1){
         // fils 1 :
         case -1: //erreur...
@@ -20,12 +22,12 @@ int main(){
             printf("=================================================\n");
             printf("===========NEATO LAUNCH CARTO FILS 1=============\n");
             printf("=================================================\n");
-            execlp("roslaunch", "roslaunch", "md25", "cartographie_pere.launch", NULL);
+            execlp("roslaunch", "roslaunch", "robot", "carto_step1.launch", NULL);
             while(1){
                 printf("fils 1 running...\n");
-                sleep(1);
+                sleep(10);
             }
-            
+
             break;
         default: //pere : nouveau fils
             pid2 = fork();
@@ -35,14 +37,14 @@ int main(){
                     printf("error\n\n");
                     break;
                 case 0: //fils : exec launch cartographie_fils
-                    sleep(10);
+                    sleep(5);
                     printf("=================================================\n");
                     printf("==========NEATO LAUNCH CARTO FILS 2==============\n");
                     printf("=================================================\n");
-                    execlp("roslaunch", "roslaunch", "md25", "cartographie_fils.launch", NULL);
+                    execlp("roslaunch", "roslaunch", "robot", "carto_step2.launch", NULL);
                     while(1){
                         printf("fils 2 running...\n");
-                        sleep(1);
+                        sleep(10);
                     }
                     break;
                 default://pere : attends entree pour kill fils 1 & 2
@@ -66,7 +68,7 @@ int main(){
                             printf("fils 3 running...\n");
                             while(1){
                                 printf("fils 3 running...\n");
-                                sleep(1);
+                                sleep(10);
                             }
                             break;
                         default://pere : attends entree pour kill fils 1 & 2
@@ -86,7 +88,5 @@ int main(){
             }
         break;
     }
-    //execlp("roslaunch", "roslaunch", "neato_node", "cartographie.launch", NULL);
-    
     return 0;
 }

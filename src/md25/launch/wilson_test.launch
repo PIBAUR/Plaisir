@@ -1,0 +1,8 @@
+<launch>
+	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" />
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
+	<node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.100 0 0.045 0 0 0 base_link base_laser_link 20"/>
+	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen"/>
+	
+	
+</launch>
