@@ -7,7 +7,7 @@
   		
 		
 	
-		<node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.100 0 0.045 0 0 0 base_link /robot$(arg robot)/base_laser_link 20"/>
+		<node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.100 0 0.045 0 0 0 base_link /robot00/base_laser_link 20"/>
 		<node name="MD25" pkg="md25" type="md25_node" output="screen">
 		</node>
 	

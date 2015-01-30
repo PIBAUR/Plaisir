@@ -3,6 +3,7 @@
 #include <geometry_msgs/PoseArray.h>
 #include <tf/transform_listener.h>
 #include <geometry_msgs/TransformStamped.h>
+#include <std_msgs/Float64.h>
 //#include <math>
 
 #define PI 3.14159265359
@@ -86,6 +87,7 @@ int main(int argc, char **argv)
     
     ros::Subscriber path_sub = n.subscribe("path", 1, PathCB);
     ros::Publisher cmd_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+    ros::Publisher path_fb = n.advertise<std_msgs::Float64>("path_feedback", 1);
     tf::TransformListener tf_listener;
 
     geometry_msgs::Twist cmd;
@@ -98,6 +100,7 @@ int main(int argc, char **argv)
     index_path = 0;
     size_path = 0;
     du = 10;
+    int cpt = 0;
     
     ros::Rate loop(60);
     while(ros::ok()){
@@ -117,7 +120,12 @@ int main(int argc, char **argv)
                     cmd.angular.z = 0;
                     cmd_pub.publish(cmd);
                 }
-
+        cpt++;
+        if(cpt>60)
+        {
+            path_fb.publish(1.0*index_path/size_path);
+            cpt=0;
+        }
         ros::spinOnce();
         loop.sleep();
     }

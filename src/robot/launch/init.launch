@@ -1,6 +1,6 @@
 <launch>
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
-	<arg name="robot" value="00"/>
+	<arg name="robot" value="01"/>
 	
 	<include file="$(find robot)/launch/plaisir.machine">
 		<arg name="robot" value="$(arg robot)"/> 

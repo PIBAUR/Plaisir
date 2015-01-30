@@ -1,0 +1,11 @@
+<launch>
+    <rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
+	
+	<include file="$(find robot)/launch/plaisir_cartographie.machine"/>
+	
+	<machine name="serveur" address="192.168.150.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
+	
+	<node name="rviz" pkg="rviz" type="rviz"/>
+	
+</launch>
+
