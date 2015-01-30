@@ -8,15 +8,17 @@ from robot import Robot
 from media import Media
 
 class Scenario():
-    def __init__(self):
+    def __init__(self, loadWithVideos = True):
         Robot.reinit()
         Media.reinit()
         
         self.creationTime = time.time()
         self.modificationTime = time.time()
+        self.loadWithVideos = loadWithVideos
         
-        self.robots = [Robot()]
+        self.robots = [Robot(loadWithVideos)]
         
+        self.name = None
         self.type = None
         self.target = None
         self.behaviour = None
@@ -39,7 +41,7 @@ class Scenario():
         self.modificationTime = data["modificationTime"]
         self.robots = []
         for robotData in data["robots"]:
-            robotToAppend = Robot()
+            robotToAppend = Robot(self.loadWithVideos)
             robotToAppend.load(robotData)
             self.robots.append(robotToAppend)
         self.type = data["type"]
@@ -48,6 +50,8 @@ class Scenario():
     
     
     def save(self, filePath):
+        self.name = os.path.basename(str(filePath))
+        
         with open(filePath, 'w') as outFile:
             json.dump(self.getDataDict(), outFile)
     
@@ -57,9 +61,10 @@ class Scenario():
     
     
     @staticmethod
-    def loadFile(filePath):
+    def loadFile(filePath, loadWithVideos = True):
         data = json.loads(open(filePath).read())
-        scenario = Scenario()
+        scenario = Scenario(loadWithVideos)
+        scenario.name = os.path.basename(str(filePath))
         scenario.setDataDict(data)
         
         return scenario

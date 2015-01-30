@@ -10,18 +10,19 @@ class Media():
     currentHue = 50
     currentLuminosity = 100
     
-    def __init__(self, filePath):
+    def __init__(self, filePath, loadWithVideos = True):
         self.filePath = filePath
         self.startTime = -1
         self.endTime = -1
         
         # only for display
-        self.media = Phonon.MediaSource(filePath)
-        imageBuffer = self.getFrameFromMedia(filePath)
-        image = QImage.fromData(imageBuffer)
-        pixmap = QPixmap.fromImage(image)
-        self.thumbnailIcon = QIcon(pixmap)
-        self.thumbnailRatio = pixmap.width() / pixmap.height() 
+        if loadWithVideos:
+            self.media = Phonon.MediaSource(filePath)
+            imageBuffer = self.getFrameFromMedia(filePath)
+            image = QImage.fromData(imageBuffer)
+            pixmap = QPixmap.fromImage(image)
+            self.thumbnailIcon = QIcon(pixmap)
+            self.thumbnailRatio = pixmap.width() / pixmap.height() 
         
         self.niceName = (".").join(os.path.basename(self.filePath).split(".")[0:-1])
         self.color = self.getColor()

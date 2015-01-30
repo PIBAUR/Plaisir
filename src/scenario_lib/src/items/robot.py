@@ -10,11 +10,12 @@ class Robot():
     currentHue = 0
     currentLuminosity = 100
     
-    def __init__(self):
+    def __init__(self, loadWithVideos = True):
         self.points = []
         self.medias = []
         
         # only for display
+        self.loadWithVideos = loadWithVideos
         self.color = self.getColor()
         self.visible = True
     
@@ -37,7 +38,7 @@ class Robot():
             self.points.append(pointToAppend)
         
         for mediaData in data["medias"]:
-            mediaToAppend = Media(mediaData["filePath"])
+            mediaToAppend = Media(mediaData["filePath"], self.loadWithVideos)
             mediaToAppend.load(mediaData)
             self.medias.append(mediaToAppend)
         

@@ -1,5 +1,6 @@
 from functools import partial
 import math
+import json
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -54,9 +55,11 @@ class Canvas(QWidget):
         if self.currentLink is not None:
             self.drawLink(painter, self.currentLink[0], self.currentLink[1])
         
-        for definitiveLinkInput, definitiveLinkOutput in self.definitiveLinks.items():
-            self.drawLink(painter, definitiveLinkInput, definitiveLinkOutput)
-    
+        for nodeInstance in self.nodesInstances:
+            for inputWidget in nodeInstance.getInputsWidgets():
+                if inputWidget.connectedToInstance is not None:
+                    self.drawLink(painter, inputWidget.button, inputWidget.connectedToInstance)
+        
     
     def drawLink(self, painter, inputButton, target):
         # set down the input button
@@ -116,19 +119,6 @@ class Canvas(QWidget):
         self.update()
     
     
-    def addDefinitiveLink(self, inputButton, outputButton):
-        self.definitiveLinks[inputButton] = outputButton
-        
-        self.update()
-    
-    
-    def deleteDefinitiveLinkFromInput(self, inputButton):
-        if inputButton in self.definitiveLinks:
-            del self.definitiveLinks[inputButton]
-        
-        self.update()
-
-    
     def getNodeWidgetUnderMouse(self, currentWidgetStartLink, currentPosEndLink):
         childUnderMouse = self.ui.childAt(self.ui.mapFromGlobal(currentPosEndLink))
         nodesWidgets = [nodeInstance.widget if nodeInstance.widget != currentWidgetStartLink.parent() else None for nodeInstance in self.nodesInstances]
@@ -141,6 +131,60 @@ class Canvas(QWidget):
             childUnderMouse = childUnderMouse.parent()
             
         return result
+    
+    
+    # persistance
+    def save(self, filePath):
+        nodesDataList = []
+        
+        for nodeInstance in self.nodesInstances:
+            nodeData = nodeInstance.getDataFromInstance()
+            nodesDataList.append(nodeData)
+        
+        with open(filePath, 'w') as outFile:
+            json.dump(nodesDataList, outFile)
+    
+    
+    def load(self, filePath):
+        # remove all nodes
+        for nodeInstanceIndex in range(len(self.nodesInstances)):
+            nodeInstance = self.nodesInstances[0]
+            nodeInstance.widget.setParent(None)
+            nodeInstance.widget.hide()
+            nodeInstance.destroy()
+            del self.nodesInstances[0]
+        self.nodesInstances = []
+        
+        for linkKey in self.definitiveLinks.keys():
+            del self.definitiveLinks[linkKey]
+        self.definitiveLinks = {}
+        
+        DiagramNode.currentNodeId = 0
+        
+        # get file data
+        if filePath is None:
+            nodesDataList = []
+        else:
+            nodesDataList = json.loads(open(filePath).read())
+        
+        # instantiate nodes
+        for nodeData in nodesDataList:
+            nodeInstance = DiagramNode.createInstanceFromData(self, nodeData)
+            self.nodesInstances.append(nodeInstance)
+        
+        # make connections
+        for nodeData in nodesDataList:
+            DiagramNode.linkInstanceFromData(self, nodeData)
+                
+        self.update()
+            
+    
+    def getNodeInstanceById(self, nodeId):
+        for nodeInstance in self.nodesInstances:
+            if nodeInstance.id == nodeId:
+                return nodeInstance
+    
+        return None
     
     
     # context menu
@@ -167,6 +211,7 @@ class Canvas(QWidget):
     
     def handleMenuActionTriggered(self, nodeClass, position):
         nodeInstance = nodeClass(self.ui, self, position)
+        nodeInstance.widget.move(position.x() - nodeInstance.widget.width() / 2, position.y() - 10)
         self.nodesInstances.append(nodeInstance)
         
         

@@ -13,14 +13,10 @@ from PyQt4 import uic
 
 from canvas import Canvas
 
-from src.scenario_lib.src.items.scenario import Scenario
-from src.scenario_lib.src.items.diagram import Diagram
-
 
 class ExecutionDiagram():
     def __init__(self):
         self.currentFilePath = None
-        self.currentDiagram = None
         self.lastChangesSaved = True
         
         # load ui
@@ -55,7 +51,7 @@ class ExecutionDiagram():
     
     # menu actions
     def newDiagram(self):
-        self.loadDiagram(Diagram())
+        self.canvas.load(None)
         self.lastChangesSaved = True
         self.updateWindowTitle()
         
@@ -63,12 +59,12 @@ class ExecutionDiagram():
     def openDiagram(self):
         # hide and show because of a bug which shows a blank qfiledialog
         self.canvas.hide()
-        filePathToOpen = QFileDialog.getOpenFileName(self.ui, u"Ouvrir un diagramme", "", u"Diagramme d'exécution: *.dge (*.dge)")
+        filePathToOpen = "/home/artlab/Bureau/01.dge"#QFileDialog.getOpenFileName(self.ui, u"Ouvrir un diagramme", "", u"Diagramme d'exécution: *.dge (*.dge)")
         self.canvas.show()
         
         if filePathToOpen != "":
             self.currentFilePath = filePathToOpen 
-            diagramToOpen = Diagram.loadFile(self.currentFilePath)
+            diagramToOpen = self.canvas.load(self.currentFilePath)
             self.loadDiagram(diagramToOpen)
             self.lastChangesSaved = True
             self.updateWindowTitle()
@@ -78,7 +74,7 @@ class ExecutionDiagram():
         if self.currentFilePath is None:
             self.saveAsDiagram()
         else:
-            self.currentScenario.save(self.currentFilePath)
+            self.canvas.save(self.currentFilePath)
             self.lastChangesSaved = True
             self.updateWindowTitle()
         
@@ -86,27 +82,21 @@ class ExecutionDiagram():
     def saveAsDiagram(self):
         # hide and show because of a bug which shows a blank qfiledialog
         self.canvas.hide()
-        filePathToOpen = QFileDialog.getSaveFileName(self.ui, u"Sauvegarder le scénario", "", u"Scénario: *.sce (*.sce)")
+        filePathToOpen = QFileDialog.getSaveFileName(self.ui, u"Sauvegarder le scénario", "", u"Scénario: *.dge (*.dge)")
         self.canvas.show()
         
         filePathToOpen = str(filePathToOpen)
             
         
         if filePathToOpen != "":
-            if not filePathToOpen.endswith(".sce"):
-                filePathToOpen += ".sce"
+            if not filePathToOpen.endswith(".dge"):
+                filePathToOpen += ".dge"
             self.currentFilePath = filePathToOpen
             self.saveDiagram()
             self.lastChangesSaved = True
         
     
     def loadDiagram(self, diagram):
-        del self.currentDiagram
-        
-        self.currentDiagram = diagram
-        
-        # update
-        self.canvas.update()
         self.lastChangesSaved = True
     
     
