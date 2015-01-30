@@ -15,12 +15,12 @@ class CurvePoint():
     
     blue = QColor(79, 128, 255)
     
-    anchorPen = QPen(blue);
-    controlPen = QPen(blue);
-    linePen = QPen(blue);
-    curvePen = QPen(blue);
-    timePositionBracketPen = QPen(blue);
-    timePositionPointPen = QPen(blue);
+    anchorPen = QPen(blue)
+    controlPen = QPen(blue)
+    linePen = QPen(blue)
+    curvePen = QPen(blue)
+    timePositionBracketPen = QPen(blue)
+    timePositionPointPen = QPen(blue)
     
     
     def __init__(self, anchor, control1 = None, control2 = None):
@@ -34,23 +34,23 @@ class CurvePoint():
             self.control2 = QPoint(anchor.x(), anchor.y())
         
         # set graphics params
-        CurvePoint.anchorPen.setCapStyle(Qt.SquareCap);
-        CurvePoint.anchorPen.setWidth(1);
+        CurvePoint.anchorPen.setCapStyle(Qt.SquareCap)
+        CurvePoint.anchorPen.setWidth(1)
         
-        CurvePoint.controlPen.setCapStyle(Qt.RoundCap);
-        CurvePoint.controlPen.setWidth(CurvePoint.ANCHOR_SIZE);
+        CurvePoint.controlPen.setCapStyle(Qt.RoundCap)
+        CurvePoint.controlPen.setWidth(CurvePoint.ANCHOR_SIZE)
         
-        CurvePoint.linePen.setCapStyle(Qt.RoundCap);
-        CurvePoint.linePen.setWidth(1);
+        CurvePoint.linePen.setCapStyle(Qt.RoundCap)
+        CurvePoint.linePen.setWidth(1)
         
-        CurvePoint.curvePen.setCapStyle(Qt.RoundCap);
-        CurvePoint.curvePen.setWidth(2);
+        CurvePoint.curvePen.setCapStyle(Qt.RoundCap)
+        CurvePoint.curvePen.setWidth(2)
         
-        CurvePoint.timePositionBracketPen.setCapStyle(Qt.RoundCap);
-        CurvePoint.timePositionBracketPen.setWidth(3);
+        CurvePoint.timePositionBracketPen.setCapStyle(Qt.RoundCap)
+        CurvePoint.timePositionBracketPen.setWidth(3)
         
-        CurvePoint.timePositionPointPen.setCapStyle(Qt.RoundCap);
-        CurvePoint.timePositionPointPen.setWidth(10);
+        CurvePoint.timePositionPointPen.setCapStyle(Qt.RoundCap)
+        CurvePoint.timePositionPointPen.setWidth(10)
     
     
     def save(self):
@@ -77,7 +77,7 @@ class CurvePoint():
         painter.drawLine(self.control2, self.anchor)
         
         # draw anchor
-        painter.setPen(CurvePoint.anchorPen);
+        painter.setPen(CurvePoint.anchorPen)
         rect = QRectF(self.anchor.x() - CurvePoint.CONTROL_SIZE / 2, self.anchor.y() - CurvePoint.CONTROL_SIZE / 2, CurvePoint.CONTROL_SIZE, CurvePoint.CONTROL_SIZE)
         painter.fillRect(rect, QColor(255, 255, 255))
         painter.drawRect(rect)
@@ -143,12 +143,12 @@ class CurvePoint():
         return (QPoint(bezierPoint.x, bezierPoint.y), tangentAngle)
             
     
-    def getBezierCurveWithNextPoint(self, nextPoint):
+    def getBezierCurveWithNextPoint(self, nextPoint, scale = 1, yRatio = 1, pointToSubstract = QPoint()):
         result = BezierCurve()
-        result.anchor_1 = Point(self.anchor.x(), self.anchor.y(), 0)
-        result.anchor_2 = Point(nextPoint.anchor.x(), nextPoint.anchor.y(), 0)
-        result.control_1 = Point(self.control2.x(), self.control2.y(), 0)
-        result.control_2 = Point(nextPoint.control1.x(), nextPoint.control1.y(), 0)
+        result.anchor_1 = Point((self.anchor.x() - pointToSubstract.x()) * scale, (self.anchor.y() - pointToSubstract.y()) * scale * yRatio, 0)
+        result.anchor_2 = Point((nextPoint.anchor.x() - pointToSubstract.x()) * scale, (nextPoint.anchor.y() - pointToSubstract.y()) * scale * yRatio, 0)
+        result.control_1 = Point((self.control2.x() - pointToSubstract.x()) * scale, (self.control2.y() - pointToSubstract.y()) * scale * yRatio, 0)
+        result.control_2 = Point((nextPoint.control1.x() - pointToSubstract.x()) * scale, (nextPoint.control1.y() - pointToSubstract.y()) * scale * yRatio, 0)
         
         return result
         

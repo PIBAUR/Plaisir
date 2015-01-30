@@ -4,8 +4,8 @@ import os
 import time
 import json
 
-from data.robot import Robot
-from data.media import Media
+from robot import Robot
+from media import Media
 
 class Scenario():
     def __init__(self):
@@ -50,6 +50,10 @@ class Scenario():
     def save(self, filePath):
         with open(filePath, 'w') as outFile:
             json.dump(self.getDataDict(), outFile)
+    
+    
+    def toScenarioMsg(self):
+        return None
     
     
     @staticmethod

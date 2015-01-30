@@ -12,7 +12,7 @@
 	
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
 	
-	<node pkg="tf" type="static_transform_publisher" name="odom_to_map" args="0 0 0 0 0 0 map odom 20"/>
+	<node pkg="tf" type="static_transform_publisher" name="odom_to_map" args="0 0 0 0 0 0 map robot$(arg robot)/odom 20"/>
 	
 	<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/last_map.yaml"/>
 	

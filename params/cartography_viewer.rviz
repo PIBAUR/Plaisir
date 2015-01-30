@@ -86,9 +86,19 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
+<<<<<<< HEAD
         /base_laser_link:
           Value: true
         /base_link:
+=======
+        /map:
+          Value: true
+        /robot00/base_laser_link:
+          Value: true
+        /robot00/base_link:
+          Value: true
+        /robot00/odom:
+>>>>>>> refs/remotes/origin/master
           Value: true
         All Enabled: false
       Marker Scale: 0.3
@@ -97,9 +107,17 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
+<<<<<<< HEAD
         /base_link:
           /base_laser_link:
             {}
+=======
+        /map:
+          /robot00/odom:
+            /robot00/base_link:
+              /robot00/base_laser_link:
+                {}
+>>>>>>> refs/remotes/origin/master
       Update Interval: 0
       Value: true
     - Angle Tolerance: 0.001
@@ -110,8 +128,13 @@ Visualization Manager:
       Length: 0.1
       Name: Odometry
       Position Tolerance: 0.001
+<<<<<<< HEAD
       Topic: /odom
       Value: false
+=======
+      Topic: /robot00/odom
+      Value: true
+>>>>>>> refs/remotes/origin/master
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
@@ -125,8 +148,13 @@ Visualization Manager:
       Color: 255; 19; 180
       Enabled: false
       Name: PoseArray
+<<<<<<< HEAD
       Topic: /path
       Value: false
+=======
+      Topic: /robot00/path
+      Value: true
+>>>>>>> refs/remotes/origin/master
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -149,15 +177,15 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 0.005
+      Angle: -1.49012e-08
       Class: rviz/TopDownOrtho
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 708.144
+      Scale: 61.97
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 0.0531892
-      Y: 0.023197
+      X: 3.09707
+      Y: -0.0517922
     Saved: ~
 Window Geometry:
   Displays:
@@ -174,6 +202,11 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: true
+<<<<<<< HEAD
   Width: 1855
   X: 65
+=======
+  Width: 935
+  X: 803
+>>>>>>> refs/remotes/origin/master
   Y: 24
