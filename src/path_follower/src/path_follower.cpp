@@ -91,6 +91,7 @@ int main(int argc, char **argv)
     tf::TransformListener tf_listener;
 
     geometry_msgs::Twist cmd;
+    std_msgs::Float64 ratio;
     
     cmd.linear.y=0;
     cmd.linear.z=0;
@@ -123,7 +124,8 @@ int main(int argc, char **argv)
         cpt++;
         if(cpt>60)
         {
-            path_fb.publish(1.0*index_path/size_path);
+            ratio.data = 1.0*index_path/size_path;
+            path_fb.publish(ratio);
             cpt=0;
         }
         ros::spinOnce();
