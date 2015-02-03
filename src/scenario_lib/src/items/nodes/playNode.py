@@ -20,18 +20,45 @@ class PlayNode(DiagramNode):
         
         self.playingScenario = None
         
-        self.playButton = QPushButton("Play !")
+        self.playButton = QPushButton("Play")
         self.playButton.clicked.connect(self.handlePlayButtonClicked)
         self.widget.central_widget.layout().addWidget(self.playButton)
         self.playingScenarioLabel = QLabel("")
         self.widget.central_widget.layout().addWidget(self.playingScenarioLabel)
+        self.stopButton = QPushButton("Stop")
+        self.stopButton.clicked.connect(self.handleStopButtonClicked)
+        self.stopButton.setEnabled(False)
+        self.widget.central_widget.layout().addWidget(self.stopButton)
     
     
     def output(self):
-        inputs = super(PlayNode, self).output()
+        self.stopExecution()
         
-        return inputs[0].output(self.updateRatio, self.updateOutput)
+        inputs = self.getInputs()
+        
+        self.startExecution(0)
+        
+        return inputs[0].output(self.updateRatio)
     
+    
+    def updateRatio(self, inputRatio, paused):
+        if paused:
+            self.playScenario(self.output())
+            
+            #self.playingScenario = None
+            #self.playButton.setEnabled(True)
+            #self.setTimelineValue(0)
+            #self.playingScenarioLabel.setText("")
+        else:
+            self.setTimelineValue(inputRatio)
+    
+    
+    def stop(self):
+        super(PlayNode, self).stop()
+        
+        self.playingScenario = None
+        self.playingScenarioLabel.setText("")
+        
     
     def getSpecificsData(self):
         return None
@@ -41,30 +68,29 @@ class PlayNode(DiagramNode):
         pass
     
     
-    def updateOutput(self, output):
-        self.playScenario(output)
-    
-    
-    def updateRatio(self, ratio):
-        if ratio == 1:
-            self.playingScenario = None
-            self.playButton.setEnabled(True)
-            self.setTimelineValue(0)
-            self.playingScenarioLabel.setText("")
-        
-        self.setTimelineValue(ratio)
-    
-    
     def playScenario(self, scenario):
         try:
             self.playingScenario = scenario
             self.playingScenarioLabel.setText(self.playingScenario.name)
         except NodeException, e:
             print "Erreur: " + e.message
-            self.playButton.setEnabled(True)
+            self.stopAllScenarios()
     
+    
+    def stopAllScenarios(self):
+        for nodeInstance in self.canvas.nodesInstances:
+            nodeInstance.stop()
+        
     
     def handlePlayButtonClicked(self, event):
         self.playButton.setEnabled(False)
+        self.stopButton.setEnabled(True)
         
         self.playScenario(self.output())
+        
+        
+    def handleStopButtonClicked(self, event):
+        self.playButton.setEnabled(True)
+        self.stopButton.setEnabled(False)
+        
+        self.stopAllScenarios()

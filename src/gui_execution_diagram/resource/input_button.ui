@@ -25,6 +25,9 @@
   <property name="windowOpacity">
    <double>1.000000000000000</double>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <property name="inputMethodHints">
    <set>Qt::ImhNone</set>
   </property>
@@ -86,16 +89,6 @@ QPushButton:pressed {
      </property>
      <property name="flat">
       <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>a.x</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>

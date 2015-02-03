@@ -22,21 +22,47 @@ class SequenceNode(DiagramNode):
         self.numInputs = 0
         
     
-    def output(self, updateRatioCallback, updateOutputCallback, firstCall = True):
+    def output(self, updateRatioCallback):
         self.updateCallback = updateRatioCallback
-        self.updateOutputCallback = updateOutputCallback
         
-        if firstCall:
-            self.currentInputIndex = 0
-        else:
-            self.currentInputIndex += 1
-        
-        inputs = super(SequenceNode, self).output()
+        inputs = self.getInputs()
         self.numInputs = len(inputs)
         
+        if self.currentInputIndex > len(inputs) - 1: # in case of intended index has been removed
+            self.currentInputIndex = 0
         inputItem = inputs[self.currentInputIndex]
         
-        return inputItem.output(self.updateRatio, self.updateOutputCallback)
+        self.startExecution(self.getInputWidgetIndexFromInputIndex(self.currentInputIndex))
+        
+        return inputItem.output(self.updateRatio)
+    
+    
+    def updateRatio(self, inputRatio, paused):
+        inputRatio = float(inputRatio)
+        
+        sequenceRatio = (float(self.currentInputIndex) / (self.numInputs)) + (inputRatio / self.numInputs)
+        
+        if inputRatio >= 1:
+            self.currentInputIndex += 1
+            if self.currentInputIndex >= self.numInputs:
+                self.currentInputIndex = 0
+        
+        if sequenceRatio >= 1:
+            self.stopExecution()
+            self.updateCallback(1, True)
+        else:
+            if inputRatio >= 1 or paused:
+                self.stopExecution()
+                self.updateCallback(sequenceRatio, True)
+            else:
+                self.updateCallback(sequenceRatio, False)
+                self.setTimelineValue(sequenceRatio)
+    
+    
+    def stop(self):
+        super(SequenceNode, self).stop()
+        
+        self.currentInputIndex = 0
     
     
     def getSpecificsData(self):
@@ -45,17 +71,5 @@ class SequenceNode(DiagramNode):
     
     def setSpecificsData(self, data):
         pass
-    
-    
-    def updateRatio(self, ratio):
-        # while it is not the last index; continue
-        if self.currentInputIndex < self.numInputs - 1 and ratio == 1:
-            self.updateOutputCallback(self.output(self.updateCallback, self.updateOutputCallback, False))
-            return
         
-        ratio = float(ratio)
-        sequenceRatio = (float(self.currentInputIndex) / (self.numInputs)) + (ratio / self.numInputs)
         
-        self.setTimelineValue(sequenceRatio)
-        
-        self.updateCallback(sequenceRatio)

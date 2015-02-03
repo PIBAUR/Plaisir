@@ -22,7 +22,8 @@ class DiagramNode(object):
     maxInputs = 0 # 0 for infinity
     minInputs = 0
     hasOutput = 0
-    inputGroup = [] # for example, an if condition has got a group: ["valueToTest", "resultIfIsTrue"]
+    
+    executingOutputWidgetButtonCSS = "QPushButton { background: #cccc00; border-radius: 7px; }"
     
     try:
         ui_file = os.path.join(rospkg.RosPack().get_path('execution_diagram'), 'resource', 'diagram_node.ui')
@@ -38,6 +39,9 @@ class DiagramNode(object):
         
         self.updateCallback = None
         
+        self.executing = False
+        self.executingInputWidget = None
+        
         # ui
         self.canvas = canvas
         
@@ -47,6 +51,7 @@ class DiagramNode(object):
         self.currentInputButtonPressed = None
         self.widget = uic.loadUi(DiagramNode.ui_file)
         self.outputWidget = None
+        self.originInOutputWidgetButtonCSS = None
         
         self.widget.nodeInstance = self
         self.widget.setParent(parent)
@@ -68,23 +73,82 @@ class DiagramNode(object):
         if self.__class__.hasOutput:
             self.outputWidget = uic.loadUi(DiagramNode.input_button_ui_file)
             self.outputWidget.setParent(self.widget.container_widget)
-            self.outputWidget.label.setText("")
-            self.outputWidget.label.setAttribute(Qt.WA_TransparentForMouseEvents)
+            self.outputWidget.setMaximumSize(self.outputWidget.button.width(), self.outputWidget.button.height())
+            self.outputWidget.setMinimumSize(self.outputWidget.button.width(), self.outputWidget.button.height())
             self.outputWidget.show()
             
             xPosOutputWidget = self.widget.central_widget.width()
             yPosOutputWidget = self.widget.central_widget.height() / 2
             self.outputWidget.move(xPosOutputWidget, yPosOutputWidget)
-            
+        
+            # backup origin style of button for restoring after
+            self.originInOutputWidgetButtonCSS = self.outputWidget.button.styleSheet()
     
     
-    def output(self):
+    def getInputs(self):
         # get only enabled inputs
         inputs = [inputNode for inputNode in self.getInputsInstances() if inputNode is not None and inputNode.enabled]
         
         if len(inputs) < self.__class__.minInputs:
             raise NodeException(u"le nombre de noeud connectés est insuffisant")
         return inputs
+    
+    
+    def getInputWidgetIndexFromInputIndex(self, inputIndex):
+        # for the difference if there are gaps between input widgets
+        inputInstances = self.getInputsInstances()
+        j = 0
+        for i in range(len(inputInstances)):
+            if inputInstances[i] is not None:
+                if j == inputIndex:
+                    return i
+                j += 1
+        
+        return -1
+   
+    
+    def stop(self):
+        self.stopExecution()
+    
+    
+    def startExecution(self, inputIndexExecuted):
+        # set var
+        self.executing = True
+        
+        # mark output button in yellow
+        if self.outputWidget is not None:
+            self.outputWidget.button.objectName = "executing"
+            self.outputWidget.button.setStyleSheet(DiagramNode.executingOutputWidgetButtonCSS)
+            self.outputWidget.button.setEnabled(False)
+        
+        # mark corresponding input button in yellow
+        inputWidgets = self.getInputsWidgets()
+        if len(inputWidgets) > 0:
+            self.executingInputWidget = inputWidgets[inputIndexExecuted]
+            self.executingInputWidget.button.setStyleSheet(DiagramNode.executingOutputWidgetButtonCSS)
+            self.executingInputWidget.button.objectName = "executing"
+            self.executingInputWidget.button.setEnabled(False)
+
+        self.canvas.update()
+    
+    
+    def stopExecution(self):
+        # reset everything
+        self.executing = False
+        self.setTimelineValue(0)
+        
+        if self.outputWidget is not None:
+            self.outputWidget.button.objectName = ""
+            self.outputWidget.button.setStyleSheet(self.originInOutputWidgetButtonCSS)
+            self.outputWidget.button.setEnabled(True)
+        
+        if self.executingInputWidget is not None and self.originInOutputWidgetButtonCSS is not None:
+            self.executingInputWidget.button.objectName = ""
+            self.executingInputWidget.button.setStyleSheet(self.originInOutputWidgetButtonCSS)
+            self.executingInputWidget.button.setEnabled(True)
+            self.executingInputWidget = None
+        
+        self.canvas.update()
     
     
     def getSpecificsData(self):
@@ -106,27 +170,27 @@ class DiagramNode(object):
     def addEmptyInput(self):
         topMargin = 10
         
-        for inputName in self.__class__.inputGroup:
-            inputWidget = uic.loadUi(DiagramNode.input_button_ui_file)
-            inputWidget.objectName = "input"
-            inputWidget.setParent(self.widget.container_widget)
-            inputWidget.label.setText(inputName)
-            #inputWidget.setAttribute(Qt.WA_TransparentForMouseEvents)
-            #inputWidget.setAttribute(Qt.WA_TranslucentBackground)
-            #inputWidget.label.setAttribute(Qt.WA_TransparentForMouseEvents)
-            #inputWidget.label.setAttribute(Qt.WA_TranslucentBackground)
-            inputWidget.show()
-            
-            yPosInputWidget = self.widget.central_widget.y() + topMargin + (len(self.getInputsWidgets()) - 1) * (topMargin + inputWidget.height())
-            inputWidget.move(0, yPosInputWidget)
-            
-            inputWidget.button.mousePressEvent = partial(self.inputButtonMousePressEvent, inputWidget.button)
-            inputWidget.button.mouseMoveEvent = self.inputButtonMouseMoveEvent
-            inputWidget.button.mouseReleaseEvent = self.inputButtonMouseReleaseEvent
-            
-            # set data
-            inputWidget.connectedToInstance = None
-    
+        inputWidget = uic.loadUi(DiagramNode.input_button_ui_file)
+        inputWidget.objectName = "input"
+        inputWidget.setParent(self.widget.container_widget)
+        inputWidget.setMaximumSize(inputWidget.button.width(), inputWidget.button.height())
+        inputWidget.setMinimumSize(inputWidget.button.width(), inputWidget.button.height())
+        inputWidget.show()
+        
+        yPosInputWidget = self.widget.central_widget.y() + topMargin + (len(self.getInputsWidgets()) - 1) * (topMargin + inputWidget.height())
+        inputWidget.move(0, yPosInputWidget)
+        
+        inputWidget.button.mousePressEvent = partial(self.inputButtonMousePressEvent, inputWidget.button)
+        inputWidget.button.mouseMoveEvent = self.inputButtonMouseMoveEvent
+        inputWidget.button.mouseReleaseEvent = self.inputButtonMouseReleaseEvent
+        
+        # set data
+        inputWidget.connectedToInstance = None
+        
+        # backup origin style of button for restoring after if there is no output
+        if self.originInOutputWidgetButtonCSS is None:
+            self.originInOutputWidgetButtonCSS = inputWidget.button.styleSheet()
+        
     
     def setTimelineValue(self, value):
         width = value * self.widget.timelineContainer.width()
@@ -175,7 +239,7 @@ class DiagramNode(object):
             self.currentInputButtonPressed.parent().connectedToInstance = self.canvas.nodeWidgetUnderMouse.nodeInstance
             
             # change input
-            if len(self.getInputsWidgets()) < self.__class__.maxInputs * len(self.__class__.inputGroup):
+            if len(self.getInputsWidgets()) < self.__class__.maxInputs:
                 self.addEmptyInput()
         else:
             # cancel

@@ -7,10 +7,12 @@ from PyQt4.QtCore import *
 
 from src.scenario_lib.src.items import nodes
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
+from src.scenario_lib.src.items.nodes.nodeException import NodeException
 
 class Canvas(QWidget):
     grey = QColor(100, 100, 100)
     linkColor = QColor(79, 128, 255)
+    executingLinkColor = QColor(255, 255, 0)
     linkPen = QPen(linkColor)
     
     def __init__(self, ui, changeCallback):
@@ -24,7 +26,6 @@ class Canvas(QWidget):
         
         # ui
         self.currentLink = None
-        self.definitiveLinks = {}
         self.nodeWidgetUnderMouse = None
         
         # context menu
@@ -50,15 +51,25 @@ class Canvas(QWidget):
         
         
     def drawLinks(self, painter):
-        painter.setPen(Canvas.linkPen)
-        
         if self.currentLink is not None:
             self.drawLink(painter, self.currentLink[0], self.currentLink[1])
         
         for nodeInstance in self.nodesInstances:
+            if self.currentLink is None and nodeInstance.outputWidget is not None:
+                nodeInstance.outputWidget.button.setDown(False)
             for inputWidget in nodeInstance.getInputsWidgets():
                 if inputWidget.connectedToInstance is not None:
                     self.drawLink(painter, inputWidget.button, inputWidget.connectedToInstance)
+        
+        if self.currentLink is None:
+            for nodeInstance in self.nodesInstances:
+                try:
+                    nodeInstanceInputs = nodeInstance.getInputs()
+                    for nodeInstanceInput in nodeInstanceInputs:
+                        if nodeInstanceInput.outputWidget is not None:
+                            nodeInstanceInput.outputWidget.button.setDown(True)
+                except NodeException:
+                    pass
         
     
     def drawLink(self, painter, inputButton, target):
@@ -69,6 +80,7 @@ class Canvas(QWidget):
         currentLinkStartPos = inputButton.parent().mapToGlobal(inputButton.pos()) - self.mapToGlobal(QPoint()) + QPoint(inputButton.width() / 2, inputButton.height() / 2)
         
         nodeWidgetUnderMouse = None
+        executingLink = False
         
         # check if target is a point or a destination button
         if isinstance(target, QPoint):
@@ -79,6 +91,9 @@ class Canvas(QWidget):
             nodeWidgetUnderMouse = self.getNodeWidgetUnderMouse(inputButton.parent().parent(), mousePos)
         elif isinstance(target, DiagramNode):
             nodeWidgetUnderMouse = target.widget
+            
+            # is the line between executing nodes
+            executingLink = inputButton.objectName == "executing" and nodeWidgetUnderMouse.nodeInstance.outputWidget.button.objectName == "executing"
             
         # snap to it
         if nodeWidgetUnderMouse is not None:
@@ -93,11 +108,13 @@ class Canvas(QWidget):
             self.nodeWidgetUnderMouse = None
         
         # draw line
+        linkColor = Canvas.linkColor if not executingLink else Canvas.executingLinkColor
+        Canvas.linkPen.setColor(linkColor)
+        painter.setPen(Canvas.linkPen)
         painter.drawLine(currentLinkStartPos, currentLinkEndPos)
         # draw direction triangle
         linkLine = currentLinkEndPos - currentLinkStartPos
         lineCenter = currentLinkStartPos + linkLine / 2
-        painter.setBrush(Canvas.linkColor)
         angle = math.atan2(linkLine.y(), linkLine.x())
         triangleLength1 = 5.
         triangleLength2 = 10.
@@ -107,6 +124,7 @@ class Canvas(QWidget):
         bottomTriangle = QPoint(triangleLength1 * math.cos(angleBottom), triangleLength1 * math.sin(angleBottom))
         summitTriangle = lineCenter - QPoint(triangleLength2 * math.cos(angle), triangleLength2 * math.sin(angle))
         
+        painter.setBrush(linkColor)
         painter.drawPolygon(QPolygon([summitTriangle, lineCenter + topTriangle, lineCenter + bottomTriangle, summitTriangle]))
         
     
@@ -154,10 +172,6 @@ class Canvas(QWidget):
             nodeInstance.destroy()
             del self.nodesInstances[0]
         self.nodesInstances = []
-        
-        for linkKey in self.definitiveLinks.keys():
-            del self.definitiveLinks[linkKey]
-        self.definitiveLinks = {}
         
         DiagramNode.currentNodeId = 0
         

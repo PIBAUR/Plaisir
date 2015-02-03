@@ -28,24 +28,32 @@ class ScenarioNode(DiagramNode):
         self.browse_button = QPushButton("Parcourir ...")
         self.browse_button.clicked.connect(self.handleBrowseButtonClicked)
         self.widget.central_widget.layout().addWidget(self.browse_button)
+        
+        self.timer = QTimer(self.widget)
+        self.timer.timeout.connect(self.handleTimer)
+        self.timer.setInterval(50)
     
     
-    def output(self, updateRatioCallback, updateOutputCallback):
+    def output(self, updateRatioCallback):
         self.updateCallback = updateRatioCallback
-        self.updateOutputCallback = updateOutputCallback
         
         if self.currentScenario is None:
             raise NodeException(u"aucun scénario n'a été chargé")
         
-        self.time = 0.
-        self.timer = QTimer(self.widget)
-        self.timer.timeout.connect(self.handleTimer)
-        self.handleTimer()
-        self.timer.setInterval(50)
+        self.currentTime = float(0)
+        self.startExecution(0)
+        
+        self.handleTimer(True)
         self.timer.start()
         
         return self.currentScenario
     
+    
+    def stop(self):
+        super(ScenarioNode, self).stop()
+        
+        self.timer.stop()
+        
     
     def getSpecificsData(self):
         if self.currentScenario is not None:
@@ -59,15 +67,19 @@ class ScenarioNode(DiagramNode):
             self.openScenario(data)
     
     
-    def handleTimer(self):
-        self.time += .1
-        if self.time >= 1:
-            self.time = 1
+    def handleTimer(self, firstTime = False):
+        if not firstTime:
+            self.currentTime += .051
+        if self.currentTime >= 1:
+            self.currentTime = 1
             self.timer.stop()
-            self.setTimelineValue(0)
         
-        self.updateCallback(self.time)
-        self.setTimelineValue(self.time)
+        if self.currentTime >= 1:
+            self.stopExecution()
+            self.updateCallback(1, True)
+        else:
+            self.updateCallback(self.currentTime, False)
+            self.setTimelineValue(self.currentTime)
         
     
     def handleBrowseButtonClicked(self, event):
