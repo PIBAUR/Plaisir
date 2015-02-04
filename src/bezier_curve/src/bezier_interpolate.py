@@ -14,9 +14,12 @@ step=0
 def scenarioCallback(data):
     ("path", PoseArray)
     
-    
     path.poses = []
     path.header = data.header
+    
+    #l = getBezierCurveLength(data)
+    
+    print l
     
     for curve in data.curves:
         i = 0
@@ -54,7 +57,7 @@ def getBezierCurveResult(u, bezierCurve):
     return result
 
 
-""" method to calculate the tangent of a point of a bezier curve 
+""" method to camathlculate the tangent of a point of a bezier curve 
 
 :param u: position of the curve which we want to calculate, from 0 to 1
 :type u: float
@@ -77,6 +80,46 @@ def getBezierCurveTangentResult(u, bezierCurve):
     tangent = math.atan2(p.y, p.x)
     
     return tangent
+
+
+""" method to calculate the length of a BezierPath 
+
+:param s: position of the curve which we want to calculate, from 0 to 1
+:type s: float
+:param bezierCurve: coords of the start point, end point and tangent for each of them for the curve
+:type bezierCurve: bezier_curve.msg.BezierCurve
+:returns: result length
+:rtype: float
+"""
+def getBezierCurveLength(bezierCurve):
+    ds = 0.001
+    length = 0.0
+    
+    for curve in bezierCurve.curves:
+        s = 0.0
+        p = Pose()
+        p_old = Pose()
+        
+        p.position = getBezierCurveResult(s, curve)
+        s += ds
+        
+        while s <= 1.0:  
+            x_old = p.position.x
+            y_old = p.position.y
+            p.position = getBezierCurveResult(s, curve)
+            
+            dx = p.position.x - x_old
+            dy = p.position.y - y_old
+            dl = math.sqrt(dx*dx + dy*dy)
+            length += dl
+            
+            s += ds
+            #print length
+            
+    return length
+
+    
+
 
 
 if __name__ == "__main__":
