@@ -50,9 +50,9 @@ add_message_files(
   FILES
   BezierCurve.msg
   BezierPath.msg
+  Media.msg
   Scenario.msg
   Pose2DArray.msg
-  VideoPlayer.msg
 )
 
 
