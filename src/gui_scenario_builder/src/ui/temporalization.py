@@ -48,7 +48,7 @@ class Temporalization():
         splitterWidth = self.temporalizationSplitter.width() - handleWidth * (len(self.canvas.currentRobot.medias) - 1)
         i = 0
         for media in self.canvas.currentRobot.medias:
-            mediaButton = QPushButton(media.niceName)
+            mediaButton = QPushButton(media.niceName + "\n" + str(float(int((media.duration) * 100) / 100)) + " s")
             mediaButton.setStyleSheet("background: " + media.color.name() + "; text-align: left;")
             mediaButton.setMinimumWidth(1)
             mediaButton.setCheckable(True)

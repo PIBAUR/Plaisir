@@ -1,5 +1,7 @@
 import math
 
+import rospy
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -18,6 +20,12 @@ class Canvas(QWidget):
         
         self.ui = ui
         self.changeCallback = changeCallback
+        
+        # get params
+        try:
+            self.mediaTimeBase = float(rospy.get_param("media_time_base"))
+        except Exception:
+            self.mediaTimeBase = 2.5
         
         Canvas.gridPen.setCapStyle(Qt.SquareCap);
         Canvas.gridPen.setWidth(1);
@@ -65,7 +73,7 @@ class Canvas(QWidget):
             self.drawTimelineCursor(painter, self.currentRobot, self.currentTimelinePosition)
         
         
-    def titleMousePressEvent(self, event):
+    def mousePressEvent(self, event):
         self.currentItem = None
         self.currentPoint = None
         itemUnderMouseResult = None
@@ -100,13 +108,13 @@ class Canvas(QWidget):
         self.update()
     
         
-    def titleMouseReleaseEvent(self, event):
+    def mouseReleaseEvent(self, event):
         self.update()
         
         self.changeCallback()
         
         
-    def titleMouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event):
         mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
         
         if self.isEditing:
@@ -188,13 +196,21 @@ class Canvas(QWidget):
                 
     def drawTemporization(self, painter, robot):
         if len(robot.points) > 1:
+            i = 0
             for media in robot.medias:
-                startTimePosition = media.startTime * (len(robot.points) - 1)
-                startPointIndex = int(math.floor(startTimePosition))
-                startTimePositionRelative = startTimePosition - startPointIndex
+                numTimeBases = int(math.ceil(media.duration / self.mediaTimeBase))
+                mediaTime = media.endTime - media.startTime
+                # for each "2.5s"
+                for j in range(numTimeBases):
+                    lala = media.startTime + (mediaTime / numTimeBases) * j
+                    timePosition = lala * (len(robot.points) - 1)
+                    pointIndex = int(math.floor(timePosition))
+                    timePositionRelative = timePosition - pointIndex
+                    
+                    timeCurvePoint = robot.points[pointIndex]
+                    timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, media.color, "bracket" if j == 0 else "pipe")
                 
-                startTimeCurvePoint = robot.points[startPointIndex]
-                startTimeCurvePoint.drawTimePosition(painter, robot.points[startPointIndex + 1], startTimePositionRelative, media.color)
+                i += 1
                 
                 
     def drawTimelineCursor(self, painter, robot, timePosition):

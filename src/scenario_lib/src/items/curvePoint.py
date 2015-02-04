@@ -47,7 +47,7 @@ class CurvePoint():
         CurvePoint.curvePen.setWidth(2)
         
         CurvePoint.timePositionBracketPen.setCapStyle(Qt.RoundCap)
-        CurvePoint.timePositionBracketPen.setWidth(3)
+        CurvePoint.timePositionBracketPen.setWidth(2)
         
         CurvePoint.timePositionPointPen.setCapStyle(Qt.RoundCap)
         CurvePoint.timePositionPointPen.setWidth(10)
@@ -108,25 +108,29 @@ class CurvePoint():
         timeCursorPoint = result[0]
         tangentAngle = result[1]
         
-        if drawType == "bracket":
+        if drawType == "bracket" or drawType == "pipe":
             CurvePoint.timePositionBracketPen.setColor(color)
             painter.setPen(CurvePoint.timePositionBracketPen)
             topTimeCursorPoint = QPoint()
             topTimeCursorPoint.setX(timeCursorPoint.x() + 10 * math.cos(tangentAngle))
             topTimeCursorPoint.setY(timeCursorPoint.y() + 10 * math.sin(tangentAngle))
-            topRightTimeCursorPoint = QPoint()
-            topRightTimeCursorPoint.setX(topTimeCursorPoint.x() + 5 * math.cos(tangentAngle - math.pi / 2))
-            topRightTimeCursorPoint.setY(topTimeCursorPoint.y() + 5 * math.sin(tangentAngle - math.pi / 2))
+            if drawType == "bracket":
+                topRightTimeCursorPoint = QPoint()
+                topRightTimeCursorPoint.setX(topTimeCursorPoint.x() + 5 * math.cos(tangentAngle - math.pi / 2))
+                topRightTimeCursorPoint.setY(topTimeCursorPoint.y() + 5 * math.sin(tangentAngle - math.pi / 2))
             bottomTimeCursorPoint = QPoint()
             bottomTimeCursorPoint.setX(timeCursorPoint.x() + 10 * math.cos(math.pi + tangentAngle))
             bottomTimeCursorPoint.setY(timeCursorPoint.y() + 10 * math.sin(math.pi + tangentAngle))
-            bottomRightTimeCursorPoint = QPoint()
-            bottomRightTimeCursorPoint.setX(bottomTimeCursorPoint.x() + 5 * math.cos(tangentAngle - math.pi / 2))
-            bottomRightTimeCursorPoint.setY(bottomTimeCursorPoint.y() + 5 * math.sin(tangentAngle - math.pi / 2))
+            if drawType == "bracket":
+                bottomRightTimeCursorPoint = QPoint()
+                bottomRightTimeCursorPoint.setX(bottomTimeCursorPoint.x() + 5 * math.cos(tangentAngle - math.pi / 2))
+                bottomRightTimeCursorPoint.setY(bottomTimeCursorPoint.y() + 5 * math.sin(tangentAngle - math.pi / 2))
             painter.drawLine(timeCursorPoint, topTimeCursorPoint)
-            painter.drawLine(topTimeCursorPoint, topRightTimeCursorPoint)
+            if drawType == "bracket":
+                painter.drawLine(topTimeCursorPoint, topRightTimeCursorPoint)
             painter.drawLine(timeCursorPoint, bottomTimeCursorPoint)
-            painter.drawLine(bottomTimeCursorPoint, bottomRightTimeCursorPoint)
+            if drawType == "bracket":
+                painter.drawLine(bottomTimeCursorPoint, bottomRightTimeCursorPoint)
         elif drawType == "point":
             CurvePoint.timePositionPointPen.setColor(color)
             painter.setPen(CurvePoint.timePositionPointPen)

@@ -12,6 +12,7 @@ class Media():
     
     def __init__(self, filePath, loadWithVideos = True):
         self.filePath = filePath
+        self.duration = Media.getDurationOfVideo(filePath)
         self.startTime = -1
         self.endTime = -1
         
@@ -31,6 +32,7 @@ class Media():
     def save(self):
         result = {}
         result["filePath"] = self.filePath
+        self.duration = Media.getDurationOfVideo(self.filePath)
         result["startTime"] = self.startTime
         result["endTime"] = self.endTime
         result["color"] = str(self.color.name())
@@ -79,6 +81,11 @@ class Media():
         pipeline.set_state(gst.STATE_NULL)
         
         return imageBuffer
+    
+    
+    @staticmethod
+    def getDurationOfVideo(filePath):
+        return float(os.popen('ffprobe ' + filePath + ' -show_format -v quiet | sed -n \'s/duration=//p\'').read())
     
     
     @staticmethod

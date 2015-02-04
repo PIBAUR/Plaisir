@@ -211,8 +211,15 @@ class DiagramNode(object):
         
     def titleMouseMoveEvent(self, event):
         if self.dragging:
-            self.widget.move(event.globalX() - self.draggingOrigin[0], event.globalY() - self.draggingOrigin[1])
+            moveToX, moveToY = event.globalX() - self.draggingOrigin[0], event.globalY() - self.draggingOrigin[1]
+            # set limits
+            if moveToX < 0: moveToX = 0
+            if moveToY < 0: moveToY = 0
+            
+            # move it
+            self.widget.move(moveToX, moveToY)
             self.canvas.update()
+            self.canvas.updateBounds()
             
             
     def titleMouseReleaseEvent(self, event):
@@ -275,7 +282,7 @@ class DiagramNode(object):
     def createInstanceFromData(canvas, nodeData):
         nodeClass = eval(nodeData["class"])
         position = QPoint(nodeData["position"][0], nodeData["position"][1]) + (canvas.mapToGlobal(QPoint(canvas.pos())) - canvas.mapToGlobal(QPoint()))
-        nodeInstance = nodeClass(canvas.ui, canvas, position)
+        nodeInstance = nodeClass(canvas.ui.canvasContainer, canvas, position)
         nodeInstance.id = nodeData["id"]
         while len(nodeInstance.getInputsWidgets()) < len(nodeData["links"]):
             nodeInstance.addEmptyInput()

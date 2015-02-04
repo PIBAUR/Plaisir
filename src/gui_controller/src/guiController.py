@@ -8,14 +8,12 @@ from PyQt4.QtCore import *
 from PyQt4 import uic
 
 from twistController import TwistController
-from scenarioController import ScenarioController
 from canvas import Canvas
         
 class GuiController(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         self.twistController = TwistController()
-        self.scenarioController = ScenarioController()
         
         ui_file = os.path.join(rospkg.RosPack().get_path('gui_controller'), 'resource', 'gui_controller.ui')
         
@@ -115,7 +113,3 @@ class GuiController(QMainWindow):
 
     def handleBezierTreeWidgetChanged(self):
         self.ui.removePoint_button.setEnabled(self.ui.bezier_treeWidget.currentItem() is not None)
-    
-    
-    def handleSendBezierClicked(self, event):
-        self.scenarioController.send()

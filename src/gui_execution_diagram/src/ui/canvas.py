@@ -34,9 +34,12 @@ class Canvas(QWidget):
         
         # vars
         self.nodesInstances = []
+        
+        self.updateBounds()
             
     
     def paintEvent(self, e):
+        # paint it
         painter = QPainter(self)
 
         self.drawBackground(painter)
@@ -151,6 +154,20 @@ class Canvas(QWidget):
         return result
     
     
+    def updateBounds(self):
+        maxWidth = self.ui.canvasContainer.width()
+        maxHeight = self.ui.canvasContainer.height()
+        
+        for nodeInstance in self.nodesInstances:
+            nodeInstanceMaxWidth = nodeInstance.widget.x() + nodeInstance.widget.width()
+            nodeInstanceMaxHeight = nodeInstance.widget.y() + nodeInstance.widget.height()
+            if nodeInstanceMaxWidth > maxWidth:
+                maxWidth = nodeInstanceMaxWidth
+            if nodeInstanceMaxHeight > maxHeight:
+                maxHeight = nodeInstanceMaxHeight
+        self.setMinimumSize(maxWidth, maxHeight)
+        self.setMaximumSize(maxWidth, maxHeight)
+    
     # persistance
     def save(self, filePath):
         nodesDataList = []
@@ -191,6 +208,7 @@ class Canvas(QWidget):
             DiagramNode.linkInstanceFromData(self, nodeData)
                 
         self.update()
+        self.updateBounds()
             
     
     def getNodeInstanceById(self, nodeId):
@@ -224,7 +242,7 @@ class Canvas(QWidget):
     
     
     def handleMenuActionTriggered(self, nodeClass, position):
-        nodeInstance = nodeClass(self.ui, self, position)
+        nodeInstance = nodeClass(self.ui.canvasContainer, self, position)
         nodeInstance.widget.move(position.x() - nodeInstance.widget.width() / 2, position.y() - 10)
         self.nodesInstances.append(nodeInstance)
         

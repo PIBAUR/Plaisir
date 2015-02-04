@@ -29,7 +29,7 @@ class ExecutionDiagram():
         
         # canvas
         self.canvas = Canvas(self.ui, self.changeCallback)
-        self.ui.layout().addWidget(self.canvas)
+        self.ui.canvasContainer.layout().addWidget(self.canvas)
         
         # menu
         self.ui.actionNew.triggered.connect(self.newDiagram)
@@ -51,6 +51,7 @@ class ExecutionDiagram():
     
     # menu actions
     def newDiagram(self):
+        #TODO: warning & stop playing
         self.canvas.load(None)
         self.lastChangesSaved = True
         self.updateWindowTitle()
@@ -59,6 +60,7 @@ class ExecutionDiagram():
     def openDiagram(self):
         # hide and show because of a bug which shows a blank qfiledialog
         self.canvas.hide()
+        #TODO: warning & stop playing
         filePathToOpen = "/home/artlab/Bureau/01.dge"#QFileDialog.getOpenFileName(self.ui, u"Ouvrir un diagramme", "", u"Diagramme d'exécution: *.dge (*.dge)")
         self.canvas.show()
         
@@ -115,3 +117,4 @@ class ExecutionDiagram():
         absoluteCoords -= self.ui.mapToGlobal(QPoint(0, 0))
         self.canvas.setGeometry(absoluteCoords.x(), absoluteCoords.y(), self.ui.canvasContainer.width(), self.ui.canvasContainer.height())
         self.canvas.update()
+        self.canvas.updateBounds()
