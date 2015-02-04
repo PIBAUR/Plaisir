@@ -9,5 +9,5 @@ scenario_msgs/BezierPath bezier_paths
 #destination du scenario 
 geometry_msgs/Pose2D target
 
-#video
-scenario_msgs/VideoPlayer video_player
+#list of medias to display
+scenario_msgs/Media medias[]

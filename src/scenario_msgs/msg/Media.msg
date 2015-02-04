@@ -1,0 +1,13 @@
+### path du media
+string path
+
+### type of file :(TODO : list format...)
+# image : .jpg, .jpeg, .png, ...
+# video : .mpeg, .mp4, .avi, ...
+# documents : .ppt, .pdf, ...
+# programme : ...
+string type
+
+### time length : display "file" for "time_length" seconds
+float64 time_length
+
