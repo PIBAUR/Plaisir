@@ -11,8 +11,11 @@ class ScenarioController():
     
     
     def send(self):
-        self.scenario.video_player = VideoPlayer()
-        self.scenario.video_player.video_paths = ["test_video.mp4"]
+        media = Media()
+        media.path = "test_path_media.mp4"
+        media.type = "video"
+        media.time_length = 3.14
+        self.scenario.medias = [media]
         header = Header()
         header.frame_id = "map"
         header.stamp = rospy.Time.now()

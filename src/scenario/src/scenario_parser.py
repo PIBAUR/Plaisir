@@ -2,17 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import rospy
-from scenario_msgs.msg import Scenario, BezierPath, VideoPlayer
+from scenario_msgs.msg import *
 
 
-videoplayer_pub = rospy.Publisher('videoplayer',VideoPlayer)
+medias_pub = rospy.Publisher('media',MediaArray)
 bpath_pub = rospy.Publisher('bezier_path',BezierPath)
 
 def scenarioCB(data) :
     bcurves_msg = data.bezier_paths
-    videoplayer_msg = data.video_player    
+    medias_msg = data.medias    
     bpath_pub.publish(bcurves_msg)
-    videoplayer_publish(videoplayer_msg)
+    medias_pub.publish(medias_msg)
  
 
 if __name__ == '__main__':
