@@ -19,19 +19,23 @@ class Scenario():
         self.robots = [Robot(loadWithVideos)]
         
         self.name = None
-        self.type = None
-        self.target = None
-        self.behaviour = None
+        self.attributes = []
     
     
-    def getDataDict(self):
+    def getAttributes(self):
+        return self.attributes
+    
+    
+    def setAttributes(self, attributes):
+        self.attributes = attributes
+    
+    
+    def getDataDict(self, scale = 1):
         data = {}
         data["creationTime"] = self.creationTime
         data["modificationTime"] = time.time()
-        data["robots"] = [robot.save() for robot in self.robots]
-        data["type"] = self.type
-        data["target"] = self.target
-        data["behaviour"] = self.behaviour
+        data["robots"] = [robot.save(scale) for robot in self.robots]
+        data["attributes"] = self.attributes
         
         return data
     
@@ -44,16 +48,14 @@ class Scenario():
             robotToAppend = Robot(self.loadWithVideos)
             robotToAppend.load(robotData)
             self.robots.append(robotToAppend)
-        self.type = data["type"]
-        self.target = data["target"]
-        self.behaviour = data["behaviour"]
+        self.attributes = data["attributes"]
     
     
-    def save(self, filePath):
+    def save(self, filePath, scale = 1):
         self.name = os.path.basename(str(filePath))
         
         with open(filePath, 'w') as outFile:
-            json.dump(self.getDataDict(), outFile)
+            json.dump(self.getDataDict(scale), outFile)
     
     
     def toScenarioMsg(self):

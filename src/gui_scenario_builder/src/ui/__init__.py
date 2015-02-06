@@ -89,6 +89,13 @@ class ScenarioEdition():
         
         self.ui.testOnPhysicalRobot_button.clicked.connect(self.handleTestOnPhysicalRobot)
         
+        # button groups
+        self.comportementButtonGroup = QButtonGroup()
+        self.comportementButtonGroup.addButton(self.ui.calme_radioButton)
+        self.comportementButtonGroup.addButton(self.ui.enerve_radioButton)
+        self.comportementButtonGroup.addButton(self.ui.furieux_radioButton)
+        self.comportementButtonGroup.setExclusive(True)
+        
         # menu
         self.ui.actionNew.triggered.connect(self.newScenario)
         self.ui.actionOpen.triggered.connect(self.openScenario)
@@ -132,7 +139,8 @@ class ScenarioEdition():
         if self.currentFilePath is None:
             self.saveAsScenario()
         else:
-            self.currentScenario.save(self.currentFilePath)
+            self.currentScenario.setAttributes(self.getAttributes())
+            self.currentScenario.save(self.currentFilePath, 1. / self.canvas.getGridSize())
             self.lastChangesSaved = True
             self.updateWindowTitle()
         
@@ -158,6 +166,7 @@ class ScenarioEdition():
         del self.currentScenario
         
         self.currentScenario = scenario
+        self.setAttributes(scenario.getAttributes())
         self.canvas.currentRobot = self.currentScenario.robots[0]
         
         # update
@@ -176,6 +185,31 @@ class ScenarioEdition():
         self.ui.setWindowTitle(u"Édition de scénario - " + ("*" if not self.lastChangesSaved else "") + (self.currentFilePath if self.currentFilePath is not None else u"nouveau scénario"))
         
     
+    def getAttributes(self):
+        result = {}
+        result["comportement"] = str(self.comportementButtonGroup.checkedButton().text().toUtf8())
+        result["definitif"] = self.ui.definitif_checkbox.isChecked()
+        return result
+        
+    
+    def setAttributes(self, attributes):
+        if "comportement" in attributes:
+            self.checkButtonGroupForAttributeValue(self.comportementButtonGroup, attributes["comportement"])
+        else:
+            self.comportementButtonGroup.buttons()[0].setChecked(True)
+        if "definitif" in attributes:
+            self.ui.definitif_checkbox.setChecked(attributes["definitif"])
+        else:
+            self.ui.definitif_checkbox.setChecked(False)
+        
+    
+    def checkButtonGroupForAttributeValue(self, buttonGroup, attributeValue):
+        for radioButton in buttonGroup.buttons():
+            if radioButton.text() == attributeValue:
+                radioButton.setChecked(True)
+                break
+        
+        
     def updateRobots(self):
         # get previous row
         previousSelection = self.ui.robots_list.selectedItems()

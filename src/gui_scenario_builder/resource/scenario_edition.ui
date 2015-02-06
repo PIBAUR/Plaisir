@@ -44,7 +44,7 @@
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QRadioButton" name="calme">
+       <widget class="QRadioButton" name="calme_radioButton">
         <property name="text">
          <string>Calme</string>
         </property>
@@ -57,7 +57,7 @@
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QRadioButton" name="enerve">
+       <widget class="QRadioButton" name="enerve_radioButton">
         <property name="text">
          <string>Enervé</string>
         </property>
@@ -67,7 +67,7 @@
        </widget>
       </item>
       <item row="4" column="0">
-       <widget class="QRadioButton" name="furieux">
+       <widget class="QRadioButton" name="furieux_radioButton">
         <property name="text">
          <string>Furieux</string>
         </property>
@@ -77,7 +77,7 @@
        </widget>
       </item>
       <item row="2" column="2">
-       <widget class="QCheckBox" name="definitif">
+       <widget class="QCheckBox" name="definitif_checkbox">
         <property name="text">
          <string>Définitif</string>
         </property>

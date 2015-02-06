@@ -5,6 +5,7 @@ from PyQt4.QtCore import *
 
 from media import Media
 from curvePoint import CurvePoint
+from src.bezier_curve.src import bezier_interpolate
 
 class Robot():
     currentHue = 0
@@ -20,9 +21,10 @@ class Robot():
         self.visible = True
     
     
-    def save(self):
+    def save(self, scale = 1):
         result = {}
         result["points"] = [point.save() for point in self.points]
+        result["pathLength"] = self.getPathLength(scale)
         result["medias"] = [media.save() for media in self.medias]
         result["color"] = str(self.color.name())
                 
@@ -43,6 +45,20 @@ class Robot():
             self.medias.append(mediaToAppend)
         
         self.color = QColor(data["color"])
+    
+    
+    def getPathLength(self, scale):
+        result = 0
+        
+        for i in range(len(self.points)):
+            point = self.points[i]
+            
+            if i + 1 < len(self.points):
+                nextPoint = self.points[i + 1]
+                bezierCurve = point.getBezierCurveWithNextPoint(nextPoint, scale)
+                result += bezier_interpolate.getBezierCurveLength(bezierCurve)
+                
+        return result
         
     
     def getColor(self):

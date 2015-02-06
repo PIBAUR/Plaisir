@@ -9,17 +9,11 @@ from geometry_msgs.msg import PoseArray, Pose, Point
 DEFAULT_BEZIER_CURVE_STEP = .05
 path = PoseArray()
 pathPublisher = rospy.Publisher("path", PoseArray)
-step=0
+step = 0
 
 def scenarioCallback(data):
-    ("path", PoseArray)
-    
     path.poses = []
     path.header = data.header
-    
-    #l = getBezierCurveLength(data)
-    
-    print l
     
     for curve in data.curves:
         i = 0
@@ -95,31 +89,25 @@ def getBezierCurveLength(bezierCurve):
     ds = 0.001
     length = 0.0
     
-    for curve in bezierCurve.curves:
-        s = 0.0
-        p = Pose()
-        p_old = Pose()
+    s = 0.0
+    p = Pose()
+    
+    p.position = getBezierCurveResult(s, bezierCurve)
+    s += ds
+    
+    while s <= 1.0:  
+        x_old = p.position.x
+        y_old = p.position.y
+        p.position = getBezierCurveResult(s, bezierCurve)
         
-        p.position = getBezierCurveResult(s, curve)
+        dx = p.position.x - x_old
+        dy = p.position.y - y_old
+        dl = math.sqrt(dx*dx + dy*dy)
+        length += dl
+        
         s += ds
-        
-        while s <= 1.0:  
-            x_old = p.position.x
-            y_old = p.position.y
-            p.position = getBezierCurveResult(s, curve)
-            
-            dx = p.position.x - x_old
-            dy = p.position.y - y_old
-            dl = math.sqrt(dx*dx + dy*dy)
-            length += dl
-            
-            s += ds
-            #print length
             
     return length
-
-    
-
 
 
 if __name__ == "__main__":
