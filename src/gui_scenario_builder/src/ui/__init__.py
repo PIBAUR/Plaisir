@@ -29,10 +29,12 @@ from temporalization import Temporalization
 
 
 class ScenarioEdition():
-    def __init__(self):
+    def __init__(self, scenarioFilePath = None, saveCallback = None):
         self.currentScenario = None
         self.currentFilePath = None
         self.lastChangesSaved = True
+        
+        self.saveCallback = saveCallback
         
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_scenario_builder'), 'resource', 'scenario_edition.ui')
@@ -96,6 +98,11 @@ class ScenarioEdition():
         self.comportementButtonGroup.addButton(self.ui.furieux_radioButton)
         self.comportementButtonGroup.setExclusive(True)
         
+        self.ui.calme_radioButton.toggled.connect(partial(self.changeCallback))
+        self.ui.enerve_radioButton.toggled.connect(partial(self.changeCallback))
+        self.ui.furieux_radioButton.toggled.connect(partial(self.changeCallback))
+        self.ui.definitif_checkbox.stateChanged.connect(partial(self.changeCallback))
+        
         # menu
         self.ui.actionNew.triggered.connect(self.newScenario)
         self.ui.actionOpen.triggered.connect(self.openScenario)
@@ -106,13 +113,23 @@ class ScenarioEdition():
         self.ui.actionSave.setShortcut('Ctrl+S')
         self.ui.actionSaveAs.setShortcut('Ctrl+Shift+S')
         
-        # load datas
-        self.newScenario()
+        # load datasé
+        if scenarioFilePath is not None:
+            self.currentFilePath = scenarioFilePath
+            self.lastChangesSaved = True
+            self.openScenario(self.currentFilePath)
+            
+            # remove menu options
+            self.ui.actionNew.setVisible(False)
+            self.ui.actionOpen.setVisible(False)
+            self.ui.actionSaveAs.setVisible(False)
+        else:
+            self.newScenario()
         
         self.ui.resizeEvent = self.resizeEvent
         self.ui.show()
         self.resizeEvent()
-        
+    
     
     # menu actions
     def newScenario(self):
@@ -121,14 +138,15 @@ class ScenarioEdition():
         self.updateWindowTitle()
         
     
-    def openScenario(self):
-        # hide and show because of a bug which shows a blank qfiledialog
-        self.canvas.hide()
-        filePathToOpen = QFileDialog.getOpenFileName(self.ui, u"Ajouter un média", "", u"Scénario: *.sce (*.sce)")
-        self.canvas.show()
+    def openScenario(self, filePathToOpen = None):
+        if filePathToOpen is None:
+            # hide and show because of a bug which shows a blank qfiledialog
+            self.canvas.hide()
+            filePathToOpen = QFileDialog.getOpenFileName(self.ui, u"Ajouter un média", "", u"Scénario: *.sce (*.sce)")
+            self.canvas.show()
         
         if filePathToOpen != "":
-            self.currentFilePath = filePathToOpen 
+            self.currentFilePath = filePathToOpen
             scenarioToOpen = Scenario.loadFile(self.currentFilePath)
             self.loadScenario(scenarioToOpen)
             self.lastChangesSaved = True
@@ -144,6 +162,10 @@ class ScenarioEdition():
             self.lastChangesSaved = True
             self.updateWindowTitle()
         
+        # notify the db application (after saving to update attributes var)
+        if self.saveCallback is not None:
+            self.saveCallback(self.currentFilePath, self.currentScenario)
+        
     
     def saveAsScenario(self):
         # hide and show because of a bug which shows a blank qfiledialog
@@ -153,7 +175,6 @@ class ScenarioEdition():
         
         filePathToOpen = str(filePathToOpen)
             
-        
         if filePathToOpen != "":
             if not filePathToOpen.endswith(".sce"):
                 filePathToOpen += ".sce"
@@ -182,7 +203,8 @@ class ScenarioEdition():
     
     
     def updateWindowTitle(self):
-        self.ui.setWindowTitle(u"Édition de scénario - " + ("*" if not self.lastChangesSaved else "") + (self.currentFilePath if self.currentFilePath is not None else u"nouveau scénario"))
+        currentFilePath = self.currentFilePath.decode("utf-8")
+        self.ui.setWindowTitle(u"Édition de scénario - " + ("*" if not self.lastChangesSaved else "") + (currentFilePath if currentFilePath is not None else u"nouveau scénario"))
         
     
     def getAttributes(self):

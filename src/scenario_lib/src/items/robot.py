@@ -47,6 +47,11 @@ class Robot():
         self.color = QColor(data["color"])
     
     
+    def loadVideos(self):
+        for media in self.medias:
+            media.loadVideo()
+        
+        
     def getPathLength(self, scale):
         result = 0
         
@@ -60,6 +65,14 @@ class Robot():
                 
         return result
         
+    
+    def getDuration(self):
+        result = 0.
+        for media in self.medias:
+            result += media.duration
+        
+        return result
+    
     
     def getColor(self):
         color = QColor()

@@ -18,12 +18,7 @@ class Media():
         
         # only for display
         if loadWithVideos:
-            self.media = Phonon.MediaSource(filePath)
-            imageBuffer = self.getFrameFromMedia(filePath)
-            image = QImage.fromData(imageBuffer)
-            pixmap = QPixmap.fromImage(image)
-            self.thumbnailIcon = QIcon(pixmap)
-            self.thumbnailRatio = pixmap.width() / pixmap.height() 
+            self.loadVideo()
         
         self.niceName = (".").join(os.path.basename(self.filePath).split(".")[0:-1])
         self.color = self.getColor()
@@ -45,6 +40,15 @@ class Media():
         self.endTime = data["endTime"]
         self.color = QColor(data["color"])
     
+    
+    def loadVideo(self):
+        self.media = Phonon.MediaSource(self.filePath)
+        imageBuffer = self.getFrameFromMedia(self.filePath)
+        image = QImage.fromData(imageBuffer)
+        pixmap = QPixmap.fromImage(image)
+        self.thumbnailIcon = QIcon(pixmap)
+        self.thumbnailRatio = pixmap.width() / pixmap.height() 
+        
         
     def destroy(self):
         del self.media

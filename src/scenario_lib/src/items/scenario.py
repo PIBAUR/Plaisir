@@ -19,7 +19,7 @@ class Scenario():
         self.robots = [Robot(loadWithVideos)]
         
         self.name = None
-        self.attributes = []
+        self.attributes = {}
     
     
     def getAttributes(self):
@@ -58,9 +58,29 @@ class Scenario():
             json.dump(self.getDataDict(scale), outFile)
     
     
+    def loadVideos(self):
+        for robot in self.robots:
+            robot.loadVideos()
+        
+    
     def toScenarioMsg(self):
         return None
     
+    
+    def niceName(self):
+        return self.name[:-4]
+    
+    
+    def getDuration(self):
+        result = 0.
+        
+        for robot in self.robots:
+            robotDuration = robot.getDuration()
+            if robotDuration > result:
+                result = robotDuration
+        
+        return result
+            
     
     @staticmethod
     def loadFile(filePath, loadWithVideos = True):

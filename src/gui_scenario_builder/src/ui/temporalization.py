@@ -57,7 +57,7 @@ class Temporalization():
             self.temporalizationSplitter.addWidget(mediaButton)
             
             # icon
-            mediaButton.setIcon(media.thumbnailIcon);
+            mediaButton.setIcon(media.thumbnailIcon)
             iconHeight = self.ui.temporalization_widget.height() * 1.55
             mediaButton.setIconSize(QSize(iconHeight / media.thumbnailRatio, iconHeight))
             
