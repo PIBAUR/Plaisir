@@ -29,12 +29,13 @@ from temporalization import Temporalization
 
 
 class ScenarioEdition():
-    def __init__(self, scenarioFilePath = None, saveCallback = None):
+    def __init__(self, scenarioFilePath = None, saveCallback = None, closeCallback = None):
         self.currentScenario = None
         self.currentFilePath = None
         self.lastChangesSaved = True
         
         self.saveCallback = saveCallback
+        self.closeCallback = closeCallback
         
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_scenario_builder'), 'resource', 'scenario_edition.ui')
@@ -127,6 +128,7 @@ class ScenarioEdition():
             self.newScenario()
         
         self.ui.resizeEvent = self.resizeEvent
+        self.ui.closeEvent = self.closeEvent
         self.ui.show()
         self.resizeEvent()
     
@@ -275,6 +277,11 @@ class ScenarioEdition():
         
         # if not, select first item
         self.ui.robots_list.setCurrentRow(previousSelectedRow)
+        
+        
+    def closeEvent(self, event = None):
+        if self.closeCallback is not None:
+            self.closeCallback(self.currentFilePath)
         
     
     def resizeEvent(self, event = None):

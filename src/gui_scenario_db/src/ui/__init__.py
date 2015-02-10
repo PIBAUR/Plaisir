@@ -23,6 +23,7 @@ class ScenarioDataBase():
         self.lastChangesSaved = True
         
         self.acceptTableItemChanged = False
+        self.editingScenarios = []
         
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_scenario_db'), 'resource', 'scenario_db.ui')
@@ -41,10 +42,12 @@ class ScenarioDataBase():
         # ui
         self.ui.scenario_db_table.itemChanged.connect(self.handleTableItemChanged)
         self.ui.scenario_db_table.verticalHeader().setVisible(False)
-        columns = ["Nom", "Robots", u"Durée", "Comportement", u"Définitif", "Action"]
+        columns = [("Nom", 160), ("Robots", 80), (u"Durée", 80), ("Comportement", 160), (u"Définitif", 80), ("Action", 80)]
         for i in range(len(columns)):
             self.ui.scenario_db_table.insertColumn(i)
-        self.ui.scenario_db_table.setHorizontalHeaderLabels(columns)
+            self.ui.scenario_db_table.setColumnWidth(i, columns[i][1])
+        self.ui.scenario_db_table.setHorizontalHeaderLabels([column[0] for column in columns])
+        self.ui.scenario_db_table.horizontalHeader().setStretchLastSection(True)
         
         self.ui.newScenario_button.clicked.connect(self.handleNewScenarioClicked)
         
@@ -52,24 +55,68 @@ class ScenarioDataBase():
         self.acceptTableItemChanged = True
         
         self.ui.show()
-        
     
     
     def initTable(self):
+        # insert the first row for filtering
+        self.ui.scenario_db_table.insertRow(0)
+        self.nameFilterLineEdit = QLineEdit()
+        self.comportementFilterComboBox = QComboBox()
+        self.comportementFilterComboBox.addItems(["Tous", "Calme", "Furieux", u"Enervé"])
+        self.definitifFilterCheckBox = QCheckBox()
+        self.definitifFilterCheckBox.setTristate(True)
+        
+        definitifCheckBoxContainer = QWidget()
+        definitifCheckBoxContainer.setContentsMargins(0, -10, 0, -10)
+        definitifCheckBoxLayout = QHBoxLayout()
+        definitifCheckBoxLayout.setAlignment(Qt.AlignCenter)
+        definitifCheckBoxLayout.addWidget(self.definitifFilterCheckBox)
+        definitifCheckBoxContainer.setLayout(definitifCheckBoxLayout)
+        
+        self.ui.scenario_db_table.setCellWidget(0, 0, self.nameFilterLineEdit)
+        self.ui.scenario_db_table.setCellWidget(0, 3, self.comportementFilterComboBox)
+        self.ui.scenario_db_table.setCellWidget(0, 4, definitifCheckBoxContainer)
+        
+        self.nameFilterLineEdit.textChanged.connect(self.populateTable)
+        self.comportementFilterComboBox.currentIndexChanged.connect(self.populateTable)
+        self.definitifFilterCheckBox.stateChanged.connect(self.populateTable)
+        
+        self.populateTable()
+    
+    
+    def populateTable(self, event = None):
+        self.acceptTableItemChanged = False
+        
+        # clear rows except first one with filter
+        for i in range(1, self.ui.scenario_db_table.rowCount()):
+            self.ui.scenario_db_table.removeRow(1)
+        
         # get all scenarios
         scenarioFiles = os.listdir(self.scenario_db_path)
-        i = 0
+        scenarioFiles.sort()
+        
+        # get value for filtering after
+        nameFilterValue = self.nameFilterLineEdit.text()
+        comportementFilterValue = str(self.comportementFilterComboBox.currentText().toUtf8())
+        definitifFilterValue = self.definitifFilterCheckBox.checkState()
+        
         for scenarioFile in scenarioFiles:
             if scenarioFile.endswith(".sce"):
-                self.insertRow(i, scenarioFile)
+                # filter name
+                if scenarioFile.startswith(nameFilterValue):
+                    # filter attributes
+                    scenarioFilePath = os.path.join(self.scenario_db_path, scenarioFile)
+                    scenario = Scenario.loadFile(scenarioFilePath, False)
+                    
+                    if comportementFilterValue == "Tous" or ("comportement" in scenario.attributes.keys() and str(scenario.attributes["comportement"].encode("utf-8")) == comportementFilterValue):
+                        if definitifFilterValue == 0 or ("definitif" in scenario.attributes.keys() and scenario.attributes["definitif"] == (definitifFilterValue == 2)):
+                            # inser
+                            self.insertRow(self.ui.scenario_db_table.rowCount(), scenarioFilePath, scenario)
             
-            i += 1
-    
-    
-    def insertRow(self, index, scenarioPath):
-        scenarioFilePath = os.path.join(self.scenario_db_path, scenarioPath)
-        scenario = Scenario.loadFile(scenarioFilePath, False)
+        self.acceptTableItemChanged = True
         
+            
+    def insertRow(self, index, scenarioFilePath, scenario):
         # populate table
         self.ui.scenario_db_table.insertRow(index)
         nameItem = QTableWidgetItem(str(scenario.niceName()).decode("utf-8"))
@@ -101,10 +148,17 @@ class ScenarioDataBase():
         actionButtonsContainer.setContentsMargins(0, -10, 0, -10)
         editButton = QPushButton(u"Editer")
         editButton.clicked.connect(partial(self.handleEditButtonClicked, scenarioFilePath))
+        deleteButton = QPushButton(u"Supprimer")
+        deleteButton.clicked.connect(partial(self.handleDeleteButtonClicked, scenarioFilePath))
         executeButton = QPushButton(u"Exécuter")
         actionButtonsContainer.layout().addWidget(editButton)
+        actionButtonsContainer.layout().addWidget(deleteButton)
         actionButtonsContainer.layout().addWidget(executeButton)
         self.ui.scenario_db_table.setCellWidget(index, 5, actionButtonsContainer)
+        
+        if scenarioFilePath in self.editingScenarios:
+            self.setRowEnabled(index, False)
+        self.acceptTableItemChanged = False
     
     
     def setCellsForScenario(self, scenario, rowIndex):
@@ -127,7 +181,30 @@ class ScenarioDataBase():
             self.ui.scenario_db_table.item(rowIndex, 3).setText(comportement)
             
         self.ui.scenario_db_table.item(rowIndex, 4).setText(definitif)
+    
+    
+    def getRowFromScenarioFilePath(self, scenarioFilePath):
+        for row in range(1, self.ui.scenario_db_table.rowCount()):
+            if scenarioFilePath == self.ui.scenario_db_table.item(row, 0).filePath:
+                return row
         
+        return None
+    
+    
+    def setRowEnabled(self, row, enabled):
+        self.acceptTableItemChanged = False
+        
+        for column in range(self.ui.scenario_db_table.columnCount()):
+            item = self.ui.scenario_db_table.item(row, column)
+            if item is not None:
+                if enabled:
+                    item.setFlags(item.flags() | Qt.ItemIsEnabled)
+                else:
+                    item.setFlags(item.flags() ^ Qt.ItemIsEnabled)
+            else:
+                self.ui.scenario_db_table.cellWidget(row, column).setEnabled(enabled)
+        
+        self.acceptTableItemChanged = True
     
     def handleNewScenarioClicked(self, event):
         newName = str(self.ui.newScenario_lineEdit.text().toUtf8())
@@ -136,9 +213,8 @@ class ScenarioDataBase():
             newScenario = Scenario()
             try:
                 newScenario.save(newPath)
-                self.acceptTableItemChanged = False
-                self.insertRow(self.ui.scenario_db_table.rowCount(), newPath)
-                self.acceptTableItemChanged = True
+                
+                self.populateTable()
             except (OSError, IOError):
                 pass
         
@@ -163,21 +239,27 @@ class ScenarioDataBase():
         
         
     def handleEditButtonClicked(self, scenarioFilePath):
-        scenarioEdition = ScenarioEdition(scenarioFilePath, self.handleScenarioEditionSaved)
-        scenarioEdition.ui.closeEvent = self.handleScenarioEditionCloseEvent
-        #TODO: disable rename of opened scenario
+        scenarioEdition = ScenarioEdition(scenarioFilePath, self.handleScenarioEditionSaved, self.handleScenarioEditionCloseEvent)
+        
+        # disable row of opened scenario
+        row = self.getRowFromScenarioFilePath(scenarioFilePath)
+        self.editingScenarios.append(scenarioFilePath)
+        self.setRowEnabled(row, False)
     
     
-    def handleScenarioEditionCloseEvent(self):
-        #TODO: enable rename of opened scenario
-        pass
+    def handleDeleteButtonClicked(self, scenarioFilePath):
+        # remove file
+        os.remove(scenarioFilePath)
+        
+        self.populateTable()
+        
+    
+    def handleScenarioEditionCloseEvent(self, scenarioFilePath):
+        # enable row of closed scenario
+        row = self.getRowFromScenarioFilePath(scenarioFilePath)
+        self.editingScenarios.remove(scenarioFilePath)
+        self.setRowEnabled(row, True)
         
     
     def handleScenarioEditionSaved(self, updatedFilePath, scenario):
-        self.acceptTableItemChanged = False
-        
-        for row in range(self.ui.scenario_db_table.rowCount()):
-            if updatedFilePath == self.ui.scenario_db_table.item(row, 0).filePath:
-                self.setCellsForScenario(scenario, row)
-
-        self.acceptTableItemChanged = True
+        self.populateTable()
