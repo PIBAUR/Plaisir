@@ -55,7 +55,7 @@ class ScenarioEdition():
         self.ui.robots_list.currentItemChanged.connect(self.handleRobotsListSelectionChanged)
         
         # canvas
-        self.canvas = Canvas(self.ui, self.changeCallback)
+        self.canvas = Canvas(self, self.ui, self.changeCallback)
         self.ui.layout().addWidget(self.canvas)
         
         # toggle points for editing
@@ -105,10 +105,10 @@ class ScenarioEdition():
         self.ui.definitif_checkbox.stateChanged.connect(partial(self.changeCallback))
         
         # menu
-        self.ui.actionNew.triggered.connect(self.newScenario)
-        self.ui.actionOpen.triggered.connect(self.openScenario)
-        self.ui.actionSave.triggered.connect(self.saveScenario)
-        self.ui.actionSaveAs.triggered.connect(self.saveAsScenario)
+        self.ui.actionNew.triggered.connect(partial(self.newScenario))
+        self.ui.actionOpen.triggered.connect(partial(self.openScenario))
+        self.ui.actionSave.triggered.connect(partial(self.saveScenario))
+        self.ui.actionSaveAs.triggered.connect(partial(self.saveAsScenario))
         self.ui.actionNew.setShortcut('Ctrl+N')
         self.ui.actionOpen.setShortcut('Ctrl+O')
         self.ui.actionSave.setShortcut('Ctrl+S')
@@ -141,10 +141,10 @@ class ScenarioEdition():
         
     
     def openScenario(self, filePathToOpen = None):
-        if filePathToOpen is None:
+        if filePathToOpen is None or filePathToOpen == False:
             # hide and show because of a bug which shows a blank qfiledialog
             self.canvas.hide()
-            filePathToOpen = QFileDialog.getOpenFileName(self.ui, u"Ajouter un média", "", u"Scénario: *.sce (*.sce)")
+            filePathToOpen = str(QFileDialog.getOpenFileName(self.ui, u"Ajouter un média", "", u"Scénario: *.sce (*.sce)").toUtf8())
             self.canvas.show()
         
         if filePathToOpen != "":
@@ -172,10 +172,10 @@ class ScenarioEdition():
     def saveAsScenario(self):
         # hide and show because of a bug which shows a blank qfiledialog
         self.canvas.hide()
-        filePathToOpen = QFileDialog.getSaveFileName(self.ui, u"Sauvegarder le scénario", "", u"Scénario: *.sce (*.sce)")
+        filePathToOpen = str(QFileDialog.getSaveFileName(self.ui, u"Sauvegarder le scénario", "", u"Scénario: *.sce (*.sce)").toUtf8())
         self.canvas.show()
         
-        filePathToOpen = str(filePathToOpen)
+        filePathToOpen = filePathToOpen
             
         if filePathToOpen != "":
             if not filePathToOpen.endswith(".sce"):
@@ -205,7 +205,10 @@ class ScenarioEdition():
     
     
     def updateWindowTitle(self):
-        currentFilePath = self.currentFilePath.decode("utf-8")
+        if self.currentFilePath is not None:
+            currentFilePath = self.currentFilePath.decode("utf-8")
+        else:
+            currentFilePath = None
         self.ui.setWindowTitle(u"Édition de scénario - " + ("*" if not self.lastChangesSaved else "") + (currentFilePath if currentFilePath is not None else u"nouveau scénario"))
         
     

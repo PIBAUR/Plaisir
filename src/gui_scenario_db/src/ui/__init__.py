@@ -147,9 +147,9 @@ class ScenarioDataBase():
         actionButtonsContainer.setLayout(QHBoxLayout())
         actionButtonsContainer.setContentsMargins(0, -10, 0, -10)
         editButton = QPushButton(u"Editer")
-        editButton.clicked.connect(partial(self.handleEditButtonClicked, scenarioFilePath))
+        editButton.clicked.connect(partial(self.handleEditButtonClicked, index))
         deleteButton = QPushButton(u"Supprimer")
-        deleteButton.clicked.connect(partial(self.handleDeleteButtonClicked, scenarioFilePath))
+        deleteButton.clicked.connect(partial(self.handleDeleteButtonClicked, index))
         executeButton = QPushButton(u"Exécuter")
         actionButtonsContainer.layout().addWidget(editButton)
         actionButtonsContainer.layout().addWidget(deleteButton)
@@ -238,7 +238,9 @@ class ScenarioDataBase():
                         
         
         
-    def handleEditButtonClicked(self, scenarioFilePath):
+    def handleEditButtonClicked(self, row):
+        scenarioFilePath = self.ui.scenario_db_table.item(row, 0).filePath
+        
         scenarioEdition = ScenarioEdition(scenarioFilePath, self.handleScenarioEditionSaved, self.handleScenarioEditionCloseEvent)
         
         # disable row of opened scenario
@@ -247,7 +249,9 @@ class ScenarioDataBase():
         self.setRowEnabled(row, False)
     
     
-    def handleDeleteButtonClicked(self, scenarioFilePath):
+    def handleDeleteButtonClicked(self, row):
+        scenarioFilePath = self.ui.scenario_db_table.item(row, 0).filePath
+        
         # remove file
         os.remove(scenarioFilePath)
         

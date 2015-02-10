@@ -14,10 +14,14 @@ class Canvas(QWidget):
     gridColor = QColor(150, 150, 150)
     grey = QColor(200, 200, 200)
     gridPen = QPen(gridColor);
+    targetPen = QPen(QColor(0, 255, 0))
+    targetOutlinePen = QPen(QColor(0, 100, 0))
+    targetRadius = 10
     
-    def __init__(self, ui, changeCallback):
+    def __init__(self, main, ui, changeCallback):
         super(QWidget, self).__init__()
         
+        self.main = main
         self.ui = ui
         self.changeCallback = changeCallback
         
@@ -27,8 +31,13 @@ class Canvas(QWidget):
         except Exception:
             self.mediaTimeBase = 2.5
         
-        Canvas.gridPen.setCapStyle(Qt.SquareCap);
-        Canvas.gridPen.setWidth(1);
+        Canvas.gridPen.setCapStyle(Qt.SquareCap)
+        Canvas.gridPen.setWidth(1)
+        
+        Canvas.targetPen.setCapStyle(Qt.RoundCap)
+        Canvas.targetPen.setWidth(Canvas.targetRadius * 2)
+        Canvas.targetOutlinePen.setCapStyle(Qt.SquareCap)
+        Canvas.targetOutlinePen.setWidth(1)
         
         self.ui.zoomCanvas_slider.valueChanged.connect(self.handleZoomSliderValueChanged)
         
@@ -42,6 +51,7 @@ class Canvas(QWidget):
         self.currentRobot = None
         self.otherRobots = []
         self.isEditing = False
+        self.targetDragging = False
         self.currentPoint = None
         self.currentItem = None
         self.currentAnchorOrigins = None
@@ -61,16 +71,18 @@ class Canvas(QWidget):
         if self.showTemporalization:
             self.drawTemporization(painter, self.currentRobot)
         
-        self.drawPoints(painter, self.currentRobot, self.showControls)
-        
-        for otherRobot in self.otherRobots:
-            self.drawPoints(painter, otherRobot, False)
-            self.drawTimelineCursor(painter, otherRobot, self.currentTimelinePosition)
-        
         if self.showMedia:
             self.drawMedia(painter, self.currentRobot, self.currentTimelinePosition)
         else:
             self.drawTimelineCursor(painter, self.currentRobot, self.currentTimelinePosition)
+        
+        self.drawPoints(painter, self.currentRobot, self.showControls)
+        self.drawTargetPoint(painter)
+        
+        for otherRobot in self.otherRobots:
+            self.drawTimelineCursor(painter, otherRobot, self.currentTimelinePosition)
+            self.drawPoints(painter, otherRobot, False)
+        
         
         
     def mousePressEvent(self, event):
@@ -81,22 +93,29 @@ class Canvas(QWidget):
         mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
         
         # get item under the mouse (= clicked item)
-        for point in self.currentRobot.points:
-            itemUnderMouseResult = point.getItemUnderMouse(event.x(), event.y())
-            if itemUnderMouseResult is not None:
-                self.currentItem = itemUnderMouseResult[0]
-                self.currentPoint = itemUnderMouseResult[1]
-                break
+        distanceTargetMouse = math.sqrt(math.pow(mouseX - self.main.currentScenario.targetPosition[0], 2) + math.pow(mouseY - self.main.currentScenario.targetPosition[1], 2))
+        if distanceTargetMouse <= Canvas.targetRadius:
+            self.targetDragging = True
+        else:
+            for point in self.currentRobot.points:
+                itemUnderMouseResult = point.getItemUnderMouse(event.x(), event.y())
+                if itemUnderMouseResult is not None:
+                    self.currentItem = itemUnderMouseResult[0]
+                    self.currentPoint = itemUnderMouseResult[1]
+                    break
         
         self.isEditing = self.currentAction != Canvas.REMOVE_ACTION and itemUnderMouseResult is not None
         
-        if self.isEditing:
-                currentItemOffsetX, currentItemOffsetY = self.addSnapToGrid(mouseX - self.currentItem.x(), mouseY - self.currentItem.y())
-                self.currentItemOffset = QPoint(currentItemOffsetX, currentItemOffsetY)
-                
-                self.currentAnchorOrigins = QPoint(self.currentPoint.anchor.x(), self.currentPoint.anchor.y())
-                self.currentControl1Origins = QPoint(self.currentPoint.control1.x(), self.currentPoint.control1.y())
-                self.currentControl2Origins = QPoint(self.currentPoint.control2.x(), self.currentPoint.control2.y())
+        if self.targetDragging:
+            currentItemOffsetX, currentItemOffsetY = self.addSnapToGrid(mouseX - self.main.currentScenario.targetPosition[0], mouseY - self.main.currentScenario.targetPosition[1])
+            self.currentItemOffset = QPoint(currentItemOffsetX, currentItemOffsetY)
+        elif self.isEditing:
+            currentItemOffsetX, currentItemOffsetY = self.addSnapToGrid(mouseX - self.currentItem.x(), mouseY - self.currentItem.y())
+            self.currentItemOffset = QPoint(currentItemOffsetX, currentItemOffsetY)
+            
+            self.currentAnchorOrigins = QPoint(self.currentPoint.anchor.x(), self.currentPoint.anchor.y())
+            self.currentControl1Origins = QPoint(self.currentPoint.control1.x(), self.currentPoint.control1.y())
+            self.currentControl2Origins = QPoint(self.currentPoint.control2.x(), self.currentPoint.control2.y())
         elif self.currentAction == Canvas.ADD_ACTION:
             # set anchor
             self.currentPoint = CurvePoint(QPoint(mouseX, mouseY))
@@ -109,6 +128,8 @@ class Canvas(QWidget):
     
         
     def mouseReleaseEvent(self, event):
+        self.targetDragging = False
+        
         self.update()
         
         self.changeCallback()
@@ -117,7 +138,10 @@ class Canvas(QWidget):
     def mouseMoveEvent(self, event):
         mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
         
-        if self.isEditing:
+        if self.targetDragging:
+            self.main.currentScenario.targetPosition[0] = mouseX - self.currentItemOffset.x()
+            self.main.currentScenario.targetPosition[1] = mouseY - self.currentItemOffset.y()
+        elif self.isEditing:
             if self.currentItem is not None:
                 self.currentItem.setX(mouseX - self.currentItemOffset.x())
                 self.currentItem.setY(mouseY - self.currentItemOffset.y())
@@ -163,6 +187,15 @@ class Canvas(QWidget):
             mouseX = round(mouseX / gridSize) * gridSize
             mouseY = round(mouseY / gridSize) * gridSize
         
+        if mouseX < 0:
+            mouseX = 0
+        elif mouseX > self.width():
+            mouseX = self.width()
+        if mouseY < 0:
+            mouseY = 0
+        elif mouseY > self.height():
+            mouseY = self.height()
+        
         return mouseX, mouseY
         
         
@@ -181,6 +214,19 @@ class Canvas(QWidget):
             row = i * gridSize
             painter.drawLine(QPoint(0, row), QPoint(self.width(), row))
     
+    
+    def drawTargetPoint(self, painter):
+        targetPoint = QPoint(self.main.currentScenario.targetPosition[0], self.main.currentScenario.targetPosition[1])
+        
+        painter.setPen(Canvas.targetPen)
+        painter.drawPoint(targetPoint)
+        painter.setPen(Canvas.targetOutlinePen)
+        painter.drawEllipse(targetPoint, Canvas.targetRadius, Canvas.targetRadius)
+        painter.drawLine(QPoint(targetPoint.x() - 3, targetPoint.y()), QPoint(targetPoint.x() - Canvas.targetRadius, targetPoint.y()))
+        painter.drawLine(QPoint(targetPoint.x() + 3, targetPoint.y()), QPoint(targetPoint.x() + Canvas.targetRadius, targetPoint.y()))
+        painter.drawLine(QPoint(targetPoint.x(), targetPoint.y() - 3), QPoint(targetPoint.x(), targetPoint.y() - Canvas.targetRadius))
+        painter.drawLine(QPoint(targetPoint.x(), targetPoint.y() + 3), QPoint(targetPoint.x(), targetPoint.y() + Canvas.targetRadius))
+        
     
     def drawPoints(self, painter, robot, showControls):
         for i in range(len(robot.points)):

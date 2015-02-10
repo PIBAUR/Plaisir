@@ -16,6 +16,7 @@ class Scenario():
         self.modificationTime = time.time()
         self.loadWithVideos = loadWithVideos
         
+        self.targetPosition = [100, 100]
         self.robots = [Robot(loadWithVideos)]
         
         self.name = None
@@ -34,6 +35,7 @@ class Scenario():
         data = {}
         data["creationTime"] = self.creationTime
         data["modificationTime"] = time.time()
+        data["targetPosition"] = self.targetPosition
         data["robots"] = [robot.save(scale) for robot in self.robots]
         data["attributes"] = self.attributes
         
@@ -48,6 +50,7 @@ class Scenario():
             robotToAppend = Robot(self.loadWithVideos)
             robotToAppend.load(robotData)
             self.robots.append(robotToAppend)
+        self.targetPosition = data["targetPosition"]
         self.attributes = data["attributes"]
     
     
