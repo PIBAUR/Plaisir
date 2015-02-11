@@ -20,6 +20,7 @@ def launchRosNode(nodeName, launchFile):
     os.environ["ROSLISP_PACKAGE_DIRECTORIES"] = baseDir + "/catkin_ws/devel/share/common-lisp"
     
     sys.path.append("/opt/ros/groovy/lib/python2.7/dist-packages")
+    sys.path.append("/opt/ros/groovy/share/rviz")
     roslaunch.main(["roslaunch", nodeName, launchFile])
     sys.exit()
 
