@@ -15,7 +15,10 @@ class GuiController(QMainWindow):
         super(QMainWindow, self).__init__()
         self.twistController = TwistController()
         
-        ui_file = os.path.join(rospkg.RosPack().get_path('gui_controller'), 'resource', 'gui_controller.ui')
+        try:
+            ui_file = os.path.join(rospkg.RosPack().get_path('gui_controller'), 'resource', 'gui_controller.ui')
+        except:
+            ui_file = "/home/artlab/catkin_ws/src/gui_controller/resource/gui_controller.ui"
         
         self.ui = uic.loadUi(ui_file)
         self.ui.show()
@@ -31,14 +34,6 @@ class GuiController(QMainWindow):
         self.ui.turnLeft_button.released.connect(partial(self.handleButtonChanged, 0, -1))
         self.ui.turnRight_button.pressed.connect(partial(self.handleButtonChanged, 0, -1))
         self.ui.turnRight_button.released.connect(partial(self.handleButtonChanged, 0, 1))
-        
-        self.ui.addPoint_button.clicked.connect(self.handleAddPointClicked)
-        self.ui.removePoint_button.clicked.connect(self.handleRemovePointClicked)
-        self.ui.bezier_treeWidget.itemSelectionChanged.connect(self.handleBezierTreeWidgetChanged)
-        self.ui.bezier_treeWidget.itemDoubleClicked.connect(self.handlePointDoubleClicked)
-        self.ui.bezier_treeWidget.itemChanged.connect(self.handlePointEnteredClicked)
-        self.ui.sendBezier_button.clicked.connect(self.handleSendBezierClicked)
-        self.handleBezierTreeWidgetChanged()
         
         absoluteCoords = self.ui.canvasContainer.mapToGlobal(self.ui.pos())
         canvas = Canvas(self.handleCanvasCursorMoved, absoluteCoords.x(), absoluteCoords.y(), self.ui.canvasContainer.width(), self.ui.canvasContainer.height())
@@ -87,29 +82,3 @@ class GuiController(QMainWindow):
     # trackpad
     def handleCanvasCursorMoved(self, x, y):
         self.twistController.move(-y, -x * 2)
-    
-    
-    # bezier
-    def handleAddPointClicked(self, event):
-        item = QTreeWidgetItem(self.ui.bezier_treeWidget)
-        item.setText(0, "0");
-        item.setText(1, "1");
-        item.setText(2, "2");
-        self.ui.bezier_treeWidget.addTopLevelItem(item)
-    
-    
-    def handlePointDoubleClicked(self, item, column):
-        self.ui.bezier_treeWidget.openPersistentEditor(item, column)
-        
-        
-    def handlePointEnteredClicked(self, item, column):
-        if str(item.data(column, 0).toString()).isdigit(): 
-            self.ui.bezier_treeWidget.closePersistentEditor(item, column)
-    
-    
-    def handleRemovePointClicked(self, event):
-        self.ui.bezier_treeWidget.takeTopLevelItem(self.ui.bezier_treeWidget.indexOfTopLevelItem(self.ui.bezier_treeWidget.currentItem()))
-    
-
-    def handleBezierTreeWidgetChanged(self):
-        self.ui.removePoint_button.setEnabled(self.ui.bezier_treeWidget.currentItem() is not None)
