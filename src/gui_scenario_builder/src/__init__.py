@@ -26,13 +26,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 
-""" -----------------------------------
-    TO CHANGE DEPENDING ON THE PACKAGE:
-"""
-from ui import ScenarioEdition
-NODE_CLASS = ScenarioEdition
-""" ----------------------------------- """
-
 DEBUG_WITH_ROS = True
 
 def sigintHandler(*args):
@@ -58,7 +51,13 @@ if __name__ == '__main__':
             rospy.init_node(NODE_NAME, anonymous = True)
         
         app = QApplication(sys.argv)
-        main = NODE_CLASS()
+        
+        """ -----------------------------------
+        TO CHANGE DEPENDING ON THE PACKAGE:
+        """
+        from ui import ScenarioEdition
+        main = ScenarioEdition()
+        """ ----------------------------------- """
         
         sys.exit(app.exec_())
     except rospy.ROSInterruptException:
