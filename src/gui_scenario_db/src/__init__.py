@@ -33,7 +33,7 @@ from ui import ScenarioDataBase
 NODE_CLASS = ScenarioDataBase
 """ ----------------------------------- """
 
-DEBUG_WITH_ROS = True
+DEBUG_WITH_ROS = False
 
 def sigintHandler(*args):
     """ Handler for the SIGINT signal. """
