@@ -1,14 +1,39 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+""" --------------------------------------------------------------------
+    TO CHANGE DEPENDING ON THE PACKAGE:
+    DON'T FORGET TO CREATE AN launch/eclipse.launch WITH THE CORRECT PACKAGE
+"""
+NODE_NAME = "gui_controller"
+""" -------------------------------------------------------------------- """
+
 import sys
+import os
 import signal
+
+import rospkg
+from rospkg.common import ResourceNotFound
+try:
+    packagePath = rospkg.RosPack().get_path(NODE_NAME)
+    pathToAdd = packagePath.split(os.path.sep)[0:-2]
+    sys.path.append(os.path.sep.join(pathToAdd))
+except ResourceNotFound:
+    pass
 
 import rospy
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from guiController import GuiController
 
+
+""" -----------------------------------
+    TO CHANGE DEPENDING ON THE PACKAGE:
+"""
+from guiController import GuiController
+NODE_CLASS = GuiController
+""" ----------------------------------- """
+
+DEBUG_WITH_ROS = True
 
 def sigintHandler(*args):
     """ Handler for the SIGINT signal. """
@@ -18,23 +43,21 @@ def sigintHandler(*args):
     
 if __name__ == '__main__':
     # debug
-    if "-eclipse-debug" in sys.argv:
-        import src.launch_utils.src as launch_utils
-        launch_utils.launchRosNode("gui_controller", "eclipse.launch")
-        launch_utils.launchDebug()
+    if DEBUG_WITH_ROS:
+        if "-eclipse-debug" in sys.argv:
+            import src.launch_utils.src as launch_utils
+            launch_utils.launchRosNode(NODE_NAME, "eclipse.launch")
+            launch_utils.launchDebug()
     
     # run
     signal.signal(signal.SIGINT, sigintHandler)
     
     try:
-        rospy.init_node('gui_controller', anonymous = True)
+        if DEBUG_WITH_ROS:
+            rospy.init_node(NODE_NAME, anonymous = True)
         
         app = QApplication(sys.argv)
-        guiController = GuiController()
-        
-        timer = QTimer()
-        timer.start(500)  # You may change this if you wish.
-        timer.timeout.connect(lambda: None)
+        main = NODE_CLASS()
         
         sys.exit(app.exec_())
     except rospy.ROSInterruptException:
