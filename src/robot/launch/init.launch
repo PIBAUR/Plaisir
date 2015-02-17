@@ -1,6 +1,6 @@
 <launch>
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
-	<arg name="robot" value="01"/>
+	<arg name="robot" value="00"/>
 	
 	<include file="$(find robot)/launch/plaisir.machine">
 		<arg name="robot" value="$(arg robot)"/> 
@@ -16,10 +16,8 @@
 	
 	<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/last_map.yaml"/>
 	
-	<node name="qt_bezier_sender" pkg="gui_controller" type="__init__.py" machine="serveur">
+	<!-- <node name="gui_controller" pkg="gui_controller" type="__init__.py" machine="serveur">
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>
-	</node>
-	
-	
+	</node> -->
 </launch>

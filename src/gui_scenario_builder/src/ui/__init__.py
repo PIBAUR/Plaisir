@@ -361,8 +361,9 @@ class ScenarioEdition():
     
     
     def handleTestOnPhysicalRobot(self):
-        self.scenarioMsg.video_player = VideoPlayerMsg()
-        self.scenarioMsg.video_player.video_paths = ["test_video.mp4"]
+        #TODO: convert video_player to media_player
+        #self.scenarioMsg.video_player = VideoPlayerMsg()
+        #self.scenarioMsg.video_player.video_paths = ["test_video.mp4"]
         header = HeaderMsg()
         header.frame_id = "map"
         header.stamp = rospy.Time.now()

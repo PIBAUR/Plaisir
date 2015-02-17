@@ -5,10 +5,10 @@ import rospy
 from scenario_msgs.msg import *
 
 
-medias_pub = rospy.Publisher('media',MediaArray)
-bpath_pub = rospy.Publisher('bezier_path',BezierPath)
+medias_pub = rospy.Publisher('media', MediaArray)
+bpath_pub = rospy.Publisher('bezier_path', BezierPath)
 
-def scenarioCB(data) :
+def scenarioCB(data):
     bcurves_msg = data.bezier_paths
     medias_msg = data.medias    
     bpath_pub.publish(bcurves_msg)

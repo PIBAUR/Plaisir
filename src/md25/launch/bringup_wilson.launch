@@ -20,7 +20,7 @@
 	<node name="path_follower" pkg="path_follower" type="path_follower" output="screen" machine="artlab" />
 	<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py" output="log" machine="artlab" />
 	
-	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="neato"/>*
+	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="neato"/>
 	
 	<node name="scenario_parser" pkg="scenario" type="scenario_parser.py" machine="artlab"/>
 	
