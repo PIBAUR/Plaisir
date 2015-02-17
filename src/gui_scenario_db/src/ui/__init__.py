@@ -17,7 +17,9 @@ from src.gui_scenario_builder.src.ui import ScenarioEdition
 from matplotlib.testing.jpl_units.Duration import Duration
 
 class ScenarioDataBase():
-    def __init__(self):
+    def __init__(self, importCallback = None):
+        self.importCallback = importCallback
+        
         self.currentScenario = None
         self.currentFilePath = None
         self.lastChangesSaved = True
@@ -40,6 +42,9 @@ class ScenarioDataBase():
             os.makedirs(self.scenario_db_path)
         
         # ui
+        if self.importCallback is not None:
+            self.ui.setWindowTitle(u"Importer un scénario")
+        
         self.ui.scenario_db_table.itemChanged.connect(self.handleTableItemChanged)
         self.ui.scenario_db_table.verticalHeader().setVisible(False)
         columns = [("Nom", 160), ("Robots", 80), (u"Durée", 80), ("Comportement", 160), (u"Définitif", 80), ("Action", 80)]
@@ -48,6 +53,7 @@ class ScenarioDataBase():
             self.ui.scenario_db_table.setColumnWidth(i, columns[i][1])
         self.ui.scenario_db_table.setHorizontalHeaderLabels([column[0] for column in columns])
         self.ui.scenario_db_table.horizontalHeader().setStretchLastSection(True)
+        self.ui.scenario_db_table.verticalHeader().setMovable(True)
         
         self.ui.newScenario_button.clicked.connect(self.handleNewScenarioClicked)
         
@@ -55,6 +61,7 @@ class ScenarioDataBase():
         self.acceptTableItemChanged = True
         
         self.ui.show()
+        self.ui.closeEvent = self.closeEvent
     
     
     def initTable(self):
@@ -119,7 +126,7 @@ class ScenarioDataBase():
     def insertRow(self, index, scenarioFilePath, scenario):
         # populate table
         self.ui.scenario_db_table.insertRow(index)
-        nameItem = QTableWidgetItem(str(scenario.niceName()).decode("utf-8"))
+        nameItem = QTableWidgetItem(scenario.niceName())
         nameItem.filePath = scenarioFilePath
         nameItem.setFlags(nameItem.flags() | Qt.ItemIsEditable)
         self.ui.scenario_db_table.setItem(index, 0, nameItem)
@@ -146,14 +153,19 @@ class ScenarioDataBase():
         actionButtonsContainer = QWidget()
         actionButtonsContainer.setLayout(QHBoxLayout())
         actionButtonsContainer.setContentsMargins(0, -10, 0, -10)
-        editButton = QPushButton(u"Editer")
-        editButton.clicked.connect(partial(self.handleEditButtonClicked, index))
-        deleteButton = QPushButton(u"Supprimer")
-        deleteButton.clicked.connect(partial(self.handleDeleteButtonClicked, index))
-        executeButton = QPushButton(u"Exécuter")
-        actionButtonsContainer.layout().addWidget(editButton)
-        actionButtonsContainer.layout().addWidget(deleteButton)
-        actionButtonsContainer.layout().addWidget(executeButton)
+        if self.importCallback is not None:
+            importButton = QPushButton(u"Sélectionner")
+            importButton.clicked.connect(partial(self.handleImportButtonClicked, index))
+            actionButtonsContainer.layout().addWidget(importButton)
+        else:
+            editButton = QPushButton(u"Editer")
+            editButton.clicked.connect(partial(self.handleEditButtonClicked, index))
+            deleteButton = QPushButton(u"Supprimer")
+            deleteButton.clicked.connect(partial(self.handleDeleteButtonClicked, index))
+            executeButton = QPushButton(u"Exécuter")
+            actionButtonsContainer.layout().addWidget(editButton)
+            actionButtonsContainer.layout().addWidget(deleteButton)
+            actionButtonsContainer.layout().addWidget(executeButton)
         self.ui.scenario_db_table.setCellWidget(index, 5, actionButtonsContainer)
         
         if scenarioFilePath in self.editingScenarios:
@@ -237,6 +249,13 @@ class ScenarioDataBase():
             self.acceptTableItemChanged = True
                         
         
+    def handleImportButtonClicked(self, row):
+        scenarioFilePath = self.ui.scenario_db_table.item(row, 0).filePath
+        
+        self.importCallback(scenarioFilePath)
+        
+        self.ui.close()
+        
         
     def handleEditButtonClicked(self, row):
         scenarioFilePath = self.ui.scenario_db_table.item(row, 0).filePath
@@ -267,3 +286,8 @@ class ScenarioDataBase():
     
     def handleScenarioEditionSaved(self, updatedFilePath, scenario):
         self.populateTable()
+    
+    
+    def closeEvent(self, event):
+        if self.importCallback is not None:
+            self.importCallback(None)

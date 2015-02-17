@@ -5,6 +5,7 @@ from PyQt4.QtGui import *
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
+from exceptions import RuntimeError
 
 class PlayNode(DiagramNode):
     nodeName = "Play"
@@ -43,7 +44,7 @@ class PlayNode(DiagramNode):
     
     def updateRatio(self, inputRatio, paused):
         if paused:
-            self.playScenario(self.output())
+            self.playScenario()
             
             #self.playingScenario = None
             #self.playButton.setEnabled(True)
@@ -68,12 +69,25 @@ class PlayNode(DiagramNode):
         pass
     
     
-    def playScenario(self, scenario):
+    def playScenario(self):
         try:
-            self.playingScenario = scenario
-            self.playingScenarioLabel.setText(self.playingScenario.name)
-        except NodeException, e:
-            print "Erreur: " + e.message
+            # reset error
+            self.canvas.ui.statusBar.clearMessage()
+            for nodeInstance in self.canvas.nodesInstances:
+                nodeInstance.widget.central_widget.setStyleSheet("#central_widget { background: #fff; }")
+                
+            # play
+            self.playingScenario = self.output()
+            self.playingScenarioLabel.setText(self.playingScenario.niceName())
+        except Exception, error:
+            self.playButton.setEnabled(True)
+            self.stopButton.setEnabled(False)
+            
+            # display the error
+            self.canvas.ui.statusBar.showMessage("Erreur: " + error.message)
+            if error.__class__ == NodeException:
+                error.nodeCausingErrror.widget.central_widget.setStyleSheet("#central_widget { background: #ff4c4c; }")
+            
             self.stopAllScenarios()
     
     
@@ -86,7 +100,7 @@ class PlayNode(DiagramNode):
         self.playButton.setEnabled(False)
         self.stopButton.setEnabled(True)
         
-        self.playScenario(self.output())
+        self.playScenario()
         
         
     def handleStopButtonClicked(self, event):

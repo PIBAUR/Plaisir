@@ -9,6 +9,7 @@ from PyQt4.QtGui import *
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.scenario import Scenario
+from src.gui_scenario_db.src.ui import ScenarioDataBase
 
 
 class ScenarioNode(DiagramNode):
@@ -25,10 +26,12 @@ class ScenarioNode(DiagramNode):
         
         self.currentScenario = None
         
-        self.browse_button = QPushButton("Parcourir ...")
+        # ui
+        self.browse_button = QPushButton(u"non défini")
         self.browse_button.clicked.connect(self.handleBrowseButtonClicked)
         self.widget.central_widget.layout().addWidget(self.browse_button)
         
+        # fake playing
         self.timer = QTimer(self.widget)
         self.timer.timeout.connect(self.handleTimer)
         self.timer.setInterval(50)
@@ -38,7 +41,9 @@ class ScenarioNode(DiagramNode):
         self.updateCallback = updateRatioCallback
         
         if self.currentScenario is None:
-            raise NodeException(u"aucun scénario n'a été chargé")
+            raise NodeException(self, u"aucun scénario n'a été chargé")
+        elif not os.path.exists(self.currentScenario.filePath):
+            raise NodeException(self, u"le scénario '" + self.currentScenario.niceName() + u"' n'existe plus")
         
         self.currentTime = float(0)
         self.startExecution(0)
@@ -83,24 +88,19 @@ class ScenarioNode(DiagramNode):
         
     
     def handleBrowseButtonClicked(self, event):
-        # hide and show because of a bug which shows a blank qfiledialog
-        self.canvas.hide()
-        filePathToOpen = str(QFileDialog.getOpenFileName(self.widget, u"Ouvrir un scénario", "", u"Scénario: *.sce (*.sce)"))
-        self.canvas.show()
-        
-        if filePathToOpen != "":
+        ScenarioDataBase(self.handleBrowseScenarioEnded)
+    
+    
+    def handleBrowseScenarioEnded(self, filePathToOpen):
+        if filePathToOpen is not None:
             self.openScenario(filePathToOpen)
-    
-    
+        
+        
     def openScenario(self, filePath):
         # set scenario
         self.currentScenario = Scenario.loadFile(filePath, False)
         self.currentScenario.filePath = filePath
         
         # change display
-        self.browse_button.hide()
-        
-        scenarioLabel = QLabel(self.currentScenario.name)
-        scenarioLabel.setAlignment(Qt.AlignCenter)
-        self.widget.central_widget.layout().addWidget(scenarioLabel)
+        self.browse_button.setText(self.currentScenario.name.decode("utf-8"))
             

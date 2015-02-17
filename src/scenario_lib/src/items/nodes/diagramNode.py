@@ -90,7 +90,7 @@ class DiagramNode(object):
         inputs = [inputNode for inputNode in self.getInputsInstances() if inputNode is not None and inputNode.enabled]
         
         if len(inputs) < self.__class__.minInputs:
-            raise NodeException(u"le nombre de noeud connectés est insuffisant")
+            raise NodeException(self, u"le nombre de noeud connectés est insuffisant")
         return inputs
     
     

@@ -37,6 +37,7 @@ def launchDebug():
     try:
         sys.path.append("/opt/eclipse/plugins/org.python.pydev_3.7.1.201409021729/pysrc")
         import pydevd
+        print "init debug"
         pydevd.settrace(stdoutToServer = True, stderrToServer = True)
     except:
         print "debug failed"

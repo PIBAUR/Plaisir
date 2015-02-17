@@ -26,7 +26,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 
-DEBUG_WITH_ROS = True
+DEBUG_WITH_ROS = False
 
 def sigintHandler(*args):
     """ Handler for the SIGINT signal. """
