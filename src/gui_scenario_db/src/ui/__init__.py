@@ -95,7 +95,7 @@ class ScenarioDataBase():
         self.acceptTableItemChanged = False
         
         # clear rows except first one with filter
-        for i in range(1, self.ui.scenario_db_table.rowCount()):
+        for i in range(1, self.ui.scenario_db_table.rowCount()):  # @UnusedVariable
             self.ui.scenario_db_table.removeRow(1)
         
         # get all scenarios
@@ -243,7 +243,7 @@ class ScenarioDataBase():
                     item.filePath = newPath
                 else:
                     item.setText(oldName.decode("utf-8"))
-            except OSError, IOError:
+            except (OSError, IOError):
                 item.setText(oldName.decode("utf-8"))
             
             self.acceptTableItemChanged = True
@@ -260,7 +260,7 @@ class ScenarioDataBase():
     def handleEditButtonClicked(self, row):
         scenarioFilePath = self.ui.scenario_db_table.item(row, 0).filePath
         
-        scenarioEdition = ScenarioEdition(scenarioFilePath, self.handleScenarioEditionSaved, self.handleScenarioEditionCloseEvent)
+        ScenarioEdition(scenarioFilePath, self.handleScenarioEditionSaved, self.handleScenarioEditionCloseEvent)
         
         # disable row of opened scenario
         row = self.getRowFromScenarioFilePath(scenarioFilePath)

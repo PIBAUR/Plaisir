@@ -7,7 +7,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4 import uic
 
-from twistController import TwistController
+from twistController import TwistController  # @UnresolvedImport
 from canvas import Canvas
         
 class GuiController(QMainWindow):

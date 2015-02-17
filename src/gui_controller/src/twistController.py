@@ -1,8 +1,8 @@
 import rospy
 
-from std_msgs.msg import *
-from geometry_msgs.msg import *
-from scenario_msgs.msg import *
+from std_msgs.msg import *  # @UnusedWildImport
+from geometry_msgs.msg import *  # @UnusedWildImport
+from scenario_msgs.msg import *  # @UnusedWildImport
 
 class TwistController():
     def __init__(self):

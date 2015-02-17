@@ -31,7 +31,7 @@ DEBUG_WITH_ROS = True
 def sigintHandler(*args):
     """ Handler for the SIGINT signal. """
     sys.stderr.write('\r')
-    QApplication.quit()
+    QApplication.quit()  # @UndefinedVariable
     
     
 if __name__ == '__main__':
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         if DEBUG_WITH_ROS:
             rospy.init_node(NODE_NAME, anonymous = True)
         
-        app = QApplication(sys.argv)
+        app = QApplication(sys.argv)  # @UndefinedVariable
         
         """ -----------------------------------
         TO CHANGE DEPENDING ON THE PACKAGE:
