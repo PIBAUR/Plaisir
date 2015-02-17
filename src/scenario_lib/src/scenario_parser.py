@@ -13,7 +13,7 @@ def scenarioCB(data):
     medias_msg = data.medias    
     bpath_pub.publish(bcurves_msg)
     medias_pub.publish(medias_msg)
- 
+
 
 if __name__ == '__main__':
     rospy.init_node('listener', anonymous=True)
