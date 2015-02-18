@@ -1,7 +1,7 @@
 <launch>
-	<arg name="robot" value="00"/>
+	<arg name="robot" value="01"/>
 	
-	<machine name="neato" address="192.168.150.100" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+	<machine name="neato" address="192.168.150.101" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
 	<machine name="artlab" address="192.168.150.1" user="artlab" default="false" env-loader="/home/artlab/catkin_ws/devel/env.sh"/>
 	
 	<node name="gui_scenario_builder" pkg="gui_scenario_builder" type="__init__.py" output="screen" machine="artlab">

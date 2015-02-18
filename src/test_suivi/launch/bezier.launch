@@ -1,7 +1,0 @@
-<launch>
-    <group ns="carto">
-    <machine name="server" address="192.168.150.1" user="serveur" default="true" env-loader="/home/serveur/catkin_ws/devel/env.sh"/>
-    
-    <node name="publish_bezier" pkg="test_suivi" type="bezier_discrete.py" output="screen"/>
-    </group>
-</launch>

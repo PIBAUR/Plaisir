@@ -2,7 +2,6 @@
 /.catkin_workspace
 /carto2
 /build/
-/devel/
 /gpioreader.cpp
 /gpioreader
 /.pydevproject
@@ -16,3 +15,4 @@
 *.pyc
 /src.backup
 /notrebonplaisir.c
+/devel/

@@ -30,7 +30,8 @@ void compute_cmd(tf::TransformListener &tf_listener, double &lin, double &ang)
 
     try
     {
-        tf_listener.lookupTransform(path.header.frame_id,"base_link", ros::Time(0), tf_robot);
+    	//TODO: replace "map" by path.header.frame_id
+        tf_listener.lookupTransform("/map", "base_link", ros::Time(0), tf_robot);
     }
     catch (tf::TransformException ex)
     {

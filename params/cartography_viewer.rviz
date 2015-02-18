@@ -4,8 +4,11 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Global Options1
         - /TF1/Frames1
         - /Odometry1
+        - /Path1
+        - /PoseArray1
       Splitter Ratio: 0.512739
     Tree Height: 747
   - Class: rviz/Selection
@@ -46,7 +49,7 @@ Visualization Manager:
         Z: 0
       Plane: XY
       Plane Cell Count: 10
-      Reference Frame: <Fixed Frame>
+      Reference Frame: /robot01/map
       Value: true
     - Alpha: 0.7
       Class: rviz/Map
@@ -67,7 +70,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Max Color: 255; 255; 255
       Max Intensity: 0
       Min Color: 0; 0; 0
@@ -82,18 +85,18 @@ Visualization Manager:
       Topic: /scan
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
       Frames:
-        /base_laser_link:
+        /robot01/base_laser_link:
           Value: true
-        /base_link:
+        /robot01/base_link:
           Value: true
-        /map:
+        /robot01/map:
           Value: true
-        /odom:
+        /robot01/odom:
           Value: true
         All Enabled: false
       Marker Scale: 0.3
@@ -102,10 +105,10 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        /map:
-          /odom:
-            /base_link:
-              /base_laser_link:
+        /robot01/map:
+          /robot01/odom:
+            /robot01/base_link:
+              /robot01/base_laser_link:
                 {}
       Update Interval: 0
       Value: true
@@ -117,27 +120,27 @@ Visualization Manager:
       Length: 0.1
       Name: Odometry
       Position Tolerance: 0.001
-      Topic: /odom
+      Topic: /robot01/odom
       Value: true
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
       Color: 25; 255; 0
-      Enabled: true
+      Enabled: false
       Name: Path
       Topic: /exploration_path
-      Value: true
-    - Arrow Length: 0.03
+      Value: false
+    - Arrow Length: 0.1
       Class: rviz/PoseArray
       Color: 255; 19; 180
       Enabled: true
       Name: PoseArray
-      Topic: /path
+      Topic: /robot01/path
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: /base_laser_link
+    Fixed Frame: /robot01/odom
   Name: root
   Tools:
     - Class: rviz/Interact
@@ -156,15 +159,15 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 0.01
+      Angle: -1.86265e-08
       Class: rviz/TopDownOrtho
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 210.01
+      Scale: 451.023
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: -0.271411
-      Y: 0.418906
+      X: 0.0459534
+      Y: 0.228648
     Saved: ~
 Window Geometry:
   Displays:
@@ -182,5 +185,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 935
-  X: 2898
+  X: 2019
   Y: 24

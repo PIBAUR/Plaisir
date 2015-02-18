@@ -13,10 +13,8 @@ class Canvas(QWidget):
     
     def paintEvent(self, e):
         painter = QPainter(self)
-        painter.begin(self)
         self.drawBackground(painter)
         self.drawPoints(painter)
-        painter.end()
         
         
     def mousePressEvent(self, event):
