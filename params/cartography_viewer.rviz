@@ -10,6 +10,7 @@ Panels:
         - /Odometry1
         - /Path1
         - /PoseArray1
+        - /PoseArray1/Status1
       Splitter Ratio: 0.512739
     Tree Height: 747
   - Class: rviz/Selection
@@ -164,11 +165,11 @@ Visualization Manager:
       Class: rviz/TopDownOrtho
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 60.712
+      Scale: 189.795
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 0.937136
-      Y: 0.290255
+      X: -0.0446782
+      Y: 0.455237
     Saved: ~
 Window Geometry:
   Displays:
@@ -186,5 +187,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 935
-  X: 1962
-  Y: 24
+  X: 1557
+  Y: 118
