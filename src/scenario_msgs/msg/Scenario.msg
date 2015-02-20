@@ -3,6 +3,9 @@
 #nom/path du scenario
 string name
 
+#type de scenario (choregraphic, travel, follow)
+string type
+
 #Liste des courbes de beziers
 scenario_msgs/BezierPath bezier_paths
 

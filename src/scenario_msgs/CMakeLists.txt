@@ -50,6 +50,7 @@ add_message_files(
   FILES
   BezierCurve.msg
   BezierPath.msg
+  PathFinding.msg
   Media.msg
   MediaArray.msg
   Scenario.msg
