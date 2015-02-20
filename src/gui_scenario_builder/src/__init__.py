@@ -16,11 +16,8 @@ import rospkg
 from rospkg.common import ResourceNotFound
 try:
     packagePath = rospkg.RosPack().get_path(NODE_NAME)
-    pathToAdd = packagePath.split(os.path.sep)[0:-1]
-    sys.path.append(os.path.sep.join(pathToAdd))
     pathToAdd = packagePath.split(os.path.sep)[0:-2]
     sys.path.append(os.path.sep.join(pathToAdd))
-    print os.path.sep.join(pathToAdd)
 except ResourceNotFound:
     pass
 

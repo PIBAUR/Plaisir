@@ -1,10 +1,10 @@
 <launch>
-	<arg name="robot" value="00"/>
+	<arg name="robot" value="01"/>
 	
-	<machine name="neato" address="192.168.150.100" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
-	<machine name="artlab" address="192.168.150.1" user="artlab" default="false" env-loader="/home/artlab/catkin_ws/devel/env.sh"/>
+	<machine name="neato" address="192.168.150.101" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+	<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="false" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	  
-	<node name="gui_execution_viz" pkg="gui_execution_viz" type="__init__.py" output="screen" machine="artlab">
+	<node name="gui_execution_viz" pkg="gui_execution_viz" type="__init__.py" output="screen" machine="$(env USER)">
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>
 	</node>
 </launch>
