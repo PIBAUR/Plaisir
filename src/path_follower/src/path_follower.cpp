@@ -8,6 +8,7 @@
 
 #define PI 3.14159265359
 #define K_TH 5.0
+#define LOOP_RATE 60
 
 
 geometry_msgs::PoseArray path;
@@ -104,7 +105,7 @@ int main(int argc, char **argv)
     du = 10;
     int cpt = 0;
     
-    ros::Rate loop(60);
+    ros::Rate loop(LOOP_RATE);
     while(ros::ok()){
         if(size_path !=0 && index_path<size_path)
         {
@@ -123,7 +124,7 @@ int main(int argc, char **argv)
                     cmd_pub.publish(cmd);
                 }
         cpt++;
-        if(cpt>60)
+        if(cpt>6)
         {
             ratio.data = 1.0*index_path/size_path;
             path_fb.publish(ratio);
