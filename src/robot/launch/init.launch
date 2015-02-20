@@ -1,4 +1,5 @@
 <launch>
+	<param name="use_sim_time" value="false" />
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
 	<arg name="robot" value="01"/>
 	
