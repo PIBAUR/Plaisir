@@ -23,7 +23,7 @@ class ExecutionDiagram():
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('execution_diagram'), 'resource', 'execution_diagram.ui')
         except Exception:
-            ui_file = "/home/artlab/catkin_ws/src/gui_execution_diagram/resource/execution_diagram.ui"
+            ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_execution_diagram/resource/execution_diagram.ui"
         
         self.ui = uic.loadUi(ui_file)
         

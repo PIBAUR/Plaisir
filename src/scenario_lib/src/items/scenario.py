@@ -14,6 +14,7 @@ class Scenario():
         
         self.creationTime = time.time()
         self.modificationTime = time.time()
+        self.gridSize = 10
         self.loadWithVideos = loadWithVideos
         
         self.targetPosition = [100, 100]
@@ -31,12 +32,14 @@ class Scenario():
         self.attributes = attributes
     
     
-    def getDataDict(self, scale = 1):
+    def getDataDict(self, gridSize):
         data = {}
         data["creationTime"] = self.creationTime
         data["modificationTime"] = time.time()
+        data["gridSize"] = gridSize
+        self.gridSize = gridSize
         data["targetPosition"] = self.targetPosition
-        data["robots"] = [robot.save(scale) for robot in self.robots]
+        data["robots"] = [robot.save() for robot in self.robots]
         data["attributes"] = self.attributes
         
         return data
@@ -45,6 +48,7 @@ class Scenario():
     def setDataDict(self, data):
         self.creationTime = data["creationTime"]
         self.modificationTime = data["modificationTime"]
+        self.gridSize = data["gridSize"]
         self.robots = []
         for robotData in data["robots"]:
             robotToAppend = Robot(self.loadWithVideos)
@@ -54,11 +58,11 @@ class Scenario():
         self.attributes = data["attributes"]
     
     
-    def save(self, filePath, scale = 1):
+    def save(self, filePath, gridSize = 10):
         self.name = os.path.basename(str(filePath))
         
         with open(filePath, 'w') as outFile:
-            json.dump(self.getDataDict(scale), outFile)
+            json.dump(self.getDataDict(gridSize), outFile)
     
     
     def loadVideos(self):

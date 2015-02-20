@@ -3,6 +3,13 @@ import random
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
+import rospy
+
+from scenario_msgs.msg import Scenario as ScenarioMsg
+from scenario_msgs.msg import BezierPath as BezierPathMsg
+from scenario_msgs.msg import BezierCurve as BezierCurveMsg
+from std_msgs.msg import Header as HeaderMsg
+
 from media import Media
 from curvePoint import CurvePoint
 from src.bezier_curve.src import bezier_interpolate
@@ -21,10 +28,10 @@ class Robot():
         self.visible = True
     
     
-    def save(self, scale = 1):
+    def save(self):
         result = {}
         result["points"] = [point.save() for point in self.points]
-        result["pathLength"] = self.getPathLength(scale)
+        result["pathLength"] = self.getPathLength()
         result["medias"] = [media.save() for media in self.medias]
         result["color"] = str(self.color.name())
                 
@@ -51,8 +58,45 @@ class Robot():
         for media in self.medias:
             media.loadVideo()
         
+    
+    def getScenarioMsg(self, gridSize):
+        gridSize = float(gridSize)
         
-    def getPathLength(self, scale):
+        scenarioMsg = ScenarioMsg()
+        headerMsg = HeaderMsg()
+        scenarioMsg.bezier_paths = BezierPathMsg()
+        
+        #TODO: convert video_player to media_player
+        #self.scenarioMsg.video_player = VideoPlayerMsg()
+        #self.scenarioMsg.video_player.video_paths = ["test_video.mp4"]
+        headerMsg.frame_id = "/map"
+        headerMsg.stamp = rospy.Time.now()
+        scenarioMsg.bezier_paths.header = headerMsg
+        
+        scenarioMsg.bezier_paths.curves = []
+        firstAnchor = None
+        for i in range(len(self.points)):
+            point = self.points[i]
+            
+            if i == 0:
+                firstAnchor = point.anchor
+            
+            if i + 1 < len(self.points):
+                nextPoint = self.points[i + 1]
+                bezierCurve = point.getBezierCurveWithNextPoint(nextPoint, -1, firstAnchor)
+                bezierCurve.anchor_1.x /= gridSize
+                bezierCurve.anchor_1.y /= gridSize
+                bezierCurve.anchor_2.x /= gridSize
+                bezierCurve.anchor_2.y /= gridSize
+                bezierCurve.control_1.x /= gridSize
+                bezierCurve.control_1.y /= gridSize
+                bezierCurve.control_2.x /= gridSize
+                bezierCurve.control_2.y /= gridSize
+                scenarioMsg.bezier_paths.curves.append(bezierCurve)
+        
+        return scenarioMsg
+    
+    def getPathLength(self):
         result = 0
         
         for i in range(len(self.points)):
@@ -60,7 +104,7 @@ class Robot():
             
             if i + 1 < len(self.points):
                 nextPoint = self.points[i + 1]
-                bezierCurve = point.getBezierCurveWithNextPoint(nextPoint, scale)
+                bezierCurve = point.getBezierCurveWithNextPoint(nextPoint)
                 result += bezier_interpolate.getBezierCurveLength(bezierCurve)
                 
         return result

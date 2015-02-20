@@ -17,7 +17,7 @@ def scenarioCallback(data):
     
     for curve in data.curves:
         i = 0
-        while i <= 1:  
+        while i <= 1 + step:  
             p = Pose()
             p.position = getBezierCurveResult(i, curve)
             theta = getBezierCurveTangentResult(i, curve)

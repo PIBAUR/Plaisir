@@ -177,6 +177,10 @@ class Canvas(QWidget):
         self.changeCallback()
         
         
+    def setGridSize(self, gridSize):
+        return self.ui.zoomCanvas_slider.setValue(float(gridSize) / 10.0)
+        
+        
     def getGridSize(self):
         return 10 * self.ui.zoomCanvas_slider.value()
         

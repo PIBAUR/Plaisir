@@ -29,8 +29,8 @@ class DiagramNode(object):
         ui_file = os.path.join(rospkg.RosPack().get_path('execution_diagram'), 'resource', 'diagram_node.ui')
         input_button_ui_file = os.path.join(rospkg.RosPack().get_path('execution_diagram'), 'resource', 'input_button.ui')
     except Exception:
-        ui_file = "/home/artlab/catkin_ws/src/gui_execution_diagram/resource/diagram_node.ui"
-        input_button_ui_file = "/home/artlab/catkin_ws/src/gui_execution_diagram/resource/input_button.ui"
+        ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_execution_diagram/resource/diagram_node.ui"
+        input_button_ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_execution_diagram/resource/input_button.ui"
     
     def __init__(self, parent, canvas, position):
         # vars

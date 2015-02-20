@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /Grid1
         - /TF1/Frames1
         - /Odometry1
         - /Path1
@@ -49,7 +50,7 @@ Visualization Manager:
         Z: 0
       Plane: XY
       Plane Cell Count: 10
-      Reference Frame: /robot01/map
+      Reference Frame: /map
       Value: true
     - Alpha: 0.7
       Class: rviz/Map
@@ -90,11 +91,11 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
+        /map:
+          Value: true
         /robot01/base_laser_link:
           Value: true
         /robot01/base_link:
-          Value: true
-        /robot01/map:
           Value: true
         /robot01/odom:
           Value: true
@@ -105,7 +106,7 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        /robot01/map:
+        /map:
           /robot01/odom:
             /robot01/base_link:
               /robot01/base_laser_link:
@@ -126,10 +127,10 @@ Visualization Manager:
       Buffer Length: 1
       Class: rviz/Path
       Color: 25; 255; 0
-      Enabled: false
+      Enabled: true
       Name: Path
       Topic: /exploration_path
-      Value: false
+      Value: true
     - Arrow Length: 0.1
       Class: rviz/PoseArray
       Color: 255; 19; 180
@@ -140,7 +141,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: /robot01/odom
+    Fixed Frame: /map
   Name: root
   Tools:
     - Class: rviz/Interact
@@ -163,11 +164,11 @@ Visualization Manager:
       Class: rviz/TopDownOrtho
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 451.023
+      Scale: 60.712
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 0.0459534
-      Y: 0.228648
+      X: 0.937136
+      Y: 0.290255
     Saved: ~
 Window Geometry:
   Displays:
@@ -185,5 +186,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 935
-  X: 2019
+  X: 1962
   Y: 24
