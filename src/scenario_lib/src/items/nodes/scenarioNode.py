@@ -2,9 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import os
+import math
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+
+import rospy
+
+from std_msgs.msg import Float64
+from scenario_msgs.msg import Scenario as ScenarioMsg
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
@@ -33,8 +39,8 @@ class ScenarioNode(DiagramNode):
         
         # fake playing
         self.timer = QTimer(self.widget)
-        self.timer.timeout.connect(self.handleTimer)
-        self.timer.setInterval(50)
+        #self.timer.timeout.connect(self.handleTimer)
+        #self.timer.setInterval(50)
     
     
     def output(self, updateRatioCallback):
@@ -45,11 +51,16 @@ class ScenarioNode(DiagramNode):
         elif not os.path.exists(self.currentScenario.filePath):
             raise NodeException(self, u"le scénario '" + self.currentScenario.niceName() + u"' n'existe plus")
         
-        self.currentTime = float(0)
         self.startExecution(0)
         
-        self.handleTimer(True)
-        self.timer.start()
+        # fake init
+        self.currentTime = float(0)
+        #self.handleTimer(True)
+        #self.timer.start()
+        
+        # true init
+        self.subscriber = rospy.Subscriber("/robot01/path_feedback", Float64, self.handlePathFeedbackReceived)
+        self.handlePathFeedbackReceived(None)
         
         return self.currentScenario
     
@@ -74,7 +85,7 @@ class ScenarioNode(DiagramNode):
     
     def handleTimer(self, firstTime = False):
         if not firstTime:
-            self.currentTime += .051
+            self.currentTime += .0051
         if self.currentTime >= 1:
             self.currentTime = 1
             self.timer.stop()
@@ -86,6 +97,21 @@ class ScenarioNode(DiagramNode):
             self.updateCallback(self.currentTime, False)
             self.setTimelineValue(self.currentTime)
         
+    
+    def handlePathFeedbackReceived(self, msg):
+        if msg is None or math.isnan(msg.data):
+            value = 0
+        else:
+            value = msg.data
+        
+        if value >= 1:
+            self.subscriber.unregister()
+            self.stopExecution()
+            self.updateCallback(1, True)
+        else:
+            self.updateCallback(value, False)
+            self.setTimelineValue(value)
+
     
     def handleBrowseButtonClicked(self, event):
         ScenarioDataBase(self.handleBrowseScenarioEnded)

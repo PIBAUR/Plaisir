@@ -18,7 +18,7 @@ class GuiController(QMainWindow):
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_controller'), 'resource', 'gui_controller.ui')
         except:
-            ui_file = "/home/artlab/catkin_ws/src/gui_controller/resource/gui_controller.ui"
+            ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_controller/resource/gui_controller.ui"
         
         self.ui = uic.loadUi(ui_file)
         self.ui.show()

@@ -23,7 +23,7 @@ from python_qt_binding.QtCore import *
 
 ## Finally import the RViz bindings themselves.
 import rviz
-# LD_LIBRARY_PATH: /home/artlab/catkin_ws/devel/lib:/opt/ros/groovy/lib
+# LD_LIBRARY_PATH: os.path.expanduser("~") + "/catkin_ws/devel/lib:/opt/ros/groovy/lib
 ## The MyViz class is the main container widget.
 class ExecutionViz( QWidget ):
 

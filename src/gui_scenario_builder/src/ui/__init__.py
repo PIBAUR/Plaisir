@@ -11,16 +11,11 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4 import uic
 
+from scenario_msgs.msg import Scenario as ScenarioMsg
 from src.scenario_lib.src.items.robot import Robot
 from src.scenario_lib.src.items.media import Media
 from src.scenario_lib.src.items.scenario import Scenario
 from src.bezier_curve.src import bezier_interpolate
-
-from scenario_msgs.msg import Scenario as ScenarioMsg
-from std_msgs.msg import Header as HeaderMsg
-from geometry_msgs.msg import Point as PointMsg
-from scenario_msgs.msg import BezierPath as BezierPathMsg
-from scenario_msgs.msg import BezierCurve as BezierCurveMsg
 
 from canvas import Canvas
 from robotMediaPlayer import RobotMediaPlayer
@@ -76,7 +71,6 @@ class ScenarioEdition():
         
         # physical robot
         self.publisher = rospy.Publisher('scenario', ScenarioMsg)
-        self.scenarioMsg = ScenarioMsg()
         
         # other buttons
         self.ui.showControls_button.clicked.connect(self.handleShowControlsButtonClicked)
@@ -159,7 +153,7 @@ class ScenarioEdition():
             self.saveAsScenario()
         else:
             self.currentScenario.setAttributes(self.getAttributes())
-            self.currentScenario.save(self.currentFilePath, 1. / self.canvas.getGridSize())
+            self.currentScenario.save(self.currentFilePath, self.canvas.getGridSize())
             self.lastChangesSaved = True
             self.updateWindowTitle()
         
@@ -189,6 +183,7 @@ class ScenarioEdition():
         
         self.currentScenario = scenario
         self.setAttributes(scenario.getAttributes())
+        self.canvas.setGridSize(self.currentScenario.gridSize)
         self.canvas.currentRobot = self.currentScenario.robots[0]
         
         # update
@@ -360,25 +355,7 @@ class ScenarioEdition():
     
     
     def handleTestOnPhysicalRobot(self):
-        #TODO: convert video_player to media_player
-        #self.scenarioMsg.video_player = VideoPlayerMsg()
-        #self.scenarioMsg.video_player.video_paths = ["test_video.mp4"]
-        header = HeaderMsg()
-        header.frame_id = "/map"
-        header.stamp = rospy.Time.now()
-        self.scenarioMsg.bezier_paths = BezierPathMsg()
-        self.scenarioMsg.bezier_paths.header = header
-        self.scenarioMsg.bezier_paths.curves = []
+        scenarioMsg = self.canvas.currentRobot.getScenarioMsg(self.canvas.getGridSize())
         
-        robot = self.canvas.currentRobot
-        gridScale = 1. / self.canvas.getGridSize()
-        firstAnchor = robot.points[0].anchor
-        for i in range(len(robot.points)):
-            point = robot.points[i]
-            
-            if i + 1 < len(robot.points):
-                nextPoint = robot.points[i + 1]
-                self.scenarioMsg.bezier_paths.curves.append(point.getBezierCurveWithNextPoint(nextPoint, gridScale, -1, firstAnchor))
-        
-        rospy.loginfo(str(self.scenarioMsg))
-        self.publisher.publish(self.scenarioMsg)
+        rospy.loginfo(str(scenarioMsg))
+        self.publisher.publish(scenarioMsg)

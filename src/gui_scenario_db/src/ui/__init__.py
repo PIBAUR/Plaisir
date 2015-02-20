@@ -31,8 +31,8 @@ class ScenarioDataBase():
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_scenario_db'), 'resource', 'scenario_db.ui')
             self.scenario_db_path = rospy.get_param("scenario_db_path")
         except Exception:
-            ui_file = "/home/artlab/catkin_ws/src/gui_scenario_db/resource/scenario_db.ui"
-            self.scenario_db_path = "/home/artlab/.notrebonplaisir/scenarios"
+            ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_scenario_db/resource/scenario_db.ui"
+            self.scenario_db_path = os.path.expanduser("~") + "/.notrebonplaisir/scenarios"
             
         # load ui
         self.ui = uic.loadUi(ui_file)

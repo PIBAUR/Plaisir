@@ -147,12 +147,12 @@ class CurvePoint():
         return (QPoint(bezierPoint.x, bezierPoint.y), tangentAngle)
             
     
-    def getBezierCurveWithNextPoint(self, nextPoint, scale = 1, yRatio = 1, pointToSubstract = QPoint()):
+    def getBezierCurveWithNextPoint(self, nextPoint, yRatio = 1, pointToSubstract = QPoint()):
         result = BezierCurve()
-        result.anchor_1 = Point((self.anchor.x() - pointToSubstract.x()) * scale, (self.anchor.y() - pointToSubstract.y()) * scale * yRatio, 0)
-        result.anchor_2 = Point((nextPoint.anchor.x() - pointToSubstract.x()) * scale, (nextPoint.anchor.y() - pointToSubstract.y()) * scale * yRatio, 0)
-        result.control_1 = Point((self.control2.x() - pointToSubstract.x()) * scale, (self.control2.y() - pointToSubstract.y()) * scale * yRatio, 0)
-        result.control_2 = Point((nextPoint.control1.x() - pointToSubstract.x()) * scale, (nextPoint.control1.y() - pointToSubstract.y()) * scale * yRatio, 0)
+        result.anchor_1 = Point((self.anchor.x() - pointToSubstract.x()), (self.anchor.y() - pointToSubstract.y()) * yRatio, 0)
+        result.anchor_2 = Point((nextPoint.anchor.x() - pointToSubstract.x()), (nextPoint.anchor.y() - pointToSubstract.y()) * yRatio, 0)
+        result.control_1 = Point((self.control2.x() - pointToSubstract.x()), (self.control2.y() - pointToSubstract.y()) * yRatio, 0)
+        result.control_2 = Point((nextPoint.control1.x() - pointToSubstract.x()), (nextPoint.control1.y() - pointToSubstract.y()) * yRatio, 0)
         
         return result
         

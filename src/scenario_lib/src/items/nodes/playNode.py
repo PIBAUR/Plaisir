@@ -3,6 +3,10 @@
 
 from PyQt4.QtGui import *
 
+import rospy
+
+from scenario_msgs.msg import Scenario as ScenarioMsg
+
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from exceptions import RuntimeError
@@ -20,6 +24,9 @@ class PlayNode(DiagramNode):
         super(PlayNode, self).__init__(parent, canvas, position)
         
         self.playingScenario = None
+        
+        # set ROS publisher
+        self.publisher = rospy.Publisher('scenario', ScenarioMsg)
         
         self.playButton = QPushButton("Play")
         self.playButton.clicked.connect(self.handlePlayButtonClicked)
@@ -79,6 +86,10 @@ class PlayNode(DiagramNode):
             # play
             self.playingScenario = self.output()
             self.playingScenarioLabel.setText(self.playingScenario.niceName())
+            
+            # publish message to ROS
+            scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.playingScenario.gridSize)
+            self.publisher.publish(scenarioMsg)
         except Exception, error:
             self.playButton.setEnabled(True)
             self.stopButton.setEnabled(False)
