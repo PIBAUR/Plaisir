@@ -35,6 +35,7 @@ def launchRosNode(nodeName, launchFile):
 # debug
 def launchDebug():
     try:
+        sys.path.append("/usr/lib/eclipse/plugins/org.python.pydev_3.7.1.201409021729/pysrc")
         sys.path.append("/opt/eclipse/plugins/org.python.pydev_3.7.1.201409021729/pysrc")
         import pydevd
         print "init debug"

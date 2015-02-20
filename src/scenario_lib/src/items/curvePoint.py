@@ -4,7 +4,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from geometry_msgs.msg import Point
-from bezier_curve.msg import BezierCurve
+from scenario_msgs.msg import BezierCurve
 
 from src.bezier_curve.src import bezier_interpolate
 

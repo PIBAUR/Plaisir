@@ -17,7 +17,6 @@ from src.scenario_lib.src.items.scenario import Scenario
 from src.bezier_curve.src import bezier_interpolate
 
 from scenario_msgs.msg import Scenario as ScenarioMsg
-from scenario_msgs.msg import VideoPlayer as VideoPlayerMsg
 from std_msgs.msg import Header as HeaderMsg
 from geometry_msgs.msg import Point as PointMsg
 from scenario_msgs.msg import BezierPath as BezierPathMsg
@@ -43,7 +42,7 @@ class ScenarioEdition():
             self.monitorScreenWidthRatio = rospy.get_param("monitor_screen_width_ratio")
             self.monitorScreenHeightRatio = rospy.get_param("monitor_screen_height_ratio")
         except Exception:
-            ui_file = "/home/artlab/catkin_ws/src/gui_scenario_builder/resource/scenario_edition.ui"
+            ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_scenario_builder/resource/scenario_edition.ui"
             self.numMaxRobots = 7
             self.monitorScreenWidthRatio = 16
             self.monitorScreenHeightRatio = 10
