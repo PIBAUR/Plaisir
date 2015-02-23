@@ -58,17 +58,17 @@ class ActionSelector{
         void front_obstacleCB(const std_msgs::Bool& msg);
 
         /***main loop***/
-        void spin();        
+        void spin();
 };
 
 
 ///---CONSTRUCTOR---///
-ActionSelector::ActionSelector():loop_rate_(1),
-    emergency_stop_ac_("emergencystop_server", true),
-    stop_ac_("stop_server", true),
-    ping_ac_("ping_server", true),
-    battery_ac_("battery_server", true),
-    scenario_ac_("scenario_server", true),
+ActionSelector::ActionSelector():loop_rate_(20),
+    emergency_stop_ac_("emergency_stop_action", true),
+    stop_ac_("stop_action", true),
+    ping_ac_("ping_action", true),
+    battery_ac_("low_battery_action", true),
+    scenario_ac_("scenario_action", true),
     //sub_bumpers_("/bumpers",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
     //sub_battery_("/battery",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
     //sub_ping_("/ping",nh_,boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
@@ -89,27 +89,27 @@ ActionSelector::ActionSelector():loop_rate_(1),
     ROS_INFO("======> All action servers started.");
     
     /***init for getting state : prevent from error message***/
-    
+
     robot::StopGoal es_goal;
     es_goal.goal = true;
     emergency_stop_ac_.sendGoal(es_goal);
     emergency_stop_ac_.cancelGoal();
-    
+
     robot::StopGoal s_goal;
     s_goal.goal = true;
     stop_ac_.sendGoal(s_goal);
     stop_ac_.cancelGoal();
-    
+
     robot::BatteryGoal battery_goal;
     battery_goal.goal = true;
     battery_ac_.sendGoal(battery_goal);
     battery_ac_.cancelGoal();
-    
+
     robot::PingGoal ping_goal;
     ping_goal.goal = true;
     ping_ac_.sendGoal(ping_goal);
     ping_ac_.cancelGoal();
-    
+
     robot::ScenarioGoal scenario_goal;
     scenario_goal.goal = true;
     scenario_ac_.sendGoal(scenario_goal);
@@ -230,7 +230,7 @@ void ActionSelector::spin()
     while(ros::ok()){
         b_interrupt=interrupt_;
         ROS_INFO("interrupt value : %s", b_interrupt.to_string().c_str());
-        
+
         /**Emergency process**/
         if(interrupt_ & EMERGENCY_FLAG)
         {

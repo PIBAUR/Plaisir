@@ -7,15 +7,18 @@ project(robot)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
+  tf
   message_generation
   roscpp
   rospy
   std_msgs
+  geometry_msgs
 )
+find_package( tf )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package(catkin REQUIRED COMPONENTS roscpp actionlib actionlib_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp actionlib actionlib_msgs tf)
 find_package(Boost REQUIRED COMPONENTS system)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -94,7 +97,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES robot
-  CATKIN_DEPENDS actionlib_msgs #actionlib message_generation roscpp rospy std_msgs
+  CATKIN_DEPENDS actionlib_msgs actionlib  roscpp rospy std_msgs tf #message_generation
 #  DEPENDS system_lib
 )
 
