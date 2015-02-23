@@ -1,5 +1,8 @@
 #definition du message pour la communications des scenarios
 
+#id du scenario
+int32 uid
+
 #nom/path du scenario
 string name
 
