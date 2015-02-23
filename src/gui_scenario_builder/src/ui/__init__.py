@@ -70,7 +70,7 @@ class ScenarioEdition():
         self.robotMediaPlayer.temporalization = self.temporalization
         
         # physical robot
-        self.publisher = rospy.Publisher('scenario', ScenarioMsg)
+        self.scenarioPublisher = rospy.Publisher('scenario', ScenarioMsg)
         
         # other buttons
         self.ui.showControls_button.clicked.connect(self.handleShowControlsButtonClicked)
@@ -358,4 +358,4 @@ class ScenarioEdition():
         scenarioMsg = self.canvas.currentRobot.getScenarioMsg(self.canvas.getGridSize())
         
         rospy.loginfo(str(scenarioMsg))
-        self.publisher.publish(scenarioMsg)
+        self.scenarioPublisher.publish(scenarioMsg)
