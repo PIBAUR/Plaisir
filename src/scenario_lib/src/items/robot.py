@@ -4,6 +4,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 import rospy
+import tf
+import numpy
 
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from scenario_msgs.msg import BezierPath as BezierPathMsg
@@ -59,9 +61,7 @@ class Robot():
             media.loadVideo()
         
     
-    def getScenarioMsg(self, gridSize):
-        gridSize = float(gridSize)
-        
+    def getScenarioMsg(self, transformPosition, scale, transformOrientation):
         scenarioMsg = ScenarioMsg()
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()
@@ -72,6 +72,12 @@ class Robot():
         headerMsg.frame_id = "/map"
         headerMsg.stamp = rospy.Time.now()
         scenarioMsg.bezier_paths.header = headerMsg
+        
+        # set matrix
+        origin = (0, 0, 0)
+        quaternionMatrix = tf.transformations.quaternion_matrix(transformOrientation)
+        scaleMatrix = tf.transformations.scale_matrix(scale, origin)
+        transformationMatrix = tf.transformations.concatenate_matrices(scaleMatrix, quaternionMatrix)
         
         scenarioMsg.bezier_paths.curves = []
         firstAnchor = None
@@ -84,14 +90,19 @@ class Robot():
             if i + 1 < len(self.points):
                 nextPoint = self.points[i + 1]
                 bezierCurve = point.getBezierCurveWithNextPoint(nextPoint, -1, firstAnchor)
-                bezierCurve.anchor_1.x /= gridSize
-                bezierCurve.anchor_1.y /= gridSize
-                bezierCurve.anchor_2.x /= gridSize
-                bezierCurve.anchor_2.y /= gridSize
-                bezierCurve.control_1.x /= gridSize
-                bezierCurve.control_1.y /= gridSize
-                bezierCurve.control_2.x /= gridSize
-                bezierCurve.control_2.y /= gridSize
+                
+                anchor_1 = numpy.dot(transformationMatrix, (bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, 0, 0))
+                anchor_2 = numpy.dot(transformationMatrix, (bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, 0, 0))
+                control_1 = numpy.dot(transformationMatrix, (bezierCurve.control_1.x, bezierCurve.control_1.y, 0, 0))
+                control_2 = numpy.dot(transformationMatrix, (bezierCurve.control_2.x, bezierCurve.control_2.y, 0, 0))
+                bezierCurve.anchor_1.x = anchor_1[0] + transformPosition[0]
+                bezierCurve.anchor_1.y = anchor_1[1] + transformPosition[1]
+                bezierCurve.anchor_2.x = anchor_2[0] + transformPosition[0]
+                bezierCurve.anchor_2.y = anchor_2[1] + transformPosition[1]
+                bezierCurve.control_1.x = control_1[0] + transformPosition[0]
+                bezierCurve.control_1.y = control_1[1] + transformPosition[1]
+                bezierCurve.control_2.x = control_2[0] + transformPosition[0]
+                bezierCurve.control_2.y = control_2[1] + transformPosition[1]
                 scenarioMsg.bezier_paths.curves.append(bezierCurve)
         
         return scenarioMsg

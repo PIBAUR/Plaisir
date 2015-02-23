@@ -19,6 +19,8 @@ from src.gui_scenario_db.src.ui import ScenarioDataBase
 
 
 class ScenarioNode(DiagramNode):
+    uid = 0
+    
     nodeName = "Scenario"
     nodeCategory = ""
     
@@ -30,17 +32,26 @@ class ScenarioNode(DiagramNode):
     def __init__(self, parent, canvas, position):
         super(ScenarioNode, self).__init__(parent, canvas, position)
         
+        self.uid = ScenarioNode.uid
+        self.scenarioRunningOnRobotUid = -1
         self.currentScenario = None
+        self.pathFeedbackValue = 0.
         
         # ui
         self.browse_button = QPushButton(u"non défini")
         self.browse_button.clicked.connect(self.handleBrowseButtonClicked)
         self.widget.central_widget.layout().addWidget(self.browse_button)
         
-        # fake playing
+        # set timer for update graphics, because they must not be executed by the ROS callback thread
         self.timer = QTimer(self.widget)
-        #self.timer.timeout.connect(self.handleTimer)
-        #self.timer.setInterval(50)
+        self.timer.timeout.connect(self.handleTimer)
+        self.timer.setInterval(10)
+        self.timer.start()
+        
+        # init subscription on the current running scenario
+        self.scenarioSubscriber = rospy.Subscriber("/robot01/scenario", ScenarioMsg, self.handleScenarioReceived)
+        
+        ScenarioNode.uid += 1
     
     
     def output(self, updateRatioCallback):
@@ -51,15 +62,11 @@ class ScenarioNode(DiagramNode):
         elif not os.path.exists(self.currentScenario.filePath):
             raise NodeException(self, u"le scénario '" + self.currentScenario.niceName() + u"' n'existe plus")
         
+        self.currentScenario.uid = self.uid
         self.startExecution(0)
         
-        # fake init
-        self.currentTime = float(0)
-        #self.handleTimer(True)
-        #self.timer.start()
-        
-        # true init
-        self.subscriber = rospy.Subscriber("/robot01/path_feedback", Float64, self.handlePathFeedbackReceived)
+        # init subscription on the path feedback
+        self.pathFeedbackSubscriber = rospy.Subscriber("/robot01/path_feedback", Float64, self.handlePathFeedbackReceived)
         self.handlePathFeedbackReceived(None)
         
         return self.currentScenario
@@ -68,7 +75,7 @@ class ScenarioNode(DiagramNode):
     def stop(self):
         super(ScenarioNode, self).stop()
         
-        self.timer.stop()
+        self.pathFeedbackSubscriber.unregister()
         
     
     def getSpecificsData(self):
@@ -84,33 +91,34 @@ class ScenarioNode(DiagramNode):
     
     
     def handleTimer(self, firstTime = False):
-        if not firstTime:
-            self.currentTime += .0051
-        if self.currentTime >= 1:
-            self.currentTime = 1
-            self.timer.stop()
+        self.browse_button.setEnabled(not self.executing)
         
-        if self.currentTime >= 1:
-            self.stopExecution()
-            self.updateCallback(1, True)
-        else:
-            self.updateCallback(self.currentTime, False)
-            self.setTimelineValue(self.currentTime)
+        if self.executing:
+            if self.pathFeedbackValue >= 1:
+                self.stopExecution()
+                self.updateCallback(1, True)
+                self.pathFeedbackValue = 0
+            else:
+                if self.updateCallback is not None:
+                    self.updateCallback(self.pathFeedbackValue, False)
+                self.setTimelineValue(self.pathFeedbackValue)
         
     
+    def handleScenarioReceived(self, msg):
+        if msg is not None:
+            self.scenarioRunningOnRobotUid = msg.uid
+        
+        
     def handlePathFeedbackReceived(self, msg):
         if msg is None or math.isnan(msg.data):
-            value = 0
+            self.pathFeedbackValue = 0
         else:
-            value = msg.data
-        
-        if value >= 1:
-            self.subscriber.unregister()
-            self.stopExecution()
-            self.updateCallback(1, True)
-        else:
-            self.updateCallback(value, False)
-            self.setTimelineValue(value)
+            # check that the feedback comes from the right node
+            if self.scenarioRunningOnRobotUid == self.uid:
+                self.pathFeedbackValue = msg.data
+                
+                if self.pathFeedbackValue >= 1:
+                    self.pathFeedbackSubscriber.unregister()
 
     
     def handleBrowseButtonClicked(self, event):
@@ -129,4 +137,4 @@ class ScenarioNode(DiagramNode):
         
         # change display
         self.browse_button.setText(self.currentScenario.name.decode("utf-8"))
-            
+        

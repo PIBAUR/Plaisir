@@ -303,6 +303,7 @@ class DiagramNode(object):
             linkIndex += 1
 
 
+# voluntary on bottom
 from src.scenario_lib.src.items.nodes.playNode import PlayNode
 from src.scenario_lib.src.items.nodes.scenarioNode import ScenarioNode
 from src.scenario_lib.src.items.nodes.sequenceNode import SequenceNode

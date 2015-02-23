@@ -4,14 +4,16 @@
 from PyQt4.QtGui import *
 
 import rospy
+import tf
 
 from scenario_msgs.msg import Scenario as ScenarioMsg
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
-from exceptions import RuntimeError
 
 class PlayNode(DiagramNode):
+    transformListener = None
+    
     nodeName = "Play"
     nodeCategory = ""
     
@@ -24,9 +26,15 @@ class PlayNode(DiagramNode):
         super(PlayNode, self).__init__(parent, canvas, position)
         
         self.playingScenario = None
+        self.transformPosition = (0, 0, 0)
+        self.transformOrientation = (1, 0, 0, 0)
         
-        # set ROS publisher
-        self.publisher = rospy.Publisher('scenario', ScenarioMsg)
+        # set ROS scenarioPublisher to publish scenarios
+        self.scenarioPublisher = rospy.Publisher('scenario', ScenarioMsg)
+        
+        # set ROS subscriber to get informations from the robot
+        if PlayNode.transformListener is None:
+            PlayNode.transformListener = tf.TransformListener()
         
         self.playButton = QPushButton("Play")
         self.playButton.clicked.connect(self.handlePlayButtonClicked)
@@ -52,14 +60,20 @@ class PlayNode(DiagramNode):
     def updateRatio(self, inputRatio, paused):
         if paused:
             self.playScenario()
-            
-            #self.playingScenario = None
-            #self.playButton.setEnabled(True)
-            #self.setTimelineValue(0)
-            #self.playingScenarioLabel.setText("")
         else:
+            # update ui
             self.setTimelineValue(inputRatio)
+            
+            # get transform
+            self.getRobotTransform()
     
+    
+    def getRobotTransform(self):
+        try:
+            self.transformPosition, self.transformOrientation = self.transformListener.lookupTransform('/map', '/robot01/base_link', rospy.Time(0))
+        except:
+            pass
+        
     
     def stop(self):
         super(PlayNode, self).stop()
@@ -88,8 +102,10 @@ class PlayNode(DiagramNode):
             self.playingScenarioLabel.setText(self.playingScenario.niceName())
             
             # publish message to ROS
-            scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.playingScenario.gridSize)
-            self.publisher.publish(scenarioMsg)
+            scale = 1. / float(self.playingScenario.gridSize)
+            scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.transformPosition, scale, self.transformOrientation)
+            scenarioMsg.uid = self.playingScenario.uid
+            self.scenarioPublisher.publish(scenarioMsg)
         except Exception, error:
             self.playButton.setEnabled(True)
             self.stopButton.setEnabled(False)
@@ -104,7 +120,7 @@ class PlayNode(DiagramNode):
     
     def stopAllScenarios(self):
         for nodeInstance in self.canvas.nodesInstances:
-            nodeInstance.stop()
+            nodeInstance.stop() 
         
     
     def handlePlayButtonClicked(self, event):
