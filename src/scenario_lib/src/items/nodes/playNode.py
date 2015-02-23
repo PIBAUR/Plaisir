@@ -7,12 +7,16 @@ import rospy
 import tf
 
 from scenario_msgs.msg import Scenario as ScenarioMsg
+from scenario_msgs.msg import BezierPath as BezierPathMsg
+from scenario_msgs.msg import BezierCurve as BezierCurveMsg
+from std_msgs.msg import Header as HeaderMsg
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 
 class PlayNode(DiagramNode):
     transformListener = None
+    actionClient = None
     
     nodeName = "Play"
     nodeCategory = ""
@@ -76,6 +80,22 @@ class PlayNode(DiagramNode):
         
     
     def stop(self):
+        # stop the robot
+        if self.executing:
+            emptyScenarioMsg = ScenarioMsg()
+            headerMsg = HeaderMsg()
+            emptyScenarioMsg.bezier_paths = BezierPathMsg()
+            emptyScenarioMsg.bezier_paths.curves = []
+            
+            #TODO: convert video_player to media_player
+            #self.scenarioMsg.video_player = VideoPlayerMsg()
+            #self.scenarioMsg.video_player.video_paths = ["test_video.mp4"]
+            headerMsg.frame_id = "/map"
+            headerMsg.stamp = rospy.Time.now()
+            emptyScenarioMsg.bezier_paths.header = headerMsg
+            self.scenarioPublisher.publish(emptyScenarioMsg)
+        
+        
         super(PlayNode, self).stop()
         
         self.playingScenario = None

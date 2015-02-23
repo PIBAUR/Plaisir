@@ -36,6 +36,7 @@ class ScenarioNode(DiagramNode):
         self.scenarioRunningOnRobotUid = -1
         self.currentScenario = None
         self.pathFeedbackValue = 0.
+        self.pathFeedbackSubscriber = None
         
         # ui
         self.browse_button = QPushButton(u"non défini")
@@ -75,7 +76,8 @@ class ScenarioNode(DiagramNode):
     def stop(self):
         super(ScenarioNode, self).stop()
         
-        self.pathFeedbackSubscriber.unregister()
+        if self.pathFeedbackSubscriber is not None:
+            self.pathFeedbackSubscriber.unregister()
         
     
     def getSpecificsData(self):
