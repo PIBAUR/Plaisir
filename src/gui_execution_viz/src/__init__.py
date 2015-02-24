@@ -27,11 +27,12 @@ from python_qt_binding.QtCore import *
 
 
 DEBUG_WITH_ROS = True
+DEBUG_SERVER = "-sever-debug" in sys.argv
 
 def sigintHandler(*args):
     """ Handler for the SIGINT signal. """
     sys.stderr.write('\r')
-    QApplication.quit()  # @UndefinedVariable
+    QApplication.quit()
     
     
 if __name__ == '__main__':
@@ -41,7 +42,8 @@ if __name__ == '__main__':
         if "-eclipse-debug" in sys.argv:
             launch_utils.launchRosNode(NODE_NAME, "eclipse.launch")
         else:
-            launch_utils.launchDebug()
+            if DEBUG_SERVER:
+                launch_utils.launchDebug()
     
     # run
     signal.signal(signal.SIGINT, sigintHandler)
