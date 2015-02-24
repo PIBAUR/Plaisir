@@ -129,7 +129,7 @@ void PathFollower::spinOnce()
         computeCmd(cmd.linear.x, cmd.angular.z);
         cmd_pub_.publish(cmd);
     }
-    else if( index_path_=size_path_)
+    else if( index_path_==size_path_)
     {
         cmd.linear.x = 0;
         cmd.angular.z = 0;
