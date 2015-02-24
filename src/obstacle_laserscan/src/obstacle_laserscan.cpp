@@ -18,7 +18,7 @@ void lidarCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
 		if((msg->ranges[i] < MAX_LENGTH) && (msg->ranges[i] > MIN_LENGTH)) //obstacle situated between 15cm and 30cm
 		{
 			ROS_INFO_STREAM("angle #" << i << " : " << msg->ranges[i]);
-			stop.data=true;
+			stop.data = true;
 			break;
 		}
 	}

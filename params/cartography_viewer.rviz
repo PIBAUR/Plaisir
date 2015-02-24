@@ -165,11 +165,11 @@ Visualization Manager:
       Class: rviz/TopDownOrtho
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 178.129
+      Scale: 459.41
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: -0.0446782
-      Y: 0.455237
+      X: 0.165952
+      Y: -0.138697
     Saved: ~
 Window Geometry:
   Displays:
