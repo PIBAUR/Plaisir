@@ -6,11 +6,11 @@ Panels:
       Expanded:
         - /Global Options1
         - /Grid1
+        - /LaserScan1
         - /TF1/Frames1
         - /Odometry1
         - /Path1
         - /PoseArray1
-        - /PoseArray1/Status1
       Splitter Ratio: 0.512739
     Tree Height: 747
   - Class: rviz/Selection
@@ -31,7 +31,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: LaserScan
 Visualization Manager:
   Class: ""
   Displays:
@@ -72,7 +72,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Max Color: 255; 255; 255
       Max Intensity: 0
       Min Color: 0; 0; 0
@@ -84,10 +84,10 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.05
       Style: Flat Squares
-      Topic: /scan
+      Topic: /robot01/scan
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
@@ -165,7 +165,7 @@ Visualization Manager:
       Class: rviz/TopDownOrtho
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 189.795
+      Scale: 178.129
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
       X: -0.0446782
@@ -187,5 +187,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 935
-  X: 1557
-  Y: 118
+  X: 1962
+  Y: 24

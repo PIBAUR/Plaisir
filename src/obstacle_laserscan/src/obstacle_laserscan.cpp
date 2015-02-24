@@ -4,7 +4,7 @@
 
 //*****************Global Variables********************
 sensor_msgs::LaserScan scan_data; 
-size_t node_count=225;
+size_t node_count=210;
 size_t node_count2=180;
 //*****************headers**********************
 void lidarCallback(const sensor_msgs::LaserScan::ConstPtr& laserScan){
@@ -12,7 +12,7 @@ void lidarCallback(const sensor_msgs::LaserScan::ConstPtr& laserScan){
 scan_data.header.frame_id=scan_data.header.frame_id;
 
         // values' copy
-	for(size_t i =135 ; i < node_count2; i++) // the angle goes from 135 degree to 180 degree (45 degrees to the right)
+	for(size_t i =150 ; i < node_count2; i++) // the angle goes from 135 degree to 180 degree (45 degrees to the right)
 		{       
 			scan_data.ranges[i] = laserScan->ranges[i];
 	 	 }
@@ -34,7 +34,7 @@ ros::NodeHandle n;
 //Subscriber
 ros::Subscriber lidar_sub = n.subscribe<sensor_msgs::LaserScan>("scan", 50, lidarCallback);
 //Publisher
-ros::Publisher scan_pub = n.advertise<std_msgs::Bool>("/front_obstacle", 1);
+ros::Publisher scan_pub = n.advertise<std_msgs::Bool>("front_obstacle", 1);
 // frequency
 ros::Rate r(5);
 //ROS Loop
@@ -46,16 +46,16 @@ ros::Rate r(5);
                         scan_data.ranges.resize(node_count); // Important to resize to the max value (360)
                         //*****************************************************
 
-		for(size_t i =135 ; i < node_count2; i++) 
+		for(size_t i =150 ; i < node_count2; i++)
 		{       
-			if((scan_data.ranges[i]<0.3)&&(scan_data.ranges[i]>0.15)) //obstacle situated between 15cm and 30cm
+			if((scan_data.ranges[i]<0.7)&&(scan_data.ranges[i]>0.15)) //obstacle situated between 15cm and 30cm
 				{       
                       		 				stop.data=true;
                         	}
 	 	 }
 		for(size_t i =180 ; i < node_count; i++) 
 		{       
-			if((scan_data.ranges[i]<0.3)&&(scan_data.ranges[i]>0.15))//obstacle situated between 15cm and 30cm
+			if((scan_data.ranges[i]<0.7)&&(scan_data.ranges[i]>0.15))//obstacle situated between 15cm and 30cm
 				{       
 
                          		 				stop.data=true;

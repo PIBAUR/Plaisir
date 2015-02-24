@@ -69,11 +69,11 @@ ActionSelector::ActionSelector():loop_rate_(20),
     ping_ac_("ping_action", true),
     battery_ac_("low_battery_action", true),
     scenario_ac_("scenario_action", true),
-    //sub_bumpers_("/bumpers",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
-    //sub_battery_("/battery",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
-    //sub_ping_("/ping",nh_,boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
-    //sub_emergency_stop_("/emergency_stop",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
-    //sub_front_obstacle_("/front_ostacle",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
+    //sub_bumpers_("bumpers",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
+    //sub_battery_("battery",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
+    //sub_ping_("ping",nh_,boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
+    //sub_emergency_stop_("emergency_stop",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
+    //sub_front_obstacle_("front_obstacle",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
     interrupt_(0), stop_msg_(0)
 {
     
@@ -330,11 +330,11 @@ int main (int argc, char **argv)
     ros::init(argc, argv, "action_selector");
     ros::NodeHandle nh;
     ActionSelector action_selector;
-    ros::Subscriber sub_bumpers = nh.subscribe("/bumpers", 1, &ActionSelector::bumpersCB, &action_selector);
-    ros::Subscriber sub_battery = nh.subscribe("/battery", 1, &ActionSelector::batteryCB, &action_selector);
-    ros::Subscriber sub_ping = nh.subscribe("/ping", 1, &ActionSelector::pingCB, &action_selector);
-    ros::Subscriber sub_emergency_stop = nh.subscribe("/emergency_stop", 1, &ActionSelector::emergencystopCB, &action_selector);
-    ros::Subscriber sub_front_obstacle = nh.subscribe("/front_ostacle", 1, &ActionSelector::front_obstacleCB, &action_selector);
+    ros::Subscriber sub_bumpers = nh.subscribe("bumpers", 1, &ActionSelector::bumpersCB, &action_selector);
+    ros::Subscriber sub_battery = nh.subscribe("battery", 1, &ActionSelector::batteryCB, &action_selector);
+    ros::Subscriber sub_ping = nh.subscribe("ping", 1, &ActionSelector::pingCB, &action_selector);
+    ros::Subscriber sub_emergency_stop = nh.subscribe("emergency_stop", 1, &ActionSelector::emergencystopCB, &action_selector);
+    ros::Subscriber sub_front_obstacle = nh.subscribe("front_obstacle", 1, &ActionSelector::front_obstacleCB, &action_selector);
     action_selector.spin();
     ros::spin();
     return 0;

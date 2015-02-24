@@ -2,10 +2,11 @@
 
 robot=$1
 
-ssh odroid@192.168.150.1$robot 'rm -rf ~/catkin_ws_backup_before_deployment'
-ssh odroid@192.168.150.1$robot 'mv ~/catkin_ws ~/catkin_ws_backup_before_deployment'
+# to make a backup
+#ssh odroid@192.168.150.1$robot 'rm -rf ~/catkin_ws_backup_before_deployment'
+#ssh odroid@192.168.150.1$robot 'mv ~/catkin_ws ~/catkin_ws_backup_before_deployment'
 
-rsync -r -v \
+rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/.git/' \
 	--exclude '/catkin_ws/.settings/' \
 	--exclude '/catkin_ws/src/blob_detect' \
@@ -18,11 +19,7 @@ rsync -r -v \
 	--exclude '/catkin_ws/src/rviz' \
 	--exclude '/catkin_ws/src/teleop_twist_keyboard' \
 	--exclude '/catkin_ws/bag/' \
-	--exclude '/catkin_ws/devel/etc' \
-	--exclude '/catkin_ws/devel/include' \
-	--exclude '/catkin_ws/devel/devel' \
-	--exclude '/catkin_ws/devel/lib' \
-	--exclude '/catkin_ws/devel/share' \
+	--exclude '/catkin_ws/devel/' \
 	--exclude '/catkin_ws/build/' \
 	--exclude '/catkin_ws/deployment/' \
 	--exclude '/catkin_ws/README.md' \
@@ -33,6 +30,7 @@ rsync -r -v \
 	~/catkin_ws odroid@192.168.150.1$robot:~/
 
 ssh odroid@192.168.150.1$robot 'cd ~/catkin_ws/;catkin_make'
+ssh odroid@192.168.150.1$robot 'cd ~/catkin_ws/src/hector_navigation/;rosmake'
 
 echo "deployment done on robot $robot"
 
