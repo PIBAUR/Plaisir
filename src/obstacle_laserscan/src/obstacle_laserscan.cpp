@@ -34,7 +34,7 @@ ros::NodeHandle n;
 //Subscriber
 ros::Subscriber lidar_sub = n.subscribe<sensor_msgs::LaserScan>("scan", 50, lidarCallback);
 //Publisher
-ros::Publisher scan_pub = n.advertise<std_msgs::Bool>("scan_obstacle", 1);
+ros::Publisher scan_pub = n.advertise<std_msgs::Bool>("/front_obstacle", 1);
 // frequency
 ros::Rate r(5);
 //ROS Loop
