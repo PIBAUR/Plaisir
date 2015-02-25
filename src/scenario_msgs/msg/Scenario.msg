@@ -16,4 +16,4 @@ scenario_msgs/BezierPath bezier_paths
 geometry_msgs/Pose2D target
 
 #list of medias to display
-scenario_msgs/Media[] medias 
+scenario_msgs/MediaArray medias 
