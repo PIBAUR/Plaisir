@@ -15,6 +15,7 @@ rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/src/gui_execution_viz' \
 	--exclude '/catkin_ws/src/gui_scenario_builder' \
 	--exclude '/catkin_ws/src/gui_scenario_db' \
+	--exclude '/catkin_ws/src/hector_navigation' \
 	--exclude '/catkin_ws/src/launch_utils' \
 	--exclude '/catkin_ws/src/rviz' \
 	--exclude '/catkin_ws/src/teleop_twist_keyboard' \
@@ -30,7 +31,7 @@ rsync -r -avz --delete-after \
 	~/catkin_ws odroid@192.168.150.1$robot:~/
 
 ssh odroid@192.168.150.1$robot 'cd ~/catkin_ws/;catkin_make'
-ssh odroid@192.168.150.1$robot 'cd ~/catkin_ws/src/hector_navigation/;rosmake'
+ssh odroid@192.168.150.1$robot 'cd ~/catkin_ws/src/hector_navigation/;rm -rf ./*/build;rosmake'
 
 echo "deployment done on robot $robot"
 
