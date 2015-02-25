@@ -1,4 +1,18 @@
+<<<<<<< HEAD
 #include "obstacle_laserscan.h"
+=======
+#include <ros/ros.h>
+#include <sensor_msgs/LaserScan.h>
+#include <std_msgs/Bool.h>
+
+#define SCAN_RANGE 40
+#define MIN_LENGTH 0.2
+#define MAX_LENGTH 0.7
+#define MIN_SCAN_RANGE (180 - SCAN_RANGE / 2)
+#define MAX_SCAN_RANGE (180 + SCAN_RANGE / 2)
+
+std_msgs::Bool stop;
+>>>>>>> 8f6434d776eea3be7463ede6d8a4ee5a64067ca0
 
 void lidarCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
 	stop.data=false;
