@@ -22,3 +22,12 @@ media_time_base: 2.5
 
 ## chemins
 scenario_db_path: "/home/artlab/.notrebonplaisir/scenarios"
+
+## angle de détection d'obsatcle à l'avant du robot (en degré)
+front_angle: 50 
+
+## distance minimale de détection d'obstacle à l'avant du robot (en mètre)
+dist_obstacle_min: 0.2
+
+## distance maximale de détection d'obstacle à l'avant du robot (en mètre)
+dist_obstacle_max: 0.7 
