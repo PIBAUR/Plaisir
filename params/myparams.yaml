@@ -31,4 +31,3 @@ dist_obstacle_min: 0.2
 
 ## distance maximale de détection d'obstacle à l'avant du robot (en mètre)
 dist_obstacle_max: 0.7 
-
