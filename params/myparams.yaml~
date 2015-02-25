@@ -27,8 +27,8 @@ scenario_db_path: "/home/artlab/.notrebonplaisir/scenarios"
 front_angle: 50 
 
 ## distance minimale de détection d'obstacle à l'avant du robot (en mètre)
-dist_obstacle_min: 0.2
+dist_min: 0.2
 
 ## distance maximale de détection d'obstacle à l'avant du robot (en mètre)
-dist_obstacle_max: 0.7 
+dist_max: 0.7 
 

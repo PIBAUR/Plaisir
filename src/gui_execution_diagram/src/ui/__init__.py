@@ -61,7 +61,7 @@ class ExecutionDiagram():
         # hide and show because of a bug which shows a blank qfiledialog
         self.canvas.hide()
         #TODO: warning & stop playing
-        filePathToOpen = "/home/artlab/Bureau/test.dge"#QFileDialog.getOpenFileName(self.ui, u"Ouvrir un diagramme", "", u"Diagramme d'exécution: *.dge (*.dge)")
+        filePathToOpen = QFileDialog.getOpenFileName(self.ui, u"Ouvrir un diagramme", "", u"Diagramme d'exécution: *.dge (*.dge)")
         self.canvas.show()
         
         if filePathToOpen != "":

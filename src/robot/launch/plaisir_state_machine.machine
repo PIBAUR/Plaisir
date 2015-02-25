@@ -21,7 +21,6 @@
 		<node name="ping_action" pkg="robot" type="ping_action"/>
 		
 		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node"/>
-		
 		<node name="action_selector" pkg="robot" type="action_selector"/>
 	</group>
 </launch>

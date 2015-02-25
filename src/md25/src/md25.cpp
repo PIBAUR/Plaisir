@@ -189,7 +189,7 @@ void MD25::get_encoder1()
         encoder[0] = ~((data[0]<<24) | (data[1]<<16) | (data[2]<<8) | data[3]);
         encoder[0] *= -1;
     }
-    encoder[0]*=ENCODER_IN_METER;
+    encoder[0]*=-ENCODER_IN_METER;
     ROS_DEBUG_STREAM("Codeur 1 : "<<(int)data[0]<<" "<<(int)data[1]<<" "<<(int) data[2]<<" "<<(int)data[3]);
     ROS_DEBUG_STREAM(encoder[0]);
     std::cout<<"Codeur 1 : "<<(int)data[0]<<" "<<(int)data[1]<<" "<<(int) data[2]<<" "<<(int)data[3]<<std::endl;
@@ -230,7 +230,7 @@ void MD25::get_encoder2()
         encoder[1] = ~((data[0]<<24) | (data[1]<<16) | (data[2]<<8) | data[3]);
         encoder[1] *= -1;
     }
-    encoder[1]*=ENCODER_IN_METER;
+    encoder[1]*=-ENCODER_IN_METER;
     ROS_DEBUG_STREAM("Codeur 2 : "<<(int)data[0]<<" "<<(int)data[1]<<" "<<(int) data[2]<<" "<<(int)data[3]);
     ROS_DEBUG_STREAM(encoder[1]);
     std::cout<<"Codeur 2 : "<<(int)data[0]<<" "<<(int)data[1]<<" "<<(int) data[2]<<" "<<(int)data[3]<<std::endl;
@@ -567,7 +567,7 @@ void MD25::set_motor()
 
 void MD25::twistCb(const geometry_msgs::Twist& msg)
 {
-    twist_linear = -msg.linear.x;
+    twist_linear = msg.linear.x;
     twist_angular = msg.angular.z;
     set_motor();
 }
@@ -583,7 +583,7 @@ void MD25::publish()
 
     //calcul vitesse lineaire et angulaire
     double du = -(de1+de2)/2.0;
-    double dth = ROTATION_CORRECT*(de2-de1)/(2*semi_axe_length);
+    double dth = ROTATION_CORRECT*(de1-de2)/(2*semi_axe_length);
     double dt = current_time.toSec() - last_time.toSec();
 
     //calcul de la nouvelle posture

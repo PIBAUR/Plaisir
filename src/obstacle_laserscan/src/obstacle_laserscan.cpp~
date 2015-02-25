@@ -1,5 +1,17 @@
 #include "obstacle_laserscan.h"
 
+
+
+double min_scan_range (double front_angle){
+
+return (180 - front_angle /2);
+
+}
+double max_scan_range (double front_angle){
+
+return (180 + front_angle /2);
+
+}
 void lidarCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
 	stop.data=false;
         
