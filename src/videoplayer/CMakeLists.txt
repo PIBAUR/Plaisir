@@ -101,14 +101,14 @@ include_directories(
 # )
 
 ## Declare a cpp executable
- add_executable(videoplayer_node src/videoplayer.cpp)
+ add_executable(videoplayer src/videoplayer.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
- add_dependencies(videoplayer_node videoplayer_generate_messages_cpp)
+ add_dependencies(videoplayer videoplayer_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(videoplayer_node
+ target_link_libraries(videoplayer
    ${catkin_LIBRARIES}
  )
 
