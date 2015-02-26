@@ -8,8 +8,8 @@ import tf
 import numpy
 
 from scenario_msgs.msg import Scenario as ScenarioMsg
-from scenario_msgs.msg import Scenario as MediaMsg
-from scenario_msgs.msg import Scenario as MediaArrayMsg
+from scenario_msgs.msg import Media as MediaMsg
+from scenario_msgs.msg import MediaArray as MediaArrayMsg
 from scenario_msgs.msg import BezierPath as BezierPathMsg
 from scenario_msgs.msg import BezierCurve as BezierCurveMsg
 from std_msgs.msg import Header as HeaderMsg
@@ -68,21 +68,17 @@ class Robot():
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()
         
-        #TODO: Debug... : media.path error. Ask Wilson  for details
-        #scenarioMsg.medias = MediaArrayMsg()
-        #scenarioMsg.medias.medias = []
+        #TODO: Seems Ok. Just Check.
+        scenarioMsg.medias = MediaArrayMsg()
+        scenarioMsg.medias.medias = []
         
-        #mediaMsg = MediaMsg()
-        #mediaMsg.type = "video"
-
-        
-        #for media in self.medias :
-        #    mediaMsg.path = media.filePath
-        #    mediaMsg.time_length = media.duration
-        #    mediaArrayMsg.medias.append(mediaMsg)
-        #scenarioMsg.medias = mediaArrayMsg
-        
-        #self.scenarioMsg.video_player.video_paths = ["test_video.mp4"]
+        for media in self.medias :
+            mediaMsg = MediaMsg()
+            mediaMsg.type = "video"
+            mediaMsg.path = media.filePath
+            mediaMsg.time_length = media.duration
+            scenarioMsg.medias.medias.append(mediaMsg)
+       
         
         
         
