@@ -31,7 +31,7 @@ rsync -r -avz --delete-after \
 	~/catkin_ws odroid@192.168.150.1$robot:~/
 
 ssh odroid@192.168.150.1$robot 'cd ~/catkin_ws/;catkin_make'
-ssh odroid@192.168.150.1$robot 'cd ~/catkin_ws/src/hector_navigation/;rm -rf ./*/build;rosmake'
+#ssh odroid@192.168.150.1$robot 'cd ~/catkin_ws/src/hector_navigation/;rm -rf ./*/build;rosmake'
 
 echo "deployment done on robot $robot"
 
