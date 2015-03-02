@@ -8,6 +8,6 @@ string path
 # programme : ...
 string type
 
-### time length : display "file" for "time_length" seconds
-float64 time_length
-
+float64 duration
+float64 start_time
+float64 end_time

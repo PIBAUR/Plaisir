@@ -13,6 +13,5 @@
 		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node"/>
 		<node name="path_follower" pkg="path_follower" type="path_follower"/>
 		<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py"/>
-		<node name="scenario_parser" pkg="scenario_lib" type="scenario_parser.py"/>
 	</group>
 </launch>
