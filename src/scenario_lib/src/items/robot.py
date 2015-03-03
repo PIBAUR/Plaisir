@@ -68,7 +68,7 @@ class Robot():
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()
         
-        #TODO: Seems Ok. Just Check.
+        # put medias into the message
         scenarioMsg.medias = MediaArrayMsg()
         scenarioMsg.medias.medias = []
         
@@ -76,12 +76,11 @@ class Robot():
             mediaMsg = MediaMsg()
             mediaMsg.type = "video"
             mediaMsg.path = media.filePath
-            mediaMsg.time_length = media.duration
+            mediaMsg.duration = media.duration
+            mediaMsg.start_time = media.startTime
+            mediaMsg.end_time = media.endTime
             scenarioMsg.medias.medias.append(mediaMsg)
        
-        
-        
-        
         headerMsg.frame_id = "/map"
         headerMsg.stamp = rospy.Time.now()
         scenarioMsg.bezier_paths.header = headerMsg
