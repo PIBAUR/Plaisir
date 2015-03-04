@@ -1,12 +1,14 @@
 <launch>
 	<arg name="robot"/>
 	<group ns="robot$(arg robot)" clear_params="false">
-		<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+		<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
+			env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
 	    
 	    <param name="tf_prefix" value="robot$(arg robot)"/>
   		
-		<node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.100 0 0.045 3.14159265359 0 0 base_link /robot$(arg robot)/base_laser_link 20"/>
-		<node name="MD25" pkg="md25" type="md25_node" output="screen"/>
-		<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen"/>
+		<node pkg="tf" type="static_transform_publisher" name="laser_to_base" machine="robot$(arg robot)"
+			args="-0.100 0 0.045 3.14159265359 0 0 base_link /robot$(arg robot)/base_laser_link 20" />
+		<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)"/>
+		<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)"/>
 	</group>
 </launch>

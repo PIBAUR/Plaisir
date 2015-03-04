@@ -1,17 +1,18 @@
 <launch>
 	<arg name="robot"/>
 	<group ns="robot$(arg robot)" clear_params="false">
-		<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+		<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="true" 
+			env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
 	    
 	    <param name="tf_prefix" value="robot$(arg robot)"/>
   		
-  		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node"/>
+  		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node" machine="robot$(arg robot)"/>
 		
-		<node name="stop_action" pkg="robot" type="stop_action"/>
-		<node name="emergency_stop_action" pkg="robot" type="emergency_stop_action"/>
-		<node name="low_battery_action" pkg="robot" type="low_battery_action"/>
-		<node name="scenario_action" pkg="robot" type="scenario_action"/>
-		<node name="ping_action" pkg="robot" type="ping_action"/>
-		<node name="action_selector" pkg="robot" type="action_selector"/>
+		<node name="stop_action" pkg="robot" type="stop_action" machine="robot$(arg robot)"/>
+		<node name="emergency_stop_action" pkg="robot" type="emergency_stop_action" machine="robot$(arg robot)"/>
+		<node name="low_battery_action" pkg="robot" type="low_battery_action" machine="robot$(arg robot)"/>
+		<node name="scenario_action" pkg="robot" type="scenario_action" machine="robot$(arg robot)"/>
+		<node name="ping_action" pkg="robot" type="ping_action" machine="robot$(arg robot)"/>
+		<node name="action_selector" pkg="robot" type="action_selector" machine="robot$(arg robot)"/>
 	</group>
 </launch>
