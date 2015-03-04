@@ -1,0 +1,33 @@
+<launch>
+
+	<!-- Setting and loading params and args -->
+	<param name="use_sim_time" value="false" />
+	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
+	<arg name="robot" value="01"/>
+	
+	<!-- Setting local machin and running graphique tools  -->
+	<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
+	
+	<!-- DEBUG TOOLS -->
+	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
+	
+	
+	
+	<node pkg="tf" type="static_transform_publisher" name="odom_to_map" args="0 0 0 0 0 0 /map robot$(arg robot)/odom 20"/>
+	<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/map.yaml"/>
+	<!-- 
+	<node pkg="blob_detect" name="lasermap" type="lasermap">
+		<remap from="scan" to="/robot$(arg robot)/scan"/>
+	</node>
+	 -->
+	<!-- ROBOT DRIVERS -->
+	<include file="$(find robot)/launch/plaisir.machine">
+		<arg name="robot" value="$(arg robot)"/> 
+	</include>
+	
+	
+</launch>
+
+
+
