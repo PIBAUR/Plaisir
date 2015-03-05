@@ -1,4 +1,6 @@
 #include <ros/ros.h>
+#include <tf/transform_listener.h>
+#include <geometry_msgs/TransformStamped.h>
 
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
@@ -26,6 +28,7 @@ public :
     void laserCb(const sensor_msgs::LaserScan::ConstPtr& msg);
     void laser_filter(const sensor_msgs::LaserScan& laser);
     void display_laser();
+    void display_laser_raw(const sensor_msgs::LaserScan& laser);
     void group_laser_point();
     void display_group();
     void process_map();
@@ -34,7 +37,9 @@ public :
     ///----ATTRIBUTS----///
 public :
     ros::NodeHandle n_;
-    cv::Point map_origin_;
+    tf::TransformListener tf_listener_;
+    cv::Point laser_origin_;
+    float laser_yaw_;
     cv::Mat map_;
     cv::Mat map_laser_;
     cv::Mat map_group_;
@@ -52,7 +57,7 @@ public :
 
 LidarBliter::LidarBliter()
 {
-    map_ = cv::imread("/home/serveur/catkin_ws/maps/map.pgm",CV_LOAD_IMAGE_COLOR);
+    map_ = cv::imread("/home/serveur/catkin_ws/maps/last_map.pgm",CV_LOAD_IMAGE_COLOR);
     map_laser_ = map_.clone();
     ros::ServiceClient map_client = n_.serviceClient<nav_msgs::GetMap>("/static_map");
     nav_msgs::GetMap map_service;
@@ -66,11 +71,11 @@ LidarBliter::LidarBliter()
     }
     int xori = -metadata_.origin.position.x/metadata_.resolution;
     int yori = -metadata_.origin.position.y/metadata_.resolution;
-    map_origin_ = cv::Point(xori,yori);
+    laser_origin_ = cv::Point(xori,yori);
     
     process_map();
     //cv::imshow("MAP",map_);
-    cv::circle(map_, map_origin_, 5, cv::Scalar(255,0,0), 3, 8, 0);
+    cv::circle(map_, laser_origin_, 2, cv::Scalar(255,0,0), 3, 8, 0);
     // cv::imshow("MAP",map_);
     cv::waitKey(20);
 }
@@ -82,18 +87,19 @@ void LidarBliter::laser_filter(const sensor_msgs::LaserScan& laser)
     std::cout<<nb<<std::endl;
     try
     {
+
         for(size_t i=0; i<= nb+1; i++)
         {
             if (laser.ranges[i] < laser.range_max && laser.ranges[i] > laser.range_min)
             {
-                float x = laser.ranges[i] * cos(laser.angle_min+i*laser.angle_increment);
-                float y = laser.ranges[i] * sin(laser.angle_min+i*laser.angle_increment);
+                float x = laser.ranges[i] * cos(laser.angle_min+i*laser.angle_increment + laser_yaw_);
+                float y = laser.ranges[i] * sin(laser.angle_min+i*laser.angle_increment + laser_yaw_);
                 x /= metadata_.resolution;
-                y /= metadata_.resolution;
-                cv::Point pt = cv::Point(x,y)+map_origin_;
+                y /= -metadata_.resolution;
+                cv::Point pt = cv::Point(x,y)+laser_origin_;
                 if(map_bin_.at<unsigned char>(pt) != 0)
                 {
-                    laser_point_.push_back(cv::Point(x,y)+map_origin_);
+                    laser_point_.push_back(cv::Point(x,y)+laser_origin_);
                 }
             }
         }
@@ -116,6 +122,39 @@ void LidarBliter::display_laser()
     cv::waitKey(10);
 }
 
+
+
+void LidarBliter::display_laser_raw(const sensor_msgs::LaserScan& laser)
+{
+    map_laser_ = map_.clone();
+
+    int nb = (laser.angle_max - laser.angle_min) / laser.angle_increment;
+    std::cout<<nb<<std::endl;
+    try
+    {
+
+        for(size_t i=0; i<= nb; i++)
+        {
+            if (laser.ranges[i] < laser.range_max)
+            {
+                float x = laser.ranges[i] * cos(laser.angle_min+i*laser.angle_increment + laser_yaw_);
+                float y = laser.ranges[i] * sin(laser.angle_min+i*laser.angle_increment + laser_yaw_);
+                x /= metadata_.resolution;
+                y /= -metadata_.resolution;
+                cv::Point pt = cv::Point(x,y)+laser_origin_;
+                cv::circle(map_laser_,pt,3,cv::Scalar(0,0,255),-3,4,0);
+            }
+        }
+    }
+    catch(...)
+    {
+    }
+    cv::circle(map_laser_, laser_origin_, 2, cv::Scalar(0,255,0), 3, 8, 0);
+    cv::imshow("laser_raw",map_laser_);
+    cv::waitKey(10);
+}
+
+
 void LidarBliter::process_map()
 {
     cv::cvtColor(map_,map_bin_,CV_BGR2GRAY);
@@ -137,7 +176,7 @@ void LidarBliter::group_laser_point()
         std::cout<<"test it : "<<it->x<<"\t"<<it->y<<std::endl;
         std::cout<<"test it_grouped : "<<group->back().x<<"\t"<<group->back().y<<std::endl;
         float d =  sqrt( (float)((it->x - (*group).back().x)*(it->x - (*group).back().x)
-        + (it->y - (*group).back().y)*(it->y - (*group).back().y) ));
+                    + (it->y - (*group).back().y)*(it->y - (*group).back().y) ));
         std::cout<< "plop group laser point float" <<std::endl;
         if(d < (0.30/metadata_.resolution))
         {
@@ -199,6 +238,24 @@ void LidarBliter::spin()
 void LidarBliter::laserCb(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
     map_laser_= map_.clone();
+    tf::StampedTransform tf_laser;
+
+    try
+    {
+        tf_listener_.lookupTransform("/map", msg->header.frame_id, ros::Time(0), tf_laser);
+        int xlaser = (-metadata_.origin.position.x + tf_laser.getOrigin().x())/metadata_.resolution;
+        int ylaser = (-metadata_.origin.position.y -tf_laser.getOrigin().y())/metadata_.resolution;
+        laser_yaw_ = tf::getYaw(tf_laser.getRotation());
+        laser_origin_ = cv::Point(xlaser,ylaser);
+
+    }
+    catch (tf::TransformException ex)
+    {
+        ROS_ERROR("%s",ex.what());
+        ros::Duration(1.0).sleep();
+        return;
+    }
+    display_laser_raw(*msg);
     laser_filter(*msg);
     display_laser();
     group_laser_point();

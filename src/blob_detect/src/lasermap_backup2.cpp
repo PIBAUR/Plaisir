@@ -22,7 +22,7 @@ class LidarBliter
   public :
     LidarBliter()
    {
-      map_ = cv::imread("/home/serveur/catkin_ws/maps/lastmap.pgm",CV_LOAD_IMAGE_COLOR);
+      map_ = cv::imread("/home/serveur/catkin_ws/maps/map.pgm",CV_LOAD_IMAGE_COLOR);
       map_laser_ = map_.clone();
       ros::ServiceClient map_client = n_.serviceClient<nav_msgs::GetMap>("/static_map");
       nav_msgs::GetMap map_service;
