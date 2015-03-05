@@ -1,5 +1,6 @@
 <launch>
-	<machine name="robot00" address="192.168.150.101" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+	<machine name="robot01" address="192.168.150.101" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+	
 	<node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.080 0 0.045 3.14159265359 0 0 base_link base_laser_link 20"/>
 	<node name="MD25" pkg="md25" type="md25_node" output="screen"/>
 	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen"/>
