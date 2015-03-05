@@ -321,6 +321,7 @@ namespace pose_follower {
       if (!global_plan.size() > 0)
       {
         ROS_ERROR("Received plan with zero length");
+        execlp("rosrun", "rosrun", "map_serveur", "map_saver", "-f", "~/catkin_ws/maps/last_map" NULL);
         return false;
       }
 
