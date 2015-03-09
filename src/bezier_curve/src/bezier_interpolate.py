@@ -12,6 +12,10 @@ pathPublisher = rospy.Publisher("path", PoseArray)
 step = 0
 
 def scenarioCallback(data):
+    # to execute only choregraphic scenario
+    if data.type != "choregraphic":
+        return
+    
     path.poses = []
     path.header = data.bezier_paths.header
     

@@ -67,6 +67,7 @@ class Robot():
         scenarioMsg = ScenarioMsg()
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()
+        scenarioMsg.type = "choregraphic"
         
         # put medias into the message
         scenarioMsg.medias = MediaArrayMsg()

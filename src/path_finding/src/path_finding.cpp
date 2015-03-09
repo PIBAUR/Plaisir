@@ -5,6 +5,8 @@
 using namespace cv;
 using namespace std;
 
+#define map_path "/home/artlab/catkin_ws/maps/sentier2.pgm"
+#define map_path_reworked "/home/artlab/catkin_ws/maps/sentier2_reworked.pgm"
 //********************* Compute of the destination Point ********************************
 
 void PathFinding::destination_point(const scenario_msgs::Scenario::ConstPtr& msg)
@@ -16,8 +18,32 @@ void PathFinding::destination_point(const scenario_msgs::Scenario::ConstPtr& msg
         y_robot_des = msg->target.y;
         theta_robot_des = msg->target.theta;
          
-        //ROS_WARN_STREAM("Target :"<<x_robot_des<<" "<<y_robot_des);
         ROS_INFO_STREAM("Target :"<<x_robot_des<<" "<<y_robot_des);
+
+        computeTF();
+		vector<Node*> path_bis=algorithm();
+
+		int i= path_bis.size()- 1;
+		geometry_msgs::PoseArray path_copy;
+		path_copy.header.frame_id = "map";
+
+		//path publication
+		ROS_INFO_STREAM("PATH_BIS_SIZE "<<" "<<path_bis.size());
+		for(int i=0;i<path_bis.size();++i)
+		{
+			geometry_msgs::Pose p;
+
+			p.position.x = path_bis[i]->x;
+			p.position.y = path_bis[i]->y;
+			p.position.z = 0;
+			ROS_INFO_STREAM("PATH_BIS: "<<path_bis[i]->x<<" "<<path_bis[i]->y);
+			ROS_INFO_STREAM("POSITION: "<<p.position.x<<" "<<p.position.y);
+
+			path_copy.poses.push_back(p);
+		}
+		ROS_INFO_STREAM("BEGIN PUBLISHING");
+		path_pub.publish(path_copy);
+		ROS_INFO_STREAM("END OF PUBLISH");
       }
      else return;
 }
@@ -31,7 +57,7 @@ vector<Node*> PathFinding::algorithm()
     //Node tree(127,322);
     //Chargement Map  
     Mat map_init, map;
-    map = imread("/notre_bon_plaisir/maps/map.pgm", CV_LOAD_IMAGE_GRAYSCALE);
+    map = imread(map_path, CV_LOAD_IMAGE_GRAYSCALE);
     map = traitement_image(map);
     // traitement et calcul
     tree.x = x_robot_origin; tree.y = y_robot_origin;
@@ -75,12 +101,12 @@ vector<Node*> PathFinding::algorithm()
 
     draw_path(path,&map);
   
-    namedWindow("Path", WINDOW_AUTOSIZE );// Create a window for display.
+    //namedWindow("Path", WINDOW_AUTOSIZE );// Create a window for display.
  
-    imshow("Path", map );// Show our image inside it.
-    waitKey(0);            
+    //imshow("Path", map );// Show our image inside it.
+    //waitKey(0);
 
-    imwrite("/notre_bon_plaisir/maps/map_reworked.pgm",map);
+    imwrite(map_path_reworked, map);
    
     return path;
 
@@ -94,7 +120,7 @@ void PathFinding::computeTF()
     try
     {
 
-        tf_listener_.lookupTransform("/map", "base_link", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
 
     }
     catch (tf::TransformException ex)
@@ -117,13 +143,13 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "path_finding_node");
 	ros::NodeHandle n;
+
+    /******Publishers****************/
+    //ros::Publisher path_pub = n.advertise<geometry_msgs::PoseArray>("path", 1);
     
     PathFinding pf(n);
     /*** get rosparam ***/
 
-	
-    /******Publishers****************/
-    ros::Publisher path_pub = n.advertise<geometry_msgs::PoseArray>("path", 1);
      
 
     /*****Subscribers****************/
@@ -131,31 +157,12 @@ int main(int argc, char** argv)
     //find destination point and orientation
     ros::Subscriber destination = n.subscribe<scenario_msgs::Scenario>("scenario", 1,&PathFinding::destination_point,&pf); 
 
-    // frequency
-    ros::Rate r(1); //1 second  
-
-    //ROS Loop
-    while (ros::ok())
-    {
-        r.sleep();
-        pf.computeTF();
-        vector<Node*> path_bis=pf.algorithm();
-    
-        int i= path_bis.size()- 1;
-        geometry_msgs::PoseArray path_copy;
-	    //path publication
-        for(int i=0;i<path_bis.size();++i)
-        {
-            path_copy.poses[i].position.x=path_bis[i]->x;
-            path_copy.poses[i].position.x=path_bis[i]->y;
-            path_copy.poses[i].position.z=0; // not necessary
-        }
-
-    path_pub.publish(path_copy);
-
-    ros::spinOnce();
-    r.sleep();
-    }
+    ros::Rate loop(1);
+    while(ros::ok()){
+		ros::spinOnce();
+		loop.sleep();
+	}
+	ros::spin();
 
  	return 0;
 }

@@ -30,13 +30,14 @@ class PathFinding
 protected:
 
     ros::NodeHandle nh_;
+    ros::Publisher path_pub;
     tf::TransformListener tf_listener_;
 
 public:
 
     PathFinding(ros::NodeHandle nh): nh_(nh)
     {
-
+    	path_pub = nh.advertise<geometry_msgs::PoseArray>("path", 1);
     }
     ~PathFinding(){};
     void computeTF();
