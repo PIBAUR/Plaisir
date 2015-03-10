@@ -8,3 +8,7 @@ notre_bon_plaisir
     * phonon
     * phonon-backend-vlc
     * python-qt4-phonon
+
+* odroid
+  * firefox
+  * selenium (pip)

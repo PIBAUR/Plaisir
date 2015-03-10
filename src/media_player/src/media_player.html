@@ -1,0 +1,29 @@
+<head>
+	<style>
+		html {
+			background: #000;
+		} * {
+			cursor: none !important;
+			overflow: hidden;
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	
+	<script type="text/javascript">
+		function setSpeed(videoId, x){
+			player = document.getElementById(videoId)
+			player.playbackRate = x;
+		}
+	</script>
+</head>
+<body>
+	<div id="videoContainer">
+		<video id="video_0" width="100%" height="100%" type="video/mp4">
+		</video>
+		<video id="video_1" width="100%" height="100%" style="display: none;" type="video/mp4">
+		</video>
+	</div>
+</body>
