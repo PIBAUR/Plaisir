@@ -14,7 +14,6 @@ from PyQt4 import uic
 from src.scenario_lib.src.items.scenario import Scenario
 
 from src.gui_scenario_builder.src.ui import ScenarioEdition
-from matplotlib.testing.jpl_units.Duration import Duration
 
 class ScenarioDataBase():
     def __init__(self, importCallback = None):
@@ -110,7 +109,7 @@ class ScenarioDataBase():
         for scenarioFile in scenarioFiles:
             if scenarioFile.endswith(".sce"):
                 # filter name
-                if scenarioFile.startswith(nameFilterValue):
+                if scenarioFile.startswith(str(nameFilterValue.toUtf8())):
                     # filter attributes
                     scenarioFilePath = os.path.join(self.scenario_db_path, scenarioFile)
                     scenario = Scenario.loadFile(scenarioFilePath, False)
@@ -166,6 +165,7 @@ class ScenarioDataBase():
             actionButtonsContainer.layout().addWidget(editButton)
             actionButtonsContainer.layout().addWidget(deleteButton)
             actionButtonsContainer.layout().addWidget(executeButton)
+            
         self.ui.scenario_db_table.setCellWidget(index, 5, actionButtonsContainer)
         
         if scenarioFilePath in self.editingScenarios:

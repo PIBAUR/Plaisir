@@ -8,6 +8,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from src.scenario_lib.src.items.media import Media
+from src.gui_video_db.src.ui import VideoDatabase
 
 class Temporalization():
     def __init__(self, ui, canvas, robotMediaPlayer, changeCallback):
@@ -123,15 +124,11 @@ class Temporalization():
     
     
     def handleAddMediaButtonClicked(self, event):
-        # get a file
-        #TODO: conditions depending on the type of media
+        VideoDatabase(self.handleVideoSelected)
         
-        # hide and show because of a bug which shows a blank qfiledialog
-        self.canvas.hide()
-        filePaths = QFileDialog.getOpenFileNames(self.ui, u"Ajouter un média", self.lastMediaDirectory, u"Vidéos: *.mp4, *.mov (*.mov *.mp4)")
-        self.canvas.show()
         
-        for filePath in filePaths:
+    def handleVideoSelected(self, filePath):
+        if filePath is not None:
             filePath = str(filePath)
             self.lastMediaDirectory = os.path.dirname(filePath)
             

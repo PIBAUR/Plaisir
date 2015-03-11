@@ -14,70 +14,65 @@ from selenium.webdriver.common.keys import Keys
 
 class MediaPlayer():
     def __init__(self):
-        # get medias
-        mediaDirectory = os.path.expanduser("~") + "/videotest/"
-        mediaPaths = os.listdir(mediaDirectory)
-        videos = []
-        for mediaPath in mediaPaths:
-            if mediaPath.split(".")[-1] in ["mp4", "mov"]:
-                videos.append("file://" + os.path.join(mediaDirectory, mediaPath))
-                
         # create browser
-        thisDirectoryPath = os.path.abspath("")
-        browser = webdriver.Firefox()
+        self.browser = webdriver.Firefox()
         # load html file
-        browser.get("file://" + thisDirectoryPath + "/media_player.html")
+        self.browser.get("file://" + os.path.split(os.path.abspath(__file__))[0] + "/media_player.html")
         # wait for loading complete
-        browser.execute_script("$(document.body).trigger('load');")
+        self.browser.execute_script("$(document.body).trigger('load');")
         # set firefof on fullscreen
-        browser.find_element_by_tag_name("body").send_keys(Keys.F11)
-        
-        currentPlayer = "video_0"
-        print "document.getElementById(" + currentPlayer + ").src = '" + videos[0] + "';"
-        browser.execute_script("document.getElementById('" + currentPlayer + "').src = '" + videos[0] + "';")
-        # execute
-        i = 0
-        for video in videos:
-            otherPlayer = "video_1" if currentPlayer == "video_0" else "video_0"
+        self.browser.find_element_by_tag_name("body").send_keys(Keys.F11)
             
-            browser.execute_script("$('#" + currentPlayer + "').css('display', 'block');")
-            browser.execute_script("document.getElementById('" + currentPlayer + "').play();")
+        self.currentPlayer = "video_0"
+        self.videoMedias = []
+        self.playingVideo = None
+
+
+    def mediaCB(self, data):
+        self.videoMedias = [mediaData for mediaData in data.medias.medias if mediaData.type == "video"]
+        
+        rospy.loginfo("Received " + str(len(self.videoMedias)) + " medias")
+        
+        if len(self.videoMedias) <= 0:
+            return
+        
+        # set the first one
+        self.browser.execute_script("document.getElementById('" + self.currentPlayer + "').src = '" + self.videoMedias[0].path + "';")
+        
+        i = 0
+        for videoMedia in self.videoMedias:
+            self.playingVideo = videoMedia
+            otherPlayer = "video_1" if self.currentPlayer == "video_0" else "video_0"
+            
+            self.browser.execute_script("$('#" + self.currentPlayer + "').css('display', 'block');")
+            self.browser.execute_script("document.getElementById('" + self.currentPlayer + "').play();")
             
             # stop other except this
-            browser.execute_script("$('#" + otherPlayer + "').css('display', 'none');")
+            self.browser.execute_script("$('#" + otherPlayer + "').css('display', 'none');")
             # load next one if exists
-            if i + 1 < len(videos):
-                browser.execute_script("document.getElementById('" + otherPlayer + "').src = '" + videos[i + 1] + "';")
+            if i + 1 < len(self.videoMedias):
+                self.browser.execute_script("document.getElementById('" + otherPlayer + "').src = '" + self.videoMedias[i + 1].path + "';")
             
-            # wait for the end of the video
+            # wait for the end of the videoMedia
             while True:
-                if browser.execute_script("return document.getElementById('" + currentPlayer + "').ended;"):
+                if self.browser.execute_script("return document.getElementById('" + self.currentPlayer + "').ended;"):
                     break
             
-            currentPlayer = otherPlayer
+            self.currentPlayer = otherPlayer
+            
             i += 1
     
-
-def mediaCB(data):
-    for mediaData in data.medias.medias:
-        mediaPath = mediaData.path
-        media = medias[mediaPath]
-        
-        mediaPlayer.set_media(media)
-        
-        while mediaPlayer.get_position() < .998:
-            mediaPlayer.set_rate(1.0)
-            mediaPlayer.play()
-
-
-def pathFeedbackCB(data):
-    pass
+    
+    def pathFeedbackCB(self, data):
+        #TODO: control playback speed
+        pass
     
     
 if __name__ == '__main__':
     mediaPlayer = MediaPlayer()
     
     # ros node
-    #rospy.init_node('media_player', log_level = rospy.INFO)
-    #rospy.Subscriber('/robot01/scenario', ScenarioMsg, mediaCB)
-    #rospy.spin()
+    rospy.init_node('media_player', log_level = rospy.INFO)
+    rospy.Subscriber('/robot01/scenario', ScenarioMsg, mediaPlayer.mediaCB)
+    rospy.Subscriber('/robot01/path_feedback', ScenarioMsg, mediaPlayer.mediaCB)
+    rospy.spin()

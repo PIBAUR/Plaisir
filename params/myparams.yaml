@@ -22,6 +22,9 @@ media_time_base: 2.5
 
 ## chemins
 scenario_db_path: "/home/artlab/.notrebonplaisir/scenarios"
+server_videos_path: "/home/artlab/.notrebonplaisir/videos"
+server_thumbs_path: "/home/artlab/.notrebonplaisir/thumbs"
+robot_videos_path: "/home/odroid/.notrebonplaisir/videos"
 
 ## angle de détection d'obsatcle à l'avant du robot (en degré)
 front_angle: 50 

@@ -21,6 +21,8 @@ from src.bezier_curve.src import bezier_interpolate
 class Robot():
     currentHue = 0
     currentLuminosity = 100
+    server_videos_path = None
+    robot_videos_path = None
     
     def __init__(self, loadWithVideos = True):
         self.points = []
@@ -64,6 +66,11 @@ class Robot():
         
     
     def getScenarioMsg(self, transformPosition, scale, transformOrientation):
+        # set the vars if not have be done
+        if Robot.server_videos_path is None:
+            Robot.server_videos_path = rospy.get_param("server_videos_path")
+            Robot.robot_videos_path = rospy.get_param("robot_videos_path")
+        
         scenarioMsg = ScenarioMsg()
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()
@@ -76,7 +83,8 @@ class Robot():
         for media in self.medias :
             mediaMsg = MediaMsg()
             mediaMsg.type = "video"
-            mediaMsg.path = media.filePath
+            # replace file from server to robot 
+            mediaMsg.path = media.filePath.replace(Robot.server_videos_path, Robot.robot_videos_path)
             mediaMsg.duration = media.duration
             mediaMsg.start_time = media.startTime
             mediaMsg.end_time = media.endTime

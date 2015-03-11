@@ -10,6 +10,8 @@
 	
 		<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen"/>
 	
+		<env name="DISPLAY" value=":0"/>
+		<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)"/>
 		
 		<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py"/>
 		
