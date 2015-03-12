@@ -65,7 +65,7 @@ double norme(Node* n_rand, Node* n_near){
 }
 
 bool pixel_test(Node& u, Mat &map, int mode){
- int R=5;//20;//40;
+ int R=2;//5;//20;//40;
  int xTemp = u.x - R;
  int yTemp = u.y - R;
 

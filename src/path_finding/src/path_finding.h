@@ -32,10 +32,16 @@ protected:
     ros::NodeHandle nh_;
     ros::Publisher path_pub;
     tf::TransformListener tf_listener_;
+    scenario_msgs::Scenario scenario;
+    Mat map_received;
+    double theta_robot_origin, theta_robot_des, z_map_origin;
+    double x_robot_origin, y_robot_origin, x_robot_des, y_robot_des;
+    double x_map_origin, y_map_origin;
+    double map_resolution;
 
 public:
 
-    PathFinding(ros::NodeHandle nh): nh_(nh)
+    PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0),x_map_origin(0.0), y_map_origin(0.0), map_resolution(0.0)
     {
     	path_pub = nh.advertise<geometry_msgs::PoseArray>("path", 1);
     }
@@ -43,19 +49,13 @@ public:
     void computeTF();
     vector<Node*> algorithm();
     void destination_point(const scenario_msgs::Scenario::ConstPtr& msg);
-
+    void map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg);
+ 
 };
 
 
 
 /* GLOBAL VARIABLES */
-
-nav_msgs::OccupancyGrid map1;
-geometry_msgs::PoseArray path1;
-std_msgs::Float64 path_feedback1;
-
-double x_robot_origin, y_robot_origin, theta_robot_origin, x_robot_des, y_robot_des, theta_robot_des;
-
 
 using namespace cv;
 
@@ -68,26 +68,6 @@ Mat traitement_image(Mat &map);
 
 /* FUNCTIONS */
 
-
-Mat traitement_image(Mat &map){
-  // Gris -> Noir
-  for(int i = 0; i < map.rows; i++){
-    for(int j = 0; j < map.cols; j++){
-      cv::Scalar c = map.at<uchar>(i,j);
-      if(c[0] < 240)
-        map.at<uchar>(i,j) = 0;
-    }
- }
-  cv::Mat dst, dst_erode;
-  // Erosion/Dilatation
-  cv::dilate(map,dst,Mat(), Point(-1,-1) ,5);  
-  cv::erode(dst, dst_erode,Mat(), Point(-1,-1), 5);
-
-  return dst_erode;
-}
-
-
-
 void affiche_tree_rec(Node* q_i,cv::Mat* map){
   int n = q_i->forest.size(), i;
   
@@ -97,9 +77,7 @@ void affiche_tree_rec(Node* q_i,cv::Mat* map){
     cv::Point point_q_i(q_i->x,q_i->y);
     cv::Point point_q_f(q_i->forest[i]->x,q_i->forest[i]->y);
     cv::Scalar color_c(0,0,255);
-    //std::cout << "(" << q_i->x << "," << q_i->y << ")" << "\t" << "(" << q_i->forest[i]->x << "," << q_i->forest[i]->y << ")" << std::endl; 
     line(*map,point_q_i,point_q_f,color_c);
-   
     // recursive call on q_i's forest
     affiche_tree_rec(q_i->forest[i],map);
 		

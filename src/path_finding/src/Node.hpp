@@ -6,8 +6,8 @@
 #include <ros/ros.h>
 
 struct Node{
- int x;
- int y;
+ double x;
+ double y;
  double distFromRoot;
  double distFromGoal;
  Node* parent;
@@ -17,7 +17,7 @@ struct Node{
   //forest = new std::vector<Node*>();
   parent = NULL;
  }
- Node(int x0, int y0): x(x0), y(y0), distFromRoot(0), distFromGoal(0){
+ Node(double x0, double y0): x(x0), y(y0), distFromRoot(0), distFromGoal(0){
   //forest = new std::vector<Node*>();
   parent = NULL;
  }
