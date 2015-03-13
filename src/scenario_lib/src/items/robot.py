@@ -1,3 +1,4 @@
+import os
 import random
 
 from PyQt4.QtGui import *
@@ -53,9 +54,13 @@ class Robot():
             self.points.append(pointToAppend)
         
         for mediaData in data["medias"]:
-            mediaToAppend = Media(mediaData["filePath"], self.loadWithVideos)
-            mediaToAppend.load(mediaData)
-            self.medias.append(mediaToAppend)
+            if os.path.exists(mediaData["filePath"]):
+                mediaToAppend = Media(mediaData["filePath"], self.loadWithVideos)
+                mediaToAppend.load(mediaData)
+                self.medias.append(mediaToAppend)
+            else:
+                #TODO: display error
+                pass
         
         self.color = QColor(data["color"])
     

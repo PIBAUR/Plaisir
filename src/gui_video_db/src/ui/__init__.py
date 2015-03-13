@@ -16,7 +16,7 @@ from PyQt4.QtCore import *
 from PyQt4 import uic
 
 from src.scenario_lib.src.items.media import Media
-
+    
 
 class VideoDatabase():
     dataColumns = ["name", "category", "startPosition", "endPosition"]
@@ -57,7 +57,7 @@ class VideoDatabase():
         # ui
         if self.importCallback is not None:
             self.ui.setWindowTitle(u"Importer une vidéo")
-            
+        
         self.ui.video_db_table.itemChanged.connect(self.handleTableItemChanged)
         self.ui.video_db_table.verticalHeader().setVisible(False)
         columns = [("Nom", 160), (u"Catégorie", 160), (u"Position de début", 160), (u"Position de fin", 160), (u"Miniatures", 150), ("Action", 80)]
@@ -76,7 +76,7 @@ class VideoDatabase():
         
         self.ui.show()
         self.ui.closeEvent = self.closeEvent
-        
+
     
     def initTable(self):
         # insert the first row for filtering
@@ -86,18 +86,26 @@ class VideoDatabase():
         self.startPositionFilterLineEdit = QLineEdit()
         self.endPositionFilterLineEdit = QLineEdit()
         
+        # init auto completion
+        categoryDelegate = CompleterDelegate(self.ui.video_db_table, self.completerSetupFunction, self.getCompleterStringList, ["category"])
+        self.ui.video_db_table.setItemDelegateForColumn(1, categoryDelegate)
+        startPositionDelegate = CompleterDelegate(self.ui.video_db_table, self.completerSetupFunction, self.getCompleterStringList, ["startPosition", "endPosition"])
+        self.ui.video_db_table.setItemDelegateForColumn(2, startPositionDelegate)
+        endPositionDelegate = CompleterDelegate(self.ui.video_db_table, self.completerSetupFunction, self.getCompleterStringList, ["startPosition", "endPosition"])
+        self.ui.video_db_table.setItemDelegateForColumn(3, endPositionDelegate)
+            
+        # init filtering
         self.ui.video_db_table.setCellWidget(0, 0, self.nameFilterLineEdit)
         self.ui.video_db_table.setCellWidget(0, 1, self.categoryFilterLineEdit)
         self.ui.video_db_table.setCellWidget(0, 2, self.startPositionFilterLineEdit)
         self.ui.video_db_table.setCellWidget(0, 3, self.endPositionFilterLineEdit)
-        
         self.nameFilterLineEdit.textChanged.connect(self.populateTable)
         self.categoryFilterLineEdit.textChanged.connect(self.populateTable)
         self.startPositionFilterLineEdit.textChanged.connect(self.populateTable)
         self.endPositionFilterLineEdit.textChanged.connect(self.populateTable)
         
         self.populateTable()
-    
+        
     
     def populateTable(self, event = None):
         self.acceptTableItemChanged = False
@@ -120,6 +128,8 @@ class VideoDatabase():
                         
         self.acceptTableItemChanged = True
         
+        self.handleColumnResized()
+        
             
     def insertRow(self, index, video):
         # populate table
@@ -127,11 +137,12 @@ class VideoDatabase():
         
         i = 0
         for dataColumn in VideoDatabase.dataColumns:
-            nameItem = QTableWidgetItem(video[dataColumn])
+            item = QTableWidgetItem(video[dataColumn])
             if i == 0:
-                nameItem.videoPath = video["path"]
-            nameItem.setFlags(nameItem.flags() | Qt.ItemIsEditable)
-            self.ui.video_db_table.setItem(index, i, nameItem)
+                item.videoPath = video["path"]
+            item.setFlags(item.flags() | Qt.ItemIsEditable)
+            self.ui.video_db_table.setItem(index, i, item)
+            i += 1
         
         thumbsWidget = QWidget()
         thumbsWidget.setLayout(QHBoxLayout())
@@ -163,6 +174,15 @@ class VideoDatabase():
         self.ui.video_db_table.setCellWidget(index, 5, actionButtonsContainer)
         
         self.acceptTableItemChanged = False
+
+
+    def completerSetupFunction(self, editor, index, completerList):
+        completer = QCompleter(completerList, editor)
+        completer.setCompletionColumn(0)
+        completer.setCompletionRole(Qt.EditRole)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setCompletionMode(QCompleter.PopupCompletion)
+        editor.setCompleter(completer)
     
     
     def getItemByVideoPath(self, videoPath):
@@ -180,6 +200,13 @@ class VideoDatabase():
             return results[0]
         else:
             return None
+    
+    
+    def getCompleterStringList(self, itemTypes):
+        results = []
+        for itemType in itemTypes:
+            results.extend([dbVideoItem[itemType] for dbVideoItem in self.dbVideo])
+        return list(set(results))
         
     
     def dumpDbVideo(self):
@@ -223,6 +250,10 @@ class VideoDatabase():
         self.populateTable()
         
     
+    def handleTableCurrentItemChanged(self, item):
+        self.current
+        
+        
     def handleTableItemChanged(self, item):
         if self.acceptTableItemChanged:
             self.acceptTableItemChanged = False
@@ -234,7 +265,7 @@ class VideoDatabase():
             newName = str(item.text().toUtf8())
             video = self.getVideoByVideoPath(videoPath)
             oldName = video[itemType]
-            if newName != "":
+            if itemType != "name" or newName != "":
                 video[itemType] = newName
                 self.dumpDbVideo()
             else:
@@ -274,3 +305,19 @@ class VideoDatabase():
     def closeEvent(self, event):
         if self.importCallback is not None:
             self.importCallback(None)
+
+
+# delegate to have auto completion in QTableWidget
+class CompleterDelegate(QStyledItemDelegate):
+    def __init__(self, parent, completerSetupFunction, completerListCaller, itemTypes):
+        super(CompleterDelegate, self).__init__(parent)
+        self.completerSetupFunction = completerSetupFunction
+        self.completerListCaller = completerListCaller
+        self.itemTypes = itemTypes
+        
+        
+    def createEditor(self, parent, option, index):
+        editor = QLineEdit(parent)
+        self.completerSetupFunction(editor, index, self.completerListCaller(self.itemTypes))
+        
+        return editor
