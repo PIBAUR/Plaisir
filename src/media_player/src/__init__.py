@@ -37,7 +37,7 @@ class MediaPlayer():
             return
         
         # set the first one
-        self.browser.execute_script("document.getElementById('" + self.currentPlayer + "').src = '" + self.videoMedias[0].path + "';")
+        self.sendMediaPathToBrowser(self.currentPlayer, self.videoMedias[0].path)
         
         i = 0
         for videoMedia in self.videoMedias:
@@ -51,7 +51,7 @@ class MediaPlayer():
             self.browser.execute_script("$('#" + otherPlayer + "').css('display', 'none');")
             # load next one if exists
             if i + 1 < len(self.videoMedias):
-                self.browser.execute_script("document.getElementById('" + otherPlayer + "').src = '" + self.videoMedias[i + 1].path + "';")
+                self.sendMediaPathToBrowser(otherPlayer, self.videoMedias[i + 1].path)
             
             # wait for the end of the videoMedia
             while True:
@@ -66,6 +66,13 @@ class MediaPlayer():
     def pathFeedbackCB(self, data):
         #TODO: control playback speed
         pass
+    
+    
+    def sendMediaPathToBrowser(self, player, mediaPath):
+        if os.path.exists(mediaPath):
+            self.browser.execute_script("document.getElementById('" + player + "').src = '" + mediaPath + "';")
+        else:
+            rospy.logerr("Media '" + mediaPath + "' does not exist in the robot")
     
     
 if __name__ == '__main__':
