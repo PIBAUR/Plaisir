@@ -32,11 +32,10 @@ protected:
     ros::NodeHandle nh_;
     ros::Publisher path_pub;
     tf::TransformListener tf_listener_;
-    scenario_msgs::Scenario scenario;
     Mat map_received;
     double theta_robot_origin, theta_robot_des, z_map_origin;
-    double x_robot_origin, y_robot_origin, x_robot_des, y_robot_des;
-    double x_map_origin, y_map_origin;
+    int x_robot_origin, y_robot_origin, x_robot_des, y_robot_des;
+    int x_map_origin, y_map_origin;
     double map_resolution;
 
 public:

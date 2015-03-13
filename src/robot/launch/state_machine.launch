@@ -17,10 +17,10 @@
 	
 	<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/sentier2.yaml"/>
 	
-	<!--<node name="path_finding" pkg="path_finding" type="path_finding_node">
+	<node name="path_finding" pkg="path_finding" type="path_finding_node">
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>
 		<remap from="path" to="robot$(arg robot)/path"/>
-	</node> -->
+	</node>
 	
 	<!--<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
