@@ -2,12 +2,6 @@
 #include <actionlib/server/simple_action_server.h>
 #include <robot/ScenarioAction.h>
 
-
-
-///TEST////////////////////////////////////////////
-///TEST////////////////////////////////////////////
-///TEST////////////////////////////////////////////
-
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseArray.h>
 #include <tf/transform_listener.h>
@@ -32,6 +26,7 @@ protected:
     size_t size_path_;
     double du_;
     int cpt_;
+    float linear_speed_;
 
 public:
     PathFollower(ros::NodeHandle nh):
@@ -39,7 +34,8 @@ public:
         index_path_(0),
         size_path_(0),
         du_(10.0),
-        cpt_(0)
+        cpt_(0),
+        linear_speed_(0.10)
 {
 
      cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
@@ -50,6 +46,7 @@ public:
     void pathCB(const geometry_msgs::PoseArray &msg);
     void computeCmd(double &lin, double &ang);
     void spinOnce();
+    void speedCB(const std_msgs::Float64 &msg);
 };
 
 
@@ -59,6 +56,11 @@ void PathFollower::pathCB(const geometry_msgs::PoseArray &msg)
     path_ = msg;
     index_path_ = 0;
     size_path_ = path_.poses.size();
+}
+
+void PathFollower::speedCB(const std_msgs::Float64 &msg)
+{
+    linear_speed_= msg.data;
 }
 
 
@@ -105,7 +107,7 @@ void PathFollower::computeCmd(double &lin, double &ang)
     while(ang>=PI)
             ang-=2*PI;
     ang*=K_TH;
-    lin = 0.15;
+    lin=linear_speed_;
 }
 
 
@@ -154,18 +156,6 @@ void PathFollower::spinOnce()
 
 
 
-
-
-
-
-
-
-
-
-///TEST////////////////////////////////////////////
-///TEST////////////////////////////////////////////
-///TEST////////////////////////////////////////////
-
 class ScenarioAction
 {
 protected:
@@ -198,7 +188,8 @@ public:
         ////////////////////////////////////////////////////
         ros::NodeHandle nh;
         PathFollower pf(nh);
-        ros::Subscriber sub = nh.subscribe("path", 1, &PathFollower::pathCB, &pf);
+        ros::Subscriber path_sub = nh.subscribe("path", 1, &PathFollower::pathCB, &pf);
+        ros::Subscriber speed_sub = nh.subscribe("linear_speed", 1, &PathFollower::speedCB, &pf);
         ros::Rate loop(LOOP_RATE);
         ////////////////////////////////////////////////////
 
@@ -206,20 +197,11 @@ public:
         while(!as_.isPreemptRequested() && ros::ok())
         {
             ROS_INFO("%s: Do Scenario Action STUFF...", action_name_.c_str());
-            ////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////
             pf.spinOnce();
             ros::spinOnce();
             loop.sleep();
-            ////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////
-
         }
         ROS_INFO("%s: Preempted", action_name_.c_str());
-        
-        // set the action state to preempted
         as_.setPreempted();
     }
 };

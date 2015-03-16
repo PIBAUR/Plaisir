@@ -4,11 +4,13 @@ import math
 import rospy
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from geometry_msgs.msg import PoseArray, Pose, Point
+from std_msgs.msgs import Float64
 
 # consts
 DEFAULT_BEZIER_CURVE_STEP = .05
 path = PoseArray()
 pathPublisher = rospy.Publisher("path", PoseArray)
+speedPublisher = rospy.Publisher("linear_speed", Float64)
 step = 0
 
 def scenarioCallback(data):
@@ -18,8 +20,14 @@ def scenarioCallback(data):
     
     path.poses = []
     path.header = data.bezier_paths.header
+    distance = 0
+    duration = 0
+    
+    for media in data.medias.medias:
+        duration += media.duration
     
     for curve in data.bezier_paths.curves:
+        distance += getBezierCurveLength(curve)
         i = 0
         while i <= 1 + step:  
             p = Pose()
@@ -29,7 +37,9 @@ def scenarioCallback(data):
             p.orientation.w = math.cos(theta / 2)
             path.poses.append(p)
             i += step
-            
+    speed = Float64()
+    speed.data =  distance/duration
+    speedPublisher.publish(speed)
     pathPublisher.publish(path)
 
 

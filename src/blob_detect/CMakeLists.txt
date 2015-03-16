@@ -10,8 +10,10 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   std_msgs
   nav_msgs
+  geometry_msgs
   image_transport
   tf
+  #scenario_msgs
 )
 
 ## System dependencies are found with CMake's conventions
