@@ -55,6 +55,8 @@ add_message_files(
   MediaArray.msg
   Scenario.msg
   Pose2DArray.msg
+  Obstacle.msg
+  ObstacleArray.msg
 )
 
 
