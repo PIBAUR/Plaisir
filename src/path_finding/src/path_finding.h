@@ -2,14 +2,18 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/PoseArray.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <tf/transform_listener.h>
-#include <geometry_msgs/TransformStamped.h>
+#include <tf/transform_broadcaster.h>
+//#include <geometry_msgs/TransformStamped.h>
 #include <std_msgs/Float64.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <scenario_msgs/Scenario.h>
+#include <geometry_msgs/TransformStamped.h>
 #include "RRT.hpp"
-#include <geometry_msgs/Point.h>
-#include <nav_msgs/Odometry.h>
+//#include <geometry_msgs/Quaternion.h>
+
 
 //lib opencv
 #include <opencv2/core/core.hpp>
@@ -17,11 +21,14 @@
 #include <opencv2/highgui/highgui.hpp>
 
 /* CONSTANTS */
-//#define SMOOTHING_TOLERANCE 5
+
 #define SMOOTHING_STRENGTH 0.5
 #define SMOOTHING_TOLERANCE 6
 #define SMOOTHING_DATA_WEIGHT 0.5
-#define L1 0.01
+#define NUMBER_OF_POINTS 6000
+#define PI 3.14159265359
+#define K_TH 5.0
+
 
  /*******Class Path_finding*******/
 
@@ -35,19 +42,18 @@ protected:
     Mat map_received;
     double theta_robot_origin, theta_robot_des, z_map_origin;
     int x_robot_origin, y_robot_origin, x_robot_des, y_robot_des;
-    int x_map_origin, y_map_origin;
     double map_resolution;
 
 public:
 
-    PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0),x_map_origin(0.0), y_map_origin(0.0), map_resolution(0.0)
+    PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(0.0)
     {
     	path_pub = nh.advertise<geometry_msgs::PoseArray>("path", 1);
     }
     ~PathFinding(){};
     void computeTF();
     vector<Node*> algorithm();
-    void destination_point(const scenario_msgs::Scenario::ConstPtr& msg);
+    void computePath(const scenario_msgs::Scenario::ConstPtr& msg);
     void map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg);
  
 };
@@ -59,6 +65,7 @@ public:
 using namespace cv;
 
 /* Headers*/
+
 void affiche_tree(Node *q_i, cv::Mat* map);
 void draw_path(std::vector<Node*> path, Mat *map);
 std::vector<Node*> rrt_path(Node *end, Node *tree);
@@ -66,6 +73,7 @@ std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map);
 Mat traitement_image(Mat &map);
 
 /* FUNCTIONS */
+
 
 void affiche_tree_rec(Node* q_i,cv::Mat* map){
   int n = q_i->forest.size(), i;
