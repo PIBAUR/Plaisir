@@ -1,4 +1,6 @@
 <launch>
+	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
+	
 	<arg name="robot" value="01"/>
 	
 	<machine name="neato" address="192.168.150.101" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
