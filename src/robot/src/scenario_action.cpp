@@ -196,7 +196,6 @@ public:
         // check that preempt has not been requested by the client
         while(!as_.isPreemptRequested() && ros::ok())
         {
-            ROS_INFO("%s: Do Scenario Action STUFF...", action_name_.c_str());
             pf.spinOnce();
             ros::spinOnce();
             loop.sleep();

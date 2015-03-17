@@ -38,7 +38,7 @@ def scenarioCallback(data):
             path.poses.append(p)
             i += step
     speed = Float64()
-    speed.data =  distance/duration
+    speed.data = (distance/duration) if duration > 0 else 0.1
     speedPublisher.publish(speed)
     pathPublisher.publish(path)
 

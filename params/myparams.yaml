@@ -27,7 +27,7 @@ server_thumbs_path: "/home/artlab/.notrebonplaisir/thumbs"
 robot_videos_path: "/home/odroid/.notrebonplaisir/videos"
 
 ## angle de détection d'obsatcle à l'avant du robot (en degré)
-front_angle: 50 
+front_angle: 40
 
 ## distance minimale de détection d'obstacle à l'avant du robot (en mètre)
 distance_obstacle_min: 0.2
