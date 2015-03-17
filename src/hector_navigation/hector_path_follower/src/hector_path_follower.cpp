@@ -30,7 +30,8 @@
 * Based heavily on the pose_follower package
 *********************************************************************/
 #include <hector_path_follower/hector_path_follower.h>
-
+#include <stdio.h>
+#include <string.h>
 
 namespace pose_follower {
   HectorPathFollower::HectorPathFollower(): tf_(NULL) {}
@@ -320,8 +321,15 @@ namespace pose_follower {
     try{
       if (!global_plan.size() > 0)
       {
-        ROS_ERROR("Received plan with zero length");
-        execlp("rosrun", "rosrun", "map_serveur", "map_saver", "-f", "~/catkin_ws/maps/last_map" NULL);
+          ROS_ERROR("Received plan with zero length");
+          char s[80];
+          char *p=getenv("USER");
+          strcpy (s,"/home/");
+          strcat (s,p);
+          strcat (s,"/catkin_ws/maps/last_map");
+          strcat (s,"\0");
+
+          execlp("rosrun", "rosrun", "map_server", "map_saver", "-f", s, NULL);
         return false;
       }
 

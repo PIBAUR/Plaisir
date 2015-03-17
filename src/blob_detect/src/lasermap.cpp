@@ -18,9 +18,10 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/features2d/features2d.hpp>
 
-#define THRESH_IN_METER 0.15
-#define GROUP_SIZE_MIN 3
+#define THRESH_IN_METER 0.5
+#define GROUP_SIZE_MIN 2
 #define GROUP_SIZE_MAX 100
+#define RADIUS_DECREASE_VALUE 0.05
 
 
 // %Tag(CLASS_WITH_DECLARATION)%
@@ -71,9 +72,10 @@ public :
 // %EndTag(CLASS_WITH_DECLARATION)%
 
 
-LidarBliter::LidarBliter()
+LidarBliter::LidarBliter():
+		id_(1)
 {
-    map_ = cv::imread("/home/serveur/catkin_ws/maps/last_map.pgm",CV_LOAD_IMAGE_COLOR);
+    map_ = cv::imread("/home/artlab/catkin_ws/maps/last_map.pgm",CV_LOAD_IMAGE_COLOR);
     map_laser_ = map_.clone();
     obstacles_.obstacles.clear();
     obstacles_old_.obstacles.clear();
@@ -142,7 +144,6 @@ void LidarBliter::display_laser_raw(const sensor_msgs::LaserScan& laser)
     std::cout<<nb<<std::endl;
     try
     {
-
         for(size_t i=0; i<= nb; i++)
         {
             if (laser.ranges[i] < laser.range_max)
@@ -199,8 +200,21 @@ void LidarBliter::group_laser_point()
 void LidarBliter::display_group()
 {
     map_group_ = map_.clone();
-    obstacles_.obstacles.clear();
     obstacles_.header.stamp = ros::Time(0);
+    //obstacles_.obstacles.clear();
+
+    for(std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_.obstacles.begin();
+			it_obs != obstacles_.obstacles.end(); it_obs += 1)
+	{
+		it_obs->radius-=RADIUS_DECREASE_VALUE;
+
+    	if(it_obs->radius < 0)
+		{
+			obstacles_.obstacles.erase(it_obs);
+		}
+	}
+
+    obstacles_old_ = obstacles_;
 
     ROS_INFO_STREAM(" nb_group of group : "<<grouped_point_. size());
     for(cv::vector< cv::vector<cv::Point> >::iterator it_group = grouped_point_.begin();
@@ -210,9 +224,6 @@ void LidarBliter::display_group()
         if( it_group->size()>GROUP_SIZE_MIN
                 && it_group->size()<GROUP_SIZE_MAX )
         {
-            int b = rand() % 255;
-            int g = rand() % 255;
-            int r = rand() % 255;
             float radius = cv::norm(it_group->begin() - it_group->end()) / 2.0;
 
             cv::Point pt_centre = cv::Point(0,0);
@@ -223,19 +234,27 @@ void LidarBliter::display_group()
             }
             pt_centre *= 1.0/it_group->size();
 
-            cv::circle(map_group_,pt_centre,radius,cv::Scalar(b,g,r),-3,4,0);
-
             scenario_msgs::Obstacle obs;
             obs.x = pt_centre.x;
             obs.y = pt_centre.y;
-            obs.radius = radius;
+            obs.radius = radius*metadata_.resolution;
+
             if(obstacles_old_.obstacles.size()!=0)
             {
                 set_id_closest(obs);
             }
-            obs.id = id_++;
-            obstacles_.obstacles.push_back(obs);
+            else
+            {
+				obs.id = id_++;
+				obstacles_.obstacles.push_back(obs);
+            }
 
+
+            int b = 0;
+            int g = (obs.id * 40) % 255;
+            int r = (obs.id * 40) % 255;
+
+            cv::circle(map_group_,pt_centre,radius,cv::Scalar(b,g,r),-3,4,0);
         }
     }
     obstacles_pub_.publish(obstacles_);
@@ -248,7 +267,7 @@ void LidarBliter::display_group()
 uint32_t LidarBliter::set_id_closest(scenario_msgs::Obstacle &obs)
 {
     float min_d = 100.0;
-    uint32_t min_id = -1;
+    uint32_t min_id = 0;
 
     for(std::vector< scenario_msgs::Obstacle >::iterator it_obs_old = obstacles_old_.obstacles.begin();
             it_obs_old != obstacles_old_.obstacles.end(); it_obs_old += 1)
@@ -257,6 +276,7 @@ uint32_t LidarBliter::set_id_closest(scenario_msgs::Obstacle &obs)
         float d = cv::norm( cv::Point(obs.x,obs.y) - cv::Point(it_obs_old->x,it_obs_old->y) );
         if(d < min_d)
         {
+
             bool already_use= false;
             for(std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_.obstacles.begin();
                         it_obs != obstacles_.obstacles.end(); it_obs += 1)
@@ -269,16 +289,28 @@ uint32_t LidarBliter::set_id_closest(scenario_msgs::Obstacle &obs)
             }
             if(!already_use)
             {
+            	//ROS_INFO_STREAM();
                 min_d = d;
                 min_id = it_obs_old->id;
+
             }
         }
     }
 
-    if(min_id != -1)
-        obs.id=min_id;
+    if(min_id != 0)
+    {
+		if(obs.radius > obstacles_old_.obstacles[min_id].radius)
+    	{
+			obstacles_old_.obstacles[min_id].radius = obs.radius;
+			obstacles_.obstacles.push_back(obstacles_old_.obstacles[min_id]);
+    	}
+
+    }
     else
+    {
         obs.id = id_++;
+        obstacles_.obstacles.push_back(obs);
+    }
 }
 
 
