@@ -4,7 +4,7 @@ import math
 import rospy
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from geometry_msgs.msg import PoseArray, Pose, Point
-from std_msgs.msgs import Float64
+from std_msgs.msg import Float64
 
 # consts
 DEFAULT_BEZIER_CURVE_STEP = .05
