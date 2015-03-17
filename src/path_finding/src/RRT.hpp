@@ -12,13 +12,17 @@
 
 #include "Node.hpp"
 
-#define LARGEUR_ROBOT 100
-#define LONGUEUR_ROBOT 200
+#define ROBOT_WIDTH 3
 
 using namespace cv;
 
-static int deltaQ = 10;//Ne pas dépasser 50, choisir 10 < deltaQ <50
+static int deltaQ = 10;//Don't go up 50, choose deltaQ between 10 and 50
 static int nb_in_tree = 0;
+
+int RandomNumber(int Min, int Max)
+{
+    return ((int(rand()) / int(RAND_MAX)) * (Max - Min)) + Min;
+}
 
 
 Node* closest_to_rec(Node* q_rand, Node* q_i){
@@ -33,7 +37,6 @@ Node* closest_to_rec(Node* q_rand, Node* q_i){
   d = sqrt((q_i->x - q_rand->x)*(q_i->x - q_rand->x) + (q_i->y - q_rand->y)*(q_i->y - q_rand->y));
   
   for(i=0;i<n;i++){
-    //std::cout << i << std::endl;
     // recursive call on q_i's forest
     q_temp = closest_to_rec(q_rand, q_i->forest[i]);
     //std::cout << "(" << q_temp->x << "," << q_temp->y << ")" << std::endl;
@@ -65,12 +68,12 @@ double norme(Node* n_rand, Node* n_near){
 }
 
 bool pixel_test(Node& u, Mat &map, int mode){
- int R=2;//5;//20;//40;
+ int R=ROBOT_WIDTH;
  int xTemp = u.x - R;
  int yTemp = u.y - R;
 
  if(mode == 0){
- // Parcours tout le carré 
+ // Round of all the square
  for(int i=0;i<2*R;++i)
  {	
   	for(int j=0;j<2*R;++j)
@@ -79,8 +82,7 @@ bool pixel_test(Node& u, Mat &map, int mode){
   		{
         if(((xTemp + i >= 0) && (xTemp + i < map.cols)) && ((yTemp  + j>= 0) && (yTemp  + j< map.rows))){
   		    cv::Scalar c = map.at<uchar>(yTemp + j, xTemp+i);
-  		    //std::cout << c[0] << std::endl; 
-  		    if(c[0] < 254)
+   		    if(c[0] < 254)
   		      return false;
         }
   		  
@@ -88,39 +90,34 @@ bool pixel_test(Node& u, Mat &map, int mode){
   	}
    }
  }else{   
-    // Parours optimisé
+    // Round optimised
     if(mode == 1 || mode == 4){
-    // Parcours des deux premières lignes...
+    // Round of the two first lines.
     for (int j = 0; j < 2*R ; ++j)
     {
       if(((xTemp >= 0) && (xTemp < map.cols)) && ((yTemp  + j >= 0) && (yTemp  + j< map.rows))){
-  cv::Scalar c = map.at<uchar>(yTemp + j, xTemp);
-        //std::cout << c[0] << std::endl; 
-        if(c[0] < 254)
-        return false;
+         cv::Scalar c = map.at<uchar>(yTemp + j, xTemp);
+         if(c[0] < 254)
+         return false;
       }
       if(((xTemp + 1 >= 0) && (xTemp + 1 < map.cols)) && ((yTemp  + j>= 0) && (yTemp  + j< map.rows))){
         cv::Scalar c = map.at<uchar>(yTemp + j, xTemp+1);
-        //std::cout << c[0] << std::endl; 
         if(c[0] < 254)
         return false;
       }
     }  
   }
   if(mode == 1 || mode == 2){
-    // Parcours des deux dernières colonnes ...
+    // Round of the two first columns
     for (int i = 0; i < 2*R ; ++i)
     {
       if(((xTemp + i >= 0) && (xTemp + i < map.cols)) && ((yTemp + 2*R - 1 >= 0) && (yTemp + 2*R - 1< map.rows))){
         cv::Scalar c = map.at<uchar>(yTemp + 2*R - 1, xTemp + i);
-        //std::cout << c[0] << std::endl; 
         if(c[0] < 254)
         return false;
       }
-      if(((xTemp + i >= 0) && (xTemp + 
-i < map.cols)) && ((yTemp + 2*R - 2>= 0) && (yTemp + 2*R - 2< map.rows))){
+      if(((xTemp + i >= 0) && (xTemp + i < map.cols)) && ((yTemp + 2*R - 2>= 0) && (yTemp + 2*R - 2< map.rows))){
         cv::Scalar c = map.at<uchar>(yTemp + 2*R - 2, xTemp+i);
-        //std::cout << c[0] << std::endl; 
         if(c[0] < 254)
         return false;
       }
@@ -128,36 +125,32 @@ i < map.cols)) && ((yTemp + 2*R - 2>= 0) && (yTemp + 2*R - 2< map.rows))){
   }
 
     if(mode == 2 || mode == 3){
-      //Parcours des deux dernières lignes...
+       // Round of the two last lines.
     for (int j = 0; j < 2*R ; ++j)
     {
       if(((xTemp + 2*R - 1 >= 0) && (xTemp + 2*R - 1< map.cols)) && ((yTemp  + j >= 0) && (yTemp  + j< map.rows))){
         cv::Scalar c = map.at<uchar>(yTemp + j, xTemp + 2*R - 1);
-        //std::cout << c[0] << std::endl; 
         if(c[0] < 254)
         return false;
       }
       if(((xTemp + 2*R - 2 >= 0) && (xTemp + 2*R - 2 < map.cols)) && ((yTemp  + j>= 0) && (yTemp  + j< map.rows))){
         cv::Scalar c = map.at<uchar>(yTemp + j, xTemp+2*R - 2);
-        //std::cout << c[0] << std::endl; 
         if(c[0] < 254)
         return false;
       }
     }
   }
   if(mode == 3 || mode == 4){
-    // Parcours des deux premières colonnes ...
+     // Round of the two first columns ...
     for (int i = 0; i < 2*R ; ++i)
     {
       if(((xTemp + i >= 0) && (xTemp + i < map.cols)) && ((yTemp  >= 0) && (yTemp < map.rows))){
         cv::Scalar c = map.at<uchar>(yTemp , xTemp + i);
-        //std::cout << c[0] << std::endl; 
         if(c[0] < 254)
         return false;
       }
       if(((xTemp + i >= 0) && (xTemp + i < map.cols)) && ((yTemp + 1>= 0) && (yTemp + 1< map.rows))){
         cv::Scalar c = map.at<uchar>(yTemp + 1, xTemp+i);
-        //std::cout << c[0] << std::endl; 
         if(c[0] < 254)
         return false;
       }
@@ -171,7 +164,7 @@ i < map.cols)) && ((yTemp + 2*R - 2>= 0) && (yTemp + 2*R - 2< map.rows))){
 
 
 bool _collision_with_object(Node* qNew, Node* qNear, Mat &map){
-  int delta = 0, mode = 0;
+  int delta = 0,mode = 0;
   Node u;
   u.x = -qNear->x + qNew->x;
   u.y = -qNear->y + qNew->y;
@@ -182,7 +175,7 @@ bool _collision_with_object(Node* qNew, Node* qNear, Mat &map){
   //std::cout << normU << std::endl;
   if (!pixel_test(n1, map, mode))
    return false;
-  // Choix du mode de collision selon la direction voulue
+  // Choice of the collision mode depends on the desired direction 
   if(qNear->x + u.x*((delta+1)/normU) - n1.x > 0){
     if(qNear->y + u.y*((delta+1)/normU) - n1.y < 0)
       mode = 1;
@@ -213,7 +206,6 @@ bool not_in_free_space(Node* n_rand, Mat map){
   if(!is_in_map(n_rand,map))
     return false;
   cv::Scalar c = map.at<uchar>(n_rand->y,n_rand->x);
-  //std::cout << c[0] << std::endl;
  if (c[0] >= 254) return false;
     else return true;
 }
@@ -221,54 +213,47 @@ bool not_in_free_space(Node* n_rand, Mat map){
 
 void _rrt(Node *tree, int k, Mat map){
   
-  std::srand(std::time(0));
-  //while(nb_in_tree <= k){
+  //std::srand(std::time(0));
  for(int i = 0; i < k; i++){
-    if(nb_in_tree%100==0 && deltaQ >= 5){ // multiple du nombre de points
-    //if(nb_in_tree%400==0 && deltaQ >= 5){
+    if(nb_in_tree%100==0 && deltaQ >= 5){ // multiple of points' number
       deltaQ = deltaQ -1;
     }
-    //std::cout << "Node " << i << std::endl;
-    int x_rand = std::rand()%map.cols, y_rand = std::rand()%map.rows; // configure with map size
-    //std::cout << " x_rand : " << x_rand << ", y_rand : " << y_rand << std::endl;
+    int x_rand = (std::rand()%map.rows) -map.rows , y_rand = (std::rand()%map.cols) -map.cols; // configure with map size
+
     Node* q_rand = new Node(x_rand,y_rand);
     // add distance from root 
     extend(q_rand, tree, map);
-    //std::cout << "Elements in tree : " << nb_in_tree << std::endl;
   }
 
- //std::cout << "FIN RRT " << std::endl;
 }
 
 void extend(Node* q_rand, Node* tree, Mat map){
- // Find closest to q_rand in tree 
- Node *q_near = closest_to(q_rand, tree);
- //std::cout << "allô (" << q_rand->x << "," << q_rand->y << ")" << std::endl;
- //std::cout << "qnear (" << q_near->x << "," << q_near->y << ")" << std::endl;
- //sleep(1);
- double norm = norme(q_rand,q_near);
- //std::cout << norm << std::endl;
+    // Find closest to q_rand in tree 
+    Node *q_near = closest_to(q_rand, tree);
+    //std::cout << "allô (" << q_rand->x << "," << q_rand->y << ")" << std::endl;
+    //std::cout << "qnear (" << q_near->x << "," << q_near->y << ")" << std::endl;
+    //sleep(1);
+    double norm = norme(q_rand,q_near);
 
- Node *q_new; 
- if(!norm)
+    Node *q_new; 
+    if(!norm)
     return;
- q_new = new Node(q_near->x + (deltaQ/norm)*(q_rand->x - q_near->x), q_near->y + (deltaQ/norm)*(q_rand->y - q_near->y));
- if(not_in_free_space(q_new,map))
+    q_new = new Node(q_near->x + (deltaQ/norm)*(q_rand->x - q_near->x), q_near->y + (deltaQ/norm)*(q_rand->y - q_near->y));
+    if(not_in_free_space(q_new,map))
     return;
-  //std::cout << " Point is in free space ... " << std::endl;
- // Checker collision sur la ligne q_near -> q_new
- if(!_collision_with_object(q_new, q_near, map))
+    //std::cout << " Point is in free space ... " << std::endl;
+    // Check the collision on the ligne q_near -> q_new
+    if(!_collision_with_object(q_new, q_near, map))
     return; 
-  //std::cout << "( " <<q_new->x << ", " << q_new->y << " )" << std::endl;
-  //std::cout<< "No collision detected ..." << std::endl;
- // Pas de collision donc ajout dans l'arbre
- q_new->distFromRoot = norme(q_new,q_near);
-//q_new->distFromRoot = norme(q_new,q_near)/2;
- // Ajouter q_new a la foret de q_near, q_near est le parent de q_new
- q_near->forest.push_back(q_new);
- q_new->parent = q_near;
- //std::cout<< "Added to tree ..." << std::endl;
- ++nb_in_tree;
+    //std::cout << "( " <<q_new->x << ", " << q_new->y << " )" << std::endl;
+    //std::cout<< "No collision detected ..." << std::endl;
+    // No collision so add it to the tree
+    q_new->distFromRoot = norme(q_new,q_near);
+    //q_new->distFromRoot = norme(q_new,q_near)/2;
+    //Add q_new to the forest of q_near, q_near is the father of q_new
+    q_near->forest.push_back(q_new);
+    q_new->parent = q_near;
+    ++nb_in_tree;
 }
 
 #endif
