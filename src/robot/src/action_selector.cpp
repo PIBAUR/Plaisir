@@ -41,6 +41,13 @@ class ActionSelector{
         unsigned char interrupt_; //active flags values
         unsigned char stop_msg_;
         
+        ///---PROPERTIES---///
+    	bool bumper_state_;
+    	int battery_state_;
+    	int ping_state_;
+    	bool emergency_stop_state_;
+    	bool front_obstacle_state_;
+
         ///---METHODS---///
         void stop_all_actions();
         void maj_stop_flag();
@@ -69,11 +76,13 @@ ActionSelector::ActionSelector():loop_rate_(20),
     ping_ac_("ping_action", true),
     battery_ac_("low_battery_action", true),
     scenario_ac_("scenario_action", true),
-    //sub_bumpers_("bumpers",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
-    //sub_battery_("battery",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
-    //sub_ping_("ping",nh_,boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
-    //sub_emergency_stop_("emergency_stop",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
-    //sub_front_obstacle_("front_obstacle",nh_, boost::bind(&ActionSelector::front_obstacleCB, this, _1)),
+
+	bumper_state_(true),
+	battery_state_(-1),
+	ping_state_(-1),
+	emergency_stop_state_(true),
+	front_obstacle_state_(true),
+
     interrupt_(0), stop_msg_(0)
 {
     
@@ -124,8 +133,12 @@ ActionSelector::~ActionSelector(){}
 /*** CALLBACKS ***/
 void ActionSelector::bumpersCB(const std_msgs::Bool& msg)
 {
-    ROS_INFO("Receive Bumpers =  %s", msg.data?"true":"false");
-    if(msg.data)
+    if (msg.data != bumper_state_)
+    {
+    	ROS_INFO("Receive Bumpers =  %s", msg.data?"true":"false");
+    	bumper_state_ = msg.data;
+    }
+	if(msg.data)
     {
         //interrupt_ =  interrupt_ | STOP_FLAG;
         stop_msg_ = stop_msg_ | (1u<<0);
@@ -140,7 +153,11 @@ void ActionSelector::bumpersCB(const std_msgs::Bool& msg)
 
 void ActionSelector::batteryCB(const std_msgs::Int32& msg)
 {
-    ROS_INFO("Receive Battery =  %d", msg.data);
+	if (msg.data != battery_state_)
+	{
+		ROS_INFO("Receive Battery =  %d", msg.data);
+		battery_state_ = msg.data;
+	}
     if(msg.data<BATTERY_THRESH_LOW)
         interrupt_ =  interrupt_ | BATTERY_FLAG;
     else if(msg.data>BATTERY_THRESH_HIGH)
@@ -153,7 +170,11 @@ void ActionSelector::batteryCB(const std_msgs::Int32& msg)
 
 void ActionSelector::pingCB(const std_msgs::Int32& msg)
 {
-    ROS_INFO("Receive Ping =  %d", msg.data);
+	if (msg.data != ping_state_)
+	{
+		ROS_INFO("Receive Ping =  %d", msg.data);
+		ping_state_ = msg.data;
+	}
     if(msg.data>PING_THRESH)
         interrupt_ =  interrupt_ | PING_FLAG;
     else
@@ -166,7 +187,11 @@ void ActionSelector::pingCB(const std_msgs::Int32& msg)
 
 void ActionSelector::emergencystopCB(const std_msgs::Bool& msg)
 {
-    ROS_INFO("Receive EmergencyStop =  %s ", msg.data?"true":"false");
+	if (msg.data != emergency_stop_state_)
+	{
+		ROS_INFO("Receive EmergencyStop =  %s ", msg.data?"true":"false");
+		emergency_stop_state_ = msg.data;
+	}
     if(msg.data)
         interrupt_ =  interrupt_ | EMERGENCY_FLAG;
     else
@@ -175,7 +200,11 @@ void ActionSelector::emergencystopCB(const std_msgs::Bool& msg)
 
 void ActionSelector::front_obstacleCB(const std_msgs::Bool& msg)
 {
-    ROS_INFO("Receive Front Obstacle =  %s", msg.data?"true":"false");
+	if (msg.data != front_obstacle_state_)
+	{
+		ROS_INFO("Receive Front Obstacle =  %s", msg.data?"true":"false");
+		front_obstacle_state_ = msg.data;
+	}
     if(msg.data)
     {
         //interrupt_ =  interrupt_ | STOP_FLAG;
@@ -229,7 +258,6 @@ void ActionSelector::spin()
     std::bitset<NB_FLAGS_> b_interrupt; //for bit display
     while(ros::ok()){
         b_interrupt=interrupt_;
-        ROS_INFO("interrupt value : %s", b_interrupt.to_string().c_str());
 
         /**Emergency process**/
         if(interrupt_ & EMERGENCY_FLAG)
@@ -238,7 +266,7 @@ void ActionSelector::spin()
             {
                 stop_all_actions();
                 
-                ROS_INFO("Start request send to Emergensy Stop Action.");
+                ROS_INFO("Start request send to Emergency Stop Action.");
                 robot::StopGoal goal;
                 goal.goal = true;
                 emergency_stop_ac_.sendGoal(goal);
@@ -248,7 +276,7 @@ void ActionSelector::spin()
         && (emergency_stop_ac_.getState()==actionlib::SimpleClientGoalState::ACTIVE))
         {
             //bool es_finish = emergency_stop_ac.waitForResult(ros::Duration(1.0));
-            ROS_INFO("Canceling Emergensy Stop action.");
+            ROS_INFO("Canceling Emergency Stop action.");
             emergency_stop_ac_.cancelGoal();
         }
         
