@@ -26,6 +26,9 @@ class Robot():
     robot_videos_path = None
     
     def __init__(self, loadWithVideos = True):
+        Robot.server_videos_path = rospy.get_param("server_videos_path")
+        Robot.robot_videos_path = rospy.get_param("robot_videos_path")
+        
         self.points = []
         self.medias = []
         
@@ -71,11 +74,6 @@ class Robot():
         
     
     def getScenarioMsg(self, transformPosition, scale, transformOrientation):
-        # set the vars if not have be done
-        if Robot.server_videos_path is None:
-            Robot.server_videos_path = rospy.get_param("server_videos_path")
-            Robot.robot_videos_path = rospy.get_param("robot_videos_path")
-        
         scenarioMsg = ScenarioMsg()
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()

@@ -121,10 +121,10 @@ Visualization Manager:
     - Arrow Length: 0.1
       Class: rviz/PoseArray
       Color: 255; 19; 180
-      Enabled: true
+      Enabled: false
       Name: PoseArray
       Topic: /robot01/path
-      Value: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -173,5 +173,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 935
-  X: 661
+  X: 654
   Y: 125

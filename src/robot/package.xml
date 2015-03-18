@@ -52,6 +52,7 @@
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
+  <run_depend>scenario_msgs</run_depend>
   <run_depend>tf</run_depend>
 
 

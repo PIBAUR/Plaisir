@@ -57,6 +57,8 @@ add_message_files(
   Pose2DArray.msg
   Obstacle.msg
   ObstacleArray.msg
+  Path.msg
+  PathFeedback.msg
 )
 
 
@@ -77,6 +79,7 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
+  scenario_msgs
   geometry_msgs
   std_msgs
 )

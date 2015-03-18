@@ -3,10 +3,12 @@
 #include <robot/ScenarioAction.h>
 
 #include <geometry_msgs/Twist.h>
-#include <geometry_msgs/PoseArray.h>
 #include <tf/transform_listener.h>
-#include <geometry_msgs/TransformStamped.h>
 #include <std_msgs/Float64.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/PoseArray.h>
+#include <scenario_msgs/Path.h>
+#include <scenario_msgs/PathFeedback.h>
 
 
 #define PI 3.14159265359
@@ -18,6 +20,7 @@ class PathFollower
 protected:
     ros::NodeHandle nh_;
     geometry_msgs::PoseArray path_;
+    int path_uid_;
     //ros::Subscriber path_sub_;
     ros::Publisher cmd_pub_;
     ros::Publisher ratio_pub_;
@@ -39,11 +42,11 @@ public:
 {
 
      cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
-     ratio_pub_ = nh_.advertise<std_msgs::Float64>("path_feedback", 1);
+     ratio_pub_ = nh_.advertise<scenario_msgs::PathFeedback>("path_feedback", 1);
 }
     ~PathFollower(){};
 
-    void pathCB(const geometry_msgs::PoseArray &msg);
+    void pathCB(const scenario_msgs::Path &msg);
     void computeCmd(double &lin, double &ang);
     void spinOnce();
     void speedCB(const std_msgs::Float64 &msg);
@@ -51,9 +54,10 @@ public:
 
 
 
-void PathFollower::pathCB(const geometry_msgs::PoseArray &msg)
+void PathFollower::pathCB(const scenario_msgs::Path &msg)
 {
-    path_ = msg;
+	path_uid_ = msg.uid;
+    path_ = msg.path;
     index_path_ = 0;
     size_path_ = path_.poses.size();
 }
@@ -147,9 +151,10 @@ void PathFollower::spinOnce()
     cpt_++;
     if(cpt_>6)
     {
-        std_msgs::Float64 ratio;
-        ratio.data = 1.0*index_path_/size_path_;
-        ratio_pub_.publish(ratio);
+        scenario_msgs::PathFeedback pathFeedback;
+        pathFeedback.uid = path_uid_;
+        pathFeedback.ratio = 1.0*index_path_/size_path_;
+        ratio_pub_.publish(pathFeedback);
         cpt_=0;
     }
 }
