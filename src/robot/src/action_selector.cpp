@@ -46,6 +46,7 @@ class ActionSelector{
     	int battery_state_;
     	int ping_state_;
     	bool emergency_stop_state_;
+    	bool frozen_state_;
     	bool front_obstacle_state_;
 
         ///---METHODS---///
@@ -62,6 +63,7 @@ class ActionSelector{
         void batteryCB(const std_msgs::Int32& msg);
         void pingCB(const std_msgs::Int32& msg);
         void emergencystopCB(const std_msgs::Bool& msg);
+        void freezeCB(const std_msgs::Bool& msg);
         void front_obstacleCB(const std_msgs::Bool& msg);
 
         /***main loop***/
@@ -77,11 +79,12 @@ ActionSelector::ActionSelector():loop_rate_(20),
     battery_ac_("low_battery_action", true),
     scenario_ac_("scenario_action", true),
 
-	bumper_state_(true),
+	bumper_state_(false),
 	battery_state_(-1),
 	ping_state_(-1),
-	emergency_stop_state_(true),
-	front_obstacle_state_(true),
+	emergency_stop_state_(false),
+	frozen_state_(false),
+	front_obstacle_state_(false),
 
     interrupt_(0), stop_msg_(0)
 {
@@ -198,6 +201,24 @@ void ActionSelector::emergencystopCB(const std_msgs::Bool& msg)
         interrupt_ =  interrupt_ & ~EMERGENCY_FLAG;
 }
 
+void ActionSelector::freezeCB(const std_msgs::Bool& msg)
+{
+	if (msg.data != frozen_state_)
+	{
+		ROS_INFO("Receive Freeze =  %s ", msg.data?"true":"false");
+		frozen_state_ = msg.data;
+	}
+    if(msg.data)
+    {
+        stop_msg_ = stop_msg_ | (1u<<2);
+    }
+    else
+    {
+        stop_msg_ = stop_msg_ & ~(1u<<2);
+    }
+    maj_stop_flag();
+}
+
 void ActionSelector::front_obstacleCB(const std_msgs::Bool& msg)
 {
 	if (msg.data != front_obstacle_state_)
@@ -207,12 +228,10 @@ void ActionSelector::front_obstacleCB(const std_msgs::Bool& msg)
 	}
     if(msg.data)
     {
-        //interrupt_ =  interrupt_ | STOP_FLAG;
         stop_msg_ = stop_msg_ | (1u<<1);
     }   
     else
     {
-        //interrupt_ =  interrupt_ & ~STOP_FLAG;
         stop_msg_ = stop_msg_ & ~(1u<<1);
     }
     maj_stop_flag();
@@ -287,15 +306,27 @@ void ActionSelector::spin()
             {
                 stop_all_actions();
                 
-                ROS_INFO("Start request send to Stop Action.");
-                robot::StopGoal goal;
-                goal.goal = true;
-                stop_ac_.sendGoal(goal);
-                
-                ROS_INFO("Wait 5 sec...");
-                stop_ac_.waitForResult(ros::Duration(1.0));
-                ROS_INFO("Canceling Stop action.");
-                stop_ac_.cancelGoal();
+                if (! frozen_state_)
+                {
+					ROS_INFO("Start request send to Stop Action.");
+					robot::StopGoal goal;
+					goal.goal = true;
+
+					stop_ac_.sendGoal(goal);
+
+					ROS_INFO("Wait 1 sec...");
+					stop_ac_.waitForResult(ros::Duration(1.0));
+
+					ROS_INFO("Canceling Stop action.");
+					stop_ac_.cancelGoal();
+                }
+            }
+
+            if (frozen_state_)
+            {
+            	frozen_state_ = false;
+                stop_msg_ = stop_msg_ & ~(1u<<2);
+				maj_stop_flag();
             }
         }
         
@@ -362,6 +393,7 @@ int main (int argc, char **argv)
     ros::Subscriber sub_battery = nh.subscribe("battery", 1, &ActionSelector::batteryCB, &action_selector);
     ros::Subscriber sub_ping = nh.subscribe("ping", 1, &ActionSelector::pingCB, &action_selector);
     ros::Subscriber sub_emergency_stop = nh.subscribe("emergency_stop", 1, &ActionSelector::emergencystopCB, &action_selector);
+    ros::Subscriber sub_freeze = nh.subscribe("freeze", 1, &ActionSelector::freezeCB, &action_selector);
     ros::Subscriber sub_front_obstacle = nh.subscribe("front_obstacle", 1, &ActionSelector::front_obstacleCB, &action_selector);
     action_selector.spin();
     ros::spin();
