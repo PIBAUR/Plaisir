@@ -3,6 +3,7 @@
 
 import sys
 import os
+import threading
 
 import rospy
 
@@ -26,6 +27,7 @@ class MediaPlayer():
         self.currentPlayer = "video_0"
         self.videoMedias = []
         self.playingVideo = None
+        self.waitingForVideoEndThread = None
 
 
     def mediaCB(self, data):
@@ -39,29 +41,31 @@ class MediaPlayer():
         # set the first one
         self.sendMediaPathToBrowser(self.currentPlayer, self.videoMedias[0].path)
         
-        i = 0
-        for videoMedia in self.videoMedias:
-            self.playingVideo = videoMedia
-            otherPlayer = "video_1" if self.currentPlayer == "video_0" else "video_0"
-            
-            self.browser.execute_script("$('#" + self.currentPlayer + "').css('display', 'block');")
-            self.browser.execute_script("document.getElementById('" + self.currentPlayer + "').play();")
-            
-            # stop other except this
-            self.browser.execute_script("$('#" + otherPlayer + "').css('display', 'none');")
-            # load next one if exists
-            if i + 1 < len(self.videoMedias):
-                self.sendMediaPathToBrowser(otherPlayer, self.videoMedias[i + 1].path)
+        self.playMedia(0)
+        
+    
+    def playMedia(self, index):
+        if self.waitingForVideoEndThread is not None:
+            self.waitingForVideoEndThread.terminated = True
+        
+        self.playingVideo = self.videoMedias[index]
+        otherPlayer = "video_1" if self.currentPlayer == "video_0" else "video_0"
+        
+        self.browser.execute_script("$('#" + self.currentPlayer + "').css('display', 'block');")
+        self.browser.execute_script("document.getElementById('" + self.currentPlayer + "').play();")
+        
+        # stop other except this
+        self.browser.execute_script("$('#" + otherPlayer + "').css('display', 'none');")
+        # load next one if exists
+        if index + 1 < len(self.videoMedias):
+            self.sendMediaPathToBrowser(otherPlayer, self.videoMedias[index + 1].path)
             
             # wait for the end of the videoMedia
-            while True:
-                if self.browser.execute_script("return document.getElementById('" + self.currentPlayer + "').ended;"):
-                    break
+            self.waitingForVideoEndThread = WaitingForVideoEndThread(self.browser, self.currentPlayer, self.playMedia, index + 1)
+            self.waitingForVideoEndThread.start()
             
-            self.currentPlayer = otherPlayer
-            
-            i += 1
-    
+        self.currentPlayer = otherPlayer
+
     
     def pathFeedbackCB(self, data):
         #TODO: control playback speed
@@ -75,6 +79,25 @@ class MediaPlayer():
             rospy.logerr("Media '" + mediaPath + "' does not exist in the robot")
     
     
+class WaitingForVideoEndThread(threading.Thread):
+    def __init__(self, browser, player, callback, nextIndex):
+        super(WaitingForVideoEndThread, self).__init__()
+        
+        self.terminated = False
+        self.browser = browser
+        self.player = player
+        self.callback = callback
+        self.nextIndex = nextIndex
+    
+    def run(self):
+        while True:
+            if self.terminated:
+                return
+            if self.browser.execute_script("return document.getElementById('" + self.player + "').ended;"):
+                self.callback(self.nextIndex)
+                return
+             
+                 
 if __name__ == '__main__':
     mediaPlayer = MediaPlayer()
     
