@@ -1,0 +1,23 @@
+#!/bin/bash
+export PS1='\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\u@\h:\w\$'
+source ~/.bashrc
+
+echo PYTHONPATH\;\;\;$PYTHONPATH
+echo ROS_DISTRO\;\;\;$ROS_DISTRO
+echo ROS_ETC_DIR\;\;\;$ROS_ETC_DIR
+echo ROS_HOME\;\;\;$ROS_HOME
+echo ROS_HOSTNAME\;\;\;$ROS_HOSTNAME
+echo ROS_IP\;\;\;$ROS_IP
+echo ROS_LOG_DIR\;\;\;$ROS_LOG_DIR
+echo ROS_MASTER_URI\;\;\;$ROS_MASTER_URI
+echo ROS_PACKAGE_PATH\;\;\;$ROS_PACKAGE_PATH
+echo ROS_ROOT\;\;\;$ROS_ROOT
+echo ROS_TEST_RESULTS_DIR\;\;\;$ROS_TEST_RESULTS_DIR
+echo ROSLISP_PACKAGE_DIRECTORIES\;\;\;$ROSLISP_PACKAGE_DIRECTORIES
+echo LD_LIBRARY_PATH\;\;\;$LD_LIBRARY_PATH
+echo PKG_CONFIG_PATH\;\;\;$PKG_CONFIG_PATH
+echo CPATH\;\;\;$CPATH
+echo PATH\;\;\;$PATH
+echo CMAKE_PREFIX_PATH\;\;\;$CMAKE_PREFIX_PATH
+echo _\;\;\;$_
+echo CATKIN_TEST_RESULTS_DIR\;\;\;$CATKIN_TEST_RESULTS_DIR
