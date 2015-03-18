@@ -6,7 +6,5 @@
 	<machine name="neato" address="192.168.150.101" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
 	<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="false" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	  
-	<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" output="screen" machine="$(env USER)" args="-sever-debug">
-		<remap from="scenario" to="robot$(arg robot)/scenario"/>
-	</node>
+	<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" output="screen" machine="$(env USER)" args="-sever-debug"/>
 </launch>
