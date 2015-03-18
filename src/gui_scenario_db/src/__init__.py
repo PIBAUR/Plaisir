@@ -27,7 +27,7 @@ from PyQt4.QtGui import *
 
 
 DEBUG_WITH_ROS = True
-DEBUG_SERVER = "-sever-debug" in sys.argv
+DEBUG_SERVER = False#"-sever-debug" in sys.argv
 
 def sigintHandler(*args):
     """ Handler for the SIGINT signal. """

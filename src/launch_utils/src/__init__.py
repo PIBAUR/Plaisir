@@ -38,7 +38,7 @@ def launchRosNode(nodeName, launchFile):
     roslaunch.main(["roslaunch", nodeName, launchFile])
     sys.exit()
 
-# debug
+
 def launchDebug():
     try:
         sys.path.append("/usr/lib/eclipse/plugins/org.python.pydev_3.7.1.201409021729/pysrc")

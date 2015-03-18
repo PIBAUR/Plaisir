@@ -48,6 +48,13 @@ class ExecutionDiagram():
         self.ui.show()
         self.resizeEvent()
         
+        #DEBUG: open default
+        self.currentFilePath = "/home/artlab/Bureau/test.dge" 
+        diagramToOpen = self.canvas.load(self.currentFilePath)
+        self.loadDiagram(diagramToOpen)
+        self.lastChangesSaved = True
+        self.updateWindowTitle()
+        
     
     # menu actions
     def newDiagram(self):

@@ -10,7 +10,7 @@ class SequenceNode(DiagramNode):
     nodeName = "Sequence"
     nodeCategory = ""
     
-    maxInputs = 4
+    maxInputs = 50
     minInputs = 1
     hasOutput = 1
     inputGroup = [""]
@@ -20,6 +20,10 @@ class SequenceNode(DiagramNode):
         
         self.currentInputIndex = 0
         self.numInputs = 0
+        
+        # ui
+        self.currentInputIndex_label = QLabel("en cours: " + str(self.currentInputIndex))
+        self.widget.central_widget.layout().addWidget(self.currentInputIndex_label)
         
     
     def output(self, updateRatioCallback):
@@ -40,23 +44,31 @@ class SequenceNode(DiagramNode):
     def updateRatio(self, inputRatio, paused):
         inputRatio = float(inputRatio)
         
+        # get sequence ratio
         sequenceRatio = (float(self.currentInputIndex) / (self.numInputs)) + (inputRatio / self.numInputs)
         
         if inputRatio >= 1:
+            # reset index
             self.currentInputIndex += 1
             if self.currentInputIndex >= self.numInputs:
                 self.currentInputIndex = 0
         
         if sequenceRatio >= 1:
+            # stop sequence
             self.stopExecution()
             self.updateCallback(1, True)
         else:
             if inputRatio >= 1 or paused:
+                # send pause
                 self.stopExecution()
                 self.updateCallback(sequenceRatio, True)
             else:
+                # continue
                 self.updateCallback(sequenceRatio, False)
                 self.setTimelineValue(sequenceRatio)
+        
+        # refresh ui counter
+        self.currentInputIndex_label.setText("en cours: " + str(self.currentInputIndex))
     
     
     def stop(self):

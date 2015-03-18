@@ -3,14 +3,14 @@
 
 import os
 import math
+import time
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 import rospy
 
-from std_msgs.msg import Float64
-from scenario_msgs.msg import Scenario as ScenarioMsg
+from scenario_msgs.msg import PathFeedback as PathFeedbackMsg
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
@@ -19,20 +19,18 @@ from src.gui_scenario_db.src.ui import ScenarioDataBase
 
 
 class ScenarioNode(DiagramNode):
-    uid = 0
-    
     nodeName = "Scenario"
     nodeCategory = ""
     
     maxInputs = 0
     minInputs = 0
     hasOutput = 1
-    inputGroup = []
+    
+    uid = 0
     
     def __init__(self, parent, canvas, position):
         super(ScenarioNode, self).__init__(parent, canvas, position)
         
-        self.uid = ScenarioNode.uid
         self.scenarioRunningOnRobotUid = -1
         self.currentScenario = None
         self.pathFeedbackValue = 0.
@@ -43,16 +41,16 @@ class ScenarioNode(DiagramNode):
         self.browse_button.clicked.connect(self.handleBrowseButtonClicked)
         self.widget.central_widget.layout().addWidget(self.browse_button)
         
-        # set timer for update graphics, because they must not be executed by the ROS callback thread
-        self.timer = QTimer(self.widget)
-        self.timer.timeout.connect(self.handleTimer)
-        self.timer.setInterval(10)
-        self.timer.start()
+        # set uiTimer for update graphics, because they must not be executed by the ROS callback thread
+        self.uiTimer = QTimer(self.widget)
+        self.uiTimer.timeout.connect(self.handleUITimer)
+        self.uiTimer.setInterval(10)
+        self.uiTimer.start()
         
-        # init subscription on the current running scenario
-        self.scenarioSubscriber = rospy.Subscriber("/robot01/scenario", ScenarioMsg, self.handleScenarioReceived)
-        
-        ScenarioNode.uid += 1
+        # set uiTimer to simulate
+        self.simulationTimer = QTimer(self.widget)
+        self.simulationTimer.timeout.connect(self.handleSimulationTimer)
+        self.simulationTimer.setInterval(100)
     
     
     def output(self, updateRatioCallback):
@@ -63,12 +61,18 @@ class ScenarioNode(DiagramNode):
         elif not os.path.exists(self.currentScenario.filePath):
             raise NodeException(self, u"le scénario '" + self.currentScenario.niceName() + u"' n'existe plus")
         
-        self.currentScenario.uid = self.uid
+        self.currentScenario.uid = ScenarioNode.uid
+        self.scenarioRunningOnRobotUid = self.currentScenario.uid
+        ScenarioNode.uid += 1
         self.startExecution(0)
         
         # init subscription on the path feedback
-        self.pathFeedbackSubscriber = rospy.Subscriber("/robot01/path_feedback", Float64, self.handlePathFeedbackReceived)
-        self.handlePathFeedbackReceived(None)
+        if False:
+            self.pathFeedbackSubscriber = rospy.Subscriber("/robot01/path_feedback", PathFeedbackMsg, self.handlePathFeedbackReceived)
+            self.handlePathFeedbackReceived(None)
+        else:
+            self.simulationTimer.start()
+            self.handleSimulationTimer()
         
         return self.currentScenario
     
@@ -76,8 +80,11 @@ class ScenarioNode(DiagramNode):
     def stop(self):
         super(ScenarioNode, self).stop()
         
-        if self.pathFeedbackSubscriber is not None:
-            self.pathFeedbackSubscriber.unregister()
+        if False:
+            if self.pathFeedbackSubscriber is not None:
+                self.pathFeedbackSubscriber.unregister()
+        else:
+            self.simulationTimer.stop()
         
     
     def getSpecificsData(self):
@@ -92,7 +99,7 @@ class ScenarioNode(DiagramNode):
             self.openScenario(data)
     
     
-    def handleTimer(self, firstTime = False):
+    def handleUITimer(self, firstTime = False):
         self.browse_button.setEnabled(not self.executing)
         
         if self.executing:
@@ -105,19 +112,23 @@ class ScenarioNode(DiagramNode):
                     self.updateCallback(self.pathFeedbackValue, False)
                 self.setTimelineValue(self.pathFeedbackValue)
         
+        
+    def handleSimulationTimer(self):
+        print self
+        if self.pathFeedbackValue >= 1:
+            self.simulationTimer.stop()
+            print "prout"
+        else:
+            self.pathFeedbackValue += .05
     
-    def handleScenarioReceived(self, msg):
-        if msg is not None:
-            self.scenarioRunningOnRobotUid = msg.uid
-        
-        
+    
     def handlePathFeedbackReceived(self, msg):
-        if msg is None or math.isnan(msg.data):
+        if msg is None or math.isnan(msg.ratio):
             self.pathFeedbackValue = 0
         else:
             # check that the feedback comes from the right node
-            if self.scenarioRunningOnRobotUid == self.uid:
-                self.pathFeedbackValue = msg.data
+            if self.scenarioRunningOnRobotUid == msg.uid:
+                self.pathFeedbackValue = msg.ratio
                 
                 if self.pathFeedbackValue >= 1:
                     self.pathFeedbackSubscriber.unregister()

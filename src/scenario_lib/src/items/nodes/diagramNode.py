@@ -180,6 +180,11 @@ class DiagramNode(object):
         yPosInputWidget = self.widget.central_widget.y() + topMargin + (len(self.getInputsWidgets()) - 1) * (topMargin + inputWidget.height())
         inputWidget.move(0, yPosInputWidget)
         
+        # increase height if too small
+        minWidgetHeight = yPosInputWidget + inputWidget.height() + topMargin
+        if minWidgetHeight > self.widget.height():
+            self.widget.resize(self.widget.width(), minWidgetHeight)
+        
         inputWidget.button.mousePressEvent = partial(self.inputButtonMousePressEvent, inputWidget.button)
         inputWidget.button.mouseMoveEvent = self.inputButtonMouseMoveEvent
         inputWidget.button.mouseReleaseEvent = self.inputButtonMouseReleaseEvent
@@ -307,3 +312,4 @@ class DiagramNode(object):
 from src.scenario_lib.src.items.nodes.playNode import PlayNode
 from src.scenario_lib.src.items.nodes.scenarioNode import ScenarioNode
 from src.scenario_lib.src.items.nodes.sequenceNode import SequenceNode
+from src.scenario_lib.src.items.nodes.randomChoice import RandomChoiceNode
