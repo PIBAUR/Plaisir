@@ -256,11 +256,11 @@ void LidarBliter::display_group()
                //obstacles_.obstacles.push_back(obs);
            }
            */
+            obstacles_.obstacles.push_back(obs);
 
             int b = 0;
             int g = (obs.id * 40) % 255;
             int r = (obs.id * 40) % 255;
-
             cv::circle(map_group_,pt_centre,radius,cv::Scalar(b,g,r),-3,4,0);
         }
     }

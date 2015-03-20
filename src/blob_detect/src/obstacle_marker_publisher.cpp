@@ -17,7 +17,7 @@ void obstacleCB(const scenario_msgs::ObstacleArray& msg)
         visualization_msgs::Marker marker;
 
         marker.header.frame_id = "/map";
-        marker.header.stamp = ros::Time();
+        marker.header.stamp = ros::Time(0);
         marker.id = it_obs->id;
         marker.type = visualization_msgs::Marker::SPHERE;
         marker.action = visualization_msgs::Marker::ADD;
@@ -28,13 +28,14 @@ void obstacleCB(const scenario_msgs::ObstacleArray& msg)
         marker.pose.orientation.y = 0.0;
         marker.pose.orientation.z = 0.0;
         marker.pose.orientation.w = 1.0;
-        marker.scale.x = it_obs->radius;
-        marker.scale.y = it_obs->radius;
-        marker.scale.z = it_obs->radius;
-        marker.color.a = 1.0;
+        marker.scale.x = 2* it_obs->radius;
+        marker.scale.y = 2* it_obs->radius;
+        marker.scale.z = 2* it_obs->radius;
+        marker.color.a = 0.8;
         marker.color.r = 0.0;
         marker.color.g = 0.0;
         marker.color.b = 1.0;
+        marker.lifetime = ros::Duration(1);
         markers_msg.markers.push_back(marker);
     }
 
