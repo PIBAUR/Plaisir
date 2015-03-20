@@ -122,18 +122,18 @@ public :
     MyGPIO down_pin_;
     MyGPIO left_pin_;
     MyGPIO right_pin_;
-    ros::NodeHandel nh_;
-    ros::publisher bumpers_pub_;
+    ros::NodeHandle nh_;
+    ros::Publisher bumpers_pub_;
 
 };
 
 
 int main () {
-    MyGPIO gpio26(26);
+    /*MyGPIO gpio26(26);
     while(ros::ok())
     {
         ROS_INFO_STREAM("PIN26 : " << gpio26.get_mode() <<" --> " << gpio26.get_level() );
         ros::Duration(0.5).sleep();
-    }
+    }*/
 	return 0;
 }
