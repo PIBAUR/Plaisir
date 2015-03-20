@@ -51,7 +51,7 @@ public:
 
     PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0) , waitFormap(false)
     {
-    	path_pub = nh.advertise<geometry_msgs::PoseArray>("path", 1);
+    	path_pub = nh.advertise<geometry_msgs::PoseArray>("path_finding", 1);
     }
     ~PathFinding(){};
     void computeTF();
@@ -86,7 +86,7 @@ void affiche_tree_rec(Node* q_i,cv::Mat* map){
       
     cv::Point point_q_i(q_i->x,q_i->y);
     cv::Point point_q_f(q_i->forest[i]->x,q_i->forest[i]->y);
-    cv::Scalar color_c(0,0,255);
+    cv::Scalar color_c(127,127,172);
     line(*map,point_q_i,point_q_f,color_c);
     // recursive call on q_i's forest
     affiche_tree_rec(q_i->forest[i],map);

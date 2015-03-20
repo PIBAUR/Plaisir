@@ -24,12 +24,6 @@ static int x_rand=0, y_rand=0;
 
 bool is_in_map2(int xTemp,int yTemp, int randvalue, int x, int y);
 
-int RandomNumber(int Min, int Max)
-{
-    return ((int(rand()) / int(RAND_MAX)) * (Max - Min)) + Min;
-}
-
-
 Node* closest_to_rec(Node* q_rand, Node* q_i){
   int n = q_i->forest.size(), i;
   double d, d_temp;
@@ -226,8 +220,10 @@ bool not_in_free_space(Node* n_rand, Mat map, int randvalue){
   if(!is_in_map(n_rand,map,randvalue))
     return false;
 
-  cv::Scalar c = map.at<uchar>(n_rand->y,n_rand->x);
- if (c[0] >= 254) return false;
+  //cv::Scalar c = map.at<uchar>(n_rand->y,n_rand->x);
+  cout<< map.at<uchar>(n_rand->y,n_rand->x)<<endl;
+ //if (c[0] >=254) return false;
+  if (map.at<uchar>(n_rand->y,n_rand->x) >=254) return false;
     else return true;
 }
 
