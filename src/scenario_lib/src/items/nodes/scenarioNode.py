@@ -28,6 +28,8 @@ class ScenarioNode(DiagramNode):
     
     uid = 0
     
+    simulation = False
+    
     def __init__(self, parent, canvas, position):
         super(ScenarioNode, self).__init__(parent, canvas, position)
         
@@ -50,7 +52,7 @@ class ScenarioNode(DiagramNode):
         # set uiTimer to simulate
         self.simulationTimer = QTimer(self.widget)
         self.simulationTimer.timeout.connect(self.handleSimulationTimer)
-        self.simulationTimer.setInterval(100)
+        self.simulationTimer.setInterval(10)
     
     
     def output(self, updateRatioCallback):
@@ -67,10 +69,11 @@ class ScenarioNode(DiagramNode):
         self.startExecution(0)
         
         # init subscription on the path feedback
-        if False:
+        if not ScenarioNode.simulation:
             self.pathFeedbackSubscriber = rospy.Subscriber("/robot01/path_feedback", PathFeedbackMsg, self.handlePathFeedbackReceived)
             self.handlePathFeedbackReceived(None)
         else:
+            self.pathFeedbackValue = 0
             self.simulationTimer.start()
             self.handleSimulationTimer()
         
@@ -80,7 +83,7 @@ class ScenarioNode(DiagramNode):
     def stop(self):
         super(ScenarioNode, self).stop()
         
-        if False:
+        if not ScenarioNode.simulation:
             if self.pathFeedbackSubscriber is not None:
                 self.pathFeedbackSubscriber.unregister()
         else:
@@ -114,12 +117,9 @@ class ScenarioNode(DiagramNode):
         
         
     def handleSimulationTimer(self):
-        print self
+        self.pathFeedbackValue += .005
         if self.pathFeedbackValue >= 1:
             self.simulationTimer.stop()
-            print "prout"
-        else:
-            self.pathFeedbackValue += .05
     
     
     def handlePathFeedbackReceived(self, msg):

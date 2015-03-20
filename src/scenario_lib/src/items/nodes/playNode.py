@@ -13,6 +13,7 @@ from std_msgs.msg import Header as HeaderMsg
 from std_msgs.msg import Bool as BoolMsg
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
+from src.scenario_lib.src.items.nodes.scenarioNode import ScenarioNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 
 class PlayNode(DiagramNode):
@@ -44,6 +45,9 @@ class PlayNode(DiagramNode):
         self.playButton = QPushButton("Play")
         self.playButton.clicked.connect(self.handlePlayButtonClicked)
         self.widget.central_widget.layout().addWidget(self.playButton)
+        self.simulateButton = QPushButton("Simulate")
+        self.simulateButton.clicked.connect(self.handleSimulateButtonClicked)
+        self.widget.central_widget.layout().addWidget(self.simulateButton)
         self.playingScenarioLabel = QLabel("")
         self.widget.central_widget.layout().addWidget(self.playingScenarioLabel)
         self.stopButton = QPushButton("Stop")
@@ -137,6 +141,15 @@ class PlayNode(DiagramNode):
         self.playButton.setEnabled(False)
         self.stopButton.setEnabled(True)
         
+        ScenarioNode.simulation = False
+        self.playScenario()
+        
+        
+    def handleSimulateButtonClicked(self, event):
+        self.playButton.setEnabled(False)
+        self.stopButton.setEnabled(True)
+        
+        ScenarioNode.simulation = True
         self.playScenario()
         
         
