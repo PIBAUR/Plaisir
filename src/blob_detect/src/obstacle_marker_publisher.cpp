@@ -12,7 +12,7 @@ void obstacleCB(const scenario_msgs::ObstacleArray& msg)
 
     scenario_msgs::ObstacleArray obstacles_msg= msg;
 
-    for( std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_msg.obstacles.begin(); it_obs<obstacles_msg.obstacles.end(); it_obs+=1 )
+    for( std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_msg.obstacles.begin(); it_obs != obstacles_msg.obstacles.end(); it_obs+=1 )
     {
         visualization_msgs::Marker marker;
 
@@ -31,11 +31,11 @@ void obstacleCB(const scenario_msgs::ObstacleArray& msg)
         marker.scale.x = 2* it_obs->radius;
         marker.scale.y = 2* it_obs->radius;
         marker.scale.z = 2* it_obs->radius;
-        marker.color.a = 0.8;
+        marker.color.a = 0.6;
         marker.color.r = 0.0;
         marker.color.g = 0.0;
         marker.color.b = 1.0;
-        marker.lifetime = ros::Duration(1);
+        marker.lifetime = ros::Duration(0);
         markers_msg.markers.push_back(marker);
     }
 

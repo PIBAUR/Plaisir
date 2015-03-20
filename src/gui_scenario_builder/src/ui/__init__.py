@@ -70,7 +70,7 @@ class ScenarioEdition():
         self.robotMediaPlayer.temporalization = self.temporalization
         
         # physical robot
-        self.scenarioPublisher = rospy.Publisher('scenario', ScenarioMsg)
+        self.scenarioPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)
         
         # other buttons
         self.ui.showControls_button.clicked.connect(self.handleShowControlsButtonClicked)
