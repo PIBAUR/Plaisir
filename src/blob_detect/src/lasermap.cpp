@@ -23,7 +23,7 @@
 #define GROUP_SIZE_MAX 100
 #define RADIUS_DECREASE_VALUE 0.05
 
-
+//
 // %Tag(CLASS_WITH_DECLARATION)%
 class LidarBliter
 {
@@ -75,7 +75,7 @@ public :
 LidarBliter::LidarBliter():
 		id_(1)
 {
-    map_ = cv::imread("/home/artlab/catkin_ws/maps/last_map.pgm",CV_LOAD_IMAGE_COLOR);
+    map_ = cv::imread("/home/serveur/catkin_ws/maps/last_map.pgm",CV_LOAD_IMAGE_COLOR);
     map_laser_ = map_.clone();
     obstacles_.obstacles.clear();
     obstacles_old_.obstacles.clear();
@@ -122,7 +122,7 @@ void LidarBliter::laser_filter(const sensor_msgs::LaserScan& laser)
     {
     }
 }
-    
+
 void LidarBliter::display_laser()
 {
     map_laser_ = map_.clone();
@@ -172,7 +172,7 @@ void LidarBliter::process_map()
     cv::blur(map_bin_, map_bin_, cv::Size(3,3), cv::Point(-1,-1), cv::BORDER_DEFAULT);
     cv::threshold(map_bin_,map_bin_,230,255,cv::THRESH_BINARY);
 }
-    
+
 void LidarBliter::group_laser_point()
 {
     grouped_point_.clear();
@@ -196,13 +196,18 @@ void LidarBliter::group_laser_point()
         }
     }
 }
-    
+
 void LidarBliter::display_group()
 {
+    ////////////////////////////////////////////////////
+    //Cleaned for detection use only. without tracking//
+    ////////////////////////////////////////////////////
+
     map_group_ = map_.clone();
     obstacles_.header.stamp = ros::Time(0);
-    //obstacles_.obstacles.clear();
-
+    obstacles_.obstacles.clear();
+    id_ = 0;
+    /*
     for(std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_.obstacles.begin();
 			it_obs != obstacles_.obstacles.end(); it_obs += 1)
 	{
@@ -215,6 +220,8 @@ void LidarBliter::display_group()
 	}
 
     obstacles_old_ = obstacles_;
+    */
+
 
     ROS_INFO_STREAM(" nb_group of group : "<<grouped_point_. size());
     for(cv::vector< cv::vector<cv::Point> >::iterator it_group = grouped_point_.begin();
@@ -235,20 +242,20 @@ void LidarBliter::display_group()
             pt_centre *= 1.0/it_group->size();
 
             scenario_msgs::Obstacle obs;
-            obs.x = pt_centre.x;
-            obs.y = pt_centre.y;
+            obs.x = pt_centre.x*metadata_.resolution+metadata_.origin.position.x;
+            obs.y = -pt_centre.y*metadata_.resolution-metadata_.origin.position.y;;
             obs.radius = radius*metadata_.resolution;
-
-            if(obstacles_old_.obstacles.size()!=0)
-            {
-                set_id_closest(obs);
-            }
-            else
-            {
-				obs.id = id_++;
-				obstacles_.obstacles.push_back(obs);
-            }
-
+            /*
+           if(obstacles_old_.obstacles.size()!=0)
+           {
+               set_id_closest(obs);
+           }
+           else
+           {
+               obs.id = id_++;
+               //obstacles_.obstacles.push_back(obs);
+           }
+           */
 
             int b = 0;
             int g = (obs.id * 40) % 255;
@@ -355,7 +362,7 @@ void LidarBliter::laserCb(const sensor_msgs::LaserScan::ConstPtr& msg)
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "blob");
+    ros::init(argc, argv, "lasermap");
 
     LidarBliter lb;
 

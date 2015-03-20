@@ -89,7 +89,7 @@ MyGPIO::MyGPIO(int pin)
 	filenamedirection<<"/sys/class/gpio/gpio"<<map[pin_]<<"/direction";
 	file_value_.open(filenamevalue.str().c_str());
 	file_direction_.open(filenamedirection.str().c_str());
-	
+
 	ROS_ERROR_STREAM_COND_NAMED(!(file_value_.is_open() && file_value_.is_open()),
 			"Bumper","Impossible to open files for pin"<< pin_);
 	set_input_mode();
@@ -114,7 +114,26 @@ bool MyGPIO::get_level()
 }
 
 
+
+class bumper
+{
+public :
+    MyGPIO up_pin_;
+    MyGPIO down_pin_;
+    MyGPIO left_pin_;
+    MyGPIO right_pin_;
+    ros::NodeHandel nh_;
+    ros::publisher bumpers_pub_;
+
+};
+
+
 int main () {
-	
+    MyGPIO gpio26(26);
+    while(ros::ok())
+    {
+        ROS_INFO_STREAM("PIN26 : " << gpio26.get_mode() <<" --> " << gpio26.get_level() );
+        ros::Duration(0.5).sleep();
+    }
 	return 0;
 }

@@ -18,3 +18,5 @@
 /devel/
 /carto
 *~
+/build_isolated
+/devel_isolated

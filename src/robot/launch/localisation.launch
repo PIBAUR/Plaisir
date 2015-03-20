@@ -22,7 +22,7 @@
 		
 		<!--Maximum error between the true distribution and the estimated distribution.--> 
 		<param name="kld_err" value="0.01"/>
-		
+		 
 		<!--Upper standard normal quantile for (1 - p), where p is the probability 
 		that the error on the estimated distrubition will be less than kld_err.-->
 		<param name="kld_z" value="0.99"/>

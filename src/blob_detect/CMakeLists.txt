@@ -13,12 +13,14 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   image_transport
   tf
-  #scenario_msgs
+  visualization_msgs
+  scenario_msgs
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(OpenCV REQUIRED)
+
 
 
 
@@ -90,7 +92,7 @@ find_package(OpenCV REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES blob_detect
-#  CATKIN_DEPENDS roscpp
+  CATKIN_DEPENDS roscpp scenario_msgs
 #  DEPENDS system_lib
 )
 
@@ -113,11 +115,8 @@ include_directories(
 
 ## Declare a cpp executable
 # add_executable(blob_detect_node src/blob_detect_node.cpp)
-add_executable(blob_detect_node src/im_convert.cpp)
-add_executable(my_blob_dectector src/blob.cpp)
-add_executable(open_test src/open_test.cpp)
 add_executable(lasermap src/lasermap.cpp)
-add_executable(clean_map src/clean_map.cpp)
+add_executable(obstacle_marker_publisher src/obstacle_marker_publisher.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -127,11 +126,8 @@ add_executable(clean_map src/clean_map.cpp)
 # target_link_libraries(blob_detect_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries ( blob_detect_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
-target_link_libraries ( my_blob_dectector ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
-target_link_libraries ( open_test ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
+target_link_libraries ( obstacle_marker_publisher ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
 target_link_libraries ( lasermap ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
-target_link_libraries ( clean_map ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
 
 
 #############
