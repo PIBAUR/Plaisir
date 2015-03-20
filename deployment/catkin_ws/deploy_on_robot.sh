@@ -24,6 +24,8 @@ rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/devel/' \
 	--exclude '/catkin_ws/build/' \
 	--exclude '/catkin_ws/deployment/' \
+	--exclude '/catkin_ws/build_isolated/' \
+	--exclude '/catkin_ws/devel_isolated/' \
 	--exclude '/catkin_ws/README.md' \
 	--exclude '*.pyc' \
 	--exclude '*.gitignore' \

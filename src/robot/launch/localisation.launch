@@ -42,8 +42,8 @@
 		<!--Exponential decay rate for the slow (resp. fast) average weight filter, 
 		used in deciding when to recover by adding random poses. 
 		A good value might be 0.001 (resp. 0.1).-->
-		<param name="recovery_alpha_slow" value="0.000"/>
-		<param name="recovery_alpha_fast" value="0.00"/>
+		<param name="recovery_alpha_slow" value="0.1"/>
+		<param name="recovery_alpha_fast" value="0.5"/>
 		
 		<!--Initial pose mean (x), (y) and (yaw), used to initialize filter with 
 		Gaussian distribution. Load from yaml file.-->    
@@ -106,7 +106,7 @@
 		<param name="laser_likelihood_max_dist" value="2.0"/>
 		
 		<!--Which model to use, either beam, likelihood_field, or likelihood_field_prob.-->
-		<param name="laser_model_type" value="beam"/>
+		<param name="laser_model_type" value="likelihood_field"/>
 		
 		
 		<!--Odometery model parameters
@@ -126,19 +126,19 @@
 		
 		<!--Specifies the expected noise in odometry's rotation estimate from 
 		the rotational component of the robot's motion.-->
-		<param name="odom_alpha1" value="50"/>
+		<param name="odom_alpha1" value="3.0"/>
 		
 		<!--Specifies the expected noise in odometry's rotation estimate from 
 		translational component of the robot's motion.-->
-		<param name="odom_alpha2" value="10"/>
+		<param name="odom_alpha2" value="3.0"/>
 		
 		<!--Specifies the expected noise in odometry's translation estimate from the 
 		translational component of the robot's motion.-->
-		<param name="odom_alpha3" value="10"/>
+		<param name="odom_alpha3" value="3.0"/>
 		
 		<!--Specifies the expected noise in odometry's translation estimate from 
 		the rotational component of the robot's motion.-->
-		<param name="odom_alpha4" value="10"/>
+		<param name="odom_alpha4" value="3.0"/>
 		
 		<!--Translation-related noise parameter (only used if model is "omni").-->
 		<param name="odom_alpha5" value="0.2"/>

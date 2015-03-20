@@ -170,7 +170,7 @@ void LidarBliter::process_map()
 {
     cv::cvtColor(map_,map_bin_,CV_BGR2GRAY);
     cv::blur(map_bin_, map_bin_, cv::Size(3,3), cv::Point(-1,-1), cv::BORDER_DEFAULT);
-    cv::threshold(map_bin_,map_bin_,230,255,cv::THRESH_BINARY);
+    cv::threshold(map_bin_,map_bin_,240,255,cv::THRESH_BINARY);
 }
 
 void LidarBliter::group_laser_point()
@@ -245,6 +245,7 @@ void LidarBliter::display_group()
             obs.x = pt_centre.x*metadata_.resolution+metadata_.origin.position.x;
             obs.y = -pt_centre.y*metadata_.resolution-metadata_.origin.position.y;;
             obs.radius = radius*metadata_.resolution;
+            obs.id = id_++;
             /*
            if(obstacles_old_.obstacles.size()!=0)
            {
