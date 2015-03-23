@@ -235,8 +235,9 @@ class Canvas(QWidget):
         for nodeCategory in nodesCategories:
             if nodeCategory == "":
                 for nodeClass in nodesDict[nodeCategory]:
-                    menuAction = menu.addAction(nodeClass.nodeName)
-                    menuAction.triggered.connect(partial(self.handleMenuActionTriggered, nodeClass, position))
+                    if nodeClass.nodeName != "":
+                        menuAction = menu.addAction(nodeClass.nodeName)
+                        menuAction.triggered.connect(partial(self.handleMenuActionTriggered, nodeClass, position))
         
         menu.exec_(self.mapToGlobal(position))
     

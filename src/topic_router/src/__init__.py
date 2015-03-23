@@ -20,25 +20,26 @@ class TopicRouter():
         self.scenarioPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)
         self.pathVizPublisher = rospy.Publisher('/robot01/path_viz', PoseArrayMsg)
         
-        self.obstacleArrayMsg = ObstacleArrayMsg()
-        self.obstacleArrayMsg.header.frame_id = "/map"
-
 
     def pathCB(self, msg):
         self.pathVizPublisher.publish(msg.path.poses)
         
         
     def clickedPointCB(self, msg):
-        if False:
+        if True:
+            obstacleArrayMsg = ObstacleArrayMsg()
+            obstacleArrayMsg.header.frame_id = "/map"
+            
             if msg.header.frame_id == "null":
                 rospy.loginfo("Received remove clicked point")
-                self.obstacleArrayMsg.obstacles = []
             else:
                 rospy.loginfo("Received clicked point")
                 obstacleMsg = ObstacleMsg(id = 54, x = msg.point.x, y = msg.point.y, radius = .3)
-                self.obstacleArrayMsg.obstacles = [obstacleMsg]
+                obstacleArrayMsg.header.frame_id = "/map"
+                obstacleArrayMsg.obstacles = [obstacleMsg]
             
-            self.obstaclesPublisher.publish(self.obstacleArrayMsg)
+            rospy.loginfo(obstacleArrayMsg)
+            self.obstaclesPublisher.publish(obstacleArrayMsg)
         else:
             scenarioMsg = ScenarioMsg()
             headerMsg = HeaderMsg()
