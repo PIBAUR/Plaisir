@@ -82,9 +82,8 @@ void PathFinding::computePath(const scenario_msgs::Scenario::ConstPtr& msg)
         if(msg->type == "travel") //Check the good scenario
         {   
             
-            //int count=0;          
+                   
             ros::Time second=ros::Time::now();
-            //count++; 
             x_robot_des =  (msg->target.x)/map_resolution;
             y_robot_des =  (msg->target.y)/map_resolution;
             theta_robot_des =msg->target.theta; // yaw-angle in radian
@@ -133,7 +132,7 @@ void PathFinding::computePath(const scenario_msgs::Scenario::ConstPtr& msg)
 		    
             time=ros::Time::now().toSec()-second.toSec();
             ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
-            //if(count==1) exit(0);
+       
         }
         
          else 
@@ -160,16 +159,16 @@ vector<Node*> PathFinding::algorithm()
 
     //std::cout << "Initializing tree" << std::endl;
     std::srand(std::time(0));
-
+    //std::cout << "first point"<<endl;
     while(not_in_free_space(&tree,map,map.rows)|| !pixel_test(tree,map,0,map.rows))
     {
 
          //std::cout << "first point"<<endl;
         if(x_robot_des < 0)
         {
-        tree.x=((std::rand()% map.rows+1) -map.rows);
+        tree.x=((std::rand()% map.rows) -map.rows);
             if(y_robot_des < 0)
-            tree.y = ((std::rand()% map.rows+1) -map.rows);
+            tree.y = ((std::rand()% map.rows) -map.rows);
             else
             tree.y = (std::rand()% map.rows);
         }
@@ -180,17 +179,17 @@ vector<Node*> PathFinding::algorithm()
         }
        
     }
-    //std::cout << tree.x << " " << tree.y << std::endl;
+    std::cout << tree.x << " " << tree.y << std::endl;
      //std::cout << "Building graph" << std::endl;
     //rtt: More there are points more the graph will be 
- 	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des,800);  // Choose 6000 points
+ 	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des,map.rows);  // Choose 6000 points
 
     //std::cout << "Drawing graph" << std::endl;    
  	//Display trees
-    Mat m_bis; map.copyTo(m_bis);
-    affiche_tree(&tree,&m_bis);
-    imshow("rrt",m_bis);
-    waitKey(200);
+    //Mat m_bis; map.copyTo(m_bis);
+    //affiche_tree(&tree,&m_bis);
+    //imshow("rrt",m_bis);
+    //waitKey(0);
   
     //std::cout << "Drawing path solution" << std::endl;
     Node end;
@@ -218,6 +217,10 @@ vector<Node*> PathFinding::algorithm()
     vector<Node*> path = path_smoothing(rrt_path(&end,&tree), &map);
     //std::cout <<end.x << " " << end.y << std::endl;
     draw_path(path,&map);
+    //Mat m_bis; map.copyTo(m_bis);
+    //affiche_tree(&tree,&m_bis);
+    //imshow("rrt",m_bis);
+   //waitKey(0);
    
 
     return path;

@@ -18,7 +18,7 @@
 using namespace cv;
 using namespace std;
 
-static int deltaQ = 3;//Don't go up 50, choose deltaQ between 10 and 50
+static int deltaQ =15;//Don't go up 50, choose deltaQ between 10 and 50
 static int nb_in_tree = 0;
 static int x_rand=0, y_rand=0;
 
@@ -86,7 +86,7 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
         
         if(is_in_map2(xTemp,yTemp,randvalue,i,j)){
   		    cv::Scalar c = map.at<uchar>(yTemp + j, xTemp+i);
-   		    if(c[0] < 254)
+   		    if(c[0] < 100)
   		      return false;
         }
   		  
@@ -101,12 +101,12 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
     {
          if(is_in_map2(xTemp,yTemp,randvalue,0,j)){
          cv::Scalar c = map.at<uchar>(yTemp + j, xTemp);
-         if(c[0] < 254)
+         if(c[0] < 100)
          return false;
       }
             if(is_in_map2(xTemp,yTemp,randvalue,1,j)){
         cv::Scalar c = map.at<uchar>(yTemp + j, xTemp+1);
-        if(c[0] < 254)
+        if(c[0] <100)
         return false;
       }
     }  
@@ -118,13 +118,13 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
      
         if(is_in_map2(xTemp,yTemp,randvalue,i, 2*R - 1)){
         cv::Scalar c = map.at<uchar>(yTemp + 2*R - 1, xTemp + i);
-        if(c[0] < 254)
+        if(c[0] < 100)
         return false;
       }
       
          if(is_in_map2(xTemp,yTemp,randvalue,i, 2*R - 2)) {
         cv::Scalar c = map.at<uchar>(yTemp + 2*R - 2, xTemp+i);
-        if(c[0] < 254)
+        if(c[0] < 100)
         return false;
       }
     }
@@ -137,13 +137,13 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
       
         if(is_in_map2(xTemp,yTemp,randvalue,2*R - 1,j)){
         cv::Scalar c = map.at<uchar>(yTemp + j, xTemp + 2*R - 1);
-        if(c[0] < 254)
+        if(c[0] < 100)
         return false;
       }
    
         if(is_in_map2(xTemp,yTemp,randvalue,2*R - 2 ,j)){
         cv::Scalar c = map.at<uchar>(yTemp + j, xTemp+2*R - 2);
-        if(c[0] < 254)
+        if(c[0] < 100)
         return false;
       }
     }
@@ -155,13 +155,13 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
       
        if(is_in_map2(xTemp,yTemp,randvalue,i ,0)){
         cv::Scalar c = map.at<uchar>(yTemp , xTemp + i);
-        if(c[0] < 254)
+        if(c[0] <100)
         return false;
       }
 
         if(is_in_map2(xTemp,yTemp,randvalue,i ,1)){
         cv::Scalar c = map.at<uchar>(yTemp + 1, xTemp+i);
-        if(c[0] < 254)
+        if(c[0] <100)
         return false;
       }
     }
@@ -210,7 +210,7 @@ bool _collision_with_object(Node* qNew, Node* qNear, Mat &map, int randvalue){
 
 bool is_in_map(Node* n, Mat m,int randvalue){
 
-    return (((abs(n->x) > randvalue) && (abs(n->x) < randvalue)) && ((abs(n->y) > randvalue) && (abs(n->y) < randvalue)));
+    return ( (abs(n->x) < randvalue) && (abs(n->y) < randvalue));
 }
 
 
@@ -220,35 +220,30 @@ bool not_in_free_space(Node* n_rand, Mat map, int randvalue){
   if(!is_in_map(n_rand,map,randvalue))
     return false;
 
-  //cv::Scalar c = map.at<uchar>(n_rand->y,n_rand->x);
-  cout<< "value uchar"<<endl;
-  cout<< map.at<uchar>(n_rand->y,n_rand->x)<<endl;
- //if (c[0] >=254) return false;
-  if (map.at<uchar>(n_rand->y,n_rand->x) >=254) return false;
+  cv::Scalar c = map.at<uchar>(n_rand->y,n_rand->x);
+  //cout<< "value uchar"<<endl;
+  //cout<< map.at<uchar>(n_rand->y,n_rand->x)<<endl;
+ if (c[0] >=100) return false;
     else return true;
 }
 
 
 void _rrt(Node *tree, int k, Mat map,int positionx, int positiony, int randvalue){
   
- std::srand(std::time(0));
+ //std::srand(std::time(0));
  for(int i = 0; i < k; i++){
     if(nb_in_tree%100==0 && deltaQ >= 5){ // multiple of points' number
       deltaQ = deltaQ -1;
-    }
-  for (int i=0; i<map.rows;i++)
-    {
-        for (int j=0; j<map.cols;j++)
-        {  
-         cv::Scalar c =map.at<uchar>(i,j);
-         if (c[0] == 100)
-            {
+    } 
+         //cv::Scalar c =map.at<uchar>(k,k);
+        // if (c[0] == 100)
+            //{
     if(positionx<0)
     {
         if(positiony<0)
         {
    
-                x_rand=((std::rand()% 113) -474);
+                x_rand=((std::rand()% 113) - 474);
                 y_rand = ((std::rand()% 48) -470);
  
         }
@@ -261,21 +256,19 @@ void _rrt(Node *tree, int k, Mat map,int positionx, int positiony, int randvalue
         }
     }
     else{
-            //std::cout <<"positif"<< std::endl;
-               x_rand = (std::rand()%113)+474;
-               y_rand = (std::rand()%48)+470;
-
+           // std::cout <<"positif"<< std::endl;
+               // x_rand = (std::rand()%113)+412;
+               //y_rand = (std::rand()%113)+412;
+                 x_rand = (std::rand()%map.rows)+412;
+               y_rand = (std::rand()%map.rows)+412;
                 
          }
       //std::cout << x_rand << " " << y_rand << std::endl;
     Node* q_rand = new Node(x_rand,y_rand);
     // add distance from root 
     extend(q_rand, tree, map,randvalue);
-    }
-    }
+ 
  }
-  
-  }
 
 }
 
