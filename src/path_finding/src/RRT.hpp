@@ -261,19 +261,20 @@ void _rrt(Node *tree, int k, Mat map,int positionx, int positiony, int randvalue
         }
     }
     else{
-            std::cout <<"positif"<< std::endl;
+            //std::cout <<"positif"<< std::endl;
                x_rand = (std::rand()%113)+474;
                y_rand = (std::rand()%48)+470;
 
                 
          }
-    }
-    }
- }
-    //std::cout << x_rand << " " << y_rand << std::endl;
+      //std::cout << x_rand << " " << y_rand << std::endl;
     Node* q_rand = new Node(x_rand,y_rand);
     // add distance from root 
     extend(q_rand, tree, map,randvalue);
+    }
+    }
+ }
+  
   }
 
 }

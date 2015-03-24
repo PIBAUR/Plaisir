@@ -133,7 +133,7 @@ void PathFinding::computePath(const scenario_msgs::Scenario::ConstPtr& msg)
 		    
             time=ros::Time::now().toSec()-second.toSec();
             ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
-            if(count==1) exit(0);
+            //if(count==1) exit(0);
         }
         
          else 

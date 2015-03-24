@@ -86,7 +86,8 @@ void affiche_tree_rec(Node* q_i,cv::Mat* map){
       
     cv::Point point_q_i(q_i->x,q_i->y);
     cv::Point point_q_f(q_i->forest[i]->x,q_i->forest[i]->y);
-    cv::Scalar color_c(127,127,172);
+    //cv::Scalar color_c(127,127,172);
+    cv::Scalar color_c(0,0,255);
     line(*map,point_q_i,point_q_f,color_c);
     // recursive call on q_i's forest
     affiche_tree_rec(q_i->forest[i],map);

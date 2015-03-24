@@ -82,9 +82,9 @@ void PathFinding::computePath(const scenario_msgs::Scenario::ConstPtr& msg)
         if(msg->type == "travel") //Check the good scenario
         {   
             
-            int count=0;          
+            //int count=0;          
             ros::Time second=ros::Time::now();
-            count++; 
+            //count++; 
             x_robot_des =  (msg->target.x)/map_resolution;
             y_robot_des =  (msg->target.y)/map_resolution;
             theta_robot_des =msg->target.theta; // yaw-angle in radian
@@ -133,7 +133,7 @@ void PathFinding::computePath(const scenario_msgs::Scenario::ConstPtr& msg)
 		    
             time=ros::Time::now().toSec()-second.toSec();
             ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
-            if(count==1) exit(0);
+            //if(count==1) exit(0);
         }
         
          else 
@@ -183,7 +183,7 @@ vector<Node*> PathFinding::algorithm()
     //std::cout << tree.x << " " << tree.y << std::endl;
      //std::cout << "Building graph" << std::endl;
     //rtt: More there are points more the graph will be 
- 	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des,100);  // Choose 6000 points
+ 	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des,800);  // Choose 6000 points
 
     //std::cout << "Drawing graph" << std::endl;    
  	//Display trees
