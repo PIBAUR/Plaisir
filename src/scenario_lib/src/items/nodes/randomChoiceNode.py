@@ -19,24 +19,32 @@ class RandomChoiceNode(DiagramNode):
     def __init__(self, parent, canvas, position):
         super(RandomChoiceNode, self).__init__(parent, canvas, position)
         
-        self.randomIndex = 0
+        self.randomIndex = -1
         
     
-    def output(self, updateRatioCallback):
+    def output(self, args, updateRatioCallback):
         self.updateCallback = updateRatioCallback
         
         inputs = self.getInputs()
         
-        self.randomIndex = random.randint(0, len(inputs) - 1)
+        if self.randomIndex == -1:
+            self.randomIndex = random.randint(0, len(inputs) - 1)
+        
         inputItem = inputs[self.randomIndex]
         
-        self.startExecution(self.getInputWidgetIndexFromInputIndex(self.randomIndex))
+        if updateRatioCallback is not None:
+            # dry run
+            self.startExecution(self.getInputWidgetIndexFromInputIndex(self.randomIndex))
         
-        return inputItem.output(self.updateRatio)
+        return inputItem.output(args, self.updateRatio if updateRatioCallback is not None else None)
     
     
     def updateRatio(self, inputRatio, paused):
         if inputRatio >= 1 or paused:
+            # if input is complete, change random
+            if inputRatio >= 1:
+                self.randomIndex = -1
+            
             self.stopExecution()
             self.updateCallback(inputRatio, True)
         else:

@@ -14,7 +14,7 @@ void PathFinding::computeTF()
     try
     {
           
-        tf_listener_.lookupTransform("/map", "base_link", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
     }
     catch (tf::TransformException ex)
     {   
@@ -64,7 +64,7 @@ void PathFinding::map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg
                    map_received.at<uchar>(i,j) = (uchar)map_received.at<float>(i,j);
              
               } else {
-                   map_received.at<float>(i,j) = data; //change into 0
+                   map_received.at<float>(i,j) = 0; //change into 0
                    map_received.at<uchar>(i,j) = (uchar)map_received.at<float>(i,j);
               }
              
@@ -96,7 +96,7 @@ void PathFinding::computePath(const scenario_msgs::Scenario::ConstPtr& msg)
             vector<Node*> path_bis=algorithm();
 		    geometry_msgs::PoseArray path_copy;
 		    // get coordinates of the destination point of /map in the /map frame
-		    path_copy.header.frame_id = "base_link";
+		    path_copy.header.frame_id = "/map";
 		    path_copy.header.stamp = ros::Time();
 		    //path publication
 		    ROS_INFO_STREAM("PATH_BIS_SIZE "<<" "<<path_bis.size());
@@ -133,9 +133,6 @@ void PathFinding::computePath(const scenario_msgs::Scenario::ConstPtr& msg)
 		    
             time=ros::Time::now().toSec()-second.toSec();
             ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
-            if(count==1) exit(0);
-           
-
         }
         
          else 
@@ -163,33 +160,36 @@ vector<Node*> PathFinding::algorithm()
     //std::cout << "Initializing tree" << std::endl;
     std::srand(std::time(0));
   
-    while(not_in_free_space(&tree,map,Randvalue) || !pixel_test(tree,map,0,Randvalue))
+    while(not_in_free_space(&tree,map,map.rows)|| !pixel_test(tree,map,0,map.rows))
     {
+
          //std::cout << "first point"<<endl;
         if(x_robot_des < 0)
         {
-        tree.x=((std::rand()% Randvalue+1) -Randvalue);
+        tree.x=((std::rand()% map.rows+1) -map.rows);
             if(y_robot_des < 0)
-            tree.y = ((std::rand()% Randvalue+1) -Randvalue);
+            tree.y = ((std::rand()% map.rows+1) -map.rows);
             else
-            tree.y = (std::rand()% Randvalue);
+            tree.y = (std::rand()% map.rows);
         }
         else {
        
-        tree.x = (std::rand()% Randvalue); // configure with map size
-        tree.y = (std::rand()% Randvalue); 
+        tree.x = (std::rand()% map.rows); // configure with map size
+        tree.y = (std::rand()% map.rows);
         }
        
     }
     //std::cout << tree.x << " " << tree.y << std::endl;
      //std::cout << "Building graph" << std::endl;
     //rtt: More there are points more the graph will be 
- 	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des,Randvalue);  // Choose 6000 points
+ 	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des,map.rows);  // Choose 6000 points
 
     //std::cout << "Drawing graph" << std::endl;    
  	//Display trees
     Mat m_bis; map.copyTo(m_bis);
     affiche_tree(&tree,&m_bis);
+    imshow("rrt",m_bis);
+    //waitKey(200);
   
     //std::cout << "Drawing path solution" << std::endl;
     Node end;
@@ -198,26 +198,27 @@ vector<Node*> PathFinding::algorithm()
 
     end.x =  x_robot_des; end.y =  y_robot_des;
     std::srand(std::time(0));
-    while(not_in_free_space(&end,map,Randvalue) || !pixel_test(end,map,0,Randvalue)) //modif 
+    while(not_in_free_space(&end,map,map.rows)|| !pixel_test(end,map,0,map.rows) ) //modif
     {
+
         if(x_robot_des < 0)
         {
-        end.x=((std::rand()% Randvalue+1)  -Randvalue);
+        end.x=((std::rand()% map.rows+1)  -map.rows);
             if(y_robot_des < 0)
-            end.y = ((std::rand()% Randvalue+1)  -Randvalue);
+            end.y = ((std::rand()% map.rows+1)  -map.rows);
             else
-            end.y = (std::rand()% Randvalue);
+            end.y = (std::rand()% map.rows);
         }
         else {
-        end.x = (std::rand()% Randvalue); // configure with map size
-        end.y = (std::rand()% Randvalue); 
+        end.x = (std::rand()% map.rows); // configure with map size
+        end.y = (std::rand()% map.rows);
         }
     }
     vector<Node*> path = path_smoothing(rrt_path(&end,&tree), &map);
     //std::cout <<end.x << " " << end.y << std::endl;
     draw_path(path,&map);
-  
    
+
     return path;
 
 }
