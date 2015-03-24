@@ -18,11 +18,12 @@ class TopicRouter():
         self.clickedPointSubscriber = rospy.Subscriber('/robot01/path', PathMsg, self.pathCB)
         self.obstaclesPublisher = rospy.Publisher('/obstacles', ObstacleArrayMsg)
         self.scenarioPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)
+        
         self.pathVizPublisher = rospy.Publisher('/robot01/path_viz', PoseArrayMsg)
         
 
     def pathCB(self, msg):
-        self.pathVizPublisher.publish(msg.path.poses)
+        self.pathVizPublisher.publish(PoseArrayMsg(header = HeaderMsg(frame_id = "/map"), poses = msg.path.poses))
         
         
     def clickedPointCB(self, msg):

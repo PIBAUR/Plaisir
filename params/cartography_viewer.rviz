@@ -8,7 +8,6 @@ Panels:
         - /Status1
         - /TF1
         - /TF1/Frames1
-        - /PoseArray1
         - /PoseArray2
       Splitter Ratio: 0.512739
     Tree Height: 344
@@ -91,14 +90,6 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        /map:
-          Value: true
-        /robot01/base_laser_link:
-          Value: true
-        /robot01/base_link:
-          Value: true
-        /robot01/odom:
-          Value: true
         All Enabled: false
       Marker Scale: 1
       Name: TF
@@ -106,11 +97,7 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        /map:
-          /robot01/odom:
-            /robot01/base_link:
-              /robot01/base_laser_link:
-                {}
+        {}
       Update Interval: 0
       Value: true
     - Angle Tolerance: 0.001
@@ -147,7 +134,7 @@ Visualization Manager:
         {}
       Queue Size: 100
       Value: true
-    - Arrow Length: 0.3
+    - Arrow Length: 0.05
       Class: rviz/PoseArray
       Color: 255; 25; 0
       Enabled: true
@@ -180,11 +167,11 @@ Visualization Manager:
       Class: rviz/TopDownOrtho
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 80.6633
+      Scale: 184.245
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 0.921114
-      Y: 0.716877
+      X: 0.762274
+      Y: 0.71354
     Saved: ~
 Window Geometry:
   Displays:
@@ -202,5 +189,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1197
-  X: 304
+  X: 297
   Y: 116
