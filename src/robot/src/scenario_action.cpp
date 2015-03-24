@@ -12,7 +12,9 @@
 
 
 #define PI 3.14159265359
-#define K_TH 5.0
+#define KP_TH 8.0
+#define KI_TH 0
+#define KD_TH 0
 #define LOOP_RATE 60
 
 class PathFollower
@@ -30,6 +32,9 @@ protected:
     double du_;
     int cpt_;
     float linear_speed_;
+    float ang_error_;
+    float ang_error_old_;
+    float ang_error_integral_;
 
 public:
     PathFollower(ros::NodeHandle nh):
@@ -38,7 +43,10 @@ public:
         size_path_(0),
         du_(10.0),
         cpt_(0),
-        linear_speed_(0.10)
+        linear_speed_(0.10),
+        ang_error_(0.0),
+        ang_error_old_(0.0),
+        ang_error_integral_(0.0)
 {
 
      cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
@@ -50,21 +58,45 @@ public:
     void computeCmd(double &lin, double &ang);
     void spinOnce();
     void speedCB(const std_msgs::Float64 &msg);
+    float compute_angular_pid(float ang_error);
 };
 
 
 
 void PathFollower::pathCB(const scenario_msgs::Path &msg)
 {
-	path_uid_ = msg.uid;
+    ang_error_ = 0.0;
+    ang_error_old_ = 0.0;
+    ang_error_integral_ = 0.0;
+    path_uid_ = msg.uid;
+    path_.poses.clear();
     path_ = msg.path;
     index_path_ = 0;
     size_path_ = path_.poses.size();
+    ROS_INFO_STREAM("PATH RECEIVED : size = " << size_path_ << " | index = "<<index_path_);
 }
 
 void PathFollower::speedCB(const std_msgs::Float64 &msg)
 {
     linear_speed_= msg.data;
+}
+
+float PathFollower::compute_angular_pid(float error)
+{
+    //ang_error_old_ = ang_error_;
+    ang_error_ = error;
+    /*ang_error_integral_ += ang_error_;
+
+    if(ang_error_integral_ < -PI/3 )
+        ang_error_integral_ = -PI/3 ;
+    else if(ang_error_integral_ > +PI/3 )
+        ang_error_integral_ = +PI/3 ;
+
+    float d_ang = ang_error_-ang_error_old_;
+    */
+    //float cmd_ang = KP_TH*ang_error_ - KD_TH*d_ang; + KI_TH*ang_error_integral_;
+    float cmd_ang = KP_TH*ang_error_;
+    return cmd_ang;
 }
 
 
@@ -88,6 +120,7 @@ void PathFollower::computeCmd(double &lin, double &ang)
     double dx, dy;
     double x_des, y_des;
     double alpha;
+    double ang_error;
 
     x_robot = tf_robot.getOrigin().x();
     y_robot =  tf_robot.getOrigin().y();
@@ -103,15 +136,17 @@ void PathFollower::computeCmd(double &lin, double &ang)
 
     alpha = atan2(dy,dx);
 
-    ROS_INFO_STREAM("Target #"<<index_path_<<" : ["<<x_des<<"|"<<y_des<<std::endl<<"Robot : ["<<x_robot<<"|"<<y_robot<<"]"<<" du : "<<du_);
 
-    ang = alpha-theta_robot;
-    while(ang<-PI)
+
+    ang_error = alpha-theta_robot;
+    while(ang_error<-PI)
             ang+=2*PI;
-    while(ang>=PI)
-            ang-=2*PI;
-    ang*=K_TH;
-    lin=linear_speed_;
+    while(ang_error>=PI)
+        ang_error-=2*PI;
+    ROS_INFO_STREAM("Target #"<<index_path_<<" : ["<<x_des<<"|"<<y_des<<std::endl<<"Robot : ["
+                    <<x_robot<<"|"<<y_robot<<"]"<<" du : "<<du_ << " || ang_erro : " << ang_error);
+    ang = compute_angular_pid(ang_error);
+    lin = linear_speed_;
 }
 
 
@@ -167,7 +202,7 @@ protected:
 
     ros::NodeHandle nh_;
     //NodeHandle instance must be created before this line. Otherwise strange error may occur.
-    actionlib::SimpleActionServer<robot::ScenarioAction> as_; 
+    actionlib::SimpleActionServer<robot::ScenarioAction> as_;
     std::string action_name_;
 
 
@@ -183,7 +218,7 @@ public:
     ~ScenarioAction(void)
     {
     }
-    
+
 
     void executeCB(const robot::ScenarioGoalConstPtr &goal)
     {
