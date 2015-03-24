@@ -14,7 +14,7 @@ void PathFinding::computeTF()
     try
     {
           
-        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map"," base_link", ros::Time(0), tf_robot); ///robot01/base_link"
     }
     catch (tf::TransformException ex)
     {   
@@ -155,12 +155,12 @@ vector<Node*> PathFinding::algorithm()
 
     Mat map= map_received;
 
-    tree.x = x_robot_origin; tree.y = y_robot_origin;
+    tree.x = x_robot_origin+ 512; tree.y = y_robot_origin+512;
     //std::cout << tree.x << " " << tree.y << std::endl;
 
     //std::cout << "Initializing tree" << std::endl;
     std::srand(std::time(0));
-
+  
     while(not_in_free_space(&tree,map,map.rows)|| !pixel_test(tree,map,0,map.rows))
     {
 
@@ -183,14 +183,14 @@ vector<Node*> PathFinding::algorithm()
     //std::cout << tree.x << " " << tree.y << std::endl;
      //std::cout << "Building graph" << std::endl;
     //rtt: More there are points more the graph will be 
- 	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des,100);  // Choose 6000 points
+ 	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des,map.rows);  // Choose 6000 points
 
     //std::cout << "Drawing graph" << std::endl;    
  	//Display trees
     Mat m_bis; map.copyTo(m_bis);
     affiche_tree(&tree,&m_bis);
     imshow("rrt",m_bis);
-    waitKey(200);
+    waitKey(0);
   
     //std::cout << "Drawing path solution" << std::endl;
     Node end;
