@@ -5,7 +5,10 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 import rospy
-import tf
+try:
+    import tf
+except:
+    print "import tf failed"
 import numpy
 
 from scenario_msgs.msg import Scenario as ScenarioMsg
@@ -26,8 +29,12 @@ class Robot():
     robot_videos_path = None
     
     def __init__(self, loadWithVideos = True):
-        Robot.server_videos_path = rospy.get_param("server_videos_path")
-        Robot.robot_videos_path = rospy.get_param("robot_videos_path")
+        try:
+            Robot.server_videos_path = rospy.get_param("server_videos_path")
+            Robot.robot_videos_path = rospy.get_param("robot_videos_path")
+        except:
+            Robot.server_videos_path = os.path.expanduser("~") + "/.notrebonplaisir/videos"
+            Robot.robot_videos_path = os.path.expanduser("~") + "/.notrebonplaisir/videos"
         
         self.points = []
         self.medias = []
@@ -75,6 +82,35 @@ class Robot():
     
     def getScenarioMsg(self, transformPosition, scale, transformOrientation):
         scenarioMsg = ScenarioMsg()
+        
+        self.setHeaderAndVideosForScenarioMsg(scenarioMsg)
+        
+        transformationMatrix = self.getTransformationMatrix(scale, transformOrientation)
+        
+        scenarioMsg.bezier_paths.curves = []
+        firstAnchor = None
+        for i in range(len(self.points)):
+            point = self.points[i]
+            
+            if i == 0:
+                firstAnchor = point.anchor
+            
+            if i + 1 < len(self.points):
+                nextPoint = self.points[i + 1]
+                
+                bezierCurve = point.getBezierCurveWithNextPoint(nextPoint, -1, firstAnchor)
+                
+                bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, z, w = self.getTransformedPoint(bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, transformationMatrix, transformPosition)
+                bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, z, w = self.getTransformedPoint(bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, transformationMatrix, transformPosition)
+                bezierCurve.control_1.x, bezierCurve.control_1.y, z, w = self.getTransformedPoint(bezierCurve.control_1.x, bezierCurve.control_1.y, transformationMatrix, transformPosition)
+                bezierCurve.control_2.x, bezierCurve.control_2.y, z, w = self.getTransformedPoint(bezierCurve.control_2.x, bezierCurve.control_2.y, transformationMatrix, transformPosition)
+                
+                scenarioMsg.bezier_paths.curves.append(bezierCurve)
+        
+        return scenarioMsg
+    
+    
+    def setHeaderAndVideosForScenarioMsg(self, scenarioMsg):
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()
         scenarioMsg.type = "choregraphic"
@@ -96,40 +132,23 @@ class Robot():
         headerMsg.frame_id = "/map"
         headerMsg.stamp = rospy.Time.now()
         scenarioMsg.bezier_paths.header = headerMsg
-        
-        # set matrix
+    
+    
+    def getTransformationMatrix(self, scale, transformOrientation):
         origin = (0, 0, 0)
         quaternionMatrix = tf.transformations.quaternion_matrix(transformOrientation)
         scaleMatrix = tf.transformations.scale_matrix(scale, origin)
-        transformationMatrix = tf.transformations.concatenate_matrices(scaleMatrix, quaternionMatrix)
         
-        scenarioMsg.bezier_paths.curves = []
-        firstAnchor = None
-        for i in range(len(self.points)):
-            point = self.points[i]
-            
-            if i == 0:
-                firstAnchor = point.anchor
-            
-            if i + 1 < len(self.points):
-                nextPoint = self.points[i + 1]
-                bezierCurve = point.getBezierCurveWithNextPoint(nextPoint, -1, firstAnchor)
-                
-                anchor_1 = numpy.dot(transformationMatrix, (bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, 0, 0))
-                anchor_2 = numpy.dot(transformationMatrix, (bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, 0, 0))
-                control_1 = numpy.dot(transformationMatrix, (bezierCurve.control_1.x, bezierCurve.control_1.y, 0, 0))
-                control_2 = numpy.dot(transformationMatrix, (bezierCurve.control_2.x, bezierCurve.control_2.y, 0, 0))
-                bezierCurve.anchor_1.x = anchor_1[0] + transformPosition[0]
-                bezierCurve.anchor_1.y = anchor_1[1] + transformPosition[1]
-                bezierCurve.anchor_2.x = anchor_2[0] + transformPosition[0]
-                bezierCurve.anchor_2.y = anchor_2[1] + transformPosition[1]
-                bezierCurve.control_1.x = control_1[0] + transformPosition[0]
-                bezierCurve.control_1.y = control_1[1] + transformPosition[1]
-                bezierCurve.control_2.x = control_2[0] + transformPosition[0]
-                bezierCurve.control_2.y = control_2[1] + transformPosition[1]
-                scenarioMsg.bezier_paths.curves.append(bezierCurve)
+        return tf.transformations.concatenate_matrices(scaleMatrix, quaternionMatrix)
+    
+    
+    def getTransformedPoint(self, x, y, transformationMatrix, transformPosition):
+        result = numpy.dot(transformationMatrix, (x, -y, 0, 0))
+        result[0] = result[0] + transformPosition[0]
+        result[1] = result[1] + transformPosition[1]
         
-        return scenarioMsg
+        return result
+    
     
     def getPathLength(self):
         result = 0
