@@ -159,6 +159,11 @@ class DiagramNode(object):
         pass
 
     
+    def setArg(self, key, value):
+        for instance in self.getInputsInstances():
+            instance.args[key] = value
+        
+        
     def getInputsWidgets(self):
         return [child for child in self.widget.container_widget.children() if child.objectName == "input"]
 
@@ -310,6 +315,9 @@ class DiagramNode(object):
 
 # voluntary on bottom
 from src.scenario_lib.src.items.nodes.playNode import PlayNode
-from src.scenario_lib.src.items.nodes.scenarioNode import ScenarioNode
+from src.scenario_lib.src.items.nodes.completeScenarioNode import CompleteScenarioNode
+from src.scenario_lib.src.items.nodes.choregraphicScenarioNode import ChoregraphicScenarioNode
+from src.scenario_lib.src.items.nodes.travelScenarioNode import TravelScenarioNode
 from src.scenario_lib.src.items.nodes.sequenceNode import SequenceNode
-from src.scenario_lib.src.items.nodes.randomChoice import RandomChoiceNode
+from src.scenario_lib.src.items.nodes.randomChoiceNode import RandomChoiceNode
+from src.scenario_lib.src.items.nodes.visitorNode import VisitorNode

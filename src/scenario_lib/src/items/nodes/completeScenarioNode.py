@@ -5,53 +5,57 @@ from PyQt4.QtGui import *
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
+from src.scenario_lib.src.items.nodes.travelScenarioNode import TravelScenarioNode
+from src.scenario_lib.src.items.nodes.choregraphicScenarioNode import ChoregraphicScenarioNode
 
-class SequenceNode(DiagramNode):
-    nodeName = "Sequence"
+class CompleteScenarioNode(DiagramNode):
+    nodeName = "Sc. complet"
     nodeCategory = ""
     
-    maxInputs = 50
-    minInputs = 1
+    maxInputs = 2
+    minInputs = 2
     hasOutput = 1
     
     def __init__(self, parent, canvas, position):
-        super(SequenceNode, self).__init__(parent, canvas, position)
+        super(CompleteScenarioNode, self).__init__(parent, canvas, position)
         
         self.currentInputIndex = 0
-        self.numInputs = 0
-        
-        # ui
-        self.currentInputIndex_label = QLabel("en cours: " + str(self.currentInputIndex + 1))
-        self.widget.central_widget.layout().addWidget(self.currentInputIndex_label)
         
     
     def output(self, args, updateRatioCallback):
         self.updateCallback = updateRatioCallback
         
         inputs = self.getInputs()
-        self.numInputs = len(inputs)
         
-        if self.currentInputIndex > len(inputs) - 1: # in case of intended index has been removed
-            self.currentInputIndex = 0
-        inputItem = inputs[self.currentInputIndex]
+        # get the position of the start of choregraphic scenario to reach this point with the travel scenario
+        choregraphicScenario = inputs[1].output(args, None)
         
-        if updateRatioCallback is not None:
-            # dry run
-            self.startExecution(self.getInputWidgetIndexFromInputIndex(self.currentInputIndex))
+        #TODO: calculer le point cible par rapport au scénario chorégraphique qui vient
+        args["targetPosition"] = choregraphicScenario.targetPosition
         
-        return inputItem.output(args, self.updateRatio if updateRatioCallback is not None else None)
+        if choregraphicScenario.name is not None:
+            if len(inputs) == 2:
+                inputItem = inputs[self.currentInputIndex]
+                
+                if updateRatioCallback is not None:
+                    # dry run
+                    self.startExecution(self.getInputWidgetIndexFromInputIndex(self.currentInputIndex))
+                
+                return inputItem.output(args, self.updateRatio if updateRatioCallback is not None else None)
+        else:
+            raise(NodeException(self, u"L'entrée 2 doit être liée à un scénario chorégraphique"))
     
     
     def updateRatio(self, inputRatio, paused):
         inputRatio = float(inputRatio)
         
         # get sequence ratio
-        sequenceRatio = (float(self.currentInputIndex) / (self.numInputs)) + (inputRatio / self.numInputs)
+        sequenceRatio = (float(self.currentInputIndex) / 2) + (inputRatio / 2)
         
         if inputRatio >= 1:
             # reset index
             self.currentInputIndex += 1
-            if self.currentInputIndex >= self.numInputs:
+            if self.currentInputIndex >= 2:
                 self.currentInputIndex = 0
         
         if sequenceRatio >= 1:
@@ -67,13 +71,10 @@ class SequenceNode(DiagramNode):
                 # continue
                 self.updateCallback(sequenceRatio, False)
                 self.setTimelineValue(sequenceRatio)
-        
-        # refresh ui counter
-        self.currentInputIndex_label.setText("en cours: " + str(self.currentInputIndex + 1))
     
     
     def stop(self):
-        super(SequenceNode, self).stop()
+        super(CompleteScenarioNode, self).stop()
         
         self.currentInputIndex = 0
     
@@ -84,5 +85,3 @@ class SequenceNode(DiagramNode):
     
     def setSpecificsData(self, data):
         pass
-        
-        

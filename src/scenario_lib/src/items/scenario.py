@@ -75,7 +75,7 @@ class Scenario():
     
     
     def niceName(self):
-        return (self.name[:-4]).decode("utf-8")
+        return (self.name[:-4] if "." in self.name else self.name).decode("utf-8")
     
     
     def getDuration(self):

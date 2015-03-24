@@ -7,4 +7,11 @@
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
 	
 	<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/sentier2.yaml"/>
+	
+	<node name="topic_router" pkg="topic_router" type="__init__.py"/>
+	
+	<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py">
+		<remap from="scenario" to="robot01/scenario"/>
+		<remap from="path" to="robot01/path"/>
+	</node>
 </launch>

@@ -13,6 +13,7 @@ from std_msgs.msg import Header as HeaderMsg
 from std_msgs.msg import Bool as BoolMsg
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
+from src.scenario_lib.src.items.nodes.choregraphicScenarioNode import ChoregraphicScenarioNode
 from src.scenario_lib.src.items.nodes.scenarioNode import ScenarioNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 
@@ -63,7 +64,7 @@ class PlayNode(DiagramNode):
         
         self.startExecution(0)
         
-        return inputs[0].output(self.updateRatio)
+        return inputs[0].output({}, self.updateRatio)
     
     
     def updateRatio(self, inputRatio, paused):
@@ -126,7 +127,7 @@ class PlayNode(DiagramNode):
             self.stopButton.setEnabled(False)
             
             # display the error
-            self.canvas.ui.statusBar.showMessage("Erreur: " + str(error))
+            self.canvas.ui.statusBar.showMessage("Erreur: " + str(error.message.encode("utf-8")).decode("utf-8"))
             error.nodeCausingErrror.widget.central_widget.setStyleSheet("#central_widget { background: #ff4c4c; }")
             
             self.stopAllScenarios()
@@ -141,7 +142,7 @@ class PlayNode(DiagramNode):
         self.playButton.setEnabled(False)
         self.stopButton.setEnabled(True)
         
-        ScenarioNode.simulation = False
+        ChoregraphicScenarioNode.simulation = False
         self.playScenario()
         
         
