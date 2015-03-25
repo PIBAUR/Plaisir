@@ -1,0 +1,6 @@
+float64 a
+float64 b
+float64 c
+geometry_msgs/Pose2D target
+---
+geometry_msgs/PoseArray path

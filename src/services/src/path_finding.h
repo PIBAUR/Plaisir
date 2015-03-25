@@ -12,13 +12,21 @@
 #include <geometry_msgs/TransformStamped.h>
 #include "RRT.hpp"
 
+//#include <QWidget>
+//#include <QHBoxLayout>
+//#include <QLabel>
 
 
+/* 
+#include <rqt_gui_cpp/plugin.h>
+#include <my_namespace/ui_my_plugin.h>
+#include <QWidget>
+*/
 //lib opencv
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
+  #include "services/PathFinding.h"
 /* CONSTANTS */
 
 #define SMOOTHING_STRENGTH 0.5
@@ -31,6 +39,35 @@
 // Rand beetween 0 and 30cm=0.3m= 0.3 /map_resolution = 6 pixels
 #define Randvalue 60
 
+
+//#include "beginner_tutorials/AddTwoInts.h"    
+ /*******Class Path_finding*******/
+/*
+class YourRqtPlugin
+
+  : public rqt_gui_cpp::Plugin
+{
+
+  Q_OBJECT
+
+public:
+  // this should be know to you
+  YourRqtPlugin();
+
+  virtual void initPlugin(qt_gui_cpp::PluginContext& context);
+
+  virtual void shutdownPlugin();
+
+protected:
+
+      // this is new for the service
+     bool add(services::PathFinding::Request  &req,
+                    services::PathFinding::Response &res);
+      // and this is new for the service
+    ros::ServiceServer service;
+
+};
+*/
  /*******Class Path_finding*******/
 
 class PathFinding
@@ -41,7 +78,6 @@ public:
     ros::Publisher path_pub;
     tf::TransformListener tf_listener_;
     Mat map_received;
-    //Mat dst;
     double theta_robot_origin, theta_robot_des, z_map_origin;
     int x_robot_origin, y_robot_origin, x_robot_des, y_robot_des;
     double map_resolution;
@@ -52,13 +88,14 @@ public:
 
     PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0) , waitFormap(false)
     {
-    	path_pub = nh.advertise<geometry_msgs::PoseArray>("path", 1);
+    	path_pub = nh.advertise<geometry_msgs::PoseArray>("/robot01/path", 1);
     }
     ~PathFinding(){};
     void computeTF();
     vector<Node*> algorithm();
     void computePath(const scenario_msgs::Scenario::ConstPtr& msg);
     void map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg);
+    bool add(services::PathFinding::Request  &req,services::PathFinding::Response &res);
  
 };
 
@@ -67,6 +104,7 @@ public:
 /* GLOBAL VARIABLES */
 
 using namespace cv;
+using namespace std;
 
 /* Headers*/
 
@@ -75,6 +113,8 @@ void draw_path(std::vector<Node*> path, Mat *map);
 std::vector<Node*> rrt_path(Node *end, Node *tree);
 std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map);
 Mat traitement_image(Mat &map);
+
+
 
 /* FUNCTIONS */
 
@@ -87,6 +127,7 @@ void affiche_tree_rec(Node* q_i,cv::Mat* map){
       
     cv::Point point_q_i(q_i->x,q_i->y);
     cv::Point point_q_f(q_i->forest[i]->x,q_i->forest[i]->y);
+    //cv::Scalar color_c(127,127,172);
     cv::Scalar color_c(0,0,255);
     line(*map,point_q_i,point_q_f,color_c);
     // recursive call on q_i's forest
@@ -176,5 +217,4 @@ std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map){
   }
   return newpath;
 }
-
 

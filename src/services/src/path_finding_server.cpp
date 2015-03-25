@@ -1,7 +1,6 @@
-/*********Path Finding*******************/
-
-#include "path_finding.h"
-
+#include "ros/ros.h"
+ #include "path_finding.h"
+  #include "services/PathFinding.h"
 using namespace cv;
 using namespace std;
 
@@ -31,8 +30,9 @@ void PathFinding::computeTF()
     // compute where the robot is in a grid corresponding to the /map frame 
     x_robot_origin = (int) (x_o / map_resolution); // convert meter in pixel 
     y_robot_origin = (int) (y_o / map_resolution); 
+    cout<<x_robot_origin<<" "<<y_robot_origin<<endl;
     theta_robot_origin= yaw_angle_o; // initial yaw-angle in radian
-    
+     
 
    waitFormap=true;
 
@@ -53,6 +53,7 @@ void PathFinding::map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg
     {
         for (int j=0; j<map_received.cols;j++)
         {   
+          
               // determine the index into the map data
               int mapI = j + ((map_received.cols - i - 1) * map_received.rows);
               // determine the value
@@ -92,79 +93,6 @@ resize(map_received, dst, Size(),count/2, count/2, INTER_CUBIC); // upscale 2x
   waitKey(0);
 */
 }
-//********************* Compute of the destination Point ********************************
-
-void PathFinding::computePath(const scenario_msgs::Scenario::ConstPtr& msg)
-{
-
-        if(msg->type == "travel") //Check the good scenario
-        {   
-            
-            int count=0;          
-            ros::Time second=ros::Time::now();
-            count++; 
-            x_robot_des =  (msg->target.x)/map_resolution;
-            y_robot_des =  (msg->target.y)/map_resolution;
-            theta_robot_des =msg->target.theta; // yaw-angle in radian
-             
-            //ROS_INFO_STREAM("Travel");
-         
-            vector<Node*> path_bis=algorithm();
-            if(path_bis.size() <=1)
-            vector<Node*> path_bis=algorithm();
-		    geometry_msgs::PoseArray path_copy;
-		    // get coordinates of the destination point of /map in the /map frame
-		    path_copy.header.frame_id = "base_link";
-		    path_copy.header.stamp = ros::Time();
-		    //path publication
-		    ROS_INFO_STREAM("PATH_BIS_SIZE "<<" "<<path_bis.size());
-
-		    for(int i=path_bis.size()-1;i>=0;--i)
-		    {
-			    geometry_msgs::Pose p;
-
-			    p.position.x =  path_bis[i]->x * map_resolution; // convert pixel in meter 
-			    p.position.y = path_bis[i]->y * map_resolution; 
-                
-                // Compute angle for each position
-                
-                if(i!= 0)
-                {              
-                    dx = path_bis[i-1]->x - path_bis[i]->x; 
-                    dy = path_bis[i-1]->y - path_bis[i]->y;
-                    du  =sqrt(dx*dx+dy*dy);
-                    alpha = atan2(dy,dx);
-                    angle = alpha-theta_robot_origin;
-                    p.orientation=tf::createQuaternionMsgFromYaw(angle);
-                }
-                else 
-                {
-                    angle =theta_robot_des-theta_robot_origin;
-                    p.orientation=tf::createQuaternionMsgFromYaw(angle);
-                }
-
-               
-			    path_copy.poses.push_back(p);
-		    }
-		   
-		    path_pub.publish(path_copy);
-		    
-            time=ros::Time::now().toSec()-second.toSec();
-            ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
-            if(count==1) exit(0);
-           
-
-        }
-        
-         else 
-        {
-            ROS_INFO_STREAM("NO SCENARIO RECEIVED");
-            return;
-        }
-
-}
-
-
 
 
 //********* Algorithm *******************
@@ -174,7 +102,7 @@ vector<Node*> PathFinding::algorithm()
     Node tree;
 
     Mat map= map_received;
-
+     
     tree.x = x_robot_origin; tree.y = y_robot_origin;
     //std::cout << tree.x << " " << tree.y << std::endl;
 
@@ -208,8 +136,8 @@ vector<Node*> PathFinding::algorithm()
  	//Display trees
     Mat m_bis; map.copyTo(m_bis);
     affiche_tree(&tree,&m_bis);
-    imshow("rrt",m_bis);
-     waitKey(0);
+    //imshow("rrt",m_bis);
+     //waitKey(0);
     //std::cout << "Drawing path solution" << std::endl;
     Node end;
   
@@ -242,18 +170,118 @@ vector<Node*> PathFinding::algorithm()
 }
 
 
+bool PathFinding::add(services::PathFinding::Request  &req,
+          services::PathFinding::Response &res)
+ {
+            //ros::NodeHandle n;
+            req.target.x=req.a;
+            req.target.x=req.b;
+            req.target.theta=req.c;
+            //PathFinding pf(n);   
+            cout<<"OK server"<<endl; 
+            ros::Time second=ros::Time::now();
+            x_robot_des =  (req.target.x)/map_resolution;
+            y_robot_des =  (req.target.y)/map_resolution;
+            theta_robot_des =req.target.theta; // yaw-angle in radian
+             
+            //ROS_INFO_STREAM("Travel");
+         
+            vector<Node*> path_bis=algorithm();
+            if(path_bis.size() <=1)
+            vector<Node*> path_bis=algorithm();
+		    geometry_msgs::PoseArray path_copy;
+		    // get coordinates of the destination point of /map in the /map frame
+		    //path_copy.header.frame_id ="/map" ;
+		    //path_copy.header.stamp = ros::Time();
+               res.path.header.frame_id ="/map" ;
+		      res.path.header.stamp = ros::Time();
+		    //path publication
+		    ROS_INFO_STREAM("PATH_BIS_SIZE "<<" "<<path_bis.size());
 
-int main(int argc, char** argv)
+		    for(int i=path_bis.size()-1;i>=0;--i)
+		    {
+			    geometry_msgs::Pose p;
+
+			    p.position.x =  path_bis[i]->x * map_resolution; // convert pixel in meter 
+			    p.position.y = path_bis[i]->y * map_resolution; 
+                
+                // Compute angle for each position
+                
+                if(i!= 0)
+                {     
+         
+                    dx = path_bis[i-1]->x - path_bis[i]->x; 
+                    dy = path_bis[i-1]->y - path_bis[i]->y;
+                    du  =sqrt(dx*dx+dy*dy);
+                    alpha = atan2(dy,dx);
+                    angle = alpha-theta_robot_origin;
+                    p.orientation=tf::createQuaternionMsgFromYaw(angle);
+                }
+                else 
+                {
+                    angle =theta_robot_des-theta_robot_origin;
+                    p.orientation=tf::createQuaternionMsgFromYaw(angle);
+                }
+
+               
+			    //path_copy.poses.push_back(p);
+                res.path.poses.push_back(p);
+		    }
+		    //res.path=path_copy;
+		    path_pub.publish(res.path);
+		    
+            time=ros::Time::now().toSec()-second.toSec();
+            ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
+
+        
+        //ROS_INFO("request: x=%ld, y=%ld", (long int)req.a, req.b, req.c);
+   
+   return true;
+ }
+ 
+/*
+YourRqtPlugin::YourRqtPlugin()  : 
+  rqt_gui_cpp::Plugin()
 {
-    ros::init(argc, argv, "path_finding_node");
-	ros::NodeHandle n;
+  setObjectName("Qt based service server"); // or whatever
+}
 
+void YourRqtPlugin::initPlugin(qt_gui_cpp::PluginContext& context)
+{  
+     <<.........................>>
+         other GUI intialization stuff
+     <<.........................>>
+      // advertise your service in initPlugin
+      // use getNodeHandle() to get a nodehandle reference
+    sleep(10);
+     service = getNodeHandle().advertiseService("path_finding", &YourRqtPlugin::add, this);
+}
+
+void YourRqtPlugin::shutdownPlugin()
+{
+    // shutdown service; otherwise seg faults possible if service is called after plugin was unloaded
+    service.shutDown();
+}
+
+bool YourRqtPlugin::add(services::PathFinding::Request  &req,
+                    services::PathFinding::Response &res)
+{
+      cout<<ok<<endl;
+
+     return true;
+}
+*/
+int main(int argc, char **argv)
+ {
+  ros::init(argc, argv, "path_finding");
+   ros::NodeHandle n;
     PathFinding pf(n);
-
+     ros::ServiceServer service = n.advertiseService("path_finding",&PathFinding::add,&pf);
+        ROS_INFO("Ready to compute path.");
     //find resolution of the map
     ros::Subscriber origine = n.subscribe<nav_msgs::OccupancyGrid>("/map", 1,&PathFinding::map_origine_point,&pf); 
     //find destination point and orientation
-    ros::Subscriber destination = n.subscribe<scenario_msgs::Scenario>("scenario", 1,&PathFinding::computePath,&pf); 
+    //ros::Subscriber destination = n.subscribe<scenario_msgs::Scenario>("scenario", 1,&PathFinding::computePath,&pf); 
 
 
 
@@ -266,11 +294,14 @@ int main(int argc, char** argv)
             pf.computeTF();
       		ros::spinOnce();
 		    loop.sleep();
-	}      
-    
-		    
+	}  
+   // service
+  
 
+ ros::spin();
 
- 	return 0;
-}
+   return 0;
+ }
+
+/*Functions*/
 
