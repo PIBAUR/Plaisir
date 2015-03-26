@@ -18,16 +18,8 @@
 using namespace cv;
 using namespace std;
 
-static int deltaQ = 3;//Don't go up 50, choose deltaQ between 10 and 50
+static int deltaQ =5;//Don't go up 50 and minimum equal to 5
 static int nb_in_tree = 0;
-static int x_rand=0, y_rand=0;
-
-bool is_in_map2(int xTemp,int yTemp, int randvalue, int x, int y);
-
-int RandomNumber(int Min, int Max)
-{
-    return ((int(rand()) / int(RAND_MAX)) * (Max - Min)) + Min;
-}
 
 
 Node* closest_to_rec(Node* q_rand, Node* q_i){
@@ -64,18 +56,16 @@ Node* closest_to(Node* q_rand, Node *tree){
   return closest_to_rec(q_rand,tree);
 }
 
-void extend(Node* q_rand, Node* tree, Mat map,int randvalue);
-
 double norme(Node* n_rand, Node* n_near){
  return sqrt(pow(n_rand->x - n_near->x,2) + pow(n_rand->y - n_near->y,2));
 }
 
-bool is_in_map2(int xTemp,int yTemp,int randvalue, int x, int y){
+bool is_in_map2(int xTemp,int yTemp,int map_size, int x, int y){
 
-    return (((abs(xTemp + x) > randvalue) && (abs(xTemp + x) < randvalue)) && ((abs(yTemp  + y) > randvalue) && (abs(yTemp  + y) < randvalue)));
+    return (((abs(xTemp + x) >=0) && (xTemp + x < map_size)) && ((abs(yTemp  + y) >=0) && (yTemp  + y < map_size)));
 }
 
-bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
+bool pixel_test(Node& u, Mat &map, int mode){
 
  int R=ROBOT_WIDTH;
  int xTemp = u.x - R;
@@ -87,13 +77,11 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
  {	
   	for(int j=0;j<2*R;++j)
   	{
-  		//if( pow(xTemp - u.x + i,2) + pow(yTemp - u.y + j,2) <= pow(R,2) )
   		{
         
-        if(is_in_map2(xTemp,yTemp,randvalue,i,j)){
+        if(is_in_map2(xTemp,yTemp,map.rows,i,j)){
   		    cv::Scalar c = map.at<uchar>(yTemp + j, xTemp+i);
    		    if(c[0] < 254)
-             //if(c[0] < 100)
   		      return false;
         }
   		  
@@ -106,16 +94,14 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
     // Round of the two first lines.
     for (int j = 0; j < 2*R ; ++j)
     {
-         if(is_in_map2(xTemp,yTemp,randvalue,0,j)){
+         if(is_in_map2(xTemp,yTemp,map.rows,0,j)){
          cv::Scalar c = map.at<uchar>(yTemp + j, xTemp);
          if(c[0] < 254)
-         //if(c[0] < 100)
          return false;
       }
-            if(is_in_map2(xTemp,yTemp,randvalue,1,j)){
+            if(is_in_map2(xTemp,yTemp,map.rows,1,j)){
         cv::Scalar c = map.at<uchar>(yTemp + j, xTemp+1);
         if(c[0] < 254)
-         //if(c[0] < 100)
         return false;
       }
     }  
@@ -125,17 +111,15 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
     for (int i = 0; i < 2*R ; ++i)
     {
      
-        if(is_in_map2(xTemp,yTemp,randvalue,i, 2*R - 1)){
+        if(is_in_map2(xTemp,yTemp,map.rows,i, 2*R - 1)){
         cv::Scalar c = map.at<uchar>(yTemp + 2*R - 1, xTemp + i);
         if(c[0] < 254)
-         //if(c[0] < 100)
         return false;
       }
       
-         if(is_in_map2(xTemp,yTemp,randvalue,i, 2*R - 2)) {
+         if(is_in_map2(xTemp,yTemp,map.rows,i, 2*R - 2)) {
         cv::Scalar c = map.at<uchar>(yTemp + 2*R - 2, xTemp+i);
         if(c[0] < 254)
-         //if(c[0] < 100)
         return false;
       }
     }
@@ -146,17 +130,15 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
     for (int j = 0; j < 2*R ; ++j)
     {
       
-        if(is_in_map2(xTemp,yTemp,randvalue,2*R - 1,j)){
+        if(is_in_map2(xTemp,yTemp,map.rows,2*R - 1,j)){
         cv::Scalar c = map.at<uchar>(yTemp + j, xTemp + 2*R - 1);
         if(c[0] < 254)
-         //if(c[0] < 100)
         return false;
       }
    
-        if(is_in_map2(xTemp,yTemp,randvalue,2*R - 2 ,j)){
+        if(is_in_map2(xTemp,yTemp,map.rows,2*R - 2 ,j)){
         cv::Scalar c = map.at<uchar>(yTemp + j, xTemp+2*R - 2);
         if(c[0] < 254)
-         //if(c[0] < 100)
         return false;
       }
     }
@@ -166,18 +148,16 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
     for (int i = 0; i < 2*R ; ++i)
     {
       
-       if(is_in_map2(xTemp,yTemp,randvalue,i ,0)){
+       if(is_in_map2(xTemp,yTemp,map.rows,i ,0)){
         cv::Scalar c = map.at<uchar>(yTemp , xTemp + i);
         if(c[0] < 254)
-         //if(c[0] < 100)
         return false;
       }
 
-        if(is_in_map2(xTemp,yTemp,randvalue,i ,1)){
+        if(is_in_map2(xTemp,yTemp,map.rows,i ,1)){
         cv::Scalar c = map.at<uchar>(yTemp + 1, xTemp+i);
         if(c[0] < 254)
-        //if(c[0] < 100)
-        return false;
+         return false;
       }
     }
   }
@@ -188,7 +168,7 @@ bool pixel_test(Node& u, Mat &map, int mode, int randvalue){
 }
 
 
-bool _collision_with_object(Node* qNew, Node* qNear, Mat &map, int randvalue){
+bool _collision_with_object(Node* qNew, Node* qNear, Mat &map){
   int delta =0,mode = 0;
   Node u;
   u.x = -qNear->x + qNew->x;
@@ -198,7 +178,7 @@ bool _collision_with_object(Node* qNew, Node* qNear, Mat &map, int randvalue){
   n1.x = qNear->x + u.x*(delta/normU);
   n1.y = qNear->y + u.y*(delta/normU);
   //std::cout << normU << std::endl;
-  if (!pixel_test(n1, map, mode,randvalue))
+  if (!pixel_test(n1, map, mode))
    return false;
   // Choice of the collision mode depends on the desired direction 
   if(qNear->x + u.x*((delta+1)/normU) - n1.x > 0){
@@ -217,79 +197,47 @@ bool _collision_with_object(Node* qNew, Node* qNear, Mat &map, int randvalue){
      ++delta;
      n1.x = qNear->x + u.x*(delta/normU);
      n1.y = qNear->y + u.y*(delta/normU);
-     if(pixel_test(n1,map,mode,randvalue) == false)
+     if(pixel_test(n1,map,mode) == false)
       return false;
     }
   return true;
 }
 
-bool is_in_map(Node* n, Mat m,int randvalue){
+bool is_in_map(Node* n, Mat m){
 
-    return (((abs(n->x) > randvalue) && (abs(n->x) < randvalue)) && ((abs(n->y) > randvalue) && (abs(n->y) < randvalue)));
+    return (((abs(n->x) >= 0) && (n->x < m.rows)) && ((abs(n->y) >=0) && (n->y< m.cols)));
 }
 
 
 
-bool not_in_free_space(Node* n_rand, Mat map, int randvalue){
+bool not_in_free_space(Node* n_rand, Mat map){
   
-  if(!is_in_map(n_rand,map,randvalue))
+  if(!is_in_map(n_rand,map))
     return false;
 
   cv::Scalar c = map.at<uchar>(n_rand->y,n_rand->x);
  if (c[0] >= 254) return false;
-    //if (c[0] >= 100) return false;
     else return true;
 }
 
 
-void _rrt(Node *tree, int k, Mat map,int positionx, int positiony, int randvalue){
-  
-  //std::srand(std::time(0));
- for(int i = 0; i < k; i++){
-    if(nb_in_tree%100==0 && deltaQ >= 5){ // multiple of points' number
-      deltaQ = deltaQ -1;
-    }
-
-    if(positionx<0)
-    {
-     x_rand=((std::rand()% randvalue+1) -randvalue);
-        if(positiony<0)
-        y_rand = ((std::rand()% randvalue+1) -randvalue);
-        else
-        y_rand = (std::rand()%randvalue);
-    }
-    else{
-    x_rand = (std::rand()%randvalue);
-    y_rand = (std::rand()%randvalue);
-    }
-    //std::cout << x_rand << " " << y_rand << std::endl;
-    Node* q_rand = new Node(x_rand,y_rand);
-    // add distance from root 
-    extend(q_rand, tree, map,randvalue);
-  }
-
-}
-
-void extend(Node* q_rand, Node* tree, Mat map,int randvalue){
+void extend(Node* q_rand, Node* tree, Mat map){
     // Find closest to q_rand in tree 
     Node *q_near = closest_to(q_rand, tree);
-    //std::cout << "allô (" << q_rand->x << "," << q_rand->y << ")" << std::endl;
-    //std::cout << "qnear (" << q_near->x << "," << q_near->y << ")" << std::endl;
-    //sleep(1);
+
     double norm = norme(q_rand,q_near);
 
     Node *q_new; 
     if(!norm)
     return;
     q_new = new Node(q_near->x + (deltaQ/norm)*(q_rand->x - q_near->x), q_near->y + (deltaQ/norm)*(q_rand->y - q_near->y));
-    if(not_in_free_space(q_new,map,randvalue))
+    if(not_in_free_space(q_new,map))
     return;
-    //std::cout << " Point is in free space ... " << std::endl;
+
     // Check the collision on the ligne q_near -> q_new
-    if(!_collision_with_object(q_new, q_near, map,randvalue))
+    if(!_collision_with_object(q_new, q_near, map))
     return; 
-    //std::cout << "( " <<q_new->x << ", " << q_new->y << " )" << std::endl;
-    //std::cout<< "No collision detected ..." << std::endl;
+
     // No collision so add it to the tree
     q_new->distFromRoot = norme(q_new,q_near);
     //q_new->distFromRoot = norme(q_new,q_near)/2;
@@ -298,6 +246,44 @@ void extend(Node* q_rand, Node* tree, Mat map,int randvalue){
     q_new->parent = q_near;
     ++nb_in_tree;
 }
+
+
+void _rrt(Node *tree, int k, Mat map,int positionX,int positionY){
+  
+  std::srand(std::time(0));
+  //while(nb_in_tree < k){
+ for(int i = 0; i < k; i++){
+    if(nb_in_tree%100==0 && deltaQ >= 5){ // multiple of number of points
+    //if(nb_in_tree%400==0 && deltaQ >= 5){
+      deltaQ = deltaQ -1;
+    }
+     int x_rand=0,y_rand=0;
+
+        if((positionX < 0)&&(positionY < 0))
+        {
+        x_rand=((std::rand()% map.rows+1) -map.rows);
+        y_rand= ((std::rand()% map.cols+1) -map.cols);
+        }
+        else if((positionX < 0)&& (positionY >=0)){
+        x_rand=((std::rand()% map.rows+1) -map.rows);
+        y_rand = (std::rand()% map.cols); 
+        }
+        else if((positionX >= 0)&&(positionY < 0)){
+        x_rand=(std::rand()% map.cols); 
+        y_rand = ((std::rand()% map.cols+1) -map.cols);
+        }
+        else if((positionX >= 0)&&(positionY >= 0)){
+        x_rand=(std::rand()% map.cols); 
+        y_rand =(std::rand()% map.cols);
+        }
+    Node* q_rand = new Node(x_rand,y_rand);
+    // add distance from root 
+    extend(q_rand, tree, map);
+
+  }
+
+}
+
 
 #endif
 

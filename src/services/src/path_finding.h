@@ -1,3 +1,6 @@
+#ifndef PATH_FINDING_H
+#define PATH_FINDING_H
+
 /* INCLUDES */
 
 #include <ros/ros.h>
@@ -11,17 +14,6 @@
 #include <scenario_msgs/Scenario.h>
 #include <geometry_msgs/TransformStamped.h>
 #include "RRT.hpp"
-
-//#include <QWidget>
-//#include <QHBoxLayout>
-//#include <QLabel>
-
-
-/* 
-#include <rqt_gui_cpp/plugin.h>
-#include <my_namespace/ui_my_plugin.h>
-#include <QWidget>
-*/
 //lib opencv
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -32,43 +24,12 @@
 #define SMOOTHING_STRENGTH 0.5
 #define SMOOTHING_TOLERANCE 6
 #define SMOOTHING_DATA_WEIGHT 0.5
-#define NUMBER_OF_POINTS 10000
-//8000
+#define NUMBER_OF_POINTS 35000
 #define PI 3.14159265359
 #define LOOP_RATE 50
-// Rand beetween 0 and 30cm=0.3m= 0.3 /map_resolution = 6 pixels
-#define Randvalue 60
 
-
-//#include "beginner_tutorials/AddTwoInts.h"    
  /*******Class Path_finding*******/
-/*
-class YourRqtPlugin
 
-  : public rqt_gui_cpp::Plugin
-{
-
-  Q_OBJECT
-
-public:
-  // this should be know to you
-  YourRqtPlugin();
-
-  virtual void initPlugin(qt_gui_cpp::PluginContext& context);
-
-  virtual void shutdownPlugin();
-
-protected:
-
-      // this is new for the service
-     bool add(services::PathFinding::Request  &req,
-                    services::PathFinding::Response &res);
-      // and this is new for the service
-    ros::ServiceServer service;
-
-};
-*/
- /*******Class Path_finding*******/
 
 class PathFinding
 {
@@ -105,19 +66,15 @@ public:
 
 using namespace cv;
 using namespace std;
-
 /* Headers*/
 
 void affiche_tree(Node *q_i, cv::Mat* map);
 void draw_path(std::vector<Node*> path, Mat *map);
 std::vector<Node*> rrt_path(Node *end, Node *tree);
 std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map);
-Mat traitement_image(Mat &map);
-
 
 
 /* FUNCTIONS */
-
 
 void affiche_tree_rec(Node* q_i,cv::Mat* map){
   int n = q_i->forest.size(), i;
@@ -203,8 +160,9 @@ std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map){
       temp->y += SMOOTHING_STRENGTH*(path[i]->y - temp->y);
       temp->y += SMOOTHING_DATA_WEIGHT*(newpath[i-1]->y + newpath[i+1]->y - 2*temp->y);
       
-      if(_collision_with_object(newpath[i-1],temp,*map,Randvalue) && _collision_with_object(temp,newpath[i+1],*map,Randvalue)){ // if new path (both new trajectories) is OK we can change it
-        change += sqrt((temp->x - newpath[i]->x)*(temp->x - newpath[i]->x)+(temp->y - newpath[i]->y)*(temp->y - newpath[i]->  y)); // updating change
+      if(_collision_with_object(newpath[i-1],temp,*map) && _collision_with_object(temp,newpath[i+1],*map))
+        { // if new path (both new trajectories) is OK we can change it
+        change += sqrt((temp->x - newpath[i]->x)*(temp->x - newpath[i]->x)+(temp->y - newpath[i]->y)*(temp->y - newpath[i]->y)); // updating change
         delete newpath[i];
         newpath[i] = temp;
       } 
@@ -218,3 +176,4 @@ std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map){
   return newpath;
 }
 
+#endif

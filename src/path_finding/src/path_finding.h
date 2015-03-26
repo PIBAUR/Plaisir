@@ -1,3 +1,6 @@
+#ifndef PATH_FINDING_H
+#define PATH_FINDING_H
+
 /* INCLUDES */
 
 #include <ros/ros.h>
@@ -12,8 +15,6 @@
 #include <geometry_msgs/TransformStamped.h>
 #include "RRT.hpp"
 
-
-
 //lib opencv
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -25,11 +26,8 @@
 #define SMOOTHING_TOLERANCE 6
 #define SMOOTHING_DATA_WEIGHT 0.5
 #define NUMBER_OF_POINTS 10000
-//8000
 #define PI 3.14159265359
 #define LOOP_RATE 50
-// Rand beetween 0 and 30cm=0.3m= 0.3 /map_resolution = 6 pixels
-#define Randvalue 60
 
  /*******Class Path_finding*******/
 
@@ -52,7 +50,7 @@ public:
 
     PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0) , waitFormap(false)
     {
-    	path_pub = nh.advertise<geometry_msgs::PoseArray>("path", 1);
+    	path_pub = nh.advertise<geometry_msgs::PoseArray>("/robot01/path", 1);
     }
     ~PathFinding(){};
     void computeTF();
@@ -74,7 +72,6 @@ void affiche_tree(Node *q_i, cv::Mat* map);
 void draw_path(std::vector<Node*> path, Mat *map);
 std::vector<Node*> rrt_path(Node *end, Node *tree);
 std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map);
-Mat traitement_image(Mat &map);
 
 /* FUNCTIONS */
 
@@ -162,7 +159,7 @@ std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map){
       temp->y += SMOOTHING_STRENGTH*(path[i]->y - temp->y);
       temp->y += SMOOTHING_DATA_WEIGHT*(newpath[i-1]->y + newpath[i+1]->y - 2*temp->y);
       
-      if(_collision_with_object(newpath[i-1],temp,*map,Randvalue) && _collision_with_object(temp,newpath[i+1],*map,Randvalue)){ // if new path (both new trajectories) is OK we can change it
+      if(_collision_with_object(newpath[i-1],temp,*map) && _collision_with_object(temp,newpath[i+1],*map)){ // if new path (both new trajectories) is OK we can change it
         change += sqrt((temp->x - newpath[i]->x)*(temp->x - newpath[i]->x)+(temp->y - newpath[i]->y)*(temp->y - newpath[i]->  y)); // updating change
         delete newpath[i];
         newpath[i] = temp;
@@ -176,5 +173,5 @@ std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map){
   }
   return newpath;
 }
-
+#endif
 
