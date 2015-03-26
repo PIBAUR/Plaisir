@@ -16,9 +16,8 @@ using namespace std;
    }
    ros::NodeHandle n;
    ros::ServiceClient client = n.serviceClient<services::PathFinding>("path_finding");
-    ros::Publisher path_pub=n.advertise<geometry_msgs::PoseArray>("path", 1);
+   //ros::Publisher path_pub=n.advertise<geometry_msgs::PoseArray>("path", 1);
    services::PathFinding srv;
-      cout<<"OK client"<<endl;
    srv.request.a= atoll(argv[1]); 
    srv.request.b= atoll(argv[2]);
    srv.request.c= atoll(argv[3]);
