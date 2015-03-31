@@ -22,6 +22,7 @@
 #define GROUP_SIZE_MIN 2
 #define GROUP_SIZE_MAX 100
 #define RADIUS_DECREASE_VALUE 0.05
+#define PIXEL_ERODE_SIZE 3
 
 //
 // %Tag(CLASS_WITH_DECLARATION)%
@@ -171,6 +172,15 @@ void LidarBliter::process_map()
     cv::cvtColor(map_,map_bin_,CV_BGR2GRAY);
     cv::blur(map_bin_, map_bin_, cv::Size(3,3), cv::Point(-1,-1), cv::BORDER_DEFAULT);
     cv::threshold(map_bin_,map_bin_,240,255,cv::THRESH_BINARY);
+
+
+    cv::Mat element = getStructuringElement( cv::MORPH_ELLIPSE,
+                                         cv::Size( 2*PIXEL_ERODE_SIZE + 1, 2*PIXEL_ERODE_SIZE + 1 ),
+                                         cv::Point( 0, 0 ) );
+
+    cv::erode(map_bin_,map_bin_,element);
+    //cv::erode(map_bin_, map_bin_, element,cv::Point(-1,-1), 1, cv::BORDER_CONSTANT, cv::morphologyDefaultBorderValue() );
+    cv::imshow("map_process",map_bin_);
 }
 
 void LidarBliter::group_laser_point()
