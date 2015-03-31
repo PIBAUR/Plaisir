@@ -35,7 +35,7 @@ void obstacleCB(const scenario_msgs::ObstacleArray& msg)
         marker.color.r = 0.0;
         marker.color.g = 0.0;
         marker.color.b = 1.0;
-        marker.lifetime = ros::Duration(0);
+        marker.lifetime = ros::Duration(1.0);
         markers_msg.markers.push_back(marker);
     }
 
