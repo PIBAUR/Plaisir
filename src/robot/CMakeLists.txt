@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  	
   geometry_msgs
 )
 find_package( tf )
@@ -124,6 +125,7 @@ add_executable(low_battery_action src/low_battery_action.cpp)
 add_executable(scenario_action src/scenario_action.cpp)
 add_executable(ping_action src/ping_action.cpp)
 add_executable(action_selector src/action_selector.cpp)
+#add_executable(robot_model src/robot_model.cpp)
 
 
 ## Add cmake target dependencies of the executable/library
@@ -134,6 +136,7 @@ add_dependencies(low_battery_action  ${robot_EXPORTED_TARGETS})
 add_dependencies(scenario_action  ${robot_EXPORTED_TARGETS})
 add_dependencies(ping_action  ${robot_EXPORTED_TARGETS})
 add_dependencies(action_selector  ${robot_EXPORTED_TARGETS})
+#add_dependencies(robot_model  ${robot_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(robot_node
@@ -145,6 +148,7 @@ target_link_libraries(low_battery_action  ${catkin_LIBRARIES})
 target_link_libraries(scenario_action  ${catkin_LIBRARIES})
 target_link_libraries(ping_action  ${catkin_LIBRARIES})
 target_link_libraries(action_selector  ${catkin_LIBRARIES})
+#target_link_libraries(robot_model  ${catkin_LIBRARIES})
 
 #############
 ## Install ##
