@@ -1,4 +1,4 @@
-image: /home/artlab/catkin_ws/maps/last_map.pgm
+image: /home/serveur/catkin_ws/maps/last_map.pgm
 resolution: 0.050000
 origin: [-10.025000, -10.025000, 0.000000]
 negate: 0
