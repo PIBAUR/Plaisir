@@ -23,6 +23,7 @@ rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/src/launch_utils' \
 	--exclude '/catkin_ws/src/rviz' \
 	--exclude '/catkin_ws/src/teleop_twist_keyboard' \
+	--exclude '/catkin_ws/src/topic_router' \
 	--exclude '/catkin_ws/bag/' \
 	--exclude '/catkin_ws/devel/' \
 	--exclude '/catkin_ws/build/' \

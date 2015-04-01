@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   scenario_msgs
   std_msgs
+  roscpp
+  visualization_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -104,16 +106,14 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-# add_executable(topic_router_node src/topic_router_node.cpp)
+add_executable(robot_model src/robot_model.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(topic_router_node topic_router_generate_messages_cpp)
+add_dependencies(robot_model topic_router_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(topic_router_node
-#   ${catkin_LIBRARIES}
-# )
+ target_link_libraries(robot_model   ${catkin_LIBRARIES} )
 
 #############
 ## Install ##
