@@ -6,10 +6,10 @@
 	
 	<!--Load map-->
 	<node name="map_server" type="map_server" pkg="map_server" output="screen"
-		  	args="$(env HOME)/catkin_ws/maps/$(arg map).yaml"/>
+		  	args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" respawn="true"/>
 	  
 	<!-- Run AMCL-->
-	<node pkg="amcl" type="amcl" name="amcl" output="screen">
+	<node pkg="amcl" type="amcl" name="amcl" output="screen" respawn="true">
 		<!-- remap for namespace -->>
 		<remap from="scan" to="/robot$(arg robot)/scan"/>
 		<remap from="initialpose" to="/robot$(arg robot)/initialpose"/>

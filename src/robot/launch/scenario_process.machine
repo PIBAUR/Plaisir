@@ -5,9 +5,9 @@
 				env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
 	 	<param name="tf_prefix" value="robot$(arg robot)"/>
 	 	
-		<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py" machine="robot$(arg robot)"/>
+		<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py" machine="robot$(arg robot)" respawn="true"/>
 		
 		<env name="DISPLAY" value=":0"/>
-		<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)"/>
+		<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)" respawn="false"/>
 	</group>
 </launch>

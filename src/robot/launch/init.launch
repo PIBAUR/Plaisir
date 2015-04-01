@@ -11,12 +11,12 @@
 	<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	<!--
 	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/scenario.rviz"/>
 	 -->
-	<!--<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
+	<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>
-	</node>-->
+	</node>
 	
 	<!-- ROBOT DRIVERS -->
 	<include file="$(find robot)/launch/plaisir.machine">

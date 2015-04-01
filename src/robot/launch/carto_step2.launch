@@ -1,6 +1,6 @@
 <launch>
     <!-- Launch mapping  -->
-    <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
+    <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen" required="true">
       <!-- Topic names -->
       <param name="scan_topic" value="scan" />
       <!-- Frame names -->
@@ -35,10 +35,10 @@
       <param name="pub_debug_output" value="true"/>
     </node>
     
-    <node pkg="hector_map_server" type="hector_map_server" name="hector_map_server" output="screen"/>
+    <node pkg="hector_map_server" type="hector_map_server" name="hector_map_server" output="screen" respawn="true"/>
 
     <!-- Run exploration planner stuff -->
-    <node pkg="hector_exploration_node" type="exploration_planner_node" name="hector_exploration_node" output="screen">
+    <node pkg="hector_exploration_node" type="exploration_planner_node" name="hector_exploration_node" respawn="true" output="screen">
       <rosparam file="$(find hector_exploration_node)/config/costmap.yaml" command="load" />
     </node>
 
