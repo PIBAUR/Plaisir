@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     marker_pub = n.advertise<visualization_msgs::Marker>( "robot_model_rviz", 0);
     visualization_msgs::Marker marker;
 
-    marker.header.frame_id = "/base_link";
+    marker.header.frame_id = "/robot01/base_link";
     marker.header.stamp = ros::Time(0);
     marker.id = 1;
     marker.type = visualization_msgs::Marker::CUBE;
