@@ -209,13 +209,21 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
 
             dx = (*(rit_node + 1))->x - (*rit_node)->x; 
             dy = (*(rit_node + 1))->y - (*rit_node)->y;
+            //dx =((*rit_node)->x - (*(rit_node +1))->x); 
+            //dy =((*rit_node)->y - (*(rit_node +1))->y);
+            ROS_INFO_STREAM("DY #"<<dy<<" "<<"DX #"<<dx);
+            if((dx<0)||(dy<0))
+            alpha = -atan2(dy,dx);
+            else
             alpha = atan2(dy,dx);
-            angle = alpha-theta_robot_origin;
+            ROS_INFO_STREAM("Alpha #"<<alpha*180/PI);
+            angle = alpha -theta_robot_origin;
             p.orientation=tf::createQuaternionMsgFromYaw(angle);
         }
         else 
         {
             angle =theta_robot_des-theta_robot_origin;
+            ROS_INFO_STREAM("Alpha END#"<<alpha*180/PI);
             p.orientation=tf::createQuaternionMsgFromYaw(angle);
         }
         res.path.poses.push_back(p);

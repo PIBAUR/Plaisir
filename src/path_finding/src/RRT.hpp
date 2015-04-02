@@ -253,10 +253,10 @@ void _rrt(Node *tree, int k, Mat map,int positionX,int positionY){
   std::srand(std::time(0));
   //while(nb_in_tree < k){
  for(int i = 0; i < k; i++){
-    if(nb_in_tree%100==0 && deltaQ >= 5){ // multiple of number of points
+    /*if(nb_in_tree%100==0 && deltaQ >= 5){ // multiple of number of points
     //if(nb_in_tree%400==0 && deltaQ >= 5){
       deltaQ = deltaQ -1;
-    }
+    }*/
      int x_rand=0,y_rand=0;
 
         if((positionX < 0)&&(positionY < 0))
