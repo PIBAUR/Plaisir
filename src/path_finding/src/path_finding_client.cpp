@@ -1,4 +1,4 @@
-   #include "ros/ros.h"
+ #include "ros/ros.h"
  #include "path_finding/PathFinding.h"
  #include "path_finding.h"
   #include <geometry_msgs/Pose2D.h>
@@ -18,9 +18,10 @@ using namespace std;
    ros::ServiceClient client = n.serviceClient<path_finding::PathFinding>("path_finding");
    //ros::Publisher path_pub=n.advertise<geometry_msgs::PoseArray>("path", 1);
    path_finding::PathFinding srv;
+ 
    
-   srv.request.target.x=atoll(argv[1]);
-   srv.request.target.y=atoll(argv[2]);
+   srv.request.target.x=  atoll(argv[1]);
+   srv.request.target.y= atoll(argv[2]);
    srv.request.target.theta=atoll(argv[3]);
     cout<<srv.request.target.x<<" "<<srv.request.target.y<<" "<<srv.request.target.theta<<endl;
    if (client.call(srv))
@@ -37,6 +38,8 @@ using namespace std;
  
    return 0;
  }
+
+
 
 
 

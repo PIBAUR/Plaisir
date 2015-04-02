@@ -207,8 +207,6 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         if( (rit_node + 1) != path_bis.rend() )
         {     
 
-            //dx = (*(rit_node ))->x - (*rit_node+1)->x; 
-            //dy = (*(rit_node ))->y - (*rit_node+1)->y;
             dx = (*(rit_node + 1))->x - (*rit_node)->x; 
             dy = (*(rit_node + 1))->y - (*rit_node)->y;
             alpha = atan2(dy,dx);
@@ -262,4 +260,5 @@ int main(int argc, char **argv)
  }
 
 /*Functions*/
+
 

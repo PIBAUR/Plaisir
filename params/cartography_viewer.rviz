@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /TF1/Frames1
       Splitter Ratio: 0.512739
-    Tree Height: 628
+    Tree Height: 359
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -25,7 +25,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: LaserScan
+    SyncSource: ""
 Visualization Manager:
   Class: ""
   Displays:
@@ -86,15 +86,11 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        /base_laser_link:
-          Value: true
-        /base_link:
-          Value: true
         /map:
           Value: true
-        /odom:
+        /robot01/base_link:
           Value: true
-        /scanmatcher_frame:
+        /robot01/odom:
           Value: true
         All Enabled: false
       Marker Scale: 1
@@ -104,12 +100,9 @@ Visualization Manager:
       Show Names: true
       Tree:
         /map:
-          /odom:
-            /base_link:
-              /base_laser_link:
-                {}
-          /scanmatcher_frame:
-            {}
+          /robot01/odom:
+            /robot01/base_link:
+              {}
       Update Interval: 0
       Value: true
     - Angle Tolerance: 0.001
@@ -143,7 +136,7 @@ Visualization Manager:
       Marker Topic: /visualization_marker_array
       Name: MarkerArray
       Namespaces:
-        slam: true
+        {}
       Queue Size: 100
       Value: true
     - Arrow Length: 0.05
@@ -187,7 +180,7 @@ Visualization Manager:
       Class: rviz/TopDownOrtho
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 110.491
+      Scale: 81.9208
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
       X: 2.12997
@@ -209,5 +202,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1596
-  X: 297
+  X: 290
   Y: 24
