@@ -4,7 +4,7 @@
 	<!-- Setting and loading params and args -->
 	<param name="use_sim_time" value="false" />
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
-	<arg name="robot" value="01"/>
+	<!-- <arg name="robot" value="01"/> -->
 	<arg name="map" value="last_map"/>
 	
 	<!-- Setting local machin and running graphique tools  -->
