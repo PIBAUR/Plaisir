@@ -14,6 +14,8 @@ using namespace std;
      ROS_INFO("usage: path_finding_client X Y Z");
      //return 1;
    }
+   else
+      ROS_ERROR("ERROR read arguments");
    ros::NodeHandle n;
    ros::ServiceClient client = n.serviceClient<path_finding::PathFinding>("path_finding");
    //ros::Publisher path_pub=n.advertise<geometry_msgs::PoseArray>("path", 1);

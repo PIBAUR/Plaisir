@@ -36,9 +36,7 @@ class PathFinding
 //protected:
 public:
     ros::NodeHandle nh_;
-    ros::Publisher path_pub;
     tf::TransformListener tf_listener_;
-    tf::TransformListener tf_listen;
     Mat map_received;
     double theta_robot_origin, theta_robot_des, z_map_origin;
     int x_robot_origin, y_robot_origin, x_robot_des, y_robot_des;
@@ -49,9 +47,9 @@ public:
 
 public:
 
-    PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0) , waitFormap(false)
+    PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0) 
     {
-    	path_pub = nh.advertise<geometry_msgs::PoseArray>("robot01/path_viz", 1);
+
     }
     ~PathFinding(){};
     void computeTF();
