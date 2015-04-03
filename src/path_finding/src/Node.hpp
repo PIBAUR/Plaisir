@@ -13,10 +13,10 @@ struct Node{
  Node* parent;
  std::vector<Node*> forest; 
 
- Node(): x(0),y(0), distFromRoot(0), distFromGoal(0){
+ Node(): x(0.0),y(0.0), distFromRoot(0.0), distFromGoal(0.0){
   parent = NULL;
  }
- Node(double x0, double y0): x(x0), y(y0), distFromRoot(0), distFromGoal(0){
+ Node(double x0, double y0): x(x0), y(y0), distFromRoot(0.0), distFromGoal(0.0){
   parent = NULL;
  }
  

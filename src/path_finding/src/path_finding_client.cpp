@@ -14,17 +14,17 @@ using namespace std;
      ROS_INFO("usage: path_finding_client X Y Z");
      //return 1;
    }
-   else
-      ROS_ERROR("ERROR read arguments");
+   //else
+      //ROS_INFO("ERROR read arguments");
    ros::NodeHandle n;
    ros::ServiceClient client = n.serviceClient<path_finding::PathFinding>("path_finding");
    //ros::Publisher path_pub=n.advertise<geometry_msgs::PoseArray>("path", 1);
    path_finding::PathFinding srv;
  
    
-   srv.request.target.x=  atoll(argv[1]);
-   srv.request.target.y= atoll(argv[2]);
-   srv.request.target.theta=atoll(argv[3]);
+   srv.request.target.x=  atof(argv[1]);
+   srv.request.target.y= atof(argv[2]);
+   srv.request.target.theta=atof(argv[3]);
     cout<<srv.request.target.x<<" "<<srv.request.target.y<<" "<<srv.request.target.theta<<endl;
    if (client.call(srv))
    {

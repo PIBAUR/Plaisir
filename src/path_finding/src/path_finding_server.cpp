@@ -12,7 +12,7 @@ void PathFinding::computeTF()
   
     try
     {  
-        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map", "/map", ros::Time(0), tf_robot);
     }
     catch (tf::TransformException ex)
     {   
@@ -109,10 +109,12 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
           path_finding::PathFinding::Response &res)
 {
     ros::Time second=ros::Time::now();
-    x_robot_des =  (-x_map_origin + req.target.x)/map_resolution;
-    y_robot_des =  (-y_map_origin - req.target.y)/map_resolution;
-    theta_robot_des =req.target.theta*PI/180; // yaw-angle in degrees (conversion in radian)
-    ROS_INFO_STREAM("ANGLE # "<< theta_robot_des);
+
+    x_robot_des = (-x_map_origin + req.target.x)/map_resolution;
+    y_robot_des =(-y_map_origin - req.target.y)/map_resolution;
+    ROS_INFO_STREAM(req.target.x<<"  "<<req.target.y);
+
+    theta_robot_des =req.target.theta; // yaw-angle in radian
     computeTF();
 
     std::vector<Node*> path_bis;
@@ -138,6 +140,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         {
             p.position.x = (*rit_node)->x * map_resolution ; // convert pixel in meter 
             p.position.y = (*rit_node)->y * map_resolution ; 
+
         }
         else
         {
@@ -146,29 +149,30 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
             
         }
 
-        if( (rit_node + 1) != path_bis.rend() )
-        {     
+        if((rit_node + 1) != path_bis.rend() ) 
+        {   
 
             dx = (*(rit_node + 1))->x - (*rit_node)->x; 
             dy = (*(rit_node + 1))->y - (*rit_node)->y;
 
-            if((dx<0)||(dy<0))
-            alpha = -atan2(dy,dx);
-            else
             alpha = atan2(dy,dx);
-            //ROS_INFO_STREAM("Alpha #"<<alpha*180/PI);
-            angle = alpha -theta_robot_origin;
+
+            angle = (theta_robot_des -alpha) + PI;//-theta_robot_origin;
+
+            //ROS_INFO_STREAM("Angle NORMAL#"<<" "<<k<<" "<<angle*180/PI);
             p.orientation=tf::createQuaternionMsgFromYaw(angle);
+
         }
-        else 
+
+        else
         {
             angle =theta_robot_des-theta_robot_origin;
-            //ROS_INFO_STREAM("Alpha END#"<<alpha*180/PI);
+            //ROS_INFO_STREAM("Angle END#"<<angle*180/PI);
             p.orientation=tf::createQuaternionMsgFromYaw(angle);
         }
         res.path.poses.push_back(p);
     }
-
+    path_pub.publish(res.path);
 
     time=ros::Time::now().toSec()-second.toSec();
     ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
