@@ -86,8 +86,6 @@ vector<Node*> PathFinding::algorithm()
     Mat map= map_received.clone();
     Node tree(x_robot_origin,y_robot_origin);
 
-       std::srand(std::time(0));
-
   
  	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des); 
 
@@ -172,7 +170,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         }
         res.path.poses.push_back(p);
     }
-    path_pub.publish(res.path);
+
 
     time=ros::Time::now().toSec()-second.toSec();
     ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
