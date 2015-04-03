@@ -81,8 +81,8 @@ class PlayNode(DiagramNode):
     def getRobotTransform(self):
         try:
             self.transformPosition, self.transformOrientation = self.transformListener.lookupTransform('/map', '/robot01/base_link', rospy.Time(0))
-        except:
-            pass
+        except Exception, e:
+            rospy.logerr(e)
         
     
     def stop(self):
@@ -107,23 +107,23 @@ class PlayNode(DiagramNode):
     
     
     def playScenario(self):
-        try:
-            # reset error
-            self.canvas.ui.statusBar.clearMessage()
-            for nodeInstance in self.canvas.nodesInstances:
-                nodeInstance.widget.central_widget.setStyleSheet("#central_widget { background: #fff; }")
-                
-            # play
-            self.playingScenario = self.output()
-            self.playingScenarioLabel.setText(self.playingScenario.niceName())
+        #try:
+        # reset error
+        self.canvas.ui.statusBar.clearMessage()
+        for nodeInstance in self.canvas.nodesInstances:
+            nodeInstance.widget.central_widget.setStyleSheet("#central_widget { background: #fff; }")
             
-            # publish message to ROS
-            scale = 1. / float(self.playingScenario.gridSize)
-            scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.transformPosition, scale, self.transformOrientation)
-            scenarioMsg.uid = self.playingScenario.uid
-            self.scenarioPublisher.publish(scenarioMsg)
-        except NodeException as error:
-            self.playButton.setEnabled(True)
+        # play
+        self.playingScenario = self.output()
+        self.playingScenarioLabel.setText(self.playingScenario.niceName())
+        
+        # publish message to ROS
+        scale = 1. / float(self.playingScenario.gridSize)
+        scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.transformPosition, scale, self.transformOrientation)
+        scenarioMsg.uid = self.playingScenario.uid
+        self.scenarioPublisher.publish(scenarioMsg)
+        #except NodeException as error:
+        """    self.playButton.setEnabled(True)
             self.stopButton.setEnabled(False)
             
             # display the error
@@ -131,6 +131,7 @@ class PlayNode(DiagramNode):
             error.nodeCausingErrror.widget.central_widget.setStyleSheet("#central_widget { background: #ff4c4c; }")
             
             self.stopAllScenarios()
+        """
     
     
     def stopAllScenarios(self):
@@ -142,7 +143,7 @@ class PlayNode(DiagramNode):
         self.playButton.setEnabled(False)
         self.stopButton.setEnabled(True)
         
-        ChoregraphicScenarioNode.simulation = False
+        ScenarioNode.simulation = False
         self.playScenario()
         
         

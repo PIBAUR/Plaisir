@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import math
+
 from PyQt4.QtGui import *
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
@@ -21,6 +23,11 @@ class CompleteScenarioNode(DiagramNode):
         
         self.currentInputIndex = 0
         
+        #DEBUG: only for viz
+        import rospy
+        from scenario_msgs.msg import Scenario as ScenarioMsg
+        self.scenarioPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)
+        
     
     def output(self, args, updateRatioCallback):
         self.updateCallback = updateRatioCallback
@@ -30,9 +37,34 @@ class CompleteScenarioNode(DiagramNode):
         # get the position of the start of choregraphic scenario to reach this point with the travel scenario
         choregraphicScenario = inputs[1].output(args, None)
         
-        #TODO: calculer le point cible par rapport au scénario chorégraphique qui vient
-        args["targetPosition"] = choregraphicScenario.targetPosition
+        if self.currentInputIndex == 0:
+            # get scale
+            scale = 1. / float(choregraphicScenario.gridSize)
+            
+            # get the line between the first point of the curve and the target
+            robot = choregraphicScenario.robots[0]
+            firstPoint = robot.points[0].anchor
+            targetPoint = choregraphicScenario.targetPosition
+            directionLineVector = ((targetPoint[0] - firstPoint.x()) * scale, (targetPoint[1] - firstPoint.y()) * scale)
+            
+            # calculate the origin of the choregraphic scenario
+            originPosition = (args["targetPosition"][0] - directionLineVector[0], args["targetPosition"][1] - directionLineVector[1])
+            orientation = (1, 0, 0, 0)
+            
+            """
+            print robot.getScenarioMsg(originPosition, scale, orientation).bezier_paths.curves.anchor_1.x
+            print robot.getScenarioMsg(originPosition, scale, orientation).bezier_paths.curves.anchor_1.y
+            print "=="
+            transformationMatrix = robot.getTransformationMatrix(scale, orientation)
+            x, y, z, w = self.getTransformedPoint(bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, transformationMatrix, transformPosition)
+            print x
+            print y
+            print "_____________________"
+            """
+            #DEBUG: only for viz
+            #self.scenarioPublisher.publish(choregraphicScenario.robots[0].getScenarioMsg(originPosition, scale, orientation))
         
+        # continue output routine
         if choregraphicScenario.name is not None:
             if len(inputs) == 2:
                 inputItem = inputs[self.currentInputIndex]
