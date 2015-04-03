@@ -9,6 +9,7 @@ import rospy
 
 from std_msgs.msg import Float64 as Float64Msg
 from scenario_msgs.msg import Scenario as ScenarioMsg
+from scenario_msgs.msg import PathFeedback as PathFeedbackMsg
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -104,5 +105,5 @@ if __name__ == '__main__':
     # ros node
     rospy.init_node('media_player', log_level = rospy.INFO)
     rospy.Subscriber('/robot01/scenario', ScenarioMsg, mediaPlayer.mediaCB)
-    rospy.Subscriber('/robot01/path_feedback', ScenarioMsg, mediaPlayer.mediaCB)
+    rospy.Subscriber('/robot01/path_feedback', PathFeedbackMsg, mediaPlayer.pathFeedbackCB)
     rospy.spin()
