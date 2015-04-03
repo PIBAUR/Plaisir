@@ -111,7 +111,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
     ros::Time second=ros::Time::now();
     x_robot_des =  (-x_map_origin + req.target.x)/map_resolution;
     y_robot_des =  (-y_map_origin - req.target.y)/map_resolution;
-    theta_robot_des =req.target.theta*PI/180; // yaw-angle in degrees (conversion in radian)
+    theta_robot_des =req.target.theta;
     ROS_INFO_STREAM("ANGLE # "<< theta_robot_des);
     computeTF();
 
