@@ -3,10 +3,11 @@ import math
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from geometry_msgs.msg import Point
-from scenario_msgs.msg import BezierCurve
+from geometry_msgs.msg import Point as PointMsg
+from scenario_msgs.msg import BezierCurve as BezierCurveMsg
 
 from src.bezier_curve.src import bezier_interpolate
+from src.scenario_lib.src.items.point import Point
 
 
 class CurvePoint():
@@ -29,9 +30,9 @@ class CurvePoint():
         self.control2 = control2
         
         if self.control1 is None: 
-            self.control1 = QPoint(anchor.x(), anchor.y())
+            self.control1 = anchor.clone()
         if self.control2 is None: 
-            self.control2 = QPoint(anchor.x(), anchor.y())
+            self.control2 = anchor.clone()
         
         # set graphics params
         CurvePoint.anchorPen.setCapStyle(Qt.SquareCap)
@@ -55,9 +56,9 @@ class CurvePoint():
     
     def save(self):
         result = {}
-        result["anchor"] = (self.anchor.x(), self.anchor.y())
-        result["control1"] = (self.control1.x(), self.control1.y())
-        result["control2"] = (self.control2.x(), self.control2.y())
+        result["anchor"] = (self.anchor.x, self.anchor.y)
+        result["control1"] = (self.control1.x, self.control1.y)
+        result["control2"] = (self.control2.x, self.control2.y)
         
         return result
         
@@ -78,7 +79,7 @@ class CurvePoint():
         
         # draw anchor
         painter.setPen(CurvePoint.anchorPen)
-        rect = QRectF(self.anchor.x() - CurvePoint.CONTROL_SIZE / 2, self.anchor.y() - CurvePoint.CONTROL_SIZE / 2, CurvePoint.CONTROL_SIZE, CurvePoint.CONTROL_SIZE)
+        rect = QRectF(self.anchor.x - CurvePoint.CONTROL_SIZE / 2, self.anchor.y - CurvePoint.CONTROL_SIZE / 2, CurvePoint.CONTROL_SIZE, CurvePoint.CONTROL_SIZE)
         painter.fillRect(rect, QColor(255, 255, 255))
         painter.drawRect(rect)
         
@@ -98,7 +99,7 @@ class CurvePoint():
                 # draw line
                 CurvePoint.curvePen.setColor(color)
                 painter.setPen(CurvePoint.curvePen)
-                painter.drawLine(QPoint(previousBezierPoint.x, previousBezierPoint.y), QPoint(bezierPoint.x, bezierPoint.y))
+                painter.drawLine(Point(previousBezierPoint.x, previousBezierPoint.y), Point(bezierPoint.x, bezierPoint.y))
             
             previousBezierPoint = bezierPoint
     
@@ -111,20 +112,20 @@ class CurvePoint():
         if drawType == "bracket" or drawType == "pipe":
             CurvePoint.timePositionBracketPen.setColor(color)
             painter.setPen(CurvePoint.timePositionBracketPen)
-            topTimeCursorPoint = QPoint()
-            topTimeCursorPoint.setX(timeCursorPoint.x() + 10 * math.cos(tangentAngle))
-            topTimeCursorPoint.setY(timeCursorPoint.y() + 10 * math.sin(tangentAngle))
+            topTimeCursorPoint = Point()
+            topTimeCursorPoint.setX(timeCursorPoint.x + 10 * math.cos(tangentAngle))
+            topTimeCursorPoint.setY(timeCursorPoint.y + 10 * math.sin(tangentAngle))
             if drawType == "bracket":
-                topRightTimeCursorPoint = QPoint()
-                topRightTimeCursorPoint.setX(topTimeCursorPoint.x() + 5 * math.cos(tangentAngle - math.pi / 2))
-                topRightTimeCursorPoint.setY(topTimeCursorPoint.y() + 5 * math.sin(tangentAngle - math.pi / 2))
-            bottomTimeCursorPoint = QPoint()
-            bottomTimeCursorPoint.setX(timeCursorPoint.x() + 10 * math.cos(math.pi + tangentAngle))
-            bottomTimeCursorPoint.setY(timeCursorPoint.y() + 10 * math.sin(math.pi + tangentAngle))
+                topRightTimeCursorPoint = Point()
+                topRightTimeCursorPoint.setX(topTimeCursorPoint.x + 5 * math.cos(tangentAngle - math.pi / 2))
+                topRightTimeCursorPoint.setY(topTimeCursorPoint.y + 5 * math.sin(tangentAngle - math.pi / 2))
+            bottomTimeCursorPoint = Point()
+            bottomTimeCursorPoint.setX(timeCursorPoint.x + 10 * math.cos(math.pi + tangentAngle))
+            bottomTimeCursorPoint.setY(timeCursorPoint.y + 10 * math.sin(math.pi + tangentAngle))
             if drawType == "bracket":
-                bottomRightTimeCursorPoint = QPoint()
-                bottomRightTimeCursorPoint.setX(bottomTimeCursorPoint.x() + 5 * math.cos(tangentAngle - math.pi / 2))
-                bottomRightTimeCursorPoint.setY(bottomTimeCursorPoint.y() + 5 * math.sin(tangentAngle - math.pi / 2))
+                bottomRightTimeCursorPoint = Point()
+                bottomRightTimeCursorPoint.setX(bottomTimeCursorPoint.x + 5 * math.cos(tangentAngle - math.pi / 2))
+                bottomRightTimeCursorPoint.setY(bottomTimeCursorPoint.y + 5 * math.sin(tangentAngle - math.pi / 2))
             painter.drawLine(timeCursorPoint, topTimeCursorPoint)
             if drawType == "bracket":
                 painter.drawLine(topTimeCursorPoint, topRightTimeCursorPoint)
@@ -144,15 +145,18 @@ class CurvePoint():
         tangentAngle = bezier_interpolate.getBezierCurveTangentResult(u + (.01 if u == 0 else 0), curveToDraw)
         tangentAngle += math.pi / 2
         
-        return (QPoint(bezierPoint.x, bezierPoint.y), tangentAngle)
+        return (Point(bezierPoint.x, bezierPoint.y), tangentAngle)
             
     
-    def getBezierCurveWithNextPoint(self, nextPoint, yRatio = 1, pointToSubstract = QPoint()):
-        result = BezierCurve()
-        result.anchor_1 = Point((self.anchor.x() - pointToSubstract.x()), (self.anchor.y() - pointToSubstract.y()) * yRatio, 0)
-        result.anchor_2 = Point((nextPoint.anchor.x() - pointToSubstract.x()), (nextPoint.anchor.y() - pointToSubstract.y()) * yRatio, 0)
-        result.control_1 = Point((self.control2.x() - pointToSubstract.x()), (self.control2.y() - pointToSubstract.y()) * yRatio, 0)
-        result.control_2 = Point((nextPoint.control1.x() - pointToSubstract.x()), (nextPoint.control1.y() - pointToSubstract.y()) * yRatio, 0)
+    def getBezierCurveWithNextPoint(self, nextPoint, yRatio, pointToSubstract = None):
+        if pointToSubstract is None:
+            pointToSubstract = Point()
+            
+        result = BezierCurveMsg()
+        result.anchor_1 = PointMsg((self.anchor._x - pointToSubstract._x), (self.anchor._y - pointToSubstract._y) * yRatio, self.anchor._theta)
+        result.anchor_2 = PointMsg((nextPoint.anchor._x - pointToSubstract._x), (nextPoint.anchor._y - pointToSubstract._y) * yRatio, 0)
+        result.control_1 = PointMsg((self.control2._x - pointToSubstract._x), (self.control2._y - pointToSubstract._y) * yRatio, 0)
+        result.control_2 = PointMsg((nextPoint.control1._x - pointToSubstract._x), (nextPoint.control1._y - pointToSubstract._y) * yRatio, 0)
         
         return result
         
@@ -169,9 +173,9 @@ class CurvePoint():
     
     
     def isControlUnderPoint(self, control, x, y):
-        return (math.sqrt(math.pow(control.x() - x, 2) + math.pow(control.y() - y, 2))) <= (CurvePoint.CONTROL_SIZE)
+        return (math.sqrt(math.pow(control.x - x, 2) + math.pow(control.y - y, 2))) <= (CurvePoint.CONTROL_SIZE)
 
     
     def isAnchorUnderPoint(self, anchor, x, y):
-        return anchor.x() - CurvePoint.ANCHOR_SIZE <= x and anchor.x() + CurvePoint.ANCHOR_SIZE >= x and anchor.y() - CurvePoint.ANCHOR_SIZE <= y and anchor.y() + CurvePoint.ANCHOR_SIZE >= y
+        return anchor.x - CurvePoint.ANCHOR_SIZE <= x and anchor.x + CurvePoint.ANCHOR_SIZE >= x and anchor.y - CurvePoint.ANCHOR_SIZE <= y and anchor.y + CurvePoint.ANCHOR_SIZE >= y
     

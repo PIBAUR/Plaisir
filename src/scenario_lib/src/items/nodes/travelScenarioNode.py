@@ -4,6 +4,7 @@
 import math
 
 import rospy
+import tf
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -13,6 +14,7 @@ from src.scenario_lib.src.items.nodes.scenarioNode import ScenarioNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.scenario import Scenario
 from src.scenario_lib.src.items.curvePoint import CurvePoint
+from src.scenario_lib.src.items.point import Point
 from src.gui_scenario_db.src.ui import ScenarioDataBase
 
 from path_finding.srv import PathFinding as PathFindingSrv
@@ -38,10 +40,12 @@ class TravelScenarioNode(ScenarioNode):
         
         # set scenario
         self.currentScenario = Scenario(False)
+        self.currentScenario.scenarioType = "travel"
         self.currentScenario.gridSize = 1
+        
         for pose in pathResult.path.poses:
-            point = CurvePoint(QPoint(pose.position.x, pose.position.y), QPoint(pose.position.x, pose.position.y), QPoint(pose.position.x, pose.position.y))
-            self.currentScenario.robots[0].points.append(point)
+            curvePoint = CurvePoint(Point(pose.x, pose.y, pose.theta))
+            self.currentScenario.robots[0].points.append(curvePoint)
         
         self.currentScenario.name = "-> " + str(math.floor(targetPosition[0] * 10) / 10) + ";" + str(math.floor(targetPosition[1] * 10) / 10)
         

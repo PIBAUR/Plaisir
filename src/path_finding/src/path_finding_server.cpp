@@ -133,17 +133,27 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
     for( std::vector< Node* >::reverse_iterator rit_node = path_bis.rbegin(); rit_node!=path_bis.rend(); ++rit_node)
     {
 
-        geometry_msgs::Pose p;
+        geometry_msgs::Pose2D p;
         if( rit_node == path_bis.rbegin())
         {
-            p.position.x = (*rit_node)->x * map_resolution ; // convert pixel in meter 
-            p.position.y = (*rit_node)->y * map_resolution ; 
+            p.x = (*rit_node)->x * map_resolution ; // convert pixel in meter
+            p.y = (*rit_node)->y * map_resolution ;
 
         }
+
         else
         {
-            p.position.x = ((*rit_node)->x)  * map_resolution + x_map_origin ; // convert pixel in meter 
-            p.position.y = -((*rit_node)->y)  * map_resolution - y_map_origin;             
+        	if( (rit_node+1) == path_bis.rend())
+            {
+                p.x =   req.target.x ; // convert pixel in meter
+                p.y =   req.target.y ;
+
+            }
+        	else
+        	{
+            p.x = ((*rit_node)->x)  * map_resolution + x_map_origin ; // convert pixel in meter
+            p.y = -((*rit_node)->y)  * map_resolution - y_map_origin;
+        	}
             
         }
 
@@ -155,18 +165,17 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
 
             alpha = atan2(dy,dx);
 
-            angle = (theta_robot_des -alpha) + PI;//-theta_robot_origin;
+            angle = (theta_robot_des -alpha);//-theta_robot_origin;
 
             //ROS_INFO_STREAM("Angle NORMAL#"<<" "<<k<<" "<<angle*180/PI);
-            p.orientation=tf::createQuaternionMsgFromYaw(angle);
+            p.theta=angle;
 
         }
 
         else
         {
-            angle =theta_robot_des-theta_robot_origin;
             //ROS_INFO_STREAM("Angle END#"<<angle*180/PI);
-            p.orientation=tf::createQuaternionMsgFromYaw(angle);
+            p.theta=theta_robot_des;
         }
         res.path.poses.push_back(p);
     }

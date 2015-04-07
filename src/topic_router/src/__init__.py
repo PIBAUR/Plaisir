@@ -27,7 +27,7 @@ class TopicRouter():
         
         
     def clickedPointCB(self, msg):
-        if False:
+        if True:
             obstacleArrayMsg = ObstacleArrayMsg()
             obstacleArrayMsg.header.frame_id = "/map"
             

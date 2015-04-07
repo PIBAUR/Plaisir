@@ -4,8 +4,9 @@ import math
 import rospy
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from scenario_msgs.msg import Path as PathMsg
-from geometry_msgs.msg import Pose, Point
-from std_msgs.msg import Float64
+from geometry_msgs.msg import Pose as PoseMsg
+from geometry_msgs.msg import Point as PointMsg
+from std_msgs.msg import Float64 as Float64Msg
 
 # consts
 DEFAULT_BEZIER_CURVE_STEP = .05
@@ -14,9 +15,6 @@ step = 0
 
 def scenarioCallback(data):
     # to execute only choregraphic scenario
-    if data.type != "choregraphic":
-        return
-    
     path.uid = data.uid
     path.path.poses = []
     path.path.header = data.bezier_paths.header
@@ -30,15 +28,28 @@ def scenarioCallback(data):
         distance += getBezierCurveLength(curve)
         i = 0
         while i <= 1 + step:  
-            p = Pose()
-            p.position = getBezierCurveResult(i, curve)
-            theta = getBezierCurveTangentResult(i, curve)
-            p.orientation.z = math.sin(theta / 2)
-            p.orientation.w = math.cos(theta / 2)
-            path.path.poses.append(p)
-            i += step
-    speed = Float64()
-    speed.data = (distance/duration) if duration > 0 else 0.1
+            pose = PoseMsg()
+            
+            if data.type == "choregraphic":
+                pose.position = getBezierCurveResult(i, curve)
+                theta = getBezierCurveTangentResult(i, curve)
+                pose.orientation.z = math.sin(theta / 2)
+                pose.orientation.w = math.cos(theta / 2)
+                
+                i += step
+            elif data.type == "travel":
+                pose.position.x = curve.anchor_1.x
+                pose.position.y = curve.anchor_1.y
+                theta = curve.anchor_1.z
+                pose.orientation.z = math.sin(theta / 2)
+                pose.orientation.w = math.cos(theta / 2)
+                
+                i += 2
+                
+            path.path.poses.append(pose)
+    
+    speed = Float64Msg()
+    speed.data = (distance / duration) if duration > 0 else 0.1
     speedPublisher.publish(speed)
     pathPublisher.publish(path)
 
@@ -53,7 +64,7 @@ def scenarioCallback(data):
 :rtype: geometry_msgs.msg.Point
 """
 def getBezierCurveResult(u, bezierCurve):
-    result = Point()
+    result = PointMsg()
     result.x = pow(u, 3) * (bezierCurve.anchor_2.x + 3 * (bezierCurve.control_1.x - bezierCurve.control_2.x) - bezierCurve.anchor_1.x) \
                + 3 * pow(u, 2) * (bezierCurve.anchor_1.x - 2 * bezierCurve.control_1.x + bezierCurve.control_2.x) \
                + 3 * u * (bezierCurve.control_1.x - bezierCurve.anchor_1.x) + bezierCurve.anchor_1.x
@@ -75,7 +86,7 @@ def getBezierCurveResult(u, bezierCurve):
 :rtype: float
 """
 def getBezierCurveTangentResult(u, bezierCurve):
-    p = Point()
+    p = PointMsg()
     alphaX = (bezierCurve.anchor_2.x + 3 * (bezierCurve.control_1.x - bezierCurve.control_2.x) - bezierCurve.anchor_1.x)
     alphaY = (bezierCurve.anchor_2.y + 3 * (bezierCurve.control_1.y - bezierCurve.control_2.y) - bezierCurve.anchor_1.y)
     betaX = (bezierCurve.anchor_1.x - 2 * bezierCurve.control_1.x + bezierCurve.control_2.x)
@@ -104,7 +115,7 @@ def getBezierCurveLength(bezierCurve):
     length = 0.0
     
     s = 0.0
-    p = Pose()
+    p = PoseMsg()
     
     p.position = getBezierCurveResult(s, bezierCurve)
     s += ds
@@ -130,7 +141,7 @@ if __name__ == "__main__":
     rospy.Subscriber("scenario", ScenarioMsg, scenarioCallback)
     
     pathPublisher = rospy.Publisher("path", PathMsg)
-    speedPublisher = rospy.Publisher("linear_speed", Float64)
+    speedPublisher = rospy.Publisher("linear_speed", Float64Msg)
     
     step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
     

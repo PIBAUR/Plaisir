@@ -6,6 +6,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from src.scenario_lib.src.items.curvePoint import CurvePoint
+from src.scenario_lib.src.items.point import Point
 
 class Canvas(QWidget):
     ADD_ACTION = 0
@@ -118,7 +119,7 @@ class Canvas(QWidget):
             self.currentControl2Origins = QPoint(self.currentPoint.control2.x(), self.currentPoint.control2.y())
         elif self.currentAction == Canvas.ADD_ACTION:
             # set anchor
-            self.currentPoint = CurvePoint(QPoint(mouseX, mouseY))
+            self.currentPoint = CurvePoint(Point(mouseX, mouseY))
             self.currentRobot.points.append(self.currentPoint)
         elif self.currentAction == Canvas.REMOVE_ACTION:
             if self.currentItem is not None and self.currentItem == self.currentPoint.anchor:

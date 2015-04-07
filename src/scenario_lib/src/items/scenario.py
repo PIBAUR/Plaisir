@@ -22,6 +22,8 @@ class Scenario():
         
         self.name = None
         self.attributes = {}
+        
+        self.scenarioType = "choregraphic"
     
     
     def getAttributes(self):

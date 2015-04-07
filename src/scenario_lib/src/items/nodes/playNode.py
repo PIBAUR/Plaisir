@@ -121,6 +121,7 @@ class PlayNode(DiagramNode):
         scale = 1. / float(self.playingScenario.gridSize)
         scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.transformPosition, scale, self.transformOrientation)
         scenarioMsg.uid = self.playingScenario.uid
+        scenarioMsg.type = self.playingScenario.scenarioType
         self.scenarioPublisher.publish(scenarioMsg)
         #except NodeException as error:
         """    self.playButton.setEnabled(True)

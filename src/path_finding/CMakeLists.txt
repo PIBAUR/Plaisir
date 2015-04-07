@@ -6,6 +6,7 @@ project(path_finding)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  scenario_msgs
   nav_msgs
   roscpp
   rospy
@@ -68,7 +69,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(   
-DEPENDENCIES geometry_msgs   nav_msgs   std_msgs
+DEPENDENCIES scenario_msgs   geometry_msgs   nav_msgs   std_msgs
 )
 
 ###################################

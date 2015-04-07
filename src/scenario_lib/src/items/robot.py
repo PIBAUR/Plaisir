@@ -20,6 +20,7 @@ from std_msgs.msg import Header as HeaderMsg
 
 from media import Media
 from curvePoint import CurvePoint
+from point import Point
 from src.bezier_curve.src import bezier_interpolate
 
 class Robot():
@@ -60,7 +61,7 @@ class Robot():
         self.medias = []
         
         for pointData in data["points"]:
-            pointToAppend = CurvePoint(QPoint(pointData["anchor"][0], pointData["anchor"][1]), QPoint(pointData["control1"][0], pointData["control1"][1]), QPoint(pointData["control2"][0], pointData["control2"][1]))
+            pointToAppend = CurvePoint(Point(pointData["anchor"][0], pointData["anchor"][1]), Point(pointData["control1"][0], pointData["control1"][1]), Point(pointData["control2"][0], pointData["control2"][1]))
             self.points.append(pointToAppend)
         
         for mediaData in data["medias"]:
@@ -113,7 +114,6 @@ class Robot():
     def setHeaderAndVideosForScenarioMsg(self, scenarioMsg):
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()
-        scenarioMsg.type = "choregraphic"
         
         # put medias into the message
         scenarioMsg.medias = MediaArrayMsg()
