@@ -268,8 +268,8 @@ int main (int argc, char** argv)
     std::vector<unsigned int> pins;
     pins.push_back(26);
     pins.push_back(24);
+    pins.push_back(23);
     pins.push_back(22);
-    pins.push_back(20);
     Bumpers bumpers_sensor(pins);
     bumpers_sensor.spin();
 
