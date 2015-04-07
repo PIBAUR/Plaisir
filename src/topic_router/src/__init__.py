@@ -17,7 +17,6 @@ class TopicRouter():
         self.clickedPointSubscriber = rospy.Subscriber('/clicked_point', PointStampedMsg, self.clickedPointCB)
         self.clickedPointSubscriber = rospy.Subscriber('/robot01/path', PathMsg, self.pathCB)
         self.obstaclesPublisher = rospy.Publisher('/obstacles', ObstacleArrayMsg)
-        self.scenarioPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)
         
         self.pathVizPublisher = rospy.Publisher('/robot01/path_viz', PoseArrayMsg)
         
@@ -27,32 +26,19 @@ class TopicRouter():
         
         
     def clickedPointCB(self, msg):
-        if True:
-            obstacleArrayMsg = ObstacleArrayMsg()
-            obstacleArrayMsg.header.frame_id = "/map"
-            
-            if msg.header.frame_id == "null":
-                rospy.loginfo("Received remove clicked point")
-            else:
-                rospy.loginfo("Received clicked point")
-                obstacleMsg = ObstacleMsg(id = 54, x = msg.point.x, y = msg.point.y, radius = .3)
-                obstacleArrayMsg.header.frame_id = "/map"
-                obstacleArrayMsg.obstacles = [obstacleMsg]
-            
-            rospy.loginfo(obstacleArrayMsg)
-            self.obstaclesPublisher.publish(obstacleArrayMsg)
+        obstacleArrayMsg = ObstacleArrayMsg()
+        obstacleArrayMsg.header.frame_id = "/map"
+        
+        if msg.header.frame_id == "null":
+            rospy.loginfo("Received remove clicked point")
         else:
-            scenarioMsg = ScenarioMsg()
-            headerMsg = HeaderMsg()
-            scenarioMsg.type = "travel"
-            headerMsg.frame_id = "/map"
-            headerMsg.stamp = rospy.Time.now()
-            scenarioMsg.bezier_paths.header = headerMsg
-            scenarioMsg.target = Pose2DMsg()
-            scenarioMsg.target.x = msg.point.x
-            scenarioMsg.target.y = msg.point.y
-            
-            self.scenarioPublisher.publish(scenarioMsg)
+            rospy.loginfo("Received clicked point")
+            obstacleMsg = ObstacleMsg(id = 54, x = msg.point.x, y = msg.point.y, radius = .3)
+            obstacleArrayMsg.header.frame_id = "/map"
+            obstacleArrayMsg.obstacles = [obstacleMsg]
+        
+        rospy.loginfo(obstacleArrayMsg)
+        self.obstaclesPublisher.publish(obstacleArrayMsg)
             
         
                  

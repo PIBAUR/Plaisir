@@ -16,6 +16,7 @@ from scenario_msgs.msg import Media as MediaMsg
 from scenario_msgs.msg import MediaArray as MediaArrayMsg
 from scenario_msgs.msg import BezierPath as BezierPathMsg
 from scenario_msgs.msg import BezierCurve as BezierCurveMsg
+from geometry_msgs.msg import Point as PointMsg
 from std_msgs.msg import Header as HeaderMsg
 
 from media import Media
@@ -81,7 +82,7 @@ class Robot():
             media.loadVideo()
         
     
-    def getScenarioMsg(self, transformPosition, scale, transformOrientation):
+    def getScenarioMsg(self, transformPosition, scale, transformOrientation, interpolation = False):
         scenarioMsg = ScenarioMsg()
         
         self.setHeaderAndVideosForScenarioMsg(scenarioMsg)
@@ -93,20 +94,23 @@ class Robot():
         for i in range(len(self.points)):
             point = self.points[i]
             
-            if i == 0:
-                firstAnchor = point.anchor
-            
-            if i + 1 < len(self.points):
-                nextPoint = self.points[i + 1]
+            if interpolation:
+                if i == 0:
+                    firstAnchor = point.anchor
                 
-                bezierCurve = point.getBezierCurveWithNextPoint(nextPoint, -1, firstAnchor)
+                if i + 1 < len(self.points):
+                    nextPoint = self.points[i + 1]
+                    
+                    bezierCurve = point.getBezierCurveWithNextPoint(nextPoint, -1, firstAnchor)
+                    
+                    bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, z, w = self.getTransformedPoint(bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, transformationMatrix, transformPosition)
+                    bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, z, w = self.getTransformedPoint(bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, transformationMatrix, transformPosition)
+                    bezierCurve.control_1.x, bezierCurve.control_1.y, z, w = self.getTransformedPoint(bezierCurve.control_1.x, bezierCurve.control_1.y, transformationMatrix, transformPosition)
+                    bezierCurve.control_2.x, bezierCurve.control_2.y, z, w = self.getTransformedPoint(bezierCurve.control_2.x, bezierCurve.control_2.y, transformationMatrix, transformPosition)
+            else:
+                bezierCurve = BezierCurveMsg(anchor_1 = PointMsg(x = point.anchor._x, y = point.anchor._y, z = point.anchor._theta))
                 
-                bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, z, w = self.getTransformedPoint(bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, transformationMatrix, transformPosition)
-                bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, z, w = self.getTransformedPoint(bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, transformationMatrix, transformPosition)
-                bezierCurve.control_1.x, bezierCurve.control_1.y, z, w = self.getTransformedPoint(bezierCurve.control_1.x, bezierCurve.control_1.y, transformationMatrix, transformPosition)
-                bezierCurve.control_2.x, bezierCurve.control_2.y, z, w = self.getTransformedPoint(bezierCurve.control_2.x, bezierCurve.control_2.y, transformationMatrix, transformPosition)
-                
-                scenarioMsg.bezier_paths.curves.append(bezierCurve)
+            scenarioMsg.bezier_paths.curves.append(bezierCurve)
         
         return scenarioMsg
     

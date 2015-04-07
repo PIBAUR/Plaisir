@@ -119,7 +119,7 @@ class PlayNode(DiagramNode):
         
         # publish message to ROS
         scale = 1. / float(self.playingScenario.gridSize)
-        scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.transformPosition, scale, self.transformOrientation)
+        scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.transformPosition, scale, self.transformOrientation, self.playingScenario.scenarioType == "choregraphic")
         scenarioMsg.uid = self.playingScenario.uid
         scenarioMsg.type = self.playingScenario.scenarioType
         self.scenarioPublisher.publish(scenarioMsg)

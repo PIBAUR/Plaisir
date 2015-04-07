@@ -65,15 +65,17 @@ class CompleteScenarioNode(DiagramNode):
             #self.scenarioPublisher.publish(choregraphicScenario.robots[0].getScenarioMsg(originPosition, scale, orientation))
         
         # continue output routine
-        if choregraphicScenario.name is not None:
+        if choregraphicScenario.scenarioType == "choregraphic":
             if len(inputs) == 2:
                 inputItem = inputs[self.currentInputIndex]
                 
                 if updateRatioCallback is not None:
-                    # dry run
+                    # not dry run
                     self.startExecution(self.getInputWidgetIndexFromInputIndex(self.currentInputIndex))
                 
                 return inputItem.output(args, self.updateRatio if updateRatioCallback is not None else None)
+            else:
+                raise(NodeException(self, u"Les 2 entrées doivent être liées à un scénario de déplacement puis un scénario chorégraphique"))
         else:
             raise(NodeException(self, u"L'entrée 2 doit être liée à un scénario chorégraphique"))
     
