@@ -20,9 +20,9 @@ class Launcher(QMainWindow):
         
         self.ui = uic.loadUi(ui_file)
         
-        self.ui.controller_button.clicked.connect(partial(self.handleCommandButtonClicked, "gui_controller"))
-        self.ui.scenarioDb_button.clicked.connect(partial(self.handleCommandButtonClicked, "gui_scenario_db"))
-        self.ui.scenarioExecutionDiagram_button.clicked.connect(partial(self.handleCommandButtonClicked, "gui_execution_diagram"))
+        self.ui.controller_button.clicked.connect(partial(self.handleCommandButtonClicked, "gui/gui_controller"))
+        self.ui.scenarioDb_button.clicked.connect(partial(self.handleCommandButtonClicked, "gui/gui_scenario_db"))
+        self.ui.scenarioExecutionDiagram_button.clicked.connect(partial(self.handleCommandButtonClicked, "gui/gui_execution_diagram"))
         
         self.ui.show()
         

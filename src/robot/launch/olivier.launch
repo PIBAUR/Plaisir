@@ -19,16 +19,9 @@
 	
 	<node name="topic_router" pkg="topic_router" type="__init__.py"/>
 	
-	<node name="path_finding" pkg="path_finding" type="path_finding_node">
-		<remap from="scenario" to="robot$(arg robot)/scenario"/>
-		<remap from="path" to="robot$(arg robot)/path"/>
-	</node>
+	<node name="path_finding" pkg="path_finding" type="path_finding_server"/>
 	
 	<!-- <env name="DISPLAY" value=":0"/>
 	<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)"/> -->
 	
-	<!--<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
-		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
-		<remap from="scenario" to="robot$(arg robot)/scenario"/>
-	</node>-->
 </launch>

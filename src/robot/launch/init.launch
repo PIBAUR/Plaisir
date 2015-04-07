@@ -1,4 +1,3 @@
-
 <launch>
 
 	<!-- Setting and loading params and args -->
@@ -42,11 +41,17 @@
 		<arg name="map" value="$(arg map)"/> 
 	</include>
 	
-	<!-- Obstacle -->
+	<!-- OBSTACLES -->
 	<include file="$(find blob_detect)/launch/obstacle.launch">
 		<arg name="robot" value="$(arg robot)"/>
-	</include>*
+	</include>
 	
+	<!-- PATH FINDING -->
+	<node name="path_finding" pkg="path_finding" type="path_finding_server"/>
+
+	<!-- MEDIA PLAYER -->
+	<env name="DISPLAY" value=":0"/>
+	<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)"/>
 	
 </launch>
 
