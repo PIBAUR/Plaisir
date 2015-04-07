@@ -12,7 +12,7 @@ void PathFinding::computeTF()
   
     try
     {  
-        tf_listener_.lookupTransform("/map", "/map", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
     }
     catch (tf::TransformException ex)
     {   
@@ -25,7 +25,7 @@ void PathFinding::computeTF()
     double y_o = tf_robot.getOrigin().y();
     double yaw_angle_o = tf::getYaw(tf_robot.getRotation()); //get yaw-angle in radian
     
-
+    ROS_INFO_STREAM("TF robot : " << x_o<< "  " << y_o << "  "<< yaw_angle_o);
     // compute where the robot is in a grid corresponding to the /map frame 
     x_robot_origin = (int)( ( - x_map_origin + x_o) / map_resolution); // convert meter in pixel 
     y_robot_origin = (int)( ( - y_map_origin - y_o) / map_resolution); 
@@ -130,7 +130,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
     /***path publication***/
     ROS_INFO_STREAM("PATH_BIS_SIZE "<<" "<<path_bis.size());
 
-    for( std::vector< Node* >::reverse_iterator rit_node = path_bis.rbegin(); rit_node!=path_bis.rend(); ++rit_node)
+    for( std::vector< Node* >::reverse_iterator rit_node = path_bis.rbegin() + 1; rit_node!=path_bis.rend(); ++rit_node)
     {
 
         geometry_msgs::Pose2D p;
