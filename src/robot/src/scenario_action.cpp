@@ -13,8 +13,11 @@
 
 #define PI 3.14159265359
 #define K_TH 3.0
-#define LOOP_RATE 60
+#define LOOP_RATE 60.0
 #define ANGULAR_SPEED_MAX (PI/2.0)
+#define INIT_DU 10.0
+#define NEXT_POINT_DISTANCE_THRESH 0.10
+#define RATIO_PUBLISH_RATE (LOOP_RATE/10)
 
 class PathFollower
 {
@@ -31,6 +34,7 @@ protected:
     double du_;
     int cpt_;
     float linear_speed_;
+    double first_du_;
 
 public:
     PathFollower(ros::NodeHandle nh):
@@ -51,6 +55,7 @@ public:
     void computeCmd(double &lin, double &ang);
     void spinOnce();
     void speedCB(const std_msgs::Float64 &msg);
+    void publishRatio();
 };
 
 
@@ -61,7 +66,10 @@ void PathFollower::pathCB(const scenario_msgs::Path &msg)
     path_ = msg.path;
     index_path_ = 0;
     size_path_ = path_.poses.size();
+    ROS_INFO_STREAM("New path received :   id = " << path_uid_ << "  |  size = " << size_path_ << "  |  goal = "
+                    << path_.poses.rbegin()->position.x << " ; " <<path_.poses.rbegin()->position.y);
 }
+
 
 void PathFollower::speedCB(const std_msgs::Float64 &msg)
 {
@@ -100,11 +108,15 @@ void PathFollower::computeCmd(double &lin, double &ang)
 
     dx = x_des - x_robot;
     dy = y_des - y_robot;
+    if(du_ == INIT_DU)
+    {
+        first_du_ = du_;
+    }
     du_=sqrt(dx*dx+dy*dy);
 
     alpha = atan2(dy,dx);
 
-    ROS_INFO_STREAM("Target #"<<index_path_<<" : ["<<x_des<<"|"<<y_des<<std::endl<<"Robot : ["<<x_robot<<"|"<<y_robot<<"]"<<" du : "<<du_);
+    //ROS_INFO_STREAM("Target #"<<index_path_<<" : ["<<x_des<<"|"<<y_des<<std::endl<<"Robot : ["<<x_robot<<"|"<<y_robot<<"]"<<" du : "<<du_);
 
     ang = alpha-theta_robot;
     while(ang<-PI)
@@ -117,6 +129,21 @@ void PathFollower::computeCmd(double &lin, double &ang)
     else if(ang < - ANGULAR_SPEED_MAX)
     	ang = -ANGULAR_SPEED_MAX;
     lin=linear_speed_;
+}
+
+void PathFollower::publishRatio()
+{
+    cpt_++;
+        if(cpt_>6)
+        {
+            double ratio_to_next = (du_ - NEXT_POINT_DISTANCE_THRESH) / (first_du_ - NEXT_POINT_DISTANCE_THRESH);
+
+            scenario_msgs::PathFeedback pathFeedback;
+            pathFeedback.uid = path_uid_;
+            pathFeedback.ratio = (1.0*index_path_ + (1-ratio_to_next))/size_path_;
+            ratio_pub_.publish(pathFeedback);
+            cpt_=0;
+        }
 }
 
 
@@ -132,10 +159,10 @@ void PathFollower::spinOnce()
 
     if(size_path_ !=0 && index_path_<size_path_)
     {
-        if(du_<0.10)
+        if(du_ < NEXT_POINT_DISTANCE_THRESH)
         {
             index_path_++;
-            du_=10;
+            du_=INIT_DU;
         }
         computeCmd(cmd.linear.x, cmd.angular.z);
         cmd_pub_.publish(cmd);
@@ -153,17 +180,8 @@ void PathFollower::spinOnce()
         cmd_pub_.publish(cmd);
         size_path_==-1;
     }
-    cpt_++;
-    if(cpt_>6)
-    {
-        scenario_msgs::PathFeedback pathFeedback;
-        pathFeedback.uid = path_uid_;
-        pathFeedback.ratio = 1.0*index_path_/size_path_;
-        ratio_pub_.publish(pathFeedback);
-        cpt_=0;
-    }
+    publishRatio();
 }
-
 
 
 class ScenarioAction
