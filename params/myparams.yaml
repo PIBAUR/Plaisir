@@ -12,6 +12,7 @@ md25_serial_port: "/dev/ttyUSB0"
 
 ## pas de discretisation des courbes de beziers
 bezier_curve_step: 0.1    
+bezier_curve_step_in_meter: 0.05
 
 ## format des medias sur l ecran
 monitor_screen_width_ratio: 16
@@ -21,9 +22,9 @@ monitor_screen_height_ratio: 10
 media_time_base: 2.5
 
 ## chemins
-scenario_db_path: "/home/artlab/.notrebonplaisir/scenarios"
-server_videos_path: "/home/artlab/.notrebonplaisir/videos"
-server_thumbs_path: "/home/artlab/.notrebonplaisir/thumbs"
+scenario_db_path: "/home/serveur/.notrebonplaisir/scenarios"
+server_videos_path: "/home/serveur/.notrebonplaisir/videos"
+server_thumbs_path: "/home/serveur/.notrebonplaisir/thumbs"
 robot_videos_path: "/home/odroid/.notrebonplaisir/videos"
 
 ## angle de détection d'obsatcle à l'avant du robot (en degré)
