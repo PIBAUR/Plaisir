@@ -5,6 +5,8 @@ import math
 
 from PyQt4.QtGui import *
 
+import tf
+
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.nodes.travelScenarioNode import TravelScenarioNode
@@ -51,22 +53,16 @@ class CompleteScenarioNode(DiagramNode):
             if not "targetPosition" in args.keys():
                 raise NodeException(self, u"Le scénario de déplacement doit se siter après un noeud \"Visiteur\" ou \"Scénario complet\"")
             
-            originPosition = (args["targetPosition"][0] - directionLineVector[0], args["targetPosition"][1] - directionLineVector[1])
-            orientation = (1, 0, 0, 0)
+            # set the target position to the start point of the choregraphic scenario
+            originPosition = (args["targetPosition"][0] - directionLineVector[0], args["targetPosition"][1] + directionLineVector[1])
+            # get the orientation: the angle between the robot position and the target point
+            orientation = math.atan2((args["targetPosition"][1] - args["robotPosition"][1]), (args["targetPosition"][0] - args["robotPosition"][0]))
             
-            """
-            print robot.getScenarioMsg(originPosition, scale, orientation).bezier_paths.curves.anchor_1.x
-            print robot.getScenarioMsg(originPosition, scale, orientation).bezier_paths.curves.anchor_1.y
-            print "=="
-            transformationMatrix = robot.getTransformationMatrix(scale, orientation)
-            x, y, z, w = self.getTransformedPoint(bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, transformationMatrix, transformPosition)
-            print x
-            print y
-            print "_____________________"
-            """
-            #DEBUG: only for viz
-            #self.scenarioPublisher.publish(choregraphicScenario.robots[0].getScenarioMsg(originPosition, scale, orientation))
-        
+            transformOrientation = tf.transformations.quaternion_from_euler(0, 0, orientation)
+            scenarioMsg = choregraphicScenario.robots[0].getScenarioMsgWithParams((originPosition[0], originPosition[1], 0), scale, transformOrientation, True, True)
+            args["targetPosition"] = (scenarioMsg.bezier_paths.curves[0].anchor_1.x, scenarioMsg.bezier_paths.curves[0].anchor_1.y, 0)
+            args["targetOrientation"] = orientation
+            
         # continue output routine
         if choregraphicScenario.scenarioType == "choregraphic":
             if len(inputs) == 2:

@@ -27,15 +27,16 @@ class TravelScenarioNode(ScenarioNode):
     
     
     def output(self, args, updateRatioCallback):
-        if not "targetPosition" in args.keys():
+        if not "targetPosition" in args.keys() or not "targetOrientation" in args.keys():
             raise NodeException(self, u"Le scénario de déplacement doit se siter après un noeud \"Visiteur\" ou \"Scénario complet\"")
         
         targetPosition = args["targetPosition"]
+        targetOrientation = args["targetOrientation"]
         
         # get path finding
         rospy.wait_for_service('path_finding')
         pathFinding = rospy.ServiceProxy('path_finding', PathFindingSrv)
-        target = Pose2D(targetPosition[0], targetPosition[1], 0)
+        target = Pose2D(targetPosition[0], targetPosition[1], targetOrientation)
         pathResult = pathFinding(target)
         
         # set scenario

@@ -18,7 +18,10 @@ class Scenario():
         self.loadWithVideos = loadWithVideos
         
         self.targetPosition = [100, 100]
-        self.robots = [Robot(loadWithVideos)]
+        self.robots = [Robot(self)]
+        
+        self.transformPosition = (0, 0, 0)
+        self.transformOrientation = (1, 0, 0, 0)
         
         self.name = None
         self.attributes = {}
@@ -53,7 +56,7 @@ class Scenario():
         self.gridSize = data["gridSize"]
         self.robots = []
         for robotData in data["robots"]:
-            robotToAppend = Robot(self.loadWithVideos)
+            robotToAppend = Robot(self)
             robotToAppend.load(robotData)
             self.robots.append(robotToAppend)
         self.targetPosition = data["targetPosition"]

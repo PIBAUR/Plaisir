@@ -196,6 +196,7 @@ class ScenarioEdition():
     def changeCallback(self):
         self.lastChangesSaved = False
         self.updateWindowTitle()
+        self.currentScenario.gridSize = self.canvas.getGridSize()
     
     
     def updateWindowTitle(self):
@@ -328,7 +329,7 @@ class ScenarioEdition():
         
     
     def handleAddRobotButtonClicked(self, event):
-        self.currentScenario.robots.append(Robot())
+        self.currentScenario.robots.append(Robot(self.currentScenario))
         
         self.updateRobots()
     
@@ -355,7 +356,7 @@ class ScenarioEdition():
     
     
     def handleTestOnPhysicalRobot(self):
-        scenarioMsg = self.canvas.currentRobot.getScenarioMsg((0, 0, 0), 1. / float(self.canvas.getGridSize()), (1, 0, 0, 0))
+        scenarioMsg = self.canvas.currentRobot.getScenarioMsg()
         
         rospy.loginfo(str(scenarioMsg))
         self.scenarioPublisher.publish(scenarioMsg)

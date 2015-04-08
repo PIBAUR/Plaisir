@@ -64,7 +64,7 @@ class PlayNode(DiagramNode):
         
         self.startExecution(0)
         
-        return inputs[0].output({}, self.updateRatio)
+        return inputs[0].output({"robotPosition": self.transformPosition, "robotOrientation": self.transformOrientation}, self.updateRatio)
     
     
     def updateRatio(self, inputRatio, paused):
@@ -118,8 +118,7 @@ class PlayNode(DiagramNode):
             self.playingScenarioLabel.setText(self.playingScenario.niceName())
             
             # publish message to ROS
-            scale = 1. / float(self.playingScenario.gridSize)
-            scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.transformPosition, scale, self.transformOrientation, self.playingScenario.scenarioType == "choregraphic")
+            scenarioMsg = self.playingScenario.robots[0].getScenarioMsg()
             scenarioMsg.uid = self.playingScenario.uid
             scenarioMsg.type = self.playingScenario.scenarioType
             self.scenarioPublisher.publish(scenarioMsg)

@@ -1,5 +1,6 @@
 import os
 import random
+import math
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -30,7 +31,9 @@ class Robot():
     server_videos_path = None
     robot_videos_path = None
     
-    def __init__(self, loadWithVideos = True):
+    def __init__(self, scenario):
+        self.scenario = scenario
+        
         try:
             Robot.server_videos_path = rospy.get_param("server_videos_path")
             Robot.robot_videos_path = rospy.get_param("robot_videos_path")
@@ -42,7 +45,6 @@ class Robot():
         self.medias = []
         
         # only for display
-        self.loadWithVideos = loadWithVideos
         self.color = self.getColor()
         self.visible = True
     
@@ -67,7 +69,7 @@ class Robot():
         
         for mediaData in data["medias"]:
             if os.path.exists(mediaData["filePath"]):
-                mediaToAppend = Media(mediaData["filePath"], self.loadWithVideos)
+                mediaToAppend = Media(mediaData["filePath"], self.scenario.loadWithVideos)
                 mediaToAppend.load(mediaData)
                 self.medias.append(mediaToAppend)
             else:
@@ -80,9 +82,9 @@ class Robot():
     def loadVideos(self):
         for media in self.medias:
             media.loadVideo()
-        
     
-    def getScenarioMsg(self, transformPosition, scale, transformOrientation, interpolation = False):
+    
+    def getScenarioMsgWithParams(self, transformPosition, scale, transformOrientation, interpolation, rotateFromTarget):
         scenarioMsg = ScenarioMsg()
         
         self.setHeaderAndVideosForScenarioMsg(scenarioMsg)
@@ -91,6 +93,15 @@ class Robot():
         
         scenarioMsg.bezier_paths.curves = []
         firstAnchor = None
+        if rotateFromTarget:
+            # get pivot for future rotation
+            pivot = [self.scenario.targetPosition[0], self.scenario.targetPosition[1]]
+            if len(self.points) > 0:
+                pivot[0] -= self.points[0].anchor._x
+                pivot[1] -= self.points[0].anchor._y
+        else:
+            pivot = [0, 0]
+        
         for i in range(len(self.points)):
             point = self.points[i]
             
@@ -102,17 +113,31 @@ class Robot():
                     nextPoint = self.points[i + 1]
                     
                     bezierCurve = point.getBezierCurveWithNextPoint(nextPoint, -1, firstAnchor)
-                    
-                    bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, z, w = self.getTransformedPoint(bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, transformationMatrix, transformPosition)
-                    bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, z, w = self.getTransformedPoint(bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, transformationMatrix, transformPosition)
-                    bezierCurve.control_1.x, bezierCurve.control_1.y, z, w = self.getTransformedPoint(bezierCurve.control_1.x, bezierCurve.control_1.y, transformationMatrix, transformPosition)
-                    bezierCurve.control_2.x, bezierCurve.control_2.y, z, w = self.getTransformedPoint(bezierCurve.control_2.x, bezierCurve.control_2.y, transformationMatrix, transformPosition)
+                    bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, z, w = self.getTransformedPoint(bezierCurve.anchor_1.x, bezierCurve.anchor_1.y, transformationMatrix, transformPosition, pivot, scale)
+                    bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, z, w = self.getTransformedPoint(bezierCurve.anchor_2.x, bezierCurve.anchor_2.y, transformationMatrix, transformPosition, pivot, scale)
+                    bezierCurve.control_1.x, bezierCurve.control_1.y, z, w = self.getTransformedPoint(bezierCurve.control_1.x, bezierCurve.control_1.y, transformationMatrix, transformPosition, pivot, scale)
+                    bezierCurve.control_2.x, bezierCurve.control_2.y, z, w = self.getTransformedPoint(bezierCurve.control_2.x, bezierCurve.control_2.y, transformationMatrix, transformPosition, pivot, scale)
             else:
                 bezierCurve = BezierCurveMsg(anchor_1 = PointMsg(x = point.anchor._x, y = point.anchor._y, z = point.anchor._theta))
                 
             scenarioMsg.bezier_paths.curves.append(bezierCurve)
         
         return scenarioMsg
+        
+        
+        
+    def getScenarioMsg(self):
+        # get params from scenario
+        transformPosition = self.scenario.transformPosition
+        transformOrientation = self.scenario.transformOrientation
+        if self.scenario.scenarioType == "choregraphic":
+            scale = 1. / float(self.scenario.gridSize)
+            interpolation = True
+        else:
+            scale = 1
+            interpolation = False
+        
+        return self.getScenarioMsgWithParams(transformPosition, scale, transformOrientation, interpolation, False)
     
     
     def setHeaderAndVideosForScenarioMsg(self, scenarioMsg):
@@ -140,16 +165,16 @@ class Robot():
     
     def getTransformationMatrix(self, scale, transformOrientation):
         origin = (0, 0, 0)
-        quaternionMatrix = tf.transformations.quaternion_matrix(transformOrientation)
         scaleMatrix = tf.transformations.scale_matrix(scale, origin)
+        quaternionMatrix = tf.transformations.quaternion_matrix(transformOrientation)
         
         return tf.transformations.concatenate_matrices(scaleMatrix, quaternionMatrix)
     
     
-    def getTransformedPoint(self, x, y, transformationMatrix, transformPosition):
-        result = numpy.dot(transformationMatrix, (x, -y, 0, 0))
-        result[0] = result[0] + transformPosition[0]
-        result[1] = result[1] + transformPosition[1]
+    def getTransformedPoint(self, x, y, transformationMatrix, transformPosition, pivot, scale):
+        result = numpy.dot(transformationMatrix, (x - pivot[0], y + pivot[1], 0, 0))
+        result[0] = result[0] + transformPosition[0] + pivot[0] * scale
+        result[1] = result[1] + transformPosition[1] - pivot[1] * scale
         
         return result
     
