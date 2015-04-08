@@ -19,7 +19,6 @@ class TopicRouter():
         self.obstaclesPublisher = rospy.Publisher('/obstacles', ObstacleArrayMsg)
         
         self.pathVizPublisher = rospy.Publisher('/robot01/path_viz', PoseArrayMsg)
-        
 
     def pathCB(self, msg):
         self.pathVizPublisher.publish(PoseArrayMsg(header = HeaderMsg(frame_id = "/map"), poses = msg.path.poses))

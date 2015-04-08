@@ -6,6 +6,7 @@ project(gui_controller)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  scenario_msgs
   rospy
 )
 
