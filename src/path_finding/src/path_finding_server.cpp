@@ -12,20 +12,20 @@ void PathFinding::computeTF()
   
     try
     {  
-       tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
+
     }
     catch (tf::TransformException ex)
     {   
-        
+        ROS_ERROR("Error reading TF");
         ROS_ERROR("%s",ex.what());
         ros::Duration(1.0).sleep();
-        return;
+        //return;
     }
     double x_o = tf_robot.getOrigin().x();
     double y_o = tf_robot.getOrigin().y();
     double yaw_angle_o = tf::getYaw(tf_robot.getRotation()); //get yaw-angle in radian
-    
-    ROS_INFO_STREAM("TF robot : " << x_o<< "  " << y_o << "  "<< yaw_angle_o);
+
     // compute where the robot is in a grid corresponding to the /map frame 
     x_robot_origin = (int)( ( - x_map_origin + x_o) / map_resolution); // convert meter in pixel 
     y_robot_origin = (int)( ( - y_map_origin - y_o) / map_resolution); 
@@ -106,34 +106,30 @@ vector<Node*> PathFinding::algorithm()
 bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
           path_finding::PathFinding::Response &res)
 {
+    try
+    {
     ros::Time second=ros::Time::now();
-
     x_robot_des = (-x_map_origin + req.target.x)/map_resolution;
     y_robot_des =(-y_map_origin - req.target.y)/map_resolution;
-    ROS_INFO_STREAM(req.target.x<<"  "<<req.target.y);
 
     theta_robot_des =req.target.theta; // yaw-angle in radian
     computeTF();
 
     std::vector<Node*> path_bis;
 
-    while(path_bis.size() <=1)
-    {
         path_bis = algorithm();
 
-
-    }
-
     /***get coordinates of the destination point of /map in the /map frame***/
-    res.path.header.frame_id ="/robot01/base_link";
+    res.path.header.frame_id ="/map" ;
     res.path.header.stamp = ros::Time();
     /***path publication***/
     ROS_INFO_STREAM("PATH_BIS_SIZE "<<" "<<path_bis.size());
-
+    //int k=0;
     for( std::vector< Node* >::reverse_iterator rit_node = path_bis.rbegin() + 1; rit_node!=path_bis.rend(); ++rit_node)
     {
-
+        //k++;
         geometry_msgs::Pose2D p;
+        geometry_msgs::Pose p_test;
         if( rit_node == path_bis.rbegin())
         {
             p.x = (*rit_node)->x * map_resolution ; // convert pixel in meter
@@ -145,8 +141,9 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         {
         	if( (rit_node+1) == path_bis.rend())
             {
-                p.x =   req.target.x ; // convert pixel in meter
-                p.y =   req.target.y ;
+                p.x =   req.target.x ;
+                p.y =  req.target.y ;
+ 
 
             }
         	else
@@ -156,26 +153,27 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         	}
             
         }
-
+        p_test.position.x=p.x;
+        p_test.position.y=p.y;
         if((rit_node + 1) != path_bis.rend() ) 
         {   
 
-            dx = (*(rit_node + 1))->x - (*rit_node)->x; 
-            dy = (*(rit_node + 1))->y - (*rit_node)->y;
+            dx =  (*rit_node)->x - (*(rit_node + 1))->x ; 
+            dy =  -(*rit_node)->y + (*(rit_node + 1))->y;
 
             alpha = atan2(dy,dx);
 
-            angle = (theta_robot_des -alpha);//-theta_robot_origin;
 
-            //ROS_INFO_STREAM("Angle NORMAL#"<<" "<<k<<" "<<angle*180/PI);
+           angle = alpha -theta_robot_origin + PI ;
             p.theta=angle;
+            p_test.orientation=tf::createQuaternionMsgFromYaw(angle);
 
         }
 
         else
         {
-            //ROS_INFO_STREAM("Angle END#"<<angle*180/PI);
-            p.theta=theta_robot_des;
+             p.theta=theta_robot_des;
+            p_test.orientation=tf::createQuaternionMsgFromYaw(theta_robot_des);
         }
         res.path.poses.push_back(p);
     }
@@ -184,18 +182,29 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
     ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
 
     return true;
+    }
+
+    catch ( const std::exception & e ) 
+    { 
+        ROS_ERROR("Failed compute Path"); 
+        ROS_ERROR("%s",e.what());
+        ros::Duration(1.0).sleep();
+        return false;
+    
+    } 
+
  }
  
 
 
 
 int main(int argc, char **argv)
- {
-    ros::init(argc, argv, "path_finding");
+ {    
+    ros::init(argc, argv, "path_finding_server");
     ros::NodeHandle n;
     PathFinding pf(n);
-
     ros::ServiceServer service = n.advertiseService("path_finding",&PathFinding::serviceCB,&pf);
+
     ROS_INFO("Ready to compute path.");
 
     /***find resolution of the map***/
