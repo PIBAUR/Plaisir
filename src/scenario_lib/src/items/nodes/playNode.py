@@ -107,24 +107,24 @@ class PlayNode(DiagramNode):
     
     
     def playScenario(self):
-        #try:
-        # reset error
-        self.canvas.ui.statusBar.clearMessage()
-        for nodeInstance in self.canvas.nodesInstances:
-            nodeInstance.widget.central_widget.setStyleSheet("#central_widget { background: #fff; }")
+        try:
+            # reset error
+            self.canvas.ui.statusBar.clearMessage()
+            for nodeInstance in self.canvas.nodesInstances:
+                nodeInstance.widget.central_widget.setStyleSheet("#central_widget { background: #fff; }")
+                
+            # play
+            self.playingScenario = self.output()
+            self.playingScenarioLabel.setText(self.playingScenario.niceName())
             
-        # play
-        self.playingScenario = self.output()
-        self.playingScenarioLabel.setText(self.playingScenario.niceName())
-        
-        # publish message to ROS
-        scale = 1. / float(self.playingScenario.gridSize)
-        scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.transformPosition, scale, self.transformOrientation, self.playingScenario.scenarioType == "choregraphic")
-        scenarioMsg.uid = self.playingScenario.uid
-        scenarioMsg.type = self.playingScenario.scenarioType
-        self.scenarioPublisher.publish(scenarioMsg)
-        #except NodeException as error:
-        """    self.playButton.setEnabled(True)
+            # publish message to ROS
+            scale = 1. / float(self.playingScenario.gridSize)
+            scenarioMsg = self.playingScenario.robots[0].getScenarioMsg(self.transformPosition, scale, self.transformOrientation, self.playingScenario.scenarioType == "choregraphic")
+            scenarioMsg.uid = self.playingScenario.uid
+            scenarioMsg.type = self.playingScenario.scenarioType
+            self.scenarioPublisher.publish(scenarioMsg)
+        except NodeException as error:
+            self.playButton.setEnabled(True)
             self.stopButton.setEnabled(False)
             
             # display the error
@@ -132,7 +132,6 @@ class PlayNode(DiagramNode):
             error.nodeCausingErrror.widget.central_widget.setStyleSheet("#central_widget { background: #ff4c4c; }")
             
             self.stopAllScenarios()
-        """
     
     
     def stopAllScenarios(self):

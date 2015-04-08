@@ -12,7 +12,7 @@ void PathFinding::computeTF()
   
     try
     {  
-        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
+       tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
     }
     catch (tf::TransformException ex)
     {   
@@ -125,7 +125,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
     }
 
     /***get coordinates of the destination point of /map in the /map frame***/
-    res.path.header.frame_id ="/map" ;
+    res.path.header.frame_id ="/robot01/base_link";
     res.path.header.stamp = ros::Time();
     /***path publication***/
     ROS_INFO_STREAM("PATH_BIS_SIZE "<<" "<<path_bis.size());
@@ -179,7 +179,6 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         }
         res.path.poses.push_back(p);
     }
-
 
     time=ros::Time::now().toSec()-second.toSec();
     ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);

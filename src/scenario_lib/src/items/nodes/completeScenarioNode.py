@@ -48,6 +48,9 @@ class CompleteScenarioNode(DiagramNode):
             directionLineVector = ((targetPoint[0] - firstPoint.x()) * scale, (targetPoint[1] - firstPoint.y()) * scale)
             
             # calculate the origin of the choregraphic scenario
+            if not "targetPosition" in args.keys():
+                raise NodeException(self, u"Le scénario de déplacement doit se siter après un noeud \"Visiteur\" ou \"Scénario complet\"")
+            
             originPosition = (args["targetPosition"][0] - directionLineVector[0], args["targetPosition"][1] - directionLineVector[1])
             orientation = (1, 0, 0, 0)
             

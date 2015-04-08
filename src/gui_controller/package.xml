@@ -41,8 +41,10 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>geometry_msgs</build_depend>
+  <build_depend>scenario_msgs</build_depend>
   <build_depend>rospy</build_depend>
   <run_depend>geometry_msgs</run_depend>
+  <run_depend>scenario_msgs</run_depend>
   <run_depend>rospy</run_depend>
 
 
