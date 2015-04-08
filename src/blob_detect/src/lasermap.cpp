@@ -18,11 +18,15 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/features2d/features2d.hpp>
 
+#include <cstdlib>
+#include <sstream>
+
 #define THRESH_IN_METER 0.5
 #define GROUP_SIZE_MIN 2
 #define GROUP_SIZE_MAX 100
 #define RADIUS_DECREASE_VALUE 0.05
 #define PIXEL_ERODE_SIZE 3
+#define MATCH_DIST_MAX 0.50
 
 //
 // %Tag(CLASS_WITH_DECLARATION)%
@@ -40,7 +44,8 @@ public :
     void group_laser_point();
     void display_group();
     void process_map();
-    uint32_t set_id_closest(scenario_msgs::Obstacle &obs);
+    void set_id_closest(scenario_msgs::Obstacle &obs);
+    void set_id_closest();
     void spin();
 
     ///----ATTRIBUTS----///
@@ -55,7 +60,7 @@ public :
 
     cv::Mat map_;
     cv::Mat map_laser_;
-    cv::Mat map_group_;
+    //cv::Mat map_group_;
     cv::Mat map_bin_;
 
 
@@ -68,6 +73,7 @@ public :
     ros::Publisher obstacles_pub_;
     scenario_msgs::ObstacleArray obstacles_;
     scenario_msgs::ObstacleArray obstacles_old_;
+    scenario_msgs::ObstacleArray obstacles_old_bis_;
     uint32_t id_;
 };
 // %EndTag(CLASS_WITH_DECLARATION)%
@@ -76,7 +82,9 @@ public :
 LidarBliter::LidarBliter():
 		id_(1)
 {
-    map_ = cv::imread("/home/serveur/catkin_ws/maps/last_map.pgm",CV_LOAD_IMAGE_COLOR);
+    std::stringstream ss;
+    ss << std::getenv("HOME") <<"/catkin_ws/maps/last_map.pgm";
+    map_ = cv::imread(ss.str(),CV_LOAD_IMAGE_COLOR);
     map_laser_ = map_.clone();
     obstacles_.obstacles.clear();
     obstacles_old_.obstacles.clear();
@@ -147,7 +155,7 @@ void LidarBliter::display_laser_raw(const sensor_msgs::LaserScan& laser)
     {
         for(size_t i=0; i<= nb; i++)
         {
-            if (laser.ranges[i] < laser.range_max)
+            if (laser.ranges[i] < laser.range_max && laser.ranges[i] < laser.range_min)
             {
                 float x = laser.ranges[i] * cos(laser.angle_min+i*laser.angle_increment + laser_yaw_);
                 float y = laser.ranges[i] * sin(laser.angle_min+i*laser.angle_increment + laser_yaw_);
@@ -180,7 +188,7 @@ void LidarBliter::process_map()
 
     cv::erode(map_bin_,map_bin_,element);
     //cv::erode(map_bin_, map_bin_, element,cv::Point(-1,-1), 1, cv::BORDER_CONSTANT, cv::morphologyDefaultBorderValue() );
-    cv::imshow("map_process",map_bin_);
+    //cv::imshow("map_process",map_bin_);
 }
 
 void LidarBliter::group_laser_point()
@@ -213,10 +221,17 @@ void LidarBliter::display_group()
     //Cleaned for detection use only. without tracking//
     ////////////////////////////////////////////////////
 
-    map_group_ = map_.clone();
-    obstacles_.header.stamp = ros::Time(0);
-    obstacles_.obstacles.clear();
-    id_ = 0;
+    //map_group_ = map_.clone();
+        obstacles_old_bis_.obstacles.clear();
+        obstacles_old_bis_.obstacles = obstacles_old_.obstacles;
+
+        obstacles_old_.obstacles.clear();
+        obstacles_old_.obstacles = obstacles_.obstacles;
+
+        obstacles_.obstacles.clear();
+        obstacles_.header.stamp = ros::Time(0);
+
+    //id_ = 1;
     /*
     for(std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_.obstacles.begin();
 			it_obs != obstacles_.obstacles.end(); it_obs += 1)
@@ -235,11 +250,11 @@ void LidarBliter::display_group()
 
     ROS_INFO_STREAM(" nb_group of group : "<<grouped_point_. size());
     for(cv::vector< cv::vector<cv::Point> >::iterator it_group = grouped_point_.begin();
-            it_group != grouped_point_.end(); it_group += 1)
+        it_group != grouped_point_.end(); it_group += 1)
     {
         std::cout<<" size of group : "<<it_group->size()<<std::endl;
-        if( it_group->size()>GROUP_SIZE_MIN
-                && it_group->size()<GROUP_SIZE_MAX )
+        if( it_group->size()>=GROUP_SIZE_MIN
+            && it_group->size()<=GROUP_SIZE_MAX )
         {
             float radius = cv::norm(it_group->begin() - it_group->end()) / 2.0;
 
@@ -255,36 +270,44 @@ void LidarBliter::display_group()
             obs.x = pt_centre.x*metadata_.resolution+metadata_.origin.position.x;
             obs.y = -pt_centre.y*metadata_.resolution-metadata_.origin.position.y;;
             obs.radius = radius*metadata_.resolution;
-            obs.id = id_++;
-            /*
-           if(obstacles_old_.obstacles.size()!=0)
-           {
-               set_id_closest(obs);
-           }
-           else
-           {
-               obs.id = id_++;
-               //obstacles_.obstacles.push_back(obs);
-           }
-           */
-            obstacles_.obstacles.push_back(obs);
 
+
+            if(obstacles_old_.obstacles.size()!=0)
+            {
+                obs.id = 0;
+                set_id_closest(obs);
+            }
+            else
+            {
+                obs.id = id_++;
+            }
+            obstacles_.obstacles.push_back(obs);
+            /*
             int b = 0;
             int g = (obs.id * 40) % 255;
             int r = (obs.id * 40) % 255;
             cv::circle(map_group_,pt_centre,radius,cv::Scalar(b,g,r),-3,4,0);
+           */
         }
     }
+    /*if(obstacles_old_.obstacles.size()!=0)
+    {
+        set_id_closest();
+    }
+    */
+
+
     obstacles_pub_.publish(obstacles_);
-    cv::imshow("group",map_group_);
-    cv::waitKey(10);
+    //cv::imshow("group",map_group_);
+    //cv::waitKey(10);
+    id_ = id_%1000;
 }
 
 
 
-uint32_t LidarBliter::set_id_closest(scenario_msgs::Obstacle &obs)
+void LidarBliter::set_id_closest(scenario_msgs::Obstacle &obs)
 {
-    float min_d = 100.0;
+    float min_d = MATCH_DIST_MAX/metadata_.resolution;
     uint32_t min_id = 0;
 
     for(std::vector< scenario_msgs::Obstacle >::iterator it_obs_old = obstacles_old_.obstacles.begin();
@@ -294,8 +317,7 @@ uint32_t LidarBliter::set_id_closest(scenario_msgs::Obstacle &obs)
         float d = cv::norm( cv::Point(obs.x,obs.y) - cv::Point(it_obs_old->x,it_obs_old->y) );
         if(d < min_d)
         {
-
-            bool already_use= false;
+            bool already_use = false;
             for(std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_.obstacles.begin();
                         it_obs != obstacles_.obstacles.end(); it_obs += 1)
             {
@@ -315,21 +337,110 @@ uint32_t LidarBliter::set_id_closest(scenario_msgs::Obstacle &obs)
         }
     }
 
+    for(std::vector< scenario_msgs::Obstacle >::iterator it_obs_old = obstacles_old_bis_.obstacles.begin();
+                it_obs_old != obstacles_old_bis_.obstacles.end(); it_obs_old += 1)
+    {
+
+        float d = cv::norm( cv::Point(obs.x,obs.y) - cv::Point(it_obs_old->x,it_obs_old->y) );
+        if(d < min_d)
+        {
+            bool already_use = false;
+            for(std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_.obstacles.begin();
+                        it_obs != obstacles_.obstacles.end(); it_obs += 1)
+            {
+                if(it_obs->id == it_obs_old->id)
+                {
+                    already_use = true;
+                    break;
+                }
+            }
+            if(!already_use)
+            {
+                //ROS_INFO_STREAM();
+                min_d = d;
+                min_id = it_obs_old->id;
+
+            }
+        }
+    }
+
     if(min_id != 0)
     {
-		if(obs.radius > obstacles_old_.obstacles[min_id].radius)
-    	{
-			obstacles_old_.obstacles[min_id].radius = obs.radius;
-			obstacles_.obstacles.push_back(obstacles_old_.obstacles[min_id]);
-    	}
-
+        obs.id = min_id;
     }
     else
     {
         obs.id = id_++;
-        obstacles_.obstacles.push_back(obs);
     }
 }
+
+
+
+
+void LidarBliter::set_id_closest()
+{
+
+    if(obstacles_old_.obstacles.size() != 0)
+    {
+        for(std::vector< scenario_msgs::Obstacle >::iterator it_obs_old = obstacles_old_.obstacles.begin();
+            it_obs_old != obstacles_old_.obstacles.end(); it_obs_old += 1)
+        {
+            float min_d = MATCH_DIST_MAX/metadata_.resolution;
+            uint32_t min_id = 0;
+            std::vector< scenario_msgs::Obstacle >::iterator nearest_obs;
+
+            for(std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_.obstacles.begin();
+                it_obs != obstacles_.obstacles.end(); it_obs += 1)
+            {
+                float d = cv::norm( cv::Point(it_obs->x,it_obs->y) - cv::Point(it_obs_old->x,it_obs_old->y) );
+
+                if(d < min_d && it_obs->id!=0)
+                {
+                    min_d = d;
+                    nearest_obs = it_obs;
+                }
+            }
+            nearest_obs->id = it_obs_old->id;
+        }
+    }
+
+    if(obstacles_old_bis_.obstacles.size() != 0)
+    {
+        for(std::vector< scenario_msgs::Obstacle >::iterator it_obs_old_bis = obstacles_old_bis_.obstacles.begin();
+            it_obs_old_bis != obstacles_old_bis_.obstacles.end(); it_obs_old_bis += 1)
+        {
+            float min_d = MATCH_DIST_MAX/metadata_.resolution;
+            uint32_t min_id = 0;
+            std::vector< scenario_msgs::Obstacle >::iterator nearest_obs;
+
+            for(std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_.obstacles.begin();
+                    it_obs != obstacles_.obstacles.end(); it_obs += 1)
+            {
+                float d = cv::norm( cv::Point(it_obs->x,it_obs->y) - cv::Point(it_obs_old_bis->x,it_obs_old_bis->y) );
+
+                if(d < min_d && it_obs->id!=0)
+                {
+                    min_d = d;
+                    nearest_obs = it_obs;
+                }
+            }
+            nearest_obs->id = it_obs_old_bis->id;
+        }
+    }
+    if(obstacles_.obstacles.size() != 0)
+    {
+        for(std::vector< scenario_msgs::Obstacle >::iterator it_obs = obstacles_.obstacles.begin();
+            it_obs != obstacles_.obstacles.end(); it_obs += 1)
+        {
+
+            if(it_obs->id==0)
+            {
+                it_obs->id = id_++;
+            }
+        }
+    }
+}
+
 
 
 
@@ -360,9 +471,9 @@ void LidarBliter::laserCb(const sensor_msgs::LaserScan::ConstPtr& msg)
         ros::Duration(1.0).sleep();
         return;
     }
-    display_laser_raw(*msg);
+    //display_laser_raw(*msg);
     laser_filter(*msg);
-    display_laser();
+    //display_laser();
     group_laser_point();
     display_group();
 }

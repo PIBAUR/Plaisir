@@ -12,6 +12,7 @@ from std_msgs.msg import Float64 as Float64Msg
 DEFAULT_BEZIER_CURVE_STEP = .05
 path = PathMsg()
 step = 0
+stepInMeter = 0
 
 def scenarioCallback(data):
     # to execute only choregraphic scenario
@@ -27,6 +28,7 @@ def scenarioCallback(data):
     for curve in data.bezier_paths.curves:
         distance += getBezierCurveLength(curve)
         i = 0
+        step = 1.0 * stepInMeter / getBezierCurveLength(curve)
         while i <= 1 + step:  
             pose = PoseMsg()
             
@@ -144,5 +146,6 @@ if __name__ == "__main__":
     speedPublisher = rospy.Publisher("linear_speed", Float64Msg)
     
     step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
+    stepInMeter = rospy.get_param("bezier_curve_step_in_meter", DEFAULT_BEZIER_CURVE_STEP)
     
     rospy.spin()

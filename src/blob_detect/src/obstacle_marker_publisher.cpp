@@ -31,10 +31,10 @@ void obstacleCB(const scenario_msgs::ObstacleArray& msg)
         marker.scale.x = 2* it_obs->radius;
         marker.scale.y = 2* it_obs->radius;
         marker.scale.z = 2* it_obs->radius;
-        marker.color.a = 0.6;
-        marker.color.r = 0.0;
-        marker.color.g = 0.0;
-        marker.color.b = 1.0;
+        marker.color.a = 0.800;
+        marker.color.r = (float)((it_obs->id * 23) % 256)/255.0;
+        marker.color.g = (float)((it_obs->id * 43) % 256)/255.0;
+        marker.color.b = (float)((it_obs->id * 73) % 256)/255.0;
         marker.lifetime = ros::Duration(1.0);
         markers_msg.markers.push_back(marker);
     }
