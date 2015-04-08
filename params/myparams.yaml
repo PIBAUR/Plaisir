@@ -11,7 +11,7 @@ semi_axe_length: 0.175
 md25_serial_port: "/dev/ttyUSB0"    
 
 ## pas de discretisation des courbes de beziers
-bezier_curve_step: 0.1    
+#bezier_curve_step: 0.1    
 bezier_curve_step_in_meter: 0.05
 
 ## format des medias sur l ecran
