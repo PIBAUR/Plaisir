@@ -3,27 +3,22 @@
 	<!-- Setting and loading params and args -->
 	<param name="use_sim_time" value="false" />
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
-	<!-- <arg name="robot" value="01"/> -->
 	<arg name="map" value="last_map"/>
 	
-	<!-- Setting local machin and running graphique tools  -->
+	<!-- Setting local machine and running debug/gaphic ros tools  -->
 	<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
-	
 	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init.rviz"/>
-	<!--
-	<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
-		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
-		<remap from="scenario" to="robot$(arg robot)/scenario"/>
-	</node>
-	 -->
+	
+	
+	 
 	<!-- ROBOT DRIVERS -->
 	<include file="$(find robot)/launch/plaisir.machine">
 		<arg name="robot" value="$(arg robot)"/> 
 	</include>
 	
 	<node pkg="topic_router" name="robot_model" type="robot_model" respawn="true"/>
-	<node pkg="topic_router" type="__init__.py" name="topic_router"/>
+	<node pkg="topic_router" type="__init__.py" name="path_viz_pub" respawn="true"/>
 	
 	<!-- STATE MACHINE -->
 	<include file="$(find robot)/launch/state_machine.machine">
@@ -51,8 +46,13 @@
 
 	<!-- MEDIA PLAYER -->
 	<env name="DISPLAY" value=":0"/>
-	<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)"/>
+	<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)"  respawn="true"/>
 	
+	<!-- GUI TOOLS -->
+	<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
+		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
+		<remap from="scenario" to="robot$(arg robot)/scenario"/>
+	</node>
 </launch>
 
 
