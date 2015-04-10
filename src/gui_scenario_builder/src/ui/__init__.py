@@ -356,7 +356,7 @@ class ScenarioEdition():
     
     
     def handleTestOnPhysicalRobot(self):
-        scenarioMsg = self.canvas.currentRobot.getScenarioMsg()
+        scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
         
         rospy.loginfo(str(scenarioMsg))
         self.scenarioPublisher.publish(scenarioMsg)

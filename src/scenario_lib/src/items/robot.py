@@ -125,21 +125,6 @@ class Robot():
         return scenarioMsg
         
         
-        
-    def getScenarioMsg(self):
-        # get params from scenario
-        transformPosition = self.scenario.transformPosition
-        transformOrientation = self.scenario.transformOrientation
-        if self.scenario.scenarioType == "choregraphic":
-            scale = 1. / float(self.scenario.gridSize)
-            interpolation = True
-        else:
-            scale = 1
-            interpolation = False
-        
-        return self.getScenarioMsgWithParams(transformPosition, scale, transformOrientation, interpolation, False)
-    
-    
     def setHeaderAndVideosForScenarioMsg(self, scenarioMsg):
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()
