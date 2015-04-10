@@ -4,15 +4,11 @@
 /* INCLUDES */
 
 #include <ros/ros.h>
-#include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/Pose.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Pose2D.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
-#include <std_msgs/Float64.h>
 #include <nav_msgs/OccupancyGrid.h>
-#include <scenario_msgs/Scenario.h>
-#include <geometry_msgs/TransformStamped.h>
 #include "RRT.hpp"
 //lib opencv
 #include <opencv2/core/core.hpp>
@@ -49,12 +45,10 @@ public:
 
     PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0)
     {
-
     }
     ~PathFinding(){};
     void computeTF();
     vector<Node*> algorithm();
-    void computePath(const scenario_msgs::Scenario::ConstPtr& msg);
     void map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg);
     bool serviceCB(path_finding::PathFinding::Request  &req,path_finding::PathFinding::Response &res);
  
@@ -109,7 +103,7 @@ void draw_path(std::vector<Node*> path, Mat &map){
 		cv::Point end(path[i+1]->x,path[i+1]->y);
 		cv::Scalar c(0,0,0);
 		cv::line(map,start,end,c);
-std::cout << "point #"<<i<<" : "<<path[i]->x<<" | "<<path[i]->y<<std::endl;
+        //std::cout << "point #"<<i<<" : "<<path[i]->x<<" | "<<path[i]->y<<std::endl;
 	
 	}
 

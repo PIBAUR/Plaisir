@@ -1,4 +1,5 @@
  #include "ros/ros.h"
+ #include "ros/console.h"
  #include "path_finding/PathFinding.h"
  #include "path_finding.h"
   #include <geometry_msgs/Pose2D.h>
@@ -9,35 +10,45 @@ using namespace std;
  int main(int argc, char **argv)
 {
    ros::init(argc, argv, "path_finding_client");
-   if (argc != 4)
+
+  if (argc != 4)
   {
-     ROS_INFO("usage: path_finding_client X Y Z");
-     //return 1;
+     ROS_ERROR("Error reading arguments");
    }
-   //else
-      //ROS_INFO("ERROR read arguments");
+  else
+   {
    ros::NodeHandle n;
-   ros::ServiceClient client = n.serviceClient<path_finding::PathFinding>("path_finding");
-   //ros::Publisher path_pub=n.advertise<geometry_msgs::PoseArray>("path", 1);
+   ros::ServiceClient client = n.serviceClient<path_finding::PathFinding>("path_finding",true);
+
    path_finding::PathFinding srv;
- 
-   
-   srv.request.target.x=  atof(argv[1]);
+
+   try
+   {
+   srv.request.target.x= atof(argv[1]);
    srv.request.target.y= atof(argv[2]);
    srv.request.target.theta=atof(argv[3]);
-    cout<<srv.request.target.x<<" "<<srv.request.target.y<<" "<<srv.request.target.theta<<endl;
-   if (client.call(srv))
+   ROS_INFO_STREAM("Reading arguments"); 
+
+   }
+   catch ( const std::exception & e ) 
+    { 
+        ROS_ERROR("Failed allocate arguments"); 
+        ROS_ERROR("%s",e.what());
+        ros::Duration(1.0).sleep();
+    
+    }
+
+  
+  if (ros::service::waitForService("path_finding", -1) && client.call(srv))
    {
-       cout<<"OK"<<endl;
-       //cout<<srv.response.path[0]<<endl;
-    //path_pub.publish();
+     ROS_INFO_STREAM("OK"); 
+
    }
    else
   {
      ROS_ERROR("Failed to call service path_finding");
-     //return 1;
   }
- 
+  }
    return 0;
  }
 
