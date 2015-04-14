@@ -37,7 +37,7 @@ int main(){
                     printf("error\n\n");
                     break;
                 case 0: //fils : exec launch cartographie_fils
-                    sleep(5);
+                    sleep(10);
                     printf("=================================================\n");
                     printf("==========NEATO LAUNCH CARTO FILS 2==============\n");
                     printf("=================================================\n");
@@ -60,7 +60,7 @@ int main(){
                             printf("error\n\n");
                             break;
                         case 0: //fils : exec rosrun map_server map_saver
-                            sleep(10);
+                            sleep(20);
                             printf("=================================================\n");
                             printf("==========SIMPLE EXPLORATION CONTROLLER========\n");
                             printf("=================================================\n");

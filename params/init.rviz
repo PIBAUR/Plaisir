@@ -4,6 +4,8 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Odometry1
+        - /Path1
         - /TF1/Tree1
       Splitter Ratio: 0.329962
     Tree Height: 568
@@ -95,7 +97,7 @@ Visualization Manager:
       Marker Topic: /visualization_marker
       Name: Obstacles
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Angle Tolerance: 0.01
@@ -103,7 +105,7 @@ Visualization Manager:
       Color: 255; 25; 0
       Enabled: true
       Keep: 0
-      Length: 0.1
+      Length: 0.03
       Name: Odometry
       Position Tolerance: 0.01
       Topic: /robot01/odom
@@ -115,7 +117,7 @@ Visualization Manager:
       Name: ParticleCloud
       Topic: /particlecloud
       Value: true
-    - Arrow Length: 0.3
+    - Arrow Length: 0.05
       Class: rviz/PoseArray
       Color: 255; 0; 127
       Enabled: true
@@ -205,5 +207,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1200
-  X: 308
+  X: 301
   Y: 49
