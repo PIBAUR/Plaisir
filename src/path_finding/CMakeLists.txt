@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(path_finding)
 
+set(CMAKE_BUILD_TYPE Debug)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -130,6 +131,7 @@ target_link_libraries(path_finding_client -L/opt/ros/groovy/lib opencv_core open
 #############
 ## Install ##
 #############
+
 
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
