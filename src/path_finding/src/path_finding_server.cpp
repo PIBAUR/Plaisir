@@ -1,7 +1,6 @@
 #include "ros/ros.h"
  #include "path_finding.h"
   #include "path_finding/PathFinding.h"
-using namespace cv;
 
 
 /****************Compute TF********************/
@@ -12,7 +11,8 @@ void PathFinding::computeTF()
   
     try
     {  
-        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot); 
+                                                                   
 
     }
     catch (tf::TransformException ex)
@@ -20,12 +20,13 @@ void PathFinding::computeTF()
         ROS_ERROR("Error reading TF");
         ROS_ERROR("%s",ex.what());
         ros::Duration(1.0).sleep();
-        //return;
+
     }
     double x_o = tf_robot.getOrigin().x();
     double y_o = tf_robot.getOrigin().y();
     double yaw_angle_o = tf::getYaw(tf_robot.getRotation()); //get yaw-angle in radian
-
+    
+    //ROS_INFO_STREAM("TF robot : " << x_o<< "  " << y_o << "  "<< yaw_angle_o);
     // compute where the robot is in a grid corresponding to the /map frame 
     x_robot_origin = (int)( ( - x_map_origin + x_o) / map_resolution); // convert meter in pixel 
     y_robot_origin = (int)( ( - y_map_origin - y_o) / map_resolution); 
@@ -46,7 +47,7 @@ void PathFinding::map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg
 
     //convert OccupancyGrid message into a map
     int count=0;
-    map_received= Mat::zeros(msg->info.width,msg->info.height,CV_32F);
+    map_received= cv::Mat::zeros(msg->info.width,msg->info.height,CV_32F);
     for (int i=0; i<map_received.rows;i++)
     {
         for (int j=0; j<map_received.cols;j++)
@@ -76,16 +77,17 @@ void PathFinding::map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg
               }
           
         }
+
 }
 
 
 //********* Algorithm *******************
-vector<Node*> PathFinding::algorithm()
+std::vector<Node*> PathFinding::algorithm()
 {
 
-    Mat map= map_received.clone();
+    cv::Mat map= map_received.clone();
     Node tree(x_robot_origin,y_robot_origin);
-
+    
   
  	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des); 
 
@@ -93,7 +95,7 @@ vector<Node*> PathFinding::algorithm()
     Node end(x_robot_des,y_robot_des);
 
 
-    vector<Node*> path = path_smoothing(rrt_path(&end,&tree), &map);
+    std::vector<Node*> path = path_smoothing(rrt_path(&end,&tree), &map);
     draw_path(path,map);
 
 
@@ -106,30 +108,33 @@ vector<Node*> PathFinding::algorithm()
 bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
           path_finding::PathFinding::Response &res)
 {
-    try
-    {
+
     ros::Time second=ros::Time::now();
+    //ROS_INFO_STREAM(req.target.x<<" "<<req.target.y);
     x_robot_des = (-x_map_origin + req.target.x)/map_resolution;
     y_robot_des =(-y_map_origin - req.target.y)/map_resolution;
 
     theta_robot_des =req.target.theta; // yaw-angle in radian
+
     computeTF();
 
     std::vector<Node*> path_bis;
+
 
         path_bis = algorithm();
 
     /***get coordinates of the destination point of /map in the /map frame***/
     res.path.header.frame_id ="/map" ;
     res.path.header.stamp = ros::Time();
+
     /***path publication***/
     ROS_INFO_STREAM("PATH_BIS_SIZE "<<" "<<path_bis.size());
-    //int k=0;
+
     for( std::vector< Node* >::reverse_iterator rit_node = path_bis.rbegin() + 1; rit_node!=path_bis.rend(); ++rit_node)
     {
-        //k++;
+
         geometry_msgs::Pose2D p;
-        geometry_msgs::Pose p_test;
+ 
         if( rit_node == path_bis.rbegin())
         {
             p.x = (*rit_node)->x * map_resolution ; // convert pixel in meter
@@ -141,9 +146,8 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         {
         	if( (rit_node+1) == path_bis.rend())
             {
-                p.x =   req.target.x ;
+                p.x =   req.target.x ; // convert pixel in meter
                 p.y =  req.target.y ;
- 
 
             }
         	else
@@ -153,8 +157,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         	}
             
         }
-        p_test.position.x=p.x;
-        p_test.position.y=p.y;
+
         if((rit_node + 1) != path_bis.rend() ) 
         {   
 
@@ -164,34 +167,26 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
             alpha = atan2(dy,dx);
 
 
-           angle = alpha -theta_robot_origin + PI ;
+            angle = alpha -theta_robot_origin + PI ;
             p.theta=angle;
-            p_test.orientation=tf::createQuaternionMsgFromYaw(angle);
 
         }
 
         else
         {
-             p.theta=theta_robot_des;
-            p_test.orientation=tf::createQuaternionMsgFromYaw(theta_robot_des);
+            //ROS_INFO_STREAM("Angle END#"<<angle*180/PI);
+            p.theta=theta_robot_des;
+
         }
         res.path.poses.push_back(p);
+
     }
 
     time=ros::Time::now().toSec()-second.toSec();
     ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
 
     return true;
-    }
 
-    catch ( const std::exception & e ) 
-    { 
-        ROS_ERROR("Failed compute Path"); 
-        ROS_ERROR("%s",e.what());
-        ros::Duration(1.0).sleep();
-        return false;
-    
-    } 
 
  }
  
@@ -209,20 +204,19 @@ int main(int argc, char **argv)
 
     /***find resolution of the map***/
     ros::Subscriber origine = n.subscribe<nav_msgs::OccupancyGrid>("map", 1,&PathFinding::map_origine_point,&pf); 
-
-    ros::Rate loop(LOOP_RATE),rate(5);
+   
+    ros::Rate loop(LOOP_RATE);
     while(ros::ok())
     {   
 
       		ros::spinOnce();
 		    loop.sleep();
 	}  
-   
+     
     ros::spin();
 
     return 0;
  }
 
-/*Functions*/
 
 

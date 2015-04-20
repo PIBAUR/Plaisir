@@ -4,12 +4,12 @@
 /* INCLUDES */
 
 #include <ros/ros.h>
-#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Pose2D.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include "RRT.hpp"
+
 //lib opencv
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -20,7 +20,7 @@
 #define SMOOTHING_STRENGTH 0.5
 #define SMOOTHING_TOLERANCE 6
 #define SMOOTHING_DATA_WEIGHT 0.5
-#define NUMBER_OF_POINTS 35000
+#define NUMBER_OF_POINTS 30000
 #define PI 3.14159265359
 #define LOOP_RATE 50
 
@@ -33,7 +33,7 @@ class PathFinding
 public:
     ros::NodeHandle nh_;
     tf::TransformListener tf_listener_;
-    Mat map_received;
+    cv::Mat map_received;
     double theta_robot_origin, theta_robot_des, z_map_origin;
     int x_robot_origin, y_robot_origin, x_robot_des, y_robot_des;
     double map_resolution;
@@ -45,10 +45,11 @@ public:
 
     PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0)
     {
+
     }
     ~PathFinding(){};
     void computeTF();
-    vector<Node*> algorithm();
+    std::vector<Node*> algorithm();
     void map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg);
     bool serviceCB(path_finding::PathFinding::Request  &req,path_finding::PathFinding::Response &res);
  
@@ -58,14 +59,13 @@ public:
 
 /* GLOBAL VARIABLES */
 
-using namespace cv;
-using namespace std;
+
 /* Headers*/
 
 void affiche_tree(Node *q_i, cv::Mat* map);
-void draw_path(std::vector<Node*> path, Mat &map);
+void draw_path(std::vector<Node*> path, cv::Mat &map);
 std::vector<Node*> rrt_path(Node *end, Node *tree);
-std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map);
+std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map);
 
 
 /* FUNCTIONS */
@@ -93,7 +93,7 @@ void affiche_tree(Node *tree,cv::Mat* map){
   return affiche_tree_rec(tree,map);
 }
 
-void draw_path(std::vector<Node*> path, Mat &map){
+void draw_path(std::vector<Node*> path, cv::Mat &map){
 
 	int n = path.size();
 
@@ -121,12 +121,11 @@ std::vector<Node*> rrt_path(Node *end, Node *tree){
 		temp = temp->parent;
 	
 	}
-	
 	return path;
 	
 }
 
-std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map){
+std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map){
 
   int n = path.size();
   std::vector<Node*> newpath;
@@ -168,6 +167,7 @@ std::vector<Node*> path_smoothing(std::vector<Node*> path, Mat *map){
     }
 
   }
+
   return newpath;
 }
 

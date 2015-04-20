@@ -17,6 +17,8 @@
 #define ANGULAR_SPEED_MAX (PI/2.0)
 #define INIT_DU 10.0
 #define NEXT_POINT_DISTANCE_THRESH 0.10
+#define LAST_POINT_DISTANCE_THRESH 0.01
+#define LAST_POINT_ANGLE_THRESH (PI/18) // PI/18 rad = 10°
 #define RATIO_PUBLISH_RATE (LOOP_RATE/10)
 
 class PathFollower
@@ -32,6 +34,7 @@ protected:
     int index_path_;
     size_t size_path_;
     double du_;
+    double dth_;
     int cpt_;
     float linear_speed_;
     double first_du_;
@@ -41,7 +44,8 @@ public:
         nh_(nh),
         index_path_(0),
         size_path_(0),
-        du_(10.0),
+        du_(INIT_DU),
+        dth_(PI),
         cpt_(0),
         linear_speed_(0.10)
 {
@@ -53,6 +57,7 @@ public:
 
     void pathCB(const scenario_msgs::Path &msg);
     void computeCmd(double &lin, double &ang);
+    void computeLastPointAngleCmd(double &lin, double &ang);
     void spinOnce();
     void speedCB(const std_msgs::Float64 &msg);
     void publishRatio();
@@ -116,20 +121,62 @@ void PathFollower::computeCmd(double &lin, double &ang)
 
     alpha = atan2(dy,dx);
 
-    //ROS_INFO_STREAM("Target #"<<index_path_<<" : ["<<x_des<<"|"<<y_des<<std::endl<<"Robot : ["<<x_robot<<"|"<<y_robot<<"]"<<" du : "<<du_);
 
     ang = alpha-theta_robot;
     while(ang<-PI)
-            ang+=2*PI;
+        ang+=2*PI;
     while(ang>=PI)
-            ang-=2*PI;
+        ang-=2*PI;
+
+
     ang*=K_TH;
     if(ang>ANGULAR_SPEED_MAX)
     	ang = ANGULAR_SPEED_MAX;
-    else if(ang < - ANGULAR_SPEED_MAX)
+    else if(ang < (- ANGULAR_SPEED_MAX) )
     	ang = -ANGULAR_SPEED_MAX;
+
     lin=linear_speed_;
 }
+
+
+
+void PathFollower::computeLastPointAngleCmd(double &lin, double &ang)
+{
+    tf::StampedTransform tf_robot;
+
+    try
+    {
+        //TODO: replace "map" by path.header.frame_id
+        tf_listener_.lookupTransform("/map", "base_link", ros::Time(0), tf_robot);
+    }
+    catch (tf::TransformException ex)
+    {
+        ROS_ERROR("%s",ex.what());
+        ros::Duration(1.0).sleep();
+        return;
+    }
+
+    double theta_robot;
+    double theta_des;
+
+    theta_robot = tf::getYaw(tf_robot.getRotation());
+    theta_des = tf::getYaw(path_.poses[index_path_].orientation);
+    dth_ = theta_des-theta_robot;
+    while(ang<-PI)
+        dth_+=2*PI;
+    while(ang>=PI)
+        dth_-=2*PI;
+
+    ang = dth_;
+    ang*=K_TH;
+    if(ang>ANGULAR_SPEED_MAX)
+        ang = ANGULAR_SPEED_MAX;
+    else if(ang < (- ANGULAR_SPEED_MAX) )
+        ang = -ANGULAR_SPEED_MAX;
+
+    lin=0.0;
+}
+
 
 void PathFollower::publishRatio()
 {
@@ -157,17 +204,47 @@ void PathFollower::spinOnce()
     cmd.angular.y=0;
 
 
-    if(size_path_ !=0 && index_path_<size_path_)
+    if(size_path_ > 0 && index_path_<size_path_)
     {
-        if(du_ < NEXT_POINT_DISTANCE_THRESH)
+
+
+        if(index_path_ == size_path_-1)
         {
-            index_path_++;
-            du_=INIT_DU;
+            if(du_ > LAST_POINT_DISTANCE_THRESH)
+            {
+                computeCmd(cmd.linear.x, cmd.angular.z);
+                cmd_pub_.publish(cmd);
+            }
+            else if(dth_ > LAST_POINT_ANGLE_THRESH)
+            {
+                computeLastPointAngleCmd(cmd.linear.x, cmd.angular.z);
+                cmd_pub_.publish(cmd);
+            }
+            else
+            {
+                index_path_++;
+                du_=INIT_DU;
+                dth_ = PI;
+                ROS_INFO_STREAM("Heading to point #"<<index_path_<<"/"<<size_path_<<" : ("
+                                        <<path_.poses[index_path_].position.x<<"|"<<path_.poses[index_path_].position.y<<")");
+            }
         }
-        computeCmd(cmd.linear.x, cmd.angular.z);
-        cmd_pub_.publish(cmd);
+        else
+        {
+            if( du_ > NEXT_POINT_DISTANCE_THRESH)
+            {
+                computeCmd(cmd.linear.x, cmd.angular.z);
+                cmd_pub_.publish(cmd);
+            }
+            else
+            {
+                index_path_++;
+                du_=INIT_DU;
+                dth_ = PI;
+            }
+        }
     }
-    else if(size_path_ !=0 && index_path_==size_path_)
+    else if(size_path_ > 0 && index_path_==size_path_)
     {
         cmd.linear.x = 0;
         cmd.angular.z = 0;

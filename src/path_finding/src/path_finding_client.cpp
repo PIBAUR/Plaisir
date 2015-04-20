@@ -5,7 +5,6 @@
   #include <geometry_msgs/Pose2D.h>
  #include <cstdlib>
 
-using namespace std;
 
  int main(int argc, char **argv)
 {
@@ -13,21 +12,24 @@ using namespace std;
 
   if (argc != 4)
   {
+
      ROS_ERROR("Error reading arguments");
+
    }
   else
    {
    ros::NodeHandle n;
-   ros::ServiceClient client = n.serviceClient<path_finding::PathFinding>("path_finding",true);
+   ros::ServiceClient client = n.serviceClient<path_finding::PathFinding>("path_finding");
 
    path_finding::PathFinding srv;
 
    try
    {
+
    srv.request.target.x= atof(argv[1]);
    srv.request.target.y= atof(argv[2]);
-   srv.request.target.theta=atof(argv[3]);
-   ROS_INFO_STREAM("Reading arguments"); 
+   srv.request.target.theta= atof(argv[3]);
+   //ROS_INFO_STREAM("Reading arguments"); 
 
    }
    catch ( const std::exception & e ) 
@@ -39,12 +41,12 @@ using namespace std;
     }
 
   
-  if (ros::service::waitForService("path_finding", -1) && client.call(srv))
-   {
+  if (client.call(srv))
+    {
      ROS_INFO_STREAM("OK"); 
 
    }
-   else
+  else
   {
      ROS_ERROR("Failed to call service path_finding");
   }
