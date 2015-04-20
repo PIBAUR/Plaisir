@@ -321,3 +321,4 @@ from src.scenario_lib.src.items.nodes.travelScenarioNode import TravelScenarioNo
 from src.scenario_lib.src.items.nodes.sequenceNode import SequenceNode
 from src.scenario_lib.src.items.nodes.randomChoiceNode import RandomChoiceNode
 from src.scenario_lib.src.items.nodes.visitorNode import VisitorNode
+from src.scenario_lib.src.items.nodes.batteryStateNode import BatteryStateNode

@@ -3,6 +3,7 @@
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/String.h>
 /***Action lib message***/
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
@@ -48,6 +49,11 @@ class ActionSelector{
     	bool emergency_stop_state_;
     	bool frozen_state_;
     	bool front_obstacle_state_;
+
+    	///---PUBLISHER---///
+    	ros::NodeHandle nh_;
+    	ros::Publisher state_publisher_;
+    	std_msgs::String state_msg;
 
         ///---METHODS---///
         void stop_all_actions();
@@ -127,6 +133,7 @@ ActionSelector::ActionSelector():loop_rate_(20),
     scenario_ac_.sendGoal(scenario_goal);
     scenario_ac_.cancelGoal();
 
+    state_publisher_ = nh_.advertise<std_msgs::String>("state", 1);
 }
 
 ActionSelector::~ActionSelector(){}
@@ -278,6 +285,8 @@ void ActionSelector::spin()
     while(ros::ok()){
         b_interrupt=interrupt_;
 
+
+
         /**Emergency process**/
         if(interrupt_ & EMERGENCY_FLAG)
         {
@@ -289,6 +298,7 @@ void ActionSelector::spin()
                 robot::StopGoal goal;
                 goal.goal = true;
                 emergency_stop_ac_.sendGoal(goal);
+				state_msg.data = "EMERGENCY_STOP";
             }
         }
         else if( !(interrupt_ & STOP_FLAG) 
@@ -313,6 +323,7 @@ void ActionSelector::spin()
 					goal.goal = true;
 
 					stop_ac_.sendGoal(goal);
+					state_msg.data = "STOP";
 
 					ROS_INFO("Wait 1 sec...");
 					stop_ac_.waitForResult(ros::Duration(1.0));
@@ -335,27 +346,27 @@ void ActionSelector::spin()
         {
             if(battery_ac_.getState()!=actionlib::SimpleClientGoalState::ACTIVE)
             {
-                stop_all_actions();
                 robot::BatteryGoal goal;
                 goal.goal = true;
                 ROS_INFO("Start request send to battery Action.");
                 battery_ac_.sendGoal(goal);
+				state_msg.data = "LOW_BATTERY";
             }
         }
-        
+
         /**ping process**/
         else if(interrupt_ & PING_FLAG)
         {
             if(ping_ac_.getState()!=actionlib::SimpleClientGoalState::ACTIVE)
             {
-                stop_all_actions();
                 robot::PingGoal goal;
                 goal.goal = true;
                 ROS_INFO("Start request send to ping Action.");
                 ping_ac_.sendGoal(goal);
+				state_msg.data = "HIGH_PING";
             }
         }
-        
+
         /**scenario process**/
         else if (interrupt_ == 0)
         {
@@ -367,12 +378,36 @@ void ActionSelector::spin()
                 goal.goal = true;
                 ROS_INFO("Start request send to scenario Action.");
                 scenario_ac_.sendGoal(goal);
+				state_msg.data = "ACTIVE";
+
             }
+
+			if(!(interrupt_ & BATTERY_FLAG))
+			{
+				if(battery_ac_.getState()==actionlib::SimpleClientGoalState::ACTIVE)
+				{
+					battery_ac_.cancelGoal();
+					state_msg.data = "ACTIVE";
+				}
+
+			}
+
+			if(!(interrupt_ & PING_FLAG))
+			{
+				if(ping_ac_.getState()==actionlib::SimpleClientGoalState::ACTIVE)
+				{
+					ping_ac_.cancelGoal();
+					state_msg.data = "ACTIVE";
+				}
+			}
         }
         else
         {
             ROS_WARN("Something went wrong.");
         }
+
+        state_publisher_.publish(state_msg);
+
         ros::spinOnce();
         loop_rate_.sleep();
     }

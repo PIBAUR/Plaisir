@@ -130,12 +130,20 @@ void PathFollower::computeCmd(double &lin, double &ang)
 
 
     ang*=K_TH;
-    if(ang>ANGULAR_SPEED_MAX)
-    	ang = ANGULAR_SPEED_MAX;
-    else if(ang < (- ANGULAR_SPEED_MAX) )
-    	ang = -ANGULAR_SPEED_MAX;
-
     lin=linear_speed_;
+
+    if(ang>ANGULAR_SPEED_MAX)
+    {
+    	ang = ANGULAR_SPEED_MAX;
+    	lin*=0.5;
+    }
+    else if(ang < (- ANGULAR_SPEED_MAX) )
+    {
+    	ang = -ANGULAR_SPEED_MAX;
+    	lin*=0.5;
+    }
+
+
 }
 
 

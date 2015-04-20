@@ -5,13 +5,13 @@ import rospy
 
 from PyQt4.QtGui import *
 
-from scenario_msgs.msg import ObstacleArray as ObstacleArrayMsg
+from std_msgs.msg import String as StringMsg
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 
-class VisitorNode(DiagramNode):
-    nodeName = "Visiteur"
+class BatteryStateNode(DiagramNode):
+    nodeName = "Etat de la batterie"
     nodeCategory = ""
     
     maxInputs = 2
@@ -19,16 +19,16 @@ class VisitorNode(DiagramNode):
     hasOutput = 1
     
     def __init__(self, parent, canvas, position):
-        super(VisitorNode, self).__init__(parent, canvas, position)
+        super(BatteryStateNode, self).__init__(parent, canvas, position)
         
         # topic
-        self.visitorSubscriber = rospy.Subscriber("/obstacles", ObstacleArrayMsg, self.handleObstaclesReceived)
+        self.stateSubscriber = rospy.Subscriber("robot01/state", StringMsg, self.handleStateReceived)
         
         # ui
-        self.visitor = None
-        self.isVisitor_label = QLabel()
-        self.refreshIsVisitorLabel()
-        self.widget.central_widget.layout().addWidget(self.isVisitor_label)
+        self.isLowBatteryState = False
+        self.isLowBatteryState_label = QLabel()
+        self.refreshIsLowBatteryStateLabel()
+        self.widget.central_widget.layout().addWidget(self.isLowBatteryState_label)
         
     
     def output(self, args, updateRatioCallback):
@@ -36,15 +36,9 @@ class VisitorNode(DiagramNode):
         
         inputs = self.getInputs()
         if len(inputs) != 2:
-            raise NodeException(u"Le noeud de visiteur doit comporter 2 entrées; 1: s'il y a un visiteur; 2: si non")
+            raise NodeException(u"Le noeud d'état de la batterie doit comporter 2 entrées; 1: si le niveau de batterie est suffisant; 2: si non")
         
-        inputIndex = 0 if self.visitor is not None else 1
-        
-        if self.visitor is not None:
-            inputIndex = 0
-            args["targetPosition"] = (self.visitor.x, self.visitor.y)
-        else:
-            inputIndex = 1
+        inputIndex = 1 if self.isLowBatteryState else 0
         
         inputItem = inputs[inputIndex]
         
@@ -65,17 +59,14 @@ class VisitorNode(DiagramNode):
         return inputRatio
     
     
-    def handleObstaclesReceived(self, msg):
-        if len(msg.obstacles) > 0:
-            self.visitor = msg.obstacles[0]
-        else:
-            self.visitor = None
+    def handleStateReceived(self, msg):
+        self.isLowBatteryState = msg.data == "LOW_BATTERY"
             
-        self.refreshIsVisitorLabel()
+        self.refreshIsLowBatteryStateLabel()
     
     
-    def refreshIsVisitorLabel(self):
-        self.isVisitor_label.setText("visiteur: " + ("oui" if self.visitor is not None else "non"))
+    def refreshIsLowBatteryStateLabel(self):
+        self.isLowBatteryState_label.setText("insuffisante" if self.isLowBatteryState else "suffisante")
         
         
     def getSpecificsData(self):
