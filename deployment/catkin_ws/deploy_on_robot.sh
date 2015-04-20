@@ -1,6 +1,7 @@
 #!/bin/bash
 
 robot=$1
+#robot=$2
 user=$USER
 
 # to make a backup
