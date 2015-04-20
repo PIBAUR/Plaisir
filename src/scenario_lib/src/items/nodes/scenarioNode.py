@@ -74,6 +74,11 @@ class ScenarioNode(DiagramNode):
                 self.simulationTimer.start()
                 self.handleSimulationTimer()
             
+            # init args
+            self.currentScenario.relative = True
+            self.currentScenario.startPosition = None
+            self.currentScenario.startOrientation = None
+            
             return self.currentScenario
     
     

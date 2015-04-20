@@ -34,10 +34,12 @@ class TravelScenarioNode(ScenarioNode):
         targetOrientation = args["targetOrientation"]
         
         # get path finding
+        print "try to path finding"
         rospy.wait_for_service('path_finding')
         pathFinding = rospy.ServiceProxy('path_finding', PathFindingSrv)
         target = Pose2D(targetPosition[0], targetPosition[1], targetOrientation)
         pathResult = pathFinding(target)
+        print "path finding succeed"
         
         # set scenario
         self.currentScenario = Scenario(False)

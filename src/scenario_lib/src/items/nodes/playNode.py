@@ -107,38 +107,49 @@ class PlayNode(DiagramNode):
     
     
     def playScenario(self):
-        try:
-            # reset error
-            self.canvas.ui.statusBar.clearMessage()
-            for nodeInstance in self.canvas.nodesInstances:
-                nodeInstance.widget.central_widget.setStyleSheet("#central_widget { background: #fff; }")
-                
-            # play
-            self.playingScenario = self.output()
-            self.playingScenarioLabel.setText(self.playingScenario.niceName())
+        #DEBUG: remove exception handler
+        #try:
+        # reset error
+        self.canvas.ui.statusBar.clearMessage()
+        for nodeInstance in self.canvas.nodesInstances:
+            nodeInstance.widget.central_widget.setStyleSheet("#central_widget { background: #fff; }")
             
-            # publish message to ROS
-            if self.playingScenario.scenarioType == "choregraphic":
-                scale = 1. / float(self.playingScenario.gridSize)
-                interpolation = True
-            else:
-                scale = 1
-                interpolation = False
+        # play
+        self.playingScenario = self.output()
+        self.playingScenarioLabel.setText(self.playingScenario.niceName())
+        
+        # publish message to ROS
+        if self.playingScenario.scenarioType == "choregraphic":
+            scale = 1. / float(self.playingScenario.gridSize)
+            interpolation = True
+        else:
+            scale = 1
+            interpolation = False
+        
+        robot = self.playingScenario.robots[0]
+        if self.playingScenario.startPosition is not None:
+            transformPosition = self.playingScenario.startPosition
+        else:
+            transformPosition = self.transformPosition
             
-            robot = self.playingScenario.robots[0]
-            scenarioMsg = robot.getScenarioMsgWithParams(self.transformPosition, scale, self.transformOrientation, interpolation, False)
-            scenarioMsg.uid = self.playingScenario.uid
-            scenarioMsg.type = self.playingScenario.scenarioType
-            self.scenarioPublisher.publish(scenarioMsg)
-        except NodeException as error:
-            self.playButton.setEnabled(True)
-            self.stopButton.setEnabled(False)
-            
-            # display the error
-            self.canvas.ui.statusBar.showMessage("Erreur: " + str(error.message.encode("utf-8")).decode("utf-8"))
-            error.nodeCausingErrror.widget.central_widget.setStyleSheet("#central_widget { background: #ff4c4c; }")
-            
-            self.stopAllScenarios()
+        if self.playingScenario.startOrientation is not None:
+            transformOrientation = self.playingScenario.startOrientation
+        else:
+            transformOrientation = self.transformOrientation
+        
+        scenarioMsg = robot.getScenarioMsgWithParams(transformPosition, scale, transformOrientation, interpolation, False)
+        scenarioMsg.uid = self.playingScenario.uid
+        scenarioMsg.type = self.playingScenario.scenarioType
+        self.scenarioPublisher.publish(scenarioMsg)
+        #except NodeException as error:
+        #    self.playButton.setEnabled(True)
+        #    self.stopButton.setEnabled(False)
+        #    
+        #    # display the error
+        #    self.canvas.ui.statusBar.showMessage("Erreur: " + str(error.message.encode("utf-8")).decode("utf-8"))
+        #    error.nodeCausingErrror.widget.central_widget.setStyleSheet("#central_widget { background: #ff4c4c; }")
+        #    
+        #    self.stopAllScenarios()
     
     
     def stopAllScenarios(self):

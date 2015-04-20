@@ -62,6 +62,9 @@ class CompleteScenarioNode(DiagramNode):
             scenarioMsg = choregraphicScenario.robots[0].getScenarioMsgWithParams((originPosition[0], originPosition[1], 0), scale, transformOrientation, True, True)
             args["targetPosition"] = (scenarioMsg.bezier_paths.curves[0].anchor_1.x, scenarioMsg.bezier_paths.curves[0].anchor_1.y, 0)
             args["targetOrientation"] = orientation
+            # store values for absolute coords for choregraphic scenario
+            self.targetOrientation = transformOrientation
+            self.targetPosition = args["targetPosition"]
             
         # continue output routine
         if choregraphicScenario.scenarioType == "choregraphic":
@@ -72,7 +75,14 @@ class CompleteScenarioNode(DiagramNode):
                     # not dry run
                     self.startExecution(self.getInputWidgetIndexFromInputIndex(self.currentInputIndex))
                 
-                return inputItem.output(args, self.updateRatio if updateRatioCallback is not None else None)
+                scenarioResult = inputItem.output(args, self.updateRatio if updateRatioCallback is not None else None)
+                
+                # give start pose to execute the choregraphic with absolute position 
+                if self.currentInputIndex == 1:
+                    scenarioResult.startPosition = self.targetPosition
+                    scenarioResult.startOrientation = self.targetOrientation
+                    
+                return scenarioResult
             else:
                 raise(NodeException(self, u"Les 2 entrées doivent être liées à un scénario de déplacement puis un scénario chorégraphique"))
         else:
