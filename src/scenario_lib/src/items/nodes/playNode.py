@@ -33,7 +33,7 @@ class PlayNode(DiagramNode):
         
         self.playingScenario = None
         self.transformPosition = (0, 0, 0)
-        self.transformOrientation = (1, 0, 0, 0)
+        self.transformOrientation = (0, 0, 0, 1)
         
         # set ROS scenarioPublisher to publish scenarios
         self.scenarioPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)

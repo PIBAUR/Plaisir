@@ -27,30 +27,30 @@ def scenarioCallback(data):
         duration += media.duration
     
     for curve in data.bezier_paths.curves:
-        distance += getBezierCurveLength(curve)
-        i = 0
-        step = 1.0 * stepInMeter / getBezierCurveLength(curve)
-        while i <= 1 :  
-            pose = PoseMsg()
-            
-            if data.type == "choregraphic":
-                pose.position = getBezierCurveResult(i, curve)
-                theta = getBezierCurveTangentResult(i, curve)
-                pose.orientation.z = math.sin(theta / 2)
-                pose.orientation.w = math.cos(theta / 2)
-                rospy.loginfo("Pose %f/100: %f | %f",i*100,pose.position.x,pose.position.y)
-                i += step
-            elif data.type == "travel":
-                pose.position.x = curve.anchor_1.x
-                pose.position.y = curve.anchor_1.y
-                theta = curve.anchor_1.z
-                pose.orientation.z = math.sin(theta / 2)
-                pose.orientation.w = math.cos(theta / 2)
+        if curve != data.bezier_paths.curves[-1]:
+            distance += getBezierCurveLength(curve)
+            i = 0
+            step = 1.0 * stepInMeter / getBezierCurveLength(curve)
+            while i <= 1 :  
+                pose = PoseMsg()
                 
-                i += 2
-                
-            path.path.poses.append(pose)
-            
+                if data.type == "choregraphic":
+                    pose.position = getBezierCurveResult(i, curve)
+                    theta = getBezierCurveTangentResult(i, curve)
+                    pose.orientation.z = math.sin(theta / 2)
+                    pose.orientation.w = math.cos(theta / 2)
+                    
+                    i += step
+                elif data.type == "travel":
+                    pose.position.x = curve.anchor_1.x
+                    pose.position.y = curve.anchor_1.y
+                    theta = curve.anchor_1.z
+                    pose.orientation.z = math.sin(theta / 2)
+                    pose.orientation.w = math.cos(theta / 2)
+                    
+                    i += 2
+                    
+                path.path.poses.append(pose)
             
     speed = Float64Msg()
     speed.data = (distance / duration) if duration > 0 else 0.1
