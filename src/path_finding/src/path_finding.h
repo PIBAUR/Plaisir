@@ -20,9 +20,10 @@
 #define SMOOTHING_STRENGTH 0.5
 #define SMOOTHING_TOLERANCE 6
 #define SMOOTHING_DATA_WEIGHT 0.5
-#define NUMBER_OF_POINTS 30000
+#define NUMBER_OF_POINTS 10000
 #define PI 3.14159265359
 #define LOOP_RATE 50
+
 
  /*******Class Path_finding*******/
 
@@ -31,9 +32,10 @@ class PathFinding
 {
 //protected:
 public:
+    std::string robot_num;
     ros::NodeHandle nh_;
     tf::TransformListener tf_listener_;
-    cv::Mat map_received;
+    cv::Mat map_received, map;
     double theta_robot_origin, theta_robot_des, z_map_origin;
     int x_robot_origin, y_robot_origin, x_robot_des, y_robot_des;
     double map_resolution;

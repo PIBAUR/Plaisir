@@ -14,11 +14,11 @@
 #include "Node.hpp"
 
 //ROBOT_WIDTH 28 cm = 0.28 m = 0.28/map_resolution = 5.6 pixel
-#define ROBOT_WIDTH 5
+#define ROBOT_WIDTH 10
 
 //using namespace std;
 
-static int deltaQ =5;//Don't go up 50
+static int deltaQ =10;//Don't go up 50
 static int nb_in_tree = 0;
 
 
@@ -74,11 +74,13 @@ else
 
 bool is_in_map2(int xTemp,int yTemp,int map_size, int x, int y){
 
-    return (((abs(xTemp + x) >=0) && (xTemp + x < map_size)) && ((abs(yTemp  + y) >=0) && (yTemp  + y < map_size)));
+    return ((((abs(xTemp + x) >=0) && (xTemp + x < map_size))) && (((abs(yTemp  + y) >=0) && (yTemp  + y < map_size))));
 }
 
 bool pixel_test(Node& u, cv::Mat &map, int mode){
- cv::Scalar c;
+
+ int y_val=0;
+ int x_val=0;
  int R=ROBOT_WIDTH;
  int xTemp =  u.x - R;
  int yTemp = u.y - R;
@@ -92,96 +94,115 @@ bool pixel_test(Node& u, cv::Mat &map, int mode){
   		{
         
         if(is_in_map2(xTemp,yTemp,map.cols,i,j)){
-  		    c = map.at<uchar>(yTemp + j, xTemp+i);
-   		    if(c[0] < 254)
-  		      return false;
+             //y_val= yTemp + j   ; x_val = xTemp+i  ;
+  		    cv::Scalar h = 0;
+            h=(int) map.at<uchar>(yTemp + j,xTemp+i);
+   		    //if(h[0] < 254)
+  		      //return false;
+            if(h[0] >= 254)
+                return true;
+            else return false;
         }
   		  
   		}
   	}
    }
- }else{   
+ }
+
+else{   
     // Round optimised
-    if(mode == 1 || mode == 4){
+if(mode == 1 || mode == 4){
     // Round of the two first lines.
     for (int j = 0; j < 2*R ; ++j)
     {
          if(is_in_map2(xTemp,yTemp,map.cols,0,j)){
-         c = map.at<uchar>(yTemp + j, xTemp);
-         if(c[0] < 254)
+         //y_val= yTemp + j   ; x_val = xTemp  ;
+         cv::Scalar k = (int) map.at<uchar>(yTemp + j,xTemp );
+         if(k[0] < 254)
          return false;
       }
             if(is_in_map2(xTemp,yTemp,map.cols,1,j)){
-        c = map.at<uchar>(yTemp + j, xTemp+1);
-        if(c[0] < 254)
+        //y_val= yTemp + j   ; x_val = xTemp+1  ;
+        cv::Scalar l =  (int) map.at<uchar>(yTemp + j ,xTemp+1 );
+        if(l[0] < 254)
         return false;
       }
     }  
-  }
-  if(mode == 1 || mode == 2){
+ }
+else if(mode == 1 || mode == 2){
     // Round of the two first columns
     for (int i = 0; i < 2*R ; ++i)
     {
      
         if(is_in_map2(xTemp,yTemp,map.cols,i, 2*R - 1)){
-         c = map.at<uchar>(yTemp + 2*R - 1, xTemp + i);
-        if(c[0] < 254)
+         //y_val= yTemp +  2*R - 1  ; x_val = xTemp+i  ;
+         cv::Scalar m = (int)map.at<uchar>(yTemp +  2*R - 1, xTemp+i );
+        if(m[0] < 254)
         return false;
       }
       
          if(is_in_map2(xTemp,yTemp,map.cols,i, 2*R - 2)) {
-        c = map.at<uchar>(yTemp + 2*R - 2, xTemp+i);
-        if(c[0] < 254)
+        //y_val= yTemp +  2*R - 2  ; x_val = xTemp+i  ;
+        cv::Scalar n = (int)map.at<uchar>(yTemp +  2*R - 2,xTemp+i );
+        if(n[0] < 254)
         return false;
       }
     }
   }
 
-    if(mode == 2 || mode == 3){
+else if(mode == 2 || mode == 3){
+
        // Round of the two last lines.
     for (int j = 0; j < 2*R ; ++j)
     {
       
         if(is_in_map2(xTemp,yTemp,map.rows,2*R - 1,j)){
-        c = map.at<uchar>(yTemp + j, xTemp + 2*R - 1);
-        if(c[0] < 254)
+         //y_val= yTemp + j  ; x_val = xTemp+2*R - 1  ;
+           cv::Scalar o = (int)map.at<uchar>(yTemp + j,xTemp+2*R - 1  );
+        if(o[0] < 254)
         return false;
       }
    
         if(is_in_map2(xTemp,yTemp,map.rows,2*R - 2 ,j)){
-        c = map.at<uchar>(yTemp + j, xTemp+2*R - 2);
-        if(c[0] < 254)
+         //y_val= yTemp + j ; x_val = xTemp+2*R - 2  ;
+         cv::Scalar p = (int)map.at<uchar>(yTemp + j ,xTemp+2*R - 2  );
+        if(p[0] < 254)
         return false;
       }
     }
   }
-  if(mode == 3 || mode == 4){
+
+if(mode == 3 || mode == 4){
      // Round of the two first columns ...
     for (int i = 0; i < 2*R ; ++i)
     {
       
        if(is_in_map2(xTemp,yTemp,map.rows,i ,0)){
-         c = map.at<uchar>(yTemp , xTemp + i);
-        if(c[0] < 254)
+          //y_val= yTemp ; x_val = xTemp + i  ;
+            cv::Scalar q =(int) map.at<uchar>(yTemp, xTemp + i );
+        if(q[0] < 254)
         return false;
       }
 
         if(is_in_map2(xTemp,yTemp,map.rows,i ,1)){
-        c = map.at<uchar>(yTemp + 1, xTemp+i);
-        if(c[0] < 254)
+         //y_val= yTemp + 1; x_val = xTemp+i  ;
+           cv::Scalar r = (int)map.at<uchar>(yTemp + 1,xTemp+i );
+        if(r[0] < 254)
          return false;
       }
     }
-  }
+ }
+
 
  }
- 
+
+
  return true;
 }
 
 
 bool _collision_with_object(Node* qNew, Node* qNear, cv::Mat &map){
-  int delta =0,mode = 0;
+  int delta =0,mode = 0  ;
   Node u;
   u.x = -qNear->x + qNew->x;
   u.y = -qNear->y + qNew->y;
@@ -192,25 +213,31 @@ bool _collision_with_object(Node* qNew, Node* qNear, cv::Mat &map){
   if (!pixel_test(n1, map, mode))
    return false;
   // Choice of the collision mode depends on the desired direction 
-  if(qNear->x + u.x*((delta+1)/normU) - n1.x > 0){
+  if(qNear->x + u.x*((delta+1)/normU) - n1.x >= 0){
     if(qNear->y + u.y*((delta+1)/normU) - n1.y < 0)
-      mode = 1;
+      mode = 1 ;
     else 
       mode = 2;
-  }else{
-    if(qNear->y + u.y*((delta+1)/normU) - n1.y < 0)
-      mode = 4;
-    else 
-      mode = 3;
+  }
+    else{
+        if(qNear->y + u.y*((delta+1)/normU) - n1.y < 0)
+            mode = 4;
+        else 
+            mode = 3;
   }
 
-  while(norme(&n1,qNear)<= normU){ 
+    int count=5;
+
+    for(int i = 0; i < 5; i++){
+     if((norme(&n1,qNear)<= normU)){
      ++delta;
      n1.x = qNear->x + u.x*(delta/normU);
      n1.y = qNear->y + u.y*(delta/normU);
      if(pixel_test(n1,map,mode) == false)
       return false;
     }
+    }
+  
   return true;
 }
 

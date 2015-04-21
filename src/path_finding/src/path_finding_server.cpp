@@ -8,10 +8,12 @@ void PathFinding::computeTF()
 {
   
    tf::StampedTransform tf_robot;
-  
+   std::string message =robot_num; 
+   message+="/base_link";
+
     try
     {  
-        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot); 
+        tf_listener_.lookupTransform("/map",message, ros::Time(0), tf_robot); /***/
                                                                    
 
     }
@@ -85,7 +87,8 @@ void PathFinding::map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg
 std::vector<Node*> PathFinding::algorithm()
 {
 
-    cv::Mat map= map_received.clone();
+    //cv::Mat 
+    map= map_received.clone();
     Node tree(x_robot_origin,y_robot_origin);
     
   
@@ -198,6 +201,8 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "path_finding_server");
     ros::NodeHandle n;
     PathFinding pf(n);
+    /****get param*****/
+    n.param<std::string>("/robot_num",pf.robot_num,"/robot00");
     ros::ServiceServer service = n.advertiseService("path_finding",&PathFinding::serviceCB,&pf);
 
     ROS_INFO("Ready to compute path.");

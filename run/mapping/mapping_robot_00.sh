@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sh $(dirname $0)/mapping.sh "00"
+sh ~/catkin_ws/run/mapping/mapping.sh "00"

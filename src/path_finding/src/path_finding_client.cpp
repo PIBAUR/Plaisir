@@ -19,7 +19,7 @@
   else
    {
    ros::NodeHandle n;
-   ros::ServiceClient client = n.serviceClient<path_finding::PathFinding>("path_finding");
+   ros::ServiceClient client = n.serviceClient<path_finding::PathFinding>("path_finding",true);
 
    path_finding::PathFinding srv;
 
@@ -39,17 +39,17 @@
         ros::Duration(1.0).sleep();
     
     }
-
-  
-  if (client.call(srv))
+  if(ros::service::waitForService("path_finding",-1)&&client.call(srv))
     {
+
      ROS_INFO_STREAM("OK"); 
 
-   }
+    }
   else
   {
      ROS_ERROR("Failed to call service path_finding");
   }
+
   }
    return 0;
  }
