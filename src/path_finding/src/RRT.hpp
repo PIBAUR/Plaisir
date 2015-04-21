@@ -14,7 +14,7 @@
 #include "Node.hpp"
 
 //ROBOT_WIDTH 28 cm = 0.28 m = 0.28/map_resolution = 5.6 pixel
-#define ROBOT_WIDTH 10
+#define ROBOT_WIDTH 6
 
 //using namespace std;
 

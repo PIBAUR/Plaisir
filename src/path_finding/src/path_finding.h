@@ -4,6 +4,8 @@
 /* INCLUDES */
 
 #include <ros/ros.h>
+//#include <geometry_msgs/PoseArray.h>
+//#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Pose2D.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
@@ -21,7 +23,7 @@
 #define SMOOTHING_STRENGTH 0.5
 #define SMOOTHING_TOLERANCE 6
 #define SMOOTHING_DATA_WEIGHT 0.5
-#define NUMBER_OF_POINTS 10000
+#define NUMBER_OF_POINTS 20000
 #define PI 3.14159265359
 #define LOOP_RATE 50
 
@@ -34,6 +36,7 @@ class PathFinding
 //protected:
 public:
     ros::NodeHandle nh_;
+    //ros::Publisher pub;
     tf::TransformListener tf_listener_;
     cv::Mat map_received, map;
     double theta_robot_origin, theta_robot_des, z_map_origin;
@@ -41,12 +44,15 @@ public:
     double map_resolution;
     double x_map_origin, y_map_origin;
     double  dx, dy,du, alpha, angle,time;
-    bool waitFormap;       
+    bool waitFormap;
+    int rrt_iterations_number;
+    double lissage_force, lissage_tolerance,lissage_coef,pi,loop_rate;
 
 public:
 
     PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0)
     {
+    	//pub=nh_.advertise<geometry_msgs::PoseArray>("/robot01/path_viz", 1);
 
     }
     ~PathFinding(){};
@@ -127,7 +133,7 @@ std::vector<Node*> rrt_path(Node *end, Node *tree){
 	
 }
 
-std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map){
+std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map,double lissage_tolerance,double lissage_force,double lissage_coef ){
 
   int n = path.size();
   std::vector<Node*> newpath;
@@ -140,8 +146,8 @@ std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map){
     newpath.push_back(path[i]);
   }
 
-  change = SMOOTHING_TOLERANCE;
-  while(change >= SMOOTHING_TOLERANCE){
+  change = lissage_tolerance;
+  while(change >= lissage_tolerance){
 
     change = 0;
 
@@ -150,11 +156,11 @@ std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map){
       /* updated, better point considered as OK (in map, in free space) */
       temp = new Node(newpath[i]->x,newpath[i]->y);
       
-      temp->x += SMOOTHING_STRENGTH*(path[i]->x - temp->x);
-      temp->x += SMOOTHING_DATA_WEIGHT*(newpath[i-1]->x + newpath[i+1]->x - 2*temp->x);
+      temp->x += lissage_force*(path[i]->x - temp->x);
+      temp->x +=lissage_coef*(newpath[i-1]->x + newpath[i+1]->x - 2*temp->x);
       
-      temp->y += SMOOTHING_STRENGTH*(path[i]->y - temp->y);
-      temp->y += SMOOTHING_DATA_WEIGHT*(newpath[i-1]->y + newpath[i+1]->y - 2*temp->y);
+      temp->y += lissage_force*(path[i]->y - temp->y);
+      temp->y += lissage_coef*(newpath[i-1]->y + newpath[i+1]->y - 2*temp->y);
       
       if(_collision_with_object(newpath[i-1],temp,*map) && _collision_with_object(temp,newpath[i+1],*map))
         { // if new path (both new trajectories) is OK we can change it

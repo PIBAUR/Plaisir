@@ -45,11 +45,12 @@
      ROS_INFO_STREAM("OK"); 
 
     }
+   /*
   else
   {
      ROS_ERROR("Failed to call service path_finding");
   }
-
+*/
   }
    return 0;
  }

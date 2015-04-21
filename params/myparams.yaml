@@ -35,3 +35,21 @@ distance_obstacle_min: 0.2
 
 ## distance maximale de détection d'obstacle à l'avant du robot (en mètre)
 distance_obstacle_max: 0.60
+
+## nombre d'itérations algorithme RRT
+rrt_iterations_number: 10000
+
+## Force de lissage RRT
+lissage_force: 0.5
+
+## Tolerance lissage RRT
+lissage_tolerance: 6
+
+## Coefficient lissage RRT
+lissage_coef:  0.5
+
+## pi
+pi: 3.14159265359
+
+## durée boucle path_finding en hertz
+loop_rate: 50

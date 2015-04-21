@@ -12,7 +12,7 @@ void PathFinding::computeTF(std::string robot_id)
     try
     {  
         tf_listener_.lookupTransform("/map", robot_id + "/base_link", ros::Time(0), tf_robot); /***/
-                                                                   
+    	//tf_listener_.lookupTransform("/map", "robot00/base_link", ros::Time(0), tf_robot);
 
     }
     catch (tf::TransformException ex)
@@ -90,13 +90,13 @@ std::vector<Node*> PathFinding::algorithm()
     Node tree(x_robot_origin,y_robot_origin);
     
   
- 	_rrt(&tree, NUMBER_OF_POINTS, map, x_robot_des, y_robot_des); 
+ 	_rrt(&tree, rrt_iterations_number,map, x_robot_des, y_robot_des);
 
     /**Add of the destination point**/
     Node end(x_robot_des,y_robot_des);
 
 
-    std::vector<Node*> path = path_smoothing(rrt_path(&end,&tree), &map);
+    std::vector<Node*> path = path_smoothing(rrt_path(&end,&tree), &map, lissage_tolerance,lissage_force,lissage_coef);
     draw_path(path,map);
 
 
@@ -123,11 +123,12 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
 
 
         path_bis = algorithm();
-
+     //geometry_msgs::PoseArray path_copy;
     /***get coordinates of the destination point of /map in the /map frame***/
     res.path.header.frame_id ="/map" ;
     res.path.header.stamp = ros::Time();
-
+    //path_copy.header.frame_id ="/map";
+    //path_copy.header.stamp = ros::Time();
     /***path publication***/
     ROS_INFO_STREAM("PATH_BIS_SIZE "<<" "<<path_bis.size());
 
@@ -135,7 +136,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
     {
 
         geometry_msgs::Pose2D p;
- 
+        //geometry_msgs::Pose p_test;
         if( rit_node == path_bis.rbegin())
         {
             p.x = (*rit_node)->x * map_resolution ; // convert pixel in meter
@@ -156,9 +157,9 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
             p.x = ((*rit_node)->x)  * map_resolution + x_map_origin ; // convert pixel in meter
             p.y = -((*rit_node)->y)  * map_resolution - y_map_origin;
         	}
-            
-        }
-
+         }
+        //p_test.position.x=p.x;
+        //p_test.position.y=p.y;
         if((rit_node + 1) != path_bis.rend() ) 
         {   
 
@@ -170,6 +171,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
 
             angle = alpha -theta_robot_origin + PI ;
             p.theta=angle;
+            //p_test.orientation=tf::createQuaternionMsgFromYaw(p.theta);
 
         }
 
@@ -177,12 +179,12 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         {
             //ROS_INFO_STREAM("Angle END#"<<angle*180/PI);
             p.theta=theta_robot_des;
-
+            //p_test.orientation=tf::createQuaternionMsgFromYaw(p.theta);
         }
         res.path.poses.push_back(p);
-
+        //path_copy.poses.push_back(p_test);
     }
-
+    //pub.publish(path_copy);
     time=ros::Time::now().toSec()-second.toSec();
     ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
 
@@ -200,6 +202,14 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
     PathFinding pf(n);
     /****get param*****/
+   	n.param<int>("/rrt_iterations_number",pf.rrt_iterations_number,NUMBER_OF_POINTS);
+    n.param<double>("/lissage_force",pf.lissage_force,SMOOTHING_STRENGTH);
+    n.param<double>("/lissage_tolerance",pf.lissage_tolerance,SMOOTHING_TOLERANCE);
+    n.param<double>("/lissage_coef",pf.lissage_coef,SMOOTHING_DATA_WEIGHT);
+    n.param<double>("/pi",pf.pi,PI);
+    n.param<double>("/loop_rate",pf.loop_rate,LOOP_RATE);
+
+
     ros::ServiceServer service = n.advertiseService("path_finding",&PathFinding::serviceCB,&pf);
 
     ROS_INFO("Ready to compute path.");
@@ -207,7 +217,7 @@ int main(int argc, char **argv)
     /***find resolution of the map***/
     ros::Subscriber origine = n.subscribe<nav_msgs::OccupancyGrid>("map", 1,&PathFinding::map_origine_point,&pf); 
    
-    ros::Rate loop(LOOP_RATE);
+    ros::Rate loop(pf.loop_rate);
     while(ros::ok())
     {   
 
