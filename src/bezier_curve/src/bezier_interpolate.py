@@ -27,7 +27,7 @@ def scenarioCallback(data):
         duration += media.duration
     
     for curve in data.bezier_paths.curves:
-        if curve != data.bezier_paths.curves[-1]:
+        if data.type == "travel" or (data.type == "choregraphic" and curve != data.bezier_paths.curves[-1]):
             distance += getBezierCurveLength(curve)
             i = 0
             step = 1.0 * stepInMeter / getBezierCurveLength(curve)
