@@ -4,16 +4,14 @@
 
 
 /****************Compute TF********************/
-void PathFinding::computeTF()
+void PathFinding::computeTF(std::string robot_id)
 {
   
    tf::StampedTransform tf_robot;
-   std::string message =robot_num; 
-   message+="/base_link";
 
     try
     {  
-        tf_listener_.lookupTransform("/map",message, ros::Time(0), tf_robot); /***/
+        tf_listener_.lookupTransform("/map", robot_id + "/base_link", ros::Time(0), tf_robot); /***/
                                                                    
 
     }
@@ -119,7 +117,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
 
     theta_robot_des =req.target.theta; // yaw-angle in radian
 
-    computeTF();
+    computeTF(req.robot_id.data);
 
     std::vector<Node*> path_bis;
 
@@ -202,7 +200,6 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
     PathFinding pf(n);
     /****get param*****/
-    n.param<std::string>("/robot_num",pf.robot_num,"/robot00");
     ros::ServiceServer service = n.advertiseService("path_finding",&PathFinding::serviceCB,&pf);
 
     ROS_INFO("Ready to compute path.");

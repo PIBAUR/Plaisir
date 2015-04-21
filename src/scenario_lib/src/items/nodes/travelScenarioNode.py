@@ -9,7 +9,8 @@ import tf
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
-from geometry_msgs.msg import Pose2D
+from std_msgs.msg import String as StringMsg
+from geometry_msgs.msg import Pose2D as Pose2DMsg
 from src.scenario_lib.src.items.nodes.scenarioNode import ScenarioNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.scenario import Scenario
@@ -37,8 +38,9 @@ class TravelScenarioNode(ScenarioNode):
         print "try to path finding"
         rospy.wait_for_service('path_finding')
         pathFinding = rospy.ServiceProxy('path_finding', PathFindingSrv)
-        target = Pose2D(targetPosition[0], targetPosition[1], targetOrientation)
-        pathResult = pathFinding(target)
+        target = Pose2DMsg(targetPosition[0], targetPosition[1], targetOrientation)
+        robotId = StringMsg("/robot01")
+        pathResult = pathFinding(robotId, target)
         print "path finding succeed"
         
         # set scenario

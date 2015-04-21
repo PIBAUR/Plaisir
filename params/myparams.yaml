@@ -34,7 +34,4 @@ front_angle: 40
 distance_obstacle_min: 0.2
 
 ## distance maximale de détection d'obstacle à l'avant du robot (en mètre)
-distance_obstacle_max: 0.60 
-
-## Numéro du robot
-robot_num: "/robot01"
+distance_obstacle_max: 0.60

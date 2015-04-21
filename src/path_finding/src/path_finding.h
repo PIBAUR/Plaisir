@@ -9,6 +9,7 @@
 #include <tf/transform_broadcaster.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include "RRT.hpp"
+#include <string>
 
 //lib opencv
 #include <opencv2/core/core.hpp>
@@ -32,7 +33,6 @@ class PathFinding
 {
 //protected:
 public:
-    std::string robot_num;
     ros::NodeHandle nh_;
     tf::TransformListener tf_listener_;
     cv::Mat map_received, map;
@@ -50,7 +50,7 @@ public:
 
     }
     ~PathFinding(){};
-    void computeTF();
+    void computeTF(std::string robot_id);
     std::vector<Node*> algorithm();
     void map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg);
     bool serviceCB(path_finding::PathFinding::Request  &req,path_finding::PathFinding::Response &res);
