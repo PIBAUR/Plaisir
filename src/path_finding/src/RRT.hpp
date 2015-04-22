@@ -14,7 +14,7 @@
 #include "Node.hpp"
 
 //ROBOT_WIDTH 28 cm = 0.28 m = 0.28/map_resolution = 5.6 pixel
-#define ROBOT_WIDTH 6
+//#define ROBOT_WIDTH 6
 
 //using namespace std;
 
@@ -77,24 +77,23 @@ bool is_in_map2(int xTemp,int yTemp,int map_size, int x, int y){
     return ((((abs(xTemp + x) >=0) && (xTemp + x < map_size))) && (((abs(yTemp  + y) >=0) && (yTemp  + y < map_size))));
 }
 
-bool pixel_test(Node& u, cv::Mat &map, int mode){
+bool pixel_test(Node& u, cv::Mat &map, int mode, int largeur_robot,int distance_detection){
 
  int y_val=0;
  int x_val=0;
- int R=ROBOT_WIDTH;
+ int R=largeur_robot;
  int xTemp =  u.x - R;
  int yTemp = u.y - R;
-
+ int obstacle_distance= R + distance_detection;
  if(mode == 0){
  // Round of all the square
- for(int i=0;i<2*R;++i)
+ for(int i=0;i<obstacle_distance;++i) //look up obstacle around the robot situated at distance_detection from robot
  {	
-  	for(int j=0;j<2*R;++j)
+  	for(int j=0;j<obstacle_distance;++j)
   	{
   		{
         
         if(is_in_map2(xTemp,yTemp,map.cols,i,j)){
-             //y_val= yTemp + j   ; x_val = xTemp+i  ;
   		    cv::Scalar h = 0;
             h=(int) map.at<uchar>(yTemp + j,xTemp+i);
    		    //if(h[0] < 254)
@@ -113,16 +112,14 @@ else{
     // Round optimised
 if(mode == 1 || mode == 4){
     // Round of the two first lines.
-    for (int j = 0; j < 2*R ; ++j)
+    for (int j = 0; j < obstacle_distance ; ++j)
     {
          if(is_in_map2(xTemp,yTemp,map.cols,0,j)){
-         //y_val= yTemp + j   ; x_val = xTemp  ;
          cv::Scalar k = (int) map.at<uchar>(yTemp + j,xTemp );
          if(k[0] < 254)
          return false;
       }
             if(is_in_map2(xTemp,yTemp,map.cols,1,j)){
-        //y_val= yTemp + j   ; x_val = xTemp+1  ;
         cv::Scalar l =  (int) map.at<uchar>(yTemp + j ,xTemp+1 );
         if(l[0] < 254)
         return false;
@@ -131,19 +128,17 @@ if(mode == 1 || mode == 4){
  }
 else if(mode == 1 || mode == 2){
     // Round of the two first columns
-    for (int i = 0; i < 2*R ; ++i)
+    for (int i = 0; i < obstacle_distance ; ++i)
     {
      
-        if(is_in_map2(xTemp,yTemp,map.cols,i, 2*R - 1)){
-         //y_val= yTemp +  2*R - 1  ; x_val = xTemp+i  ;
-         cv::Scalar m = (int)map.at<uchar>(yTemp +  2*R - 1, xTemp+i );
+        if(is_in_map2(xTemp,yTemp,map.cols,i, obstacle_distance - 1)){
+           cv::Scalar m = (int)map.at<uchar>(yTemp +  obstacle_distance- 1, xTemp+i );
         if(m[0] < 254)
         return false;
       }
       
-         if(is_in_map2(xTemp,yTemp,map.cols,i, 2*R - 2)) {
-        //y_val= yTemp +  2*R - 2  ; x_val = xTemp+i  ;
-        cv::Scalar n = (int)map.at<uchar>(yTemp +  2*R - 2,xTemp+i );
+         if(is_in_map2(xTemp,yTemp,map.cols,i, obstacle_distance - 2)) {
+        cv::Scalar n = (int)map.at<uchar>(yTemp +  obstacle_distance - 2,xTemp+i );
         if(n[0] < 254)
         return false;
       }
@@ -153,19 +148,17 @@ else if(mode == 1 || mode == 2){
 else if(mode == 2 || mode == 3){
 
        // Round of the two last lines.
-    for (int j = 0; j < 2*R ; ++j)
+    for (int j = 0; j < obstacle_distance ; ++j)
     {
       
-        if(is_in_map2(xTemp,yTemp,map.rows,2*R - 1,j)){
-         //y_val= yTemp + j  ; x_val = xTemp+2*R - 1  ;
-           cv::Scalar o = (int)map.at<uchar>(yTemp + j,xTemp+2*R - 1  );
+        if(is_in_map2(xTemp,yTemp,map.rows,obstacle_distance - 1,j)){
+           cv::Scalar o = (int)map.at<uchar>(yTemp + j,xTemp+obstacle_distance - 1  );
         if(o[0] < 254)
         return false;
       }
    
-        if(is_in_map2(xTemp,yTemp,map.rows,2*R - 2 ,j)){
-         //y_val= yTemp + j ; x_val = xTemp+2*R - 2  ;
-         cv::Scalar p = (int)map.at<uchar>(yTemp + j ,xTemp+2*R - 2  );
+        if(is_in_map2(xTemp,yTemp,map.rows,obstacle_distance - 2 ,j)){
+          cv::Scalar p = (int)map.at<uchar>(yTemp + j ,xTemp+obstacle_distance - 2  );
         if(p[0] < 254)
         return false;
       }
@@ -174,18 +167,16 @@ else if(mode == 2 || mode == 3){
 
 if(mode == 3 || mode == 4){
      // Round of the two first columns ...
-    for (int i = 0; i < 2*R ; ++i)
+    for (int i = 0; i < obstacle_distance ; ++i)
     {
       
        if(is_in_map2(xTemp,yTemp,map.rows,i ,0)){
-          //y_val= yTemp ; x_val = xTemp + i  ;
             cv::Scalar q =(int) map.at<uchar>(yTemp, xTemp + i );
         if(q[0] < 254)
         return false;
       }
 
         if(is_in_map2(xTemp,yTemp,map.rows,i ,1)){
-         //y_val= yTemp + 1; x_val = xTemp+i  ;
            cv::Scalar r = (int)map.at<uchar>(yTemp + 1,xTemp+i );
         if(r[0] < 254)
          return false;
@@ -201,7 +192,7 @@ if(mode == 3 || mode == 4){
 }
 
 
-bool _collision_with_object(Node* qNew, Node* qNear, cv::Mat &map){
+bool _collision_with_object(Node* qNew, Node* qNear, cv::Mat &map,int largeur_robot,int distance_detection){
   int delta =0,mode = 0  ;
   Node u;
   u.x = -qNear->x + qNew->x;
@@ -210,7 +201,7 @@ bool _collision_with_object(Node* qNew, Node* qNear, cv::Mat &map){
   Node n1;
   n1.x = qNear->x + u.x*(delta/normU);
   n1.y = qNear->y + u.y*(delta/normU);
-  if (!pixel_test(n1, map, mode))
+  if (!pixel_test(n1, map, mode,largeur_robot,distance_detection))
    return false;
   // Choice of the collision mode depends on the desired direction 
   if(qNear->x + u.x*((delta+1)/normU) - n1.x >= 0){
@@ -233,7 +224,7 @@ bool _collision_with_object(Node* qNew, Node* qNear, cv::Mat &map){
      ++delta;
      n1.x = qNear->x + u.x*(delta/normU);
      n1.y = qNear->y + u.y*(delta/normU);
-     if(pixel_test(n1,map,mode) == false)
+     if(pixel_test(n1,map,mode,largeur_robot,distance_detection) == false)
       return false;
     }
     }
@@ -259,7 +250,7 @@ bool not_in_free_space(Node* n_rand, cv::Mat map){
 }
 
 
-void extend(Node* q_rand, Node* tree, cv::Mat map){
+void extend(Node* q_rand, Node* tree, cv::Mat map,int largeur_robot, int distance_detection){
     // Find closest to q_rand in tree 
     Node *q_near = closest_to(q_rand, tree);
 
@@ -273,7 +264,7 @@ void extend(Node* q_rand, Node* tree, cv::Mat map){
     return;
 
     // Check the collision on the ligne q_near -> q_new
-    if(!_collision_with_object(q_new, q_near, map))
+    if(!_collision_with_object(q_new, q_near, map, largeur_robot,distance_detection))
     return; 
 
     // No collision so add it to the tree
@@ -288,7 +279,7 @@ void extend(Node* q_rand, Node* tree, cv::Mat map){
 }
 
 
-void _rrt(Node *tree, int k, cv::Mat map,int positionX,int positionY){
+void _rrt(Node *tree, int k, cv::Mat map,int positionX,int positionY,int largeur_robot,int distance_detection){
   
   std::srand(std::time(0));
   //while(nb_in_tree < k){
@@ -300,26 +291,27 @@ void _rrt(Node *tree, int k, cv::Mat map,int positionX,int positionY){
   
      int x_rand=0,y_rand=0;
 
-        if((positionX < 0)&&(positionY < 0))
-        {
-        x_rand=((std::rand()% map.rows+1) -map.rows);
-        y_rand= ((std::rand()% map.cols+1) -map.cols);
-        }
-        else if((positionX < 0)&& (positionY >=0)){
-        x_rand=((std::rand()% map.rows+1) -map.rows);
-        y_rand = (std::rand()% map.cols); 
-        }
-        else if((positionX >= 0)&&(positionY < 0)){
-        x_rand=(std::rand()% map.cols); 
-        y_rand = ((std::rand()% map.cols+1) -map.cols);
-        }
-        else if((positionX >= 0)&&(positionY >= 0)){
-        x_rand=(std::rand()% map.rows); 
-        y_rand =(std::rand()% map.cols);
-        }
+     if((positionX < 0)&&(positionY < 0))
+     {
+     x_rand=((std::rand()% map.rows+1) -map.rows);
+     y_rand= ((std::rand()% map.cols+1) -map.cols);
+     }
+     else if((positionX < 0)&& (positionY >=0)){
+     x_rand=((std::rand()% map.rows+1) -map.rows);
+     y_rand = (std::rand()% map.cols);
+     }
+     else if((positionX >= 0)&&(positionY < 0)){
+     x_rand=(std::rand()% map.cols);
+     y_rand = ((std::rand()% map.cols+1) -map.cols);
+     }
+     else if((positionX >= 0)&&(positionY >= 0)){
+     x_rand=(std::rand()% map.rows);
+     y_rand =(std::rand()% map.cols);
+     }
+
     Node* q_rand = new Node(x_rand,y_rand);
     // add distance from root 
-    extend(q_rand, tree, map);
+    extend(q_rand, tree, map,largeur_robot,distance_detection);
     //free(q_rand);
   }
 

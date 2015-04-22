@@ -12,7 +12,7 @@ void PathFinding::computeTF(std::string robot_id)
     try
     {  
         tf_listener_.lookupTransform("/map", robot_id + "/base_link", ros::Time(0), tf_robot); /***/
-    	//tf_listener_.lookupTransform("/map", "robot00/base_link", ros::Time(0), tf_robot);
+    	//tf_listener_.lookupTransform("/map", "robot02/base_link", ros::Time(0), tf_robot);
 
     }
     catch (tf::TransformException ex)
@@ -85,18 +85,21 @@ void PathFinding::map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg
 std::vector<Node*> PathFinding::algorithm()
 {
 
-    //cv::Mat 
     map= map_received.clone();
     Node tree(x_robot_origin,y_robot_origin);
     
-  
- 	_rrt(&tree, rrt_iterations_number,map, x_robot_des, y_robot_des);
+    int largeur_robot=(int) (diametre_robot/(2*100)/map_resolution)+1; //conversion in meter
+    int distance_detection= (int) (distance_obstacle_detection/100/map_resolution)+1;//conversion in meter
+
+    if(largeur_robot > 6 ) rrt_iterations_number+=5000; //security
+
+ 	_rrt(&tree, rrt_iterations_number,map, x_robot_des, y_robot_des,largeur_robot,distance_detection);
 
     /**Add of the destination point**/
     Node end(x_robot_des,y_robot_des);
 
 
-    std::vector<Node*> path = path_smoothing(rrt_path(&end,&tree), &map, lissage_tolerance,lissage_force,lissage_coef);
+    std::vector<Node*> path = path_smoothing(rrt_path(&end,&tree), &map, lissage_tolerance,lissage_force,lissage_coef,largeur_robot,distance_detection);
     draw_path(path,map);
 
 
@@ -208,6 +211,8 @@ int main(int argc, char **argv)
     n.param<double>("/lissage_coef",pf.lissage_coef,SMOOTHING_DATA_WEIGHT);
     n.param<double>("/pi",pf.pi,PI);
     n.param<double>("/loop_rate",pf.loop_rate,LOOP_RATE);
+    n.param<double>("/diametre_robot",pf.diametre_robot,ROBOT_DIAMETER );
+    n.param<double>("/distance_obstacle_detection",pf.distance_obstacle_detection,DISTANCE_OBSTACLE);
 
 
     ros::ServiceServer service = n.advertiseService("path_finding",&PathFinding::serviceCB,&pf);
