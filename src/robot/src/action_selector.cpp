@@ -50,6 +50,8 @@ class ActionSelector{
     	bool frozen_state_;
     	bool front_obstacle_state_;
 
+    	bool already_stopped_;
+
     	///---PUBLISHER---///
     	ros::NodeHandle nh_;
     	ros::Publisher state_publisher_;
@@ -91,6 +93,8 @@ ActionSelector::ActionSelector():loop_rate_(20),
 	emergency_stop_state_(false),
 	frozen_state_(false),
 	front_obstacle_state_(false),
+
+	already_stopped_(false),
 
     interrupt_(0), stop_msg_(0)
 {
@@ -309,28 +313,39 @@ void ActionSelector::spin()
             emergency_stop_ac_.cancelGoal();
         }
         
-        /**stop process**/
+        /**stop process (only the first time)**/
         else if(interrupt_ & STOP_FLAG)
         {
             if(stop_ac_.getState()!=actionlib::SimpleClientGoalState::ACTIVE)
             {
-                stop_all_actions();
-                
-                if (! frozen_state_)
-                {
-					ROS_INFO("Start request send to Stop Action.");
-					robot::StopGoal goal;
-					goal.goal = true;
+            	if (! already_stopped_)
+            	{
+					stop_all_actions();
 
-					stop_ac_.sendGoal(goal);
-					state_msg.data = "STOP";
+					if (! frozen_state_)
+					{
+						already_stopped_ = true;
 
-					ROS_INFO("Wait 1 sec...");
-					stop_ac_.waitForResult(ros::Duration(1.0));
+						ROS_INFO("Start request send to Stop Action.");
+						robot::StopGoal goal;
+						goal.goal = true;
 
-					ROS_INFO("Canceling Stop action.");
-					stop_ac_.cancelGoal();
-                }
+						stop_ac_.sendGoal(goal);
+						state_msg.data = "STOP";
+
+						//TODO: remove the timer
+						ROS_INFO("Wait 0,01 sec...");
+						stop_ac_.waitForResult(ros::Duration(0.01));
+
+						ROS_INFO("Canceling Stop action.");
+						stop_ac_.cancelGoal();
+
+						robot::ScenarioGoal scenarioGoal;
+						scenarioGoal.goal = true;
+						ROS_INFO("Start request send to scenario Action in stop mode.");
+						scenario_ac_.sendGoal(scenarioGoal);
+					}
+            	}
             }
 
             if (frozen_state_)
@@ -338,6 +353,7 @@ void ActionSelector::spin()
             	frozen_state_ = false;
                 stop_msg_ = stop_msg_ & ~(1u<<2);
 				maj_stop_flag();
+				//TODO: give a feedback, to relaunch after from the server
             }
         }
         
@@ -370,16 +386,16 @@ void ActionSelector::spin()
         /**scenario process**/
         else if (interrupt_ == 0)
         {
+			state_msg.data = "ACTIVE";
+			already_stopped_ = false;
+
             if(scenario_ac_.getState()!=actionlib::SimpleClientGoalState::ACTIVE)
             {
-                
                 stop_all_actions();
                 robot::ScenarioGoal goal;
                 goal.goal = true;
                 ROS_INFO("Start request send to scenario Action.");
                 scenario_ac_.sendGoal(goal);
-				state_msg.data = "ACTIVE";
-
             }
 
 			if(!(interrupt_ & BATTERY_FLAG))
@@ -387,7 +403,6 @@ void ActionSelector::spin()
 				if(battery_ac_.getState()==actionlib::SimpleClientGoalState::ACTIVE)
 				{
 					battery_ac_.cancelGoal();
-					state_msg.data = "ACTIVE";
 				}
 
 			}
@@ -397,7 +412,6 @@ void ActionSelector::spin()
 				if(ping_ac_.getState()==actionlib::SimpleClientGoalState::ACTIVE)
 				{
 					ping_ac_.cancelGoal();
-					state_msg.data = "ACTIVE";
 				}
 			}
         }

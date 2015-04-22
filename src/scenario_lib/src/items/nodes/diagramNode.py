@@ -32,6 +32,7 @@ class DiagramNode(object):
         ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_execution_diagram/resource/diagram_node.ui"
         input_button_ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_execution_diagram/resource/input_button.ui"
     
+    
     def __init__(self, parent, canvas, position):
         # vars
         self.id = DiagramNode.currentNodeId
@@ -106,6 +107,16 @@ class DiagramNode(object):
         
         return -1
    
+   
+    def refreshUI(self, args):
+        # refresh self
+        pass
+        
+        # refresh others
+        for inputInstance in self.getInputsInstances():
+            if inputInstance is not None:
+                inputInstance.refreshUI(args)
+       
     
     def stop(self):
         self.stopExecution()
@@ -321,4 +332,5 @@ from src.scenario_lib.src.items.nodes.travelScenarioNode import TravelScenarioNo
 from src.scenario_lib.src.items.nodes.sequenceNode import SequenceNode
 from src.scenario_lib.src.items.nodes.randomChoiceNode import RandomChoiceNode
 from src.scenario_lib.src.items.nodes.visitorNode import VisitorNode
+from src.scenario_lib.src.items.nodes.stoppedStateNode import StoppedStateNode
 from src.scenario_lib.src.items.nodes.batteryStateNode import BatteryStateNode

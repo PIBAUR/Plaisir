@@ -9,8 +9,8 @@ from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.nodes.playNode import PlayNode
 
-class BatteryStateNode(DiagramNode):
-    nodeName = "Etat de la batterie"
+class StoppedStateNode(DiagramNode):
+    nodeName = u"Obstacle devant"
     nodeCategory = ""
     
     maxInputs = 2
@@ -18,11 +18,11 @@ class BatteryStateNode(DiagramNode):
     hasOutput = 1
     
     def __init__(self, parent, canvas, position):
-        super(BatteryStateNode, self).__init__(parent, canvas, position)
+        super(StoppedStateNode, self).__init__(parent, canvas, position)
         
         # ui
-        self.isLowBatteryState_label = QLabel()
-        self.widget.central_widget.layout().addWidget(self.isLowBatteryState_label)
+        self.isStoppedState_label = QLabel()
+        self.widget.central_widget.layout().addWidget(self.isStoppedState_label)
         
     
     def output(self, args, updateRatioCallback):
@@ -30,11 +30,10 @@ class BatteryStateNode(DiagramNode):
         
         inputs = self.getInputs()
         if len(inputs) != 2:
-            raise NodeException(u"Le noeud d'état de la batterie doit comporter 2 entrées; 1: si le niveau de batterie est suffisant; 2: si non")
+            raise NodeException(u"Le noeud de redémarrage doit comporter 2 entrées; 1: si le robot a du être interomppu; 2: si non")
         
-        isLowBatteryState = args["currentState"] == PlayNode.LOW_BATTERY_STATE
-        inputIndex = 1 if isLowBatteryState else 0
-        
+        isStoppedState = args["currentState"] == PlayNode.STOP_STATE
+        inputIndex = 1 if isStoppedState else 0
         inputItem = inputs[inputIndex]
         
         if updateRatioCallback is not None:
@@ -55,10 +54,10 @@ class BatteryStateNode(DiagramNode):
     
     
     def refreshUI(self, args):
-        isLowBatteryState = args["currentState"] == PlayNode.LOW_BATTERY_STATE
-        self.isLowBatteryState_label.setText("insuffisante" if isLowBatteryState else "suffisante")
+        isStoppedState = args["currentState"] == PlayNode.STOP_STATE
+        self.isStoppedState_label.setText("oui" if isStoppedState else "non")
         
-        super(BatteryStateNode, self).refreshUI(args)
+        super(StoppedStateNode, self).refreshUI(args)
         
         
     def getSpecificsData(self):

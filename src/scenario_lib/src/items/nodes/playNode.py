@@ -5,19 +5,28 @@ from PyQt4.QtGui import *
 
 import rospy
 import tf
+from functools import partial
 
+from std_msgs.msg import String as StringMsg
+from std_msgs.msg import Header as HeaderMsg
+from std_msgs.msg import Bool as BoolMsg
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from scenario_msgs.msg import BezierPath as BezierPathMsg
 from scenario_msgs.msg import BezierCurve as BezierCurveMsg
-from std_msgs.msg import Header as HeaderMsg
-from std_msgs.msg import Bool as BoolMsg
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.choregraphicScenarioNode import ChoregraphicScenarioNode
 from src.scenario_lib.src.items.nodes.scenarioNode import ScenarioNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
+from PyQt4.Qt import QTimer
 
 class PlayNode(DiagramNode):
+    ACTIVE_STATE = "ACTIVE"
+    LOW_BATTERY_STATE = "LOW_BATTERY"
+    HIGH_PING_STATE = "HIGH_PING"
+    STOP_STATE = "STOP"
+    EMERGENCY_STOP_STATE = "EMERGENCY_STOP"
+    
     transformListener = None
     actionClient = None
     
@@ -31,6 +40,10 @@ class PlayNode(DiagramNode):
     def __init__(self, parent, canvas, position):
         super(PlayNode, self).__init__(parent, canvas, position)
         
+        self.currentState = PlayNode.ACTIVE_STATE
+        self.previousState = self.currentState
+        
+        self.isPlaying = False
         self.playingScenario = None
         self.transformPosition = (0, 0, 0)
         self.transformOrientation = (0, 0, 0, 1)
@@ -43,6 +56,16 @@ class PlayNode(DiagramNode):
         if PlayNode.transformListener is None:
             PlayNode.transformListener = tf.TransformListener()
         
+        # state
+        self.stateSubscriber = rospy.Subscriber("robot01/state", StringMsg, self.handleStateReceived)
+        
+        # timer to not execute play or stop in an other thread
+        self.hasToRestart = False
+        self.threadSafeTimer = QTimer()
+        self.threadSafeTimer.timeout.connect(partial(self.handleThreadSafeTimer))
+        self.threadSafeTimer.start(100)
+        
+        # ui
         self.playButton = QPushButton("Play")
         self.playButton.clicked.connect(self.handlePlayButtonClicked)
         self.widget.central_widget.layout().addWidget(self.playButton)
@@ -64,7 +87,16 @@ class PlayNode(DiagramNode):
         
         self.startExecution(0)
         
-        return inputs[0].output({"robotPosition": self.transformPosition, "robotOrientation": self.transformOrientation}, self.updateRatio)
+        return inputs[0].output(self.getArgs(), self.updateRatio)
+    
+    
+    def getArgs(self):
+        return {
+                "currentState": self.currentState,
+                "previousState": self.previousState,
+                "robotPosition": self.transformPosition, 
+                "robotOrientation": self.transformOrientation
+                }
     
     
     def updateRatio(self, inputRatio, paused):
@@ -152,12 +184,38 @@ class PlayNode(DiagramNode):
         #    self.stopAllScenarios()
     
     
+    def handleThreadSafeTimer(self):
+        if self.hasToRestart:
+            self.hasToRestart = False
+            if self.isPlaying:
+                self.stopAllScenarios()
+                #TODO: wait for a feedback of freeze ended from action_selector.cpp (l. 356)
+                import time
+                time.sleep(.5)
+                self.playScenario()
+        
+        
+    def handleStateReceived(self, msg):
+        self.currentState = msg.data
+        
+        # stop or play
+        if self.currentState == PlayNode.STOP_STATE and self.previousState == PlayNode.ACTIVE_STATE:
+            self.hasToRestart = True
+                
+        # refresh ui
+        self.refreshUI(self.getArgs())
+        
+        self.previousState = self.currentState
+    
+    
     def stopAllScenarios(self):
         for nodeInstance in self.canvas.nodesInstances:
             nodeInstance.stop() 
         
     
     def handlePlayButtonClicked(self, event):
+        self.isPlaying = True
+        
         self.playButton.setEnabled(False)
         self.stopButton.setEnabled(True)
         
@@ -166,6 +224,8 @@ class PlayNode(DiagramNode):
         
         
     def handleSimulateButtonClicked(self, event):
+        self.isPlaying = True
+        
         self.playButton.setEnabled(False)
         self.stopButton.setEnabled(True)
         
@@ -174,6 +234,8 @@ class PlayNode(DiagramNode):
         
         
     def handleStopButtonClicked(self, event):
+        self.isPlaying = False
+        
         self.playButton.setEnabled(True)
         self.stopButton.setEnabled(False)
         
