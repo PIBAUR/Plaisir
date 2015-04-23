@@ -39,6 +39,9 @@ distance_obstacle_max: 0.60
 ## nombre d'itérations algorithme RRT
 rrt_iterations_number: 10000
 
+## Ecart entre chaque point du graphe RRT en centimètres 
+deltaQ: 50 
+
 ## Force de lissage RRT
 lissage_force: 0.5
 
@@ -54,7 +57,7 @@ pi: 3.14159265359
 ## durée boucle path_finding en hertz
 loop_rate: 50
 
-## diamètre robot sur l'horizontale en centimètres (longueur de l'écran sur le robot)
+## diamètre robot sur l'horizontale en centimètres (longueur de l'écran sur le robot) 
 diametre_robot: 55
 
 ## distance de détection de l'obstacle en centimètres à partir de la largeur du robot

@@ -39,7 +39,8 @@
         ros::Duration(1.0).sleep();
     
     }
-  if(ros::service::waitForService("path_finding",-1)&&client.call(srv))
+   while(ros::service::waitForService("path_finding",-1)&&client.call(srv))
+   //if(ros::service::waitForService("path_finding",-1)&&client.call(srv))
     {
 
      ROS_INFO_STREAM("OK"); 

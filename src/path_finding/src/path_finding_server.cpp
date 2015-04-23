@@ -1,6 +1,6 @@
 #include "ros/ros.h"
- #include "path_finding.h"
-  #include "path_finding/PathFinding.h"
+#include "path_finding.h"
+#include "path_finding/PathFinding.h"
 
 
 /****************Compute TF********************/
@@ -12,7 +12,7 @@ void PathFinding::computeTF(std::string robot_id)
     try
     {  
         tf_listener_.lookupTransform("/map", robot_id + "/base_link", ros::Time(0), tf_robot); /***/
-    	//tf_listener_.lookupTransform("/map", "robot02/base_link", ros::Time(0), tf_robot);
+        //tf_listener_.lookupTransform("/map", "robot02/base_link", ros::Time(0), tf_robot);
 
     }
     catch (tf::TransformException ex)
@@ -87,13 +87,14 @@ std::vector<Node*> PathFinding::algorithm()
 
     map= map_received.clone();
     Node tree(x_robot_origin,y_robot_origin);
-    
+
     int largeur_robot=(int) (diametre_robot/(2*100)/map_resolution)+1; //conversion in meter
     int distance_detection= (int) (distance_obstacle_detection/100/map_resolution)+1;//conversion in meter
+    int delta_rrt= (int) (deltaQ/100/map_resolution);//conversion in meter
 
-    if(largeur_robot > 6 ) rrt_iterations_number+=5000; //security
+    if(largeur_robot > 6 ) rrt_iterations_number+=5000; //security : 6 pixels
 
- 	_rrt(&tree, rrt_iterations_number,map, x_robot_des, y_robot_des,largeur_robot,distance_detection);
+ 	_rrt(&tree, rrt_iterations_number,map, x_robot_des, y_robot_des,largeur_robot,distance_detection,delta_rrt);
 
     /**Add of the destination point**/
     Node end(x_robot_des,y_robot_des);
@@ -126,7 +127,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
 
 
         path_bis = algorithm();
-     //geometry_msgs::PoseArray path_copy;
+        //geometry_msgs::PoseArray path_copy;
     /***get coordinates of the destination point of /map in the /map frame***/
     res.path.header.frame_id ="/map" ;
     res.path.header.stamp = ros::Time();
@@ -163,6 +164,7 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
          }
         //p_test.position.x=p.x;
         //p_test.position.y=p.y;
+
         if((rit_node + 1) != path_bis.rend() ) 
         {   
 
@@ -180,9 +182,11 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
 
         else
         {
+
             //ROS_INFO_STREAM("Angle END#"<<angle*180/PI);
             p.theta=theta_robot_des;
             //p_test.orientation=tf::createQuaternionMsgFromYaw(p.theta);
+
         }
         res.path.poses.push_back(p);
         //path_copy.poses.push_back(p_test);
@@ -204,8 +208,9 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "path_finding_server");
     ros::NodeHandle n;
     PathFinding pf(n);
-    /****get param*****/
-   	n.param<int>("/rrt_iterations_number",pf.rrt_iterations_number,NUMBER_OF_POINTS);
+    /****get param *****/
+   	n.param<double>("/rrt_iterations_number",pf.rrt_iterations_number,NUMBER_OF_POINTS);
+    n.param<double>("/deltaQ",pf.deltaQ,DELTA); //(50 cm=10 pixels by default)
     n.param<double>("/lissage_force",pf.lissage_force,SMOOTHING_STRENGTH);
     n.param<double>("/lissage_tolerance",pf.lissage_tolerance,SMOOTHING_TOLERANCE);
     n.param<double>("/lissage_coef",pf.lissage_coef,SMOOTHING_DATA_WEIGHT);
@@ -213,6 +218,7 @@ int main(int argc, char **argv)
     n.param<double>("/loop_rate",pf.loop_rate,LOOP_RATE);
     n.param<double>("/diametre_robot",pf.diametre_robot,ROBOT_DIAMETER );
     n.param<double>("/distance_obstacle_detection",pf.distance_obstacle_detection,DISTANCE_OBSTACLE);
+
 
 
     ros::ServiceServer service = n.advertiseService("path_finding",&PathFinding::serviceCB,&pf);
@@ -233,7 +239,6 @@ int main(int argc, char **argv)
     ros::spin();
 
     return 0;
- }
-
+}
 
 

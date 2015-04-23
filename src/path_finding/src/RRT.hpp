@@ -18,7 +18,7 @@
 
 //using namespace std;
 
-static int deltaQ =10;//Don't go up 50
+//static int deltaQ =10;// don't have to be upper the robot-width value
 static int nb_in_tree = 0;
 
 
@@ -45,7 +45,7 @@ Node* closest_to_rec(Node* q_rand, Node* q_i){
     
     // updating nearest neighbour's distance found
     d = (d_temp < d) ? d_temp : d; 
-		
+
   }
   
   
@@ -250,7 +250,7 @@ bool not_in_free_space(Node* n_rand, cv::Mat map){
 }
 
 
-void extend(Node* q_rand, Node* tree, cv::Mat map,int largeur_robot, int distance_detection){
+void extend(Node* q_rand, Node* tree, cv::Mat map,int largeur_robot, int distance_detection,int deltaQ){
     // Find closest to q_rand in tree 
     Node *q_near = closest_to(q_rand, tree);
 
@@ -279,12 +279,13 @@ void extend(Node* q_rand, Node* tree, cv::Mat map,int largeur_robot, int distanc
 }
 
 
-void _rrt(Node *tree, int k, cv::Mat map,int positionX,int positionY,int largeur_robot,int distance_detection){
+void _rrt(Node *tree, int k, cv::Mat map,int positionX,int positionY,int largeur_robot,int distance_detection,int deltaQ){
   
   std::srand(std::time(0));
   //while(nb_in_tree < k){
  for(int i = 0; i < k; i++){
-    if(nb_in_tree%100==0 && deltaQ >= 5){ // multiple of number of points
+ // if you want an equal deltaQ between each point remove the "if" following part
+    if(nb_in_tree%100==0 && deltaQ >= 6){ // multiple of number of points
     
       deltaQ = deltaQ -1;
    }
@@ -293,25 +294,25 @@ void _rrt(Node *tree, int k, cv::Mat map,int positionX,int positionY,int largeur
 
      if((positionX < 0)&&(positionY < 0))
      {
-     x_rand=((std::rand()% map.rows+1) -map.rows);
-     y_rand= ((std::rand()% map.cols+1) -map.cols);
+     x_rand=((std::rand()% positionX  +1) -positionX );
+     y_rand= ((std::rand()% positionY  +1) -positionY  );
      }
      else if((positionX < 0)&& (positionY >=0)){
-     x_rand=((std::rand()% map.rows+1) -map.rows);
-     y_rand = (std::rand()% map.cols);
+     x_rand=((std::rand()% positionX  +1) -positionX  );
+     y_rand = (std::rand()% positionY +1 );
      }
      else if((positionX >= 0)&&(positionY < 0)){
-     x_rand=(std::rand()% map.cols);
-     y_rand = ((std::rand()% map.cols+1) -map.cols);
+     x_rand=(std::rand()% positionX  );
+     y_rand = ((std::rand()% positionY  +1) -positionY  );
      }
      else if((positionX >= 0)&&(positionY >= 0)){
-     x_rand=(std::rand()% map.rows);
-     y_rand =(std::rand()% map.cols);
+     x_rand=(std::rand()% positionX  );
+     y_rand =(std::rand()%  positionY  );
      }
 
     Node* q_rand = new Node(x_rand,y_rand);
     // add distance from root 
-    extend(q_rand, tree, map,largeur_robot,distance_detection);
+    extend(q_rand, tree, map,largeur_robot,distance_detection,deltaQ);
     //free(q_rand);
   }
 

@@ -28,6 +28,7 @@
 #define LOOP_RATE 50
 #define ROBOT_DIAMETER 55
 #define DISTANCE_OBSTACLE 14
+#define DELTA 50
 
  /*******Class Path_finding*******/
 
@@ -46,8 +47,7 @@ public:
     double x_map_origin, y_map_origin;
     double  dx, dy,du, alpha, angle,time;
     bool waitFormap;
-    int rrt_iterations_number;
-    double lissage_force, lissage_tolerance,lissage_coef,pi,loop_rate,diametre_robot, distance_obstacle_detection;
+    double lissage_force, lissage_tolerance,lissage_coef,pi,loop_rate,diametre_robot, distance_obstacle_detection, rrt_iterations_number, deltaQ;
 
 public:
 
