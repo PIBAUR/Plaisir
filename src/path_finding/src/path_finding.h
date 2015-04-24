@@ -26,7 +26,9 @@
 #define NUMBER_OF_POINTS 20000
 #define PI 3.14159265359
 #define LOOP_RATE 50
-
+#define ROBOT_DIAMETER 55
+#define DISTANCE_OBSTACLE 14
+#define DELTA 50
 
  /*******Class Path_finding*******/
 
@@ -45,8 +47,7 @@ public:
     double x_map_origin, y_map_origin;
     double  dx, dy,du, alpha, angle,time;
     bool waitFormap;
-    int rrt_iterations_number;
-    double lissage_force, lissage_tolerance,lissage_coef,pi,loop_rate;
+    double lissage_force, lissage_tolerance,lissage_coef,pi,loop_rate,diametre_robot, distance_obstacle_detection, rrt_iterations_number, deltaQ;
 
 public:
 
@@ -73,7 +74,7 @@ public:
 void affiche_tree(Node *q_i, cv::Mat* map);
 void draw_path(std::vector<Node*> path, cv::Mat &map);
 std::vector<Node*> rrt_path(Node *end, Node *tree);
-std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map);
+std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map,double lissage_tolerance,double lissage_force,double lissage_coef ,int largeur_robot,int distance_detection);
 
 
 /* FUNCTIONS */
@@ -133,7 +134,7 @@ std::vector<Node*> rrt_path(Node *end, Node *tree){
 	
 }
 
-std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map,double lissage_tolerance,double lissage_force,double lissage_coef ){
+std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map,double lissage_tolerance,double lissage_force,double lissage_coef ,int largeur_robot,int distance_detection){
 
   int n = path.size();
   std::vector<Node*> newpath;
@@ -162,7 +163,7 @@ std::vector<Node*> path_smoothing(std::vector<Node*> path, cv::Mat *map,double l
       temp->y += lissage_force*(path[i]->y - temp->y);
       temp->y += lissage_coef*(newpath[i-1]->y + newpath[i+1]->y - 2*temp->y);
       
-      if(_collision_with_object(newpath[i-1],temp,*map) && _collision_with_object(temp,newpath[i+1],*map))
+      if(_collision_with_object(newpath[i-1],temp,*map,largeur_robot,distance_detection) && _collision_with_object(temp,newpath[i+1],*map,largeur_robot,distance_detection))
         { // if new path (both new trajectories) is OK we can change it
         change += sqrt((temp->x - newpath[i]->x)*(temp->x - newpath[i]->x)+(temp->y - newpath[i]->y)*(temp->y - newpath[i]->y)); // updating change
         delete newpath[i];
