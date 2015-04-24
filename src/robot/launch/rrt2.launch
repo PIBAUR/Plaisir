@@ -19,8 +19,8 @@
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
 	
 	<node pkg="tf" type="static_transform_publisher" name="odom_to_map" args="1 0 0 0 0 0 /map robot$(arg robot)/odom 20"/>
-    	<!--<node pkg="tf" type="static_transform_publisher" name="base_to_odom" args="0 1 0 0 0 0 /robot$(arg robot)/odom robot$(arg robot)/base_link 20"/> -->
-	
+   <node pkg="tf" type="static_transform_publisher" name="base_to_odom" args="0 1 0 0 0 0 robot$(arg robot)/odom robot$(arg robot)/base_link 20"/>
+   <node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.08 0 0.045 3.14159265359 0 0  robot$(arg robot)/base_link robot$(arg robot)/base_laser_link 20"/>
 	<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/last_map.yaml"/>
 	
 	<node name="topic_router" pkg="topic_router" type="__init__.py"/>
