@@ -214,6 +214,8 @@ class DiagramNode(object):
         
     
     def setTimelineValue(self, value):
+        if value < 0:
+            value = 0
         width = value * self.widget.timelineContainer.width()
         self.widget.timeline.setMinimumWidth(width)
         self.widget.timeline.setMaximumWidth(width)
@@ -332,5 +334,5 @@ from src.scenario_lib.src.items.nodes.travelScenarioNode import TravelScenarioNo
 from src.scenario_lib.src.items.nodes.sequenceNode import SequenceNode
 from src.scenario_lib.src.items.nodes.randomChoiceNode import RandomChoiceNode
 from src.scenario_lib.src.items.nodes.visitorNode import VisitorNode
-from src.scenario_lib.src.items.nodes.stoppedStateNode import StoppedStateNode
+from src.scenario_lib.src.items.nodes.obstacleNode import ObstacleNode
 from src.scenario_lib.src.items.nodes.batteryStateNode import BatteryStateNode

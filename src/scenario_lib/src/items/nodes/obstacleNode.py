@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import rospy
+from std_msgs.msg import Bool as BoolMsg
 
 from PyQt4.QtGui import *
 
@@ -9,7 +10,7 @@ from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.nodes.playNode import PlayNode
 
-class StoppedStateNode(DiagramNode):
+class ObstacleNode(DiagramNode):
     nodeName = u"Obstacle devant"
     nodeCategory = ""
     
@@ -18,13 +19,20 @@ class StoppedStateNode(DiagramNode):
     hasOutput = 1
     
     def __init__(self, parent, canvas, position):
-        super(StoppedStateNode, self).__init__(parent, canvas, position)
+        super(ObstacleNode, self).__init__(parent, canvas, position)
+        
+        self.stateSubscriber = rospy.Subscriber("robot01/front_obstacle", BoolMsg, self.handleFrontObstacleReceived)
+        self.isObstacle = False
         
         # ui
         self.isStoppedState_label = QLabel()
         self.widget.central_widget.layout().addWidget(self.isStoppedState_label)
         
     
+    def handleFrontObstacleReceived(self, msg):
+        self.isObstacle = msg.data
+        
+        
     def output(self, args, updateRatioCallback):
         self.updateCallback = updateRatioCallback
         
@@ -32,8 +40,7 @@ class StoppedStateNode(DiagramNode):
         if len(inputs) != 2:
             raise NodeException(u"Le noeud de redémarrage doit comporter 2 entrées; 1: si le robot a du être interomppu; 2: si non")
         
-        isStoppedState = args["currentState"] == PlayNode.STOP_STATE
-        inputIndex = 1 if isStoppedState else 0
+        inputIndex = 1 if self.isObstacle else 0
         inputItem = inputs[inputIndex]
         
         if updateRatioCallback is not None:
@@ -54,10 +61,9 @@ class StoppedStateNode(DiagramNode):
     
     
     def refreshUI(self, args):
-        isStoppedState = args["currentState"] == PlayNode.STOP_STATE
-        self.isStoppedState_label.setText("oui" if isStoppedState else "non")
+        self.isStoppedState_label.setText("oui" if self.isObstacle else "non")
         
-        super(StoppedStateNode, self).refreshUI(args)
+        super(ObstacleNode, self).refreshUI(args)
         
         
     def getSpecificsData(self):

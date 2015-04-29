@@ -20,6 +20,10 @@ class BatteryStateNode(DiagramNode):
     def __init__(self, parent, canvas, position):
         super(BatteryStateNode, self).__init__(parent, canvas, position)
         
+        #TODO: pourcentage ascendant et descendant
+        #TODO: subscriber
+        self.batteryPercent = 100
+        
         # ui
         self.isLowBatteryState_label = QLabel()
         self.widget.central_widget.layout().addWidget(self.isLowBatteryState_label)
@@ -32,8 +36,7 @@ class BatteryStateNode(DiagramNode):
         if len(inputs) != 2:
             raise NodeException(u"Le noeud d'état de la batterie doit comporter 2 entrées; 1: si le niveau de batterie est suffisant; 2: si non")
         
-        isLowBatteryState = args["currentState"] == PlayNode.LOW_BATTERY_STATE
-        inputIndex = 1 if isLowBatteryState else 0
+        inputIndex = 1 if self.batteryPercent > 20 else 0
         
         inputItem = inputs[inputIndex]
         
@@ -55,8 +58,7 @@ class BatteryStateNode(DiagramNode):
     
     
     def refreshUI(self, args):
-        isLowBatteryState = args["currentState"] == PlayNode.LOW_BATTERY_STATE
-        self.isLowBatteryState_label.setText("insuffisante" if isLowBatteryState else "suffisante")
+        self.isLowBatteryState_label.setText(str(self.batteryPercent))
         
         super(BatteryStateNode, self).refreshUI(args)
         

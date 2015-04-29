@@ -21,11 +21,7 @@ from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from PyQt4.Qt import QTimer
 
 class PlayNode(DiagramNode):
-    ACTIVE_STATE = "ACTIVE"
-    LOW_BATTERY_STATE = "LOW_BATTERY"
-    HIGH_PING_STATE = "HIGH_PING"
-    STOP_STATE = "STOP"
-    EMERGENCY_STOP_STATE = "EMERGENCY_STOP"
+    INTERRUPTED_STATE = "INTERRUPTED_STATE"
     
     transformListener = None
     actionClient = None
@@ -39,9 +35,6 @@ class PlayNode(DiagramNode):
     
     def __init__(self, parent, canvas, position):
         super(PlayNode, self).__init__(parent, canvas, position)
-        
-        self.currentState = PlayNode.ACTIVE_STATE
-        self.previousState = self.currentState
         
         self.isPlaying = False
         self.playingScenario = None
@@ -63,7 +56,7 @@ class PlayNode(DiagramNode):
         self.hasToRestart = False
         self.threadSafeTimer = QTimer()
         self.threadSafeTimer.timeout.connect(partial(self.handleThreadSafeTimer))
-        self.threadSafeTimer.start(100)
+        self.threadSafeTimer.start(20)
         
         # ui
         self.playButton = QPushButton("Play")
@@ -92,8 +85,6 @@ class PlayNode(DiagramNode):
     
     def getArgs(self):
         return {
-                "currentState": self.currentState,
-                "previousState": self.previousState,
                 "robotPosition": self.transformPosition, 
                 "robotOrientation": self.transformOrientation
                 }
@@ -117,8 +108,8 @@ class PlayNode(DiagramNode):
             rospy.logerr(e)
         
     
-    def stop(self):
-        if self.executing:
+    def stop(self, withoutSendingFreeze = False):
+        if not withoutSendingFreeze and self.executing:
             # stop the robot
             freezeMsg = BoolMsg()
             freezeMsg.data = True
@@ -188,29 +179,26 @@ class PlayNode(DiagramNode):
         if self.hasToRestart:
             self.hasToRestart = False
             if self.isPlaying:
-                self.stopAllScenarios()
-                #TODO: wait for a feedback of freeze ended from action_selector.cpp (l. 356)
-                import time
-                time.sleep(.5)
+                self.stopAllScenarios(True)
                 self.playScenario()
-        
-        
-    def handleStateReceived(self, msg):
-        self.currentState = msg.data
-        
-        # stop or play
-        if self.currentState == PlayNode.STOP_STATE and self.previousState == PlayNode.ACTIVE_STATE:
-            self.hasToRestart = True
                 
         # refresh ui
         self.refreshUI(self.getArgs())
         
-        self.previousState = self.currentState
+        
+    def handleStateReceived(self, msg):
+        state = msg.data
+        
+        if state == PlayNode.INTERRUPTED_STATE:
+            self.hasToRestart = True
     
     
-    def stopAllScenarios(self):
+    def stopAllScenarios(self, withoutSendingFreeze = False):
         for nodeInstance in self.canvas.nodesInstances:
-            nodeInstance.stop() 
+            if self == nodeInstance:
+                nodeInstance.stop(withoutSendingFreeze)
+            else:  
+                nodeInstance.stop()
         
     
     def handlePlayButtonClicked(self, event):
