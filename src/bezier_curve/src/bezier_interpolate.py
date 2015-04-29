@@ -21,17 +21,16 @@ def scenarioCallback(data):
     path.path.header = data.bezier_paths.header
     distance = 0
     duration = 0
-    rospy.loginfo("New scenario")
     
     for media in data.medias.medias:
         duration += media.duration
     
     for curve in data.bezier_paths.curves:
-        if curve != data.bezier_paths.curves[-1]:
+        if data.type == "travel" or (data.type == "choregraphic" and curve != data.bezier_paths.curves[-1]):
             distance += getBezierCurveLength(curve)
             i = 0
             step = 1.0 * stepInMeter / getBezierCurveLength(curve)
-            while i <= 1 :  
+            while i <= 1:  
                 pose = PoseMsg()
                 
                 if data.type == "choregraphic":
@@ -52,9 +51,18 @@ def scenarioCallback(data):
                     
                 path.path.poses.append(pose)
             
+    
     speed = Float64Msg()
     speed.data = (distance / duration) if duration > 0 else 0.1
     speedPublisher.publish(speed)
+    
+    rospy.loginfo("""new """ + data.type + """ scenario: 
+- """ + str(len(data.bezier_paths.curves)) + """
+- curves\ndistance of """ + str(distance) + """
+- """ + str(path.path.poses) + """ poses
+- speed of """ + str(speed.data) + """
+- media (""" + str(len(data.medias.medias)) + """) duration of """ + str(duration) + """s""")
+    
     pathPublisher.publish(path)
 
 

@@ -99,9 +99,7 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-# add_executable(path_follower_node src/path_follower_node.cpp)
-add_executable(path_follower src/path_follower.cpp)
-add_executable(traj_publisher src/bezier_to_path.cpp)
+add_executable(path_follower_node src/path_follower.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -111,8 +109,7 @@ add_executable(traj_publisher src/bezier_to_path.cpp)
 # target_link_libraries(path_follower_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(path_follower ${catkin_LIBRARIES})
-target_link_libraries(traj_publisher ${catkin_LIBRARIES})
+target_link_libraries(path_follower_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

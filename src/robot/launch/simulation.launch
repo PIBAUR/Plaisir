@@ -2,10 +2,7 @@
 	<param name="use_sim_time" value="false" />
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
 	
-	<!-- 
-	 <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>
-	 -->
-	
+	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
 	
 	<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/last_map.yaml"/>

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import rospy
+from std_msgs.msg import Bool as BoolMsg
 
 from PyQt4.QtGui import *
 
@@ -9,8 +10,8 @@ from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.nodes.playNode import PlayNode
 
-class BatteryStateNode(DiagramNode):
-    nodeName = "Etat de la batterie"
+class ObstacleNode(DiagramNode):
+    nodeName = u"Obstacle devant"
     nodeCategory = ""
     
     maxInputs = 2
@@ -18,26 +19,28 @@ class BatteryStateNode(DiagramNode):
     hasOutput = 1
     
     def __init__(self, parent, canvas, position):
-        super(BatteryStateNode, self).__init__(parent, canvas, position)
+        super(ObstacleNode, self).__init__(parent, canvas, position)
         
-        #TODO: pourcentage ascendant et descendant
-        #TODO: subscriber
-        self.batteryPercent = 100
+        self.stateSubscriber = rospy.Subscriber("robot01/front_obstacle", BoolMsg, self.handleFrontObstacleReceived)
+        self.isObstacle = False
         
         # ui
-        self.isLowBatteryState_label = QLabel()
-        self.widget.central_widget.layout().addWidget(self.isLowBatteryState_label)
+        self.isStoppedState_label = QLabel()
+        self.widget.central_widget.layout().addWidget(self.isStoppedState_label)
         
     
+    def handleFrontObstacleReceived(self, msg):
+        self.isObstacle = msg.data
+        
+        
     def output(self, args, updateRatioCallback):
         self.updateCallback = updateRatioCallback
         
         inputs = self.getInputs()
         if len(inputs) != 2:
-            raise NodeException(u"Le noeud d'état de la batterie doit comporter 2 entrées; 1: si le niveau de batterie est suffisant; 2: si non")
+            raise NodeException(u"Le noeud de redémarrage doit comporter 2 entrées; 1: si le robot a du être interomppu; 2: si non")
         
-        inputIndex = 1 if self.batteryPercent > 20 else 0
-        
+        inputIndex = 1 if self.isObstacle else 0
         inputItem = inputs[inputIndex]
         
         if updateRatioCallback is not None:
@@ -58,9 +61,9 @@ class BatteryStateNode(DiagramNode):
     
     
     def refreshUI(self, args):
-        self.isLowBatteryState_label.setText(str(self.batteryPercent))
+        self.isStoppedState_label.setText("oui" if self.isObstacle else "non")
         
-        super(BatteryStateNode, self).refreshUI(args)
+        super(ObstacleNode, self).refreshUI(args)
         
         
     def getSpecificsData(self):

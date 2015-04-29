@@ -5,22 +5,12 @@ project(robot)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  actionlib
-  actionlib_msgs
-  tf
-  message_generation
-  roscpp
   rospy
-  std_msgs
-  	
-  geometry_msgs
 )
-find_package( tf )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package(catkin REQUIRED COMPONENTS roscpp actionlib actionlib_msgs tf)
-find_package(Boost REQUIRED COMPONENTS system)
+
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -72,19 +62,11 @@ find_package(Boost REQUIRED COMPONENTS system)
 #   Action2.action
 # )
 
-add_action_files(
-  DIRECTORY action
-  FILES Stop.action Battery.action Scenario.action Ping.action Scenario.action
-)
-
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   actionlib_msgs#   std_msgs
+#   std_msgs  # Or other packages containing msgs
 # )
-generate_messages(
-  DEPENDENCIES actionlib_msgs std_msgs  # Or other packages containing msgs
-)
 
 ###################################
 ## catkin specific configuration ##
@@ -98,7 +80,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES robot
-  CATKIN_DEPENDS actionlib_msgs actionlib  roscpp rospy std_msgs tf #message_generation
+#  CATKIN_DEPENDS rospy
 #  DEPENDS system_lib
 )
 
@@ -119,36 +101,16 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(stop_action src/stop_action.cpp)
-add_executable(emergency_stop_action src/emergency_action.cpp)
-add_executable(low_battery_action src/low_battery_action.cpp)
-add_executable(scenario_action src/scenario_action.cpp)
-add_executable(ping_action src/ping_action.cpp)
-add_executable(action_selector src/action_selector.cpp)
-#add_executable(robot_model src/robot_model.cpp)
-
+# add_executable(robot_node src/robot_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(emergency_stop_action  ${robot_EXPORTED_TARGETS})
-add_dependencies(stop_action  ${robot_EXPORTED_TARGETS})
-add_dependencies(low_battery_action  ${robot_EXPORTED_TARGETS})
-add_dependencies(scenario_action  ${robot_EXPORTED_TARGETS})
-add_dependencies(ping_action  ${robot_EXPORTED_TARGETS})
-add_dependencies(action_selector  ${robot_EXPORTED_TARGETS})
-#add_dependencies(robot_model  ${robot_EXPORTED_TARGETS})
+# add_dependencies(robot_node robot_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(robot_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(emergency_stop_action  ${catkin_LIBRARIES})
-target_link_libraries(stop_action  ${catkin_LIBRARIES})
-target_link_libraries(low_battery_action  ${catkin_LIBRARIES})
-target_link_libraries(scenario_action  ${catkin_LIBRARIES})
-target_link_libraries(ping_action  ${catkin_LIBRARIES})
-target_link_libraries(action_selector  ${catkin_LIBRARIES})
-#target_link_libraries(robot_model  ${catkin_LIBRARIES})
 
 #############
 ## Install ##

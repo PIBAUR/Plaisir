@@ -1,20 +1,12 @@
 <launch> 
-	
 	<arg name="robot"/>
-	<arg name="map"/>
 	<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	
-	<!--Load map-->
-	<node name="map_server" type="map_server" pkg="map_server" output="screen"
-		  	args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" respawn="true"/>
-	  
-	<!-- Run AMCL-->
+	<!-- AMCL-->
 	<node pkg="amcl" type="amcl" name="amcl" output="screen" respawn="true">
 		<!-- remap for namespace -->>
 		<remap from="scan" to="/robot$(arg robot)/scan"/>
 		<remap from="initialpose" to="/robot$(arg robot)/initialpose"/>
-		
-		
 		
 		<!--Overall filter parameters-->
 		<!--Minimum and maximumallowed number of particles. -->

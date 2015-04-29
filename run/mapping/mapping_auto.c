@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <signal.h>
 
-int main(){
+int main(int argc, char **argv){
     printf("=================================================\n");
     printf("====================START MAPPING================\n");
     printf("=================================================\n");
@@ -22,7 +22,9 @@ int main(){
             printf("=================================================\n");
             printf("===========NEATO LAUNCH CARTO FILS 1=============\n");
             printf("=================================================\n");
-            execlp("roslaunch", "roslaunch", "robot", "carto_step1.launch", NULL);
+            char robot_arg[256];
+            snprintf(robot_arg, sizeof robot_arg, "robot:=%s", argv[1]);
+            execlp("roslaunch", "roslaunch", "robot", "mapping_step_1.launch", robot_arg, NULL);
             while(1){
                 printf("fils 1 running...\n");
                 sleep(10);
@@ -41,7 +43,7 @@ int main(){
                     printf("=================================================\n");
                     printf("==========NEATO LAUNCH CARTO FILS 2==============\n");
                     printf("=================================================\n");
-                    execlp("roslaunch", "roslaunch", "robot", "carto_step2.launch", NULL);
+                    execlp("roslaunch", "roslaunch", "robot", "mapping_step_2.launch", NULL);
                     while(1){
                         printf("fils 2 running...\n");
                         sleep(10);

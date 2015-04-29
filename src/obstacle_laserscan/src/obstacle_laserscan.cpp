@@ -22,10 +22,10 @@ int main(int argc, char** argv)
 	ros::init(argc, argv, "obstacle_laserscan_node");
 	ros::NodeHandle n;
 
-        /*** get rosparam ***/
-    	n.param<double>("/front_angle",front_angle,SCAN_RANGE);
-    	n.param<double>("/distance_obstacle_min",dist_obstacle_min,MIN_LENGTH);
-    	n.param<double>("/distance_obstacle_max",dist_obstacle_max,MAX_LENGTH);
+	/*** get rosparam ***/
+	n.param<double>("/front_angle",front_angle,SCAN_RANGE);
+	n.param<double>("/distance_obstacle_min",dist_obstacle_min,MIN_LENGTH);
+	n.param<double>("/distance_obstacle_max",dist_obstacle_max,MAX_LENGTH);
 	//Subscriber
 	ros::Subscriber lidar_sub = n.subscribe<sensor_msgs::LaserScan>("scan", 1, lidarCallback);
 	//Publisher
