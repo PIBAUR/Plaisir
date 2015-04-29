@@ -192,6 +192,18 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         //path_copy.poses.push_back(p_test);
     }
     //pub.publish(path_copy);
+
+    // Add a point if path size == 1
+    if(path_bis.size()==1)
+    {
+    	 geometry_msgs::Pose2D p2;
+         p2.x =   req.target.x ; // convert pixel in meter
+         p2.y =  req.target.y ;
+
+         p2.theta=theta_robot_des;
+
+         res.path.poses.push_back(p2);
+    }
     time=ros::Time::now().toSec()-second.toSec();
     ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
 
