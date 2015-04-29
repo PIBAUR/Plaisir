@@ -39,11 +39,9 @@
 		args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" respawn="true"/>
 	<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="true"/>
 	
-	<!-- 
 	<include file="$(find robot)/launch/server_localisation.launch">
 		<arg name="robot" value="$(arg robot)"/> 
 	</include>
-	 -->
 	 
 	<!-- DEBUG TOOLS -->
 	<node pkg="topic_router" name="robot_model" type="robot_model" respawn="true"/>
