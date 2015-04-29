@@ -5,20 +5,12 @@ project(robot)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  tf
-  message_generation
-  roscpp
   rospy
-  std_msgs
-  	
-  geometry_msgs
 )
-find_package( tf )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package(catkin REQUIRED COMPONENTS roscpp actionlib actionlib_msgs tf)
-find_package(Boost REQUIRED COMPONENTS system)
+
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -70,19 +62,11 @@ find_package(Boost REQUIRED COMPONENTS system)
 #   Action2.action
 # )
 
-add_action_files(
-  DIRECTORY action
-  FILES Stop.action Battery.action Scenario.action Ping.action Scenario.action
-)
-
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   actionlib_msgs#   std_msgs
+#   std_msgs  # Or other packages containing msgs
 # )
-generate_messages(
-  DEPENDENCIES actionlib_msgs std_msgs  # Or other packages containing msgs
-)
 
 ###################################
 ## catkin specific configuration ##
@@ -96,7 +80,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES robot
-  CATKIN_DEPENDS actionlib_msgs actionlib  roscpp rospy std_msgs tf #message_generation
+#  CATKIN_DEPENDS rospy
 #  DEPENDS system_lib
 )
 
@@ -117,18 +101,16 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(path_follower_node src/path_follower.cpp)
-
+# add_executable(robot_node src/robot_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(path_follower_node  ${robot_EXPORTED_TARGETS})
+# add_dependencies(robot_node robot_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(robot_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(path_follower_node  ${catkin_LIBRARIES})
 
 #############
 ## Install ##
