@@ -1,6 +1,4 @@
 #include <ros/ros.h>
-#include <actionlib/server/simple_action_server.h>
-#include <robot/ScenarioAction.h>
 
 #include <geometry_msgs/Twist.h>
 #include <tf/transform_listener.h>
