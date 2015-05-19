@@ -131,48 +131,48 @@ class PlayNode(DiagramNode):
     
     def playScenario(self):
         #DEBUG: remove exception handler
-        #try:
-        # reset error
-        self.canvas.ui.statusBar.clearMessage()
-        for nodeInstance in self.canvas.nodesInstances:
-            nodeInstance.widget.central_widget.setStyleSheet("#central_widget { background: #fff; }")
+        try:
+            # reset error
+            self.canvas.ui.statusBar.clearMessage()
+            for nodeInstance in self.canvas.nodesInstances:
+                nodeInstance.widget.central_widget.setStyleSheet("#central_widget { background: #fff; }")
+                
+            # play
+            self.playingScenario = self.output()
+            self.playingScenarioLabel.setText(self.playingScenario.niceName())
             
-        # play
-        self.playingScenario = self.output()
-        self.playingScenarioLabel.setText(self.playingScenario.niceName())
-        
-        # publish message to ROS
-        if self.playingScenario.scenarioType == "choregraphic":
-            scale = 1. / float(self.playingScenario.gridSize)
-            interpolation = True
-        else:
-            scale = 1
-            interpolation = False
-        
-        robot = self.playingScenario.robots[0]
-        if self.playingScenario.startPosition is not None:
-            transformPosition = self.playingScenario.startPosition
-        else:
-            transformPosition = self.transformPosition
+            # publish message to ROS
+            if self.playingScenario.scenarioType == "choregraphic":
+                scale = 1. / float(self.playingScenario.gridSize)
+                interpolation = True
+            else:
+                scale = 1
+                interpolation = False
             
-        if self.playingScenario.startOrientation is not None:
-            transformOrientation = self.playingScenario.startOrientation
-        else:
-            transformOrientation = self.transformOrientation
-        
-        scenarioMsg = robot.getScenarioMsgWithParams(transformPosition, scale, transformOrientation, interpolation, False)
-        scenarioMsg.uid = self.playingScenario.uid
-        scenarioMsg.type = self.playingScenario.scenarioType
-        self.scenarioPublisher.publish(scenarioMsg)
-        #except NodeException as error:
-        #    self.playButton.setEnabled(True)
-        #    self.stopButton.setEnabled(False)
-        #    
-        #    # display the error
-        #    self.canvas.ui.statusBar.showMessage("Erreur: " + str(error.message.encode("utf-8")).decode("utf-8"))
-        #    error.nodeCausingErrror.widget.central_widget.setStyleSheet("#central_widget { background: #ff4c4c; }")
-        #    
-        #    self.stopAllScenarios()
+            robot = self.playingScenario.robots[0]
+            if self.playingScenario.startPosition is not None:
+                transformPosition = self.playingScenario.startPosition
+            else:
+                transformPosition = self.transformPosition
+                
+            if self.playingScenario.startOrientation is not None:
+                transformOrientation = self.playingScenario.startOrientation
+            else:
+                transformOrientation = self.transformOrientation
+            
+            scenarioMsg = robot.getScenarioMsgWithParams(transformPosition, scale, transformOrientation, interpolation, False)
+            scenarioMsg.uid = self.playingScenario.uid
+            scenarioMsg.type = self.playingScenario.scenarioType
+            self.scenarioPublisher.publish(scenarioMsg)
+        except NodeException as error:
+            self.playButton.setEnabled(True)
+            self.stopButton.setEnabled(False)
+            
+            # display the error
+            self.canvas.ui.statusBar.showMessage("Erreur: " + str(error.message.encode("utf-8")).decode("utf-8"))
+            error.nodeCausingErrror.widget.central_widget.setStyleSheet("#central_widget { background: #ff4c4c; }")
+            
+            self.stopAllScenarios()
     
     
     def handleThreadSafeTimer(self):
