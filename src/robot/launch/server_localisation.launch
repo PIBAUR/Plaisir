@@ -22,8 +22,8 @@
 		
 		<!--Translational movement and Rotational movement required before
 		performing a filter update.-->
-		<param name="update_min_d" value="-0.30"/>
-		<param name="update_min_a" value="-0.50"/>
+		<param name="update_min_d" value="-0.10"/>
+		<param name="update_min_a" value="-0.30"/>
 		
 		<!--Number of filter updates required before resampling.-->
 		<param name="resample_interval" value="5"/>
@@ -35,8 +35,8 @@
 		<!--Exponential decay rate for the slow (resp. fast) average weight filter, 
 		used in deciding when to recover by adding random poses. 
 		A good value might be 0.001 (resp. 0.1).-->
-		<param name="recovery_alpha_slow" value="0.01"/>
-		<param name="recovery_alpha_fast" value="0.05"/>
+		<param name="recovery_alpha_slow" value="0.00001"/>
+		<param name="recovery_alpha_fast" value="0.00001"/>
 		
 		<!--Initial pose mean (x), (y) and (yaw), used to initialize filter with 
 		Gaussian distribution. Load from yaml file.-->    
@@ -44,9 +44,9 @@
 		
 		<!--Initial pose covariance (x*x), (y*y) and (yaw*yaw) used to initialize 
 		filter with Gaussian distribution. -->
-		<param name="initial_cov_xx" value="5.0*5.0"/>
-		<param name="initial_cov_yy" value="5.0*5.0"/>
-		<param name="initial_cov_aa" value="3.14*3.14/(12*12)"/>
+		<param name="initial_cov_xx" value="0.25"/>
+		<param name="initial_cov_yy" value="0.25"/>
+		<param name="initial_cov_aa" value="1.0"/>
 		
 		<!--Maximum rate (Hz) at which scans and paths are published for visualization,
 		-1.0 to disable.-->
@@ -80,7 +80,7 @@
 		<param name="laser_max_range" value="-1.0"/>
 		
 		<!--How many evenly-spaced beams in each scan to be used when updating the filter.-->
-		<param name="laser_max_beams" value="50"/>
+		<param name="laser_max_beams" value="150"/>
 		
 		<!--Mixture weight for the z_... part of the model.-->
 		<param name="laser_z_hit" value="0.95"/>
@@ -96,7 +96,7 @@
 		<param name="laser_lambda_short" value="0.1"/>
 		
 		<!--Maximum distance to do obstacle inflation on map, for use in likelihood_field model.-->
-		<param name="laser_likelihood_max_dist" value="2.0"/>
+		<param name="laser_likelihood_max_dist" value="5.0"/>
 		
 		<!--Which model to use, either beam, likelihood_field, or likelihood_field_prob.-->
 		<param name="laser_model_type" value="likelihood_field"/>
@@ -115,26 +115,26 @@
 		(without rotating) perpendicular to the observed direction of travel.-->
 		
 		<!--Which model to use, either "diff" or "omni".-->
-		<param name="odom_model_type" value="diff"/>
+		<param name="odom_model_type" value="omni"/>
 		
 		<!--Specifies the expected noise in odometry's rotation estimate from 
 		the rotational component of the robot's motion.-->
-		<param name="odom_alpha1" value="1.1"/>
+		<param name="odom_alpha1" value="0.70"/>
 		
 		<!--Specifies the expected noise in odometry's rotation estimate from 
 		translational component of the robot's motion.-->
-		<param name="odom_alpha2" value="1.2"/>
+		<param name="odom_alpha2" value="0.70"/>
 		
 		<!--Specifies the expected noise in odometry's translation estimate from the 
 		translational component of the robot's motion.-->
-		<param name="odom_alpha3" value="0.5"/>
+		<param name="odom_alpha3" value="1.0"/>
 		
 		<!--Specifies the expected noise in odometry's translation estimate from 
 		the rotational component of the robot's motion.-->
-		<param name="odom_alpha4" value="0.5"/>
+		<param name="odom_alpha4" value="1.0"/>
 		
 		<!--Translation-related noise parameter (only used if model is "omni").-->
-		<param name="odom_alpha5" value="0.2"/>
+		<param name="odom_alpha5" value="1.0"/>
 		
 		<!--Which frame to use for odometry, the robot base and frame published .-->
 		<param name="odom_frame_id" value="/robot$(arg robot)/odom"/>
