@@ -8,7 +8,7 @@ user=$USER
 #ssh odroid@192.168.150.1$robot 'mv ~/catkin_ws ~/catkin_ws_backup_before_deployment'
 
 # to sync clock
-#ssh odroid@192.168.150.1$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate 192.168.150.1'
+ssh odroid@192.168.150.1$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate 192.168.150.1'
 
 rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/.git/' \

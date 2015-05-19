@@ -6,8 +6,10 @@
 	<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
 		env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
     
+	<!-- to execute without amcl
 	<node pkg="tf" type="static_transform_publisher" name="odom_to_map" respawn="true"
 		args="0 0 0 0 0 0 /map odom 20"/>
+	-->
 	<node pkg="tf" type="static_transform_publisher" name="laser_to_base" machine="robot$(arg robot)" respawn="true"
 		args="-0.100 0 0.045 3.14159265359 0 0 base_link base_laser_link 20" />
 		

@@ -18,6 +18,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/Vector3.h>
 #include <nav_msgs/Odometry.h>
 #include <tf/transform_broadcaster.h>
 #include <stdio.h>   /* Standard input/output definitions */
@@ -92,6 +93,7 @@ private:
     tf::TransformBroadcaster odom_broadcaster;
     nav_msgs::Odometry odom_msg;
     ros::Publisher publish_odom;
+    ros::Publisher publish_batt;
     ros::Time current_time;
     ros::Time last_time;
 
@@ -122,6 +124,7 @@ public:
     void publish();
     ros::NodeHandle get_NodeHandled(){return nh_;}
     void stop();
+    void get_battery_state();
 
     ///----- PRIVATE METHODS -----///
 private :
@@ -144,4 +147,5 @@ private :
     void get_speed2();                       // Returns the current requested speed of motor 2.
     void get_acceleration();                 // Get the set desired acceleration rate.
     void get_volt();                         // Returns the input battery voltage level.
+
 };

@@ -29,9 +29,9 @@ robot_videos_path: "/home/odroid/.notrebonplaisir/videos"
 
 ## FRONT OBSTACLE
 ## angle de détection d'obsatcle à l'avant du robot (en degré)
-front_angle: 40
+front_angle: 80
 ## distance minimale de détection d'obstacle à l'avant du robot (en mètre)
-distance_obstacle_min: 0.2
+distance_obstacle_min: 0.35
 ## distance maximale de détection d'obstacle à l'avant du robot (en mètre)
 distance_obstacle_max: 0.80
 
