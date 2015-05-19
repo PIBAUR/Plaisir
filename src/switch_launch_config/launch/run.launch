@@ -1,0 +1,10 @@
+<launch>
+	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
+	
+	<node name="switch_launch_config" pkg="switch_launch_config" type="__init__.py" output="screen" machine="$(env USER)">
+		<param name="nodeToReconfigure" value="amcl"/>
+		<param name="delay" value="5"/>
+		<param name="launchFilePackage" value="robot"/>
+		<param name="launchFile" value="launch/server_localisation_switched.launch"/>
+	</node>
+</launch>
