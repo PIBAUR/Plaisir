@@ -14,33 +14,34 @@ path = PathMsg()
 step = 0
 stepInMeter = 0
 
-def scenarioCallback(data):
+def scenarioCallback(msg):
     # to execute only choregraphic scenario
-    path.uid = data.uid
+    path.uid = msg.uid
     path.path.poses = []
-    path.path.header = data.bezier_paths.header
+    path.path.header = msg.bezier_paths.header
     distance = 0
     duration = 0
+    rospy.loginfo("received " + str(msg))
     
-    for media in data.medias.medias:
+    for media in msg.medias.medias:
         duration += media.duration
     
-    for curve in data.bezier_paths.curves:
-        if data.type == "travel" or (data.type == "choregraphic" and curve != data.bezier_paths.curves[-1]):
+    for curve in msg.bezier_paths.curves:
+        if msg.type == "travel" or (msg.type == "choregraphic" and curve != msg.bezier_paths.curves[-1]):
             distance += getBezierCurveLength(curve)
             i = 0
             step = 1.0 * stepInMeter / getBezierCurveLength(curve)
             while i <= 1:  
                 pose = PoseMsg()
                 
-                if data.type == "choregraphic":
+                if msg.type == "choregraphic":
                     pose.position = getBezierCurveResult(i, curve)
                     theta = getBezierCurveTangentResult(i, curve)
                     pose.orientation.z = math.sin(theta / 2)
                     pose.orientation.w = math.cos(theta / 2)
                     
                     i += step
-                elif data.type == "travel":
+                elif msg.type == "travel":
                     pose.position.x = curve.anchor_1.x
                     pose.position.y = curve.anchor_1.y
                     theta = curve.anchor_1.z
@@ -56,12 +57,12 @@ def scenarioCallback(data):
     speed.data = (distance / duration) if duration > 0 else 0.1
     speedPublisher.publish(speed)
     
-    rospy.loginfo("""new """ + data.type + """ scenario: 
-- """ + str(len(data.bezier_paths.curves)) + """
-- curves\ndistance of """ + str(distance) + """
+    rospy.loginfo("""new """ + msg.type + """ scenario: 
+- """ + str(len(msg.bezier_paths.curves)) + """ curves
+- distance of """ + str(distance) + """
 - """ + str(path.path.poses) + """ poses
 - speed of """ + str(speed.data) + """
-- media (""" + str(len(data.medias.medias)) + """) duration of """ + str(duration) + """s""")
+- media (""" + str(len(msg.medias.medias)) + """) duration of """ + str(duration) + """s""")
     
     pathPublisher.publish(path)
 

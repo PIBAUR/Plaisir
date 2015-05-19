@@ -59,11 +59,6 @@ if __name__ == '__main__':
         """
         from ui import GuiController
         main = GuiController()
-        
-        # dynamic reconfigure
-        import dynamic_reconfigure.client
-        client = dynamic_reconfigure.client.Client("amcl")
-        client.update_configuration({"update_min_d": .1})
         """ ----------------------------------- """
         
         sys.exit(app.exec_())

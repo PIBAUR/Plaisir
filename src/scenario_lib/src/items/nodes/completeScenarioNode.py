@@ -25,11 +25,6 @@ class CompleteScenarioNode(DiagramNode):
         
         self.currentInputIndex = 0
         
-        #DEBUG: only for viz
-        import rospy
-        from scenario_msgs.msg import Scenario as ScenarioMsg
-        self.scenarioPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)
-        
     
     def output(self, args, updateRatioCallback):
         self.updateCallback = updateRatioCallback
