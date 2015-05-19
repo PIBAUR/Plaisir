@@ -49,11 +49,11 @@ class ExecutionDiagram():
         self.resizeEvent()
         
         #DEBUG: open default
-        self.currentFilePath = "/home/artlab/Bureau/test_2.dge" 
-        diagramToOpen = self.canvas.load(self.currentFilePath)
-        self.loadDiagram(diagramToOpen)
-        self.lastChangesSaved = True
-        self.updateWindowTitle()
+        #self.currentFilePath = "/home/artlab/Bureau/test_2.dge" 
+        #diagramToOpen = self.canvas.load(self.currentFilePath)
+        #self.loadDiagram(diagramToOpen)
+        #self.lastChangesSaved = True
+        #self.updateWindowTitle()
         
     
     # menu actions
