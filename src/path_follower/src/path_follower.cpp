@@ -13,6 +13,7 @@
 #define K_TH 3.0
 #define LOOP_RATE 60.0
 #define ANGULAR_SPEED_MAX (PI/2.0)
+#define LINEAR_SPEED_MAX (0.20)
 #define INIT_DU 10.0
 #define NEXT_POINT_DISTANCE_THRESH 0.10
 #define LAST_POINT_DISTANCE_THRESH 0.01
@@ -136,16 +137,27 @@ void PathFollower::computeCmd(double &lin, double &ang)
     ang*=K_TH;
     lin=linear_speed_;
 
+
+
     if(ang>ANGULAR_SPEED_MAX)
     {
     	ang = ANGULAR_SPEED_MAX;
-    	lin*=0.5;
+    	lin*=0.2;
     }
     else if(ang < (- ANGULAR_SPEED_MAX) )
     {
     	ang = -ANGULAR_SPEED_MAX;
-    	lin*=0.5;
+    	lin*=0.2;
     }
+
+    if(lin>LINEAR_SPEED_MAX)
+	{
+		lin = LINEAR_SPEED_MAX;
+	}
+	else if(lin < (- LINEAR_SPEED_MAX) )
+	{
+		lin = -LINEAR_SPEED_MAX;
+	}
 
 
 }

@@ -3,6 +3,7 @@
 
 import os
 import time
+import rospy
 from lxml import etree
 
 import rospkg
@@ -24,3 +25,5 @@ class ConfigSwitch():
             paramValue = node.get("value")
             if paramName in self.client.config.keys():
                 self.client.update_configuration({paramName: paramValue})
+                rospy.loginfo(paramName)
+            time.sleep(1.0)

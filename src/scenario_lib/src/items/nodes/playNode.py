@@ -71,7 +71,11 @@ class PlayNode(DiagramNode):
         self.stopButton.clicked.connect(self.handleStopButtonClicked)
         self.stopButton.setEnabled(False)
         self.widget.central_widget.layout().addWidget(self.stopButton)
-    
+
+        #add by wilson
+        self.lookupTimerTransform = QTimer()
+        self.lookupTimerTransform.timeout.connect(partial(self.getRobotTransform))
+        self.lookupTimerTransform.start(2000)
     
     def output(self):
         self.stopExecution()
