@@ -37,13 +37,17 @@ distance_obstacle_max: 0.80
 
 ## PATH FINDING
 ## nombre d'itérations algorithme RRT
-rrt_iterations_number: 10000
-## Ecart entre chaque point du graphe RRT en centimètres 
-deltaQ: 50 
+rrt_iterations_number: 6000
+#10000
+## Ecart entre chaque point du graphe RRT en centimètres entre (35 et 45 -> nb=6000/30 et 35 -> nb=8000/25 et 30 -> nb=10000 et +)
+deltaQ: 35
+#30
+#45
+#14 
 ## Force de lissage RRT
 lissage_force: 0.5
 ## Tolerance lissage RRT
-lissage_tolerance: 6
+lissage_tolerance: 5
 ## Coefficient lissage RRT
 lissage_coef:  0.5
 ## pi
