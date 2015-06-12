@@ -16,7 +16,9 @@
 	
 	<!--<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>-->
 	
-	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>-->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
+	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/test.rviz"/>-->
+	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init.rviz"/>-->
 	
     <param name="prefix" value="robot$(arg robot)"/>
 	

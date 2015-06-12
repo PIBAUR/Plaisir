@@ -1,11 +1,11 @@
-#ifndef PATH_FINDING_H
-#define PATH_FINDING_H
+#ifndef PATHFINDING_H
+#define PATHFINDING_H
 
 /* INCLUDES */
 
 #include <ros/ros.h>
-//#include <geometry_msgs/PoseArray.h>
-//#include <geometry_msgs/Pose.h>
+#include <scenario_msgs/Pose2DArray.h>
+#include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/Pose2D.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
@@ -38,7 +38,7 @@ class PathFinding
 //protected:
 public:
     ros::NodeHandle nh_;
-    //ros::Publisher pub;
+    ros::Publisher pub, pub2;
     tf::TransformListener tf_listener_;
     cv::Mat map_received, map;
     double theta_robot_origin, theta_robot_des, z_map_origin;
@@ -53,7 +53,7 @@ public:
 
     PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0)
     {
-    	//pub=nh_.advertise<geometry_msgs::PoseArray>("/robot01/path_viz", 1);
+    	pub=nh_.advertise<geometry_msgs::PoseArray>("/robot01/path_viz", 1);
 
     }
     ~PathFinding(){};

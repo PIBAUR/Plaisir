@@ -1,7 +1,7 @@
  #include "ros/ros.h"
  #include "ros/console.h"
- #include "test_param_path_finding/PathFinding.h"
- #include "path_finding.h"
+ #include "test_path_finding/TestPathFinding.h"
+ #include "pathfinding.h"
   #include <geometry_msgs/Pose2D.h>
  #include <cstdlib>
 
@@ -19,9 +19,9 @@
   else
    {
    ros::NodeHandle n;
-   ros::ServiceClient client = n.serviceClient<test_param_path_finding::PathFinding>("server_test",true);
+   ros::ServiceClient client = n.serviceClient<test_path_finding::TestPathFinding>("server_test",true);
 
-   test_param_path_finding::PathFinding srv;
+   test_path_finding::TestPathFinding srv;
 
    try
    {

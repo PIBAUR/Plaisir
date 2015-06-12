@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(test_param_path_finding)
+project(test_path_finding)
 
 #set(CMAKE_BUILD_TYPE Debug)
 ## Find catkin macros and libraries
@@ -58,7 +58,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate services in the 'srv' folder
 add_service_files(
    FILES
-   PathFinding.srv
+   TestPathFinding.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -119,8 +119,8 @@ include_directories(
 add_executable(server_test src/server_test.cpp)
 add_executable(client_test src/client_test.cpp)
 #add_dependencies(path_finding_server services_gencpp)
-add_dependencies(server_test test_param_path_finding_generate_messages_cpp)
-add_dependencies(client_test test_param_path_finding_generate_messages_cpp)
+add_dependencies(server_test test_path_finding_generate_messages_cpp)
+add_dependencies(client_test test_path_finding_generate_messages_cpp)
 target_link_libraries(server_test -L/opt/ros/groovy/lib opencv_core opencv_highgui opencv_imgproc opencv_video ${catkin_LIBRARIES})
 target_link_libraries(client_test -L/opt/ros/groovy/lib opencv_core opencv_highgui opencv_imgproc opencv_video ${catkin_LIBRARIES})
 #############

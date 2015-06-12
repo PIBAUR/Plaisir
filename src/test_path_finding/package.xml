@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>test_param_path_finding</name>
+  <name>test_path_finding</name>
   <version>0.0.0</version>
   <description>The test_param_path_finding package</description>
 

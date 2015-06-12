@@ -1,6 +1,10 @@
 #include "ros/ros.h"
-#include "path_finding.h"
-#include "test_param_path_finding/PathFinding.h"
+#include "pathfinding.h"
+#include "test_path_finding/TestPathFinding.h"
+
+#define decalage_x 0//20
+#define decalage_y 0//256
+#define init_y 276
 
 bool cpt=true;
 // Cv mouse
@@ -29,7 +33,7 @@ void PathFinding::computeTF(std::string robot_id)
     try
     {  
         //tf_listener_.lookupTransform("/map", robot_id + "/base_link", ros::Time(0), tf_robot); /***/
-        tf_listener_.lookupTransform("/map", "robot01/base_link", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map", "/robot01/base_link", ros::Time(0), tf_robot);
 
     }
     catch (tf::TransformException ex)
@@ -44,9 +48,10 @@ void PathFinding::computeTF(std::string robot_id)
     double yaw_angle_o = tf::getYaw(tf_robot.getRotation()); //get yaw-angle in radian
     
     //ROS_INFO_STREAM("TF robot : " << x_o<< "  " << y_o << "  "<< yaw_angle_o);
+	 std::cout<<"X_0 Y0"<< x_o<<"  "<< y_o<<std::endl;
     // compute where the robot is in a grid corresponding to the /map frame 
     x_robot_origin = (int)( ( - x_map_origin + x_o) / map_resolution); // convert meter in pixel 
-    y_robot_origin = (int)( ( - y_map_origin - y_o) / map_resolution); 
+    y_robot_origin = (int)( ( - y_map_origin - y_o) / map_resolution) + init_y;
 
     theta_robot_origin= yaw_angle_o; // initial yaw-angle in radian
 }
@@ -114,9 +119,11 @@ std::vector<Node*> PathFinding::algorithm()
      }
      cpt = true;
     //***********************************
-    //Node tree(x_robot_origin,y_robot_origin);
-     Node tree(p.x,p.y);
+    Node tree(x_robot_origin,y_robot_origin);
+     //Node tree(p.x,p.y);
+     //Node tree(120,392);
      std::cout<<"init_x"<<" "<<p.x<<"  "<<"init_y"<<" "<<p.y<<std::endl;
+     std::cout<<"x_robot_init"<<" "<<x_robot_origin<<"  "<<"y_robot_init"<<" "<<y_robot_origin<<std::endl;
 
     int largeur_robot=(int) (diametre_robot/(2*100)/map_resolution)+1; //conversion in meter
     int distance_detection= (int) (distance_obstacle_detection/100/map_resolution)+1;//conversion in meter
@@ -126,10 +133,11 @@ std::vector<Node*> PathFinding::algorithm()
     if(largeur_robot > 6 ) rrt_iterations_number+=5000; //security : 6 pixels
 
     std::cout<<"iterations"<<" "<<rrt_iterations_number<<std::endl;
+    //std::cout<<"X_range"<<" "<<x_robot_origin + x_robot_des<<" "<<" Y_range"<<" "<<y_robot_origin + y_robot_des<<std::endl;
 
     _rrt(&tree, rrt_iterations_number,map,map.rows, map.cols,largeur_robot,distance_detection,delta_rrt);
 
- 	//_rrt(&tree, rrt_iterations_number,map, map.rows, map.cols,largeur_robot,distance_detection,delta_rrt);
+ 	//_rrt(&tree, rrt_iterations_number,map, x_robot_origin + x_robot_des, y_robot_origin + y_robot_des,largeur_robot,distance_detection,delta_rrt);
  	//********************************************************
  	//affiche arbres
  	  cv::Mat m_bis; map.copyTo(m_bis);
@@ -146,8 +154,10 @@ std::vector<Node*> PathFinding::algorithm()
 
   	//********************************************************
     /**Add of the destination point**/
-    Node end(p1.x,p1.y);
+  	Node end(x_robot_des,y_robot_des);
+    //Node end(p1.x,p1.y);
     std::cout<<"exit_x"<<" "<<p.x<<"  "<<"exit_y"<<" "<<p.y<<std::endl;
+    std::cout<<"x_robotDes"<<" "<<x_robot_des<<"  "<<"y_robotDes"<<" "<<y_robot_des<<std::endl;
 
     std::vector<Node*> path = path_smoothing(rrt_path(&end,&tree), &map, lissage_tolerance,lissage_force,lissage_coef,largeur_robot,distance_detection);
     draw_path(path,map);
@@ -182,12 +192,12 @@ bool PathFinding::serviceCB(test_param_path_finding::PathFinding::Request  &req,
 
 
         path_bis = algorithm();
-        //geometry_msgs::PoseArray path_copy;
+        geometry_msgs::PoseArray path_copy;
     /***get coordinates of the destination point of /map in the /map frame***/
     res.path.header.frame_id ="/map" ;
     res.path.header.stamp = ros::Time();
-    //path_copy.header.frame_id ="/map";
-    //path_copy.header.stamp = ros::Time();
+    path_copy.header.frame_id ="/map";
+    path_copy.header.stamp = ros::Time();
     /***path publication***/
     ROS_INFO_STREAM("PATH_BIS_SIZE "<<" "<<path_bis.size());
 
@@ -195,7 +205,7 @@ bool PathFinding::serviceCB(test_param_path_finding::PathFinding::Request  &req,
     {
 
         geometry_msgs::Pose2D p;
-        //geometry_msgs::Pose p_test;
+        geometry_msgs::Pose p_test;
         if( rit_node == path_bis.rbegin())
         {
             p.x = (*rit_node)->x * map_resolution ; // convert pixel in meter
@@ -213,12 +223,12 @@ bool PathFinding::serviceCB(test_param_path_finding::PathFinding::Request  &req,
             }
         	else
         	{
-            p.x = ((*rit_node)->x)  * map_resolution + x_map_origin ; // convert pixel in meter
-            p.y = -((*rit_node)->y)  * map_resolution - y_map_origin;
+            p.x = (((*rit_node)->x)- decalage_x)  * map_resolution + x_map_origin ; // convert pixel in meter
+            p.y = (-((*rit_node)->y)+ decalage_y) * map_resolution - y_map_origin;
         	}
          }
-        //p_test.position.x=p.x;
-        //p_test.position.y=p.y;
+        p_test.position.x=p.x;
+        p_test.position.y=p.y;
 
         if((rit_node + 1) != path_bis.rend() ) 
         {   
@@ -231,7 +241,7 @@ bool PathFinding::serviceCB(test_param_path_finding::PathFinding::Request  &req,
 
             angle = alpha -theta_robot_origin + PI ;
             p.theta=angle;
-            //p_test.orientation=tf::createQuaternionMsgFromYaw(p.theta);
+            p_test.orientation=tf::createQuaternionMsgFromYaw(p.theta);
 
         }
 
@@ -240,27 +250,38 @@ bool PathFinding::serviceCB(test_param_path_finding::PathFinding::Request  &req,
 
             //ROS_INFO_STREAM("Angle END#"<<angle*180/PI);
             p.theta=theta_robot_des;
-            //p_test.orientation=tf::createQuaternionMsgFromYaw(p.theta);
+            p_test.orientation=tf::createQuaternionMsgFromYaw(p.theta);
 
         }
         res.path.poses.push_back(p);
-        //path_copy.poses.push_back(p_test);
+        path_copy.poses.push_back(p_test);
     }
-    //pub.publish(path_copy);
+    pub.publish(path_copy);
 
     // Add a point if path size == 1
-    //if(path_bis.size()==1)
+    if(path_bis.size()==1)
     //0.5 m= 10 pixels
-    if((abs(x_robot_des - x_robot_origin)< 0.5)||(abs(y_robot_des - y_robot_origin)< 0.5))
+    //if((abs(x_robot_des - x_robot_origin)< 0.5)||(abs(y_robot_des - y_robot_origin)< 0.5))
     {
+         geometry_msgs::PoseArray path_copy2;
     	 geometry_msgs::Pose2D p2;
+    	 geometry_msgs::Pose p_test2;
          p2.x =   req.target.x ; // convert pixel in meter
          p2.y =  req.target.y ;
+         p_test2.position.x=p2.x ;
+         p_test2.position.y=p2.y ;
 
          p2.theta=theta_robot_des;
+         p_test2.orientation=tf::createQuaternionMsgFromYaw(p2.theta);
 
          res.path.poses.push_back(p2);
+         path_copy2.poses.push_back(p_test2);
+
+         pub.publish(path_copy2);
+         std::cout<<"VAUT 1"<<std::endl;
     }
+
+
     time=ros::Time::now().toSec()-second.toSec();
     ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);
 
