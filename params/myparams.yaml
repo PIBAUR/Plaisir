@@ -54,8 +54,8 @@ lissage_coef:  0.5
 pi: 3.14159265359
 ## durée boucle path_finding en hertz
 loop_rate: 50
-## diamètre robot sur l'horizontale en centimètres (longueur de l'écran sur le robot) 
+## diamètre robot en centimètres (longueur de la diagonale de l'écran sur le robot) 
 diametre_robot: 55
 ## distance de détection de l'obstacle en centimètres à partir de la largeur du robot
-distance_obstacle_detection: 14
+distance_obstacle_detection: 12
 

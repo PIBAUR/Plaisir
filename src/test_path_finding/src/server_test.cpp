@@ -4,7 +4,7 @@
 
 #define decalage_x 0//20
 #define decalage_y 0//256
-#define init_y 276
+#define init_y 310//276
 
 bool cpt=true;
 // Cv mouse
@@ -50,8 +50,10 @@ void PathFinding::computeTF(std::string robot_id)
     //ROS_INFO_STREAM("TF robot : " << x_o<< "  " << y_o << "  "<< yaw_angle_o);
 	 std::cout<<"X_0 Y0"<< x_o<<"  "<< y_o<<std::endl;
     // compute where the robot is in a grid corresponding to the /map frame 
-    x_robot_origin = (int)( ( - x_map_origin + x_o) / map_resolution); // convert meter in pixel 
+    x_robot_origin = (int)( ( - x_map_origin + x_o) / map_resolution); // convert meter in pixel
     y_robot_origin = (int)( ( - y_map_origin - y_o) / map_resolution) + init_y;
+    //x_robot_origin =516;
+    //y_robot_origin =578;
 
     theta_robot_origin= yaw_angle_o; // initial yaw-angle in radian
 }
@@ -110,7 +112,7 @@ std::vector<Node*> PathFinding::algorithm()
     map= map_received.clone();
     //*******************************
     cv::Point p,p1;
-    namedWindow( "Selection point de départ", cv::WINDOW_NORMAL );
+    cv::namedWindow( "Selection point de départ", cv::WINDOW_NORMAL );
      while( cpt) {
        // free memory
        cvSetMouseCallback("Selection point de départ",my_mouse_callback,(void*) &p);
@@ -142,7 +144,7 @@ std::vector<Node*> PathFinding::algorithm()
  	//affiche arbres
  	  cv::Mat m_bis; map.copyTo(m_bis);
  	  affiche_tree(&tree,&m_bis);
- 	  namedWindow( "RRT graph", cv::WINDOW_NORMAL );// Create a window for display.
+ 	  cv::namedWindow( "RRT graph", cv::WINDOW_NORMAL );// Create a window for display.
  	  cv::imshow( "RRT graph", m_bis );
  	 std::cout << "Drawing path solution" << std::endl;
     //****************************************************************************
@@ -175,8 +177,8 @@ std::vector<Node*> PathFinding::algorithm()
 }
 
 
-bool PathFinding::serviceCB(test_param_path_finding::PathFinding::Request  &req,
-		test_param_path_finding::PathFinding::Response &res)
+bool PathFinding::serviceCB(test_path_finding::TestPathFinding::Request  &req,
+		test_path_finding::TestPathFinding::Response &res)
 {
 
     ros::Time second=ros::Time::now();
@@ -316,7 +318,7 @@ int main(int argc, char **argv)
     ROS_INFO("Ready to compute path.");
 
     /***find resolution of the map***/
-    ros::Subscriber origine = n.subscribe<nav_msgs::OccupancyGrid>("map", 1,&PathFinding::map_origine_point,&pf); 
+    ros::Subscriber origine = n.subscribe<nav_msgs::OccupancyGrid>("map", 1,&PathFinding::map_origine_point,&pf);
    
     ros::Rate loop(pf.loop_rate);
     while(ros::ok())

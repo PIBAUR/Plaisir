@@ -88,13 +88,24 @@ std::vector<Node*> PathFinding::algorithm()
     map= map_received.clone();
     Node tree(x_robot_origin,y_robot_origin);
 
+    //std::cout<<"x_origin"<<" "<<x_robot_origin<<" "<<"y_origin"<<"  "<<y_origin<<std::endl;
+
     int largeur_robot=(int) (diametre_robot/(2*100)/map_resolution)+1; //conversion in meter
     int distance_detection= (int) (distance_obstacle_detection/100/map_resolution)+1;//conversion in meter
     int delta_rrt= (int) (deltaQ/100/map_resolution);//conversion in meter
 
     if(largeur_robot > 6 ) rrt_iterations_number+=5000; //security : 6 pixels
 
- 	_rrt(&tree, rrt_iterations_number,map, x_robot_des, y_robot_des,largeur_robot,distance_detection,delta_rrt);
+ 	_rrt(&tree, rrt_iterations_number,map, x_robot_des, y_robot_des,largeur_robot, distance_detection,delta_rrt);
+
+	//********************************************************
+ 	//affiche arbre
+ 	 // cv::Mat m_bis; map.copyTo(m_bis);
+ 	  //affiche_tree(&tree,&m_bis);
+ 	  //namedWindow( "RRT graph", cv::WINDOW_NORMAL );// Create a window for display.
+ 	  //cv::imshow( "RRT graph", m_bis );
+ 	 //std::cout << "Drawing path solution" << std::endl;
+    //****************************************************************************
 
     /**Add of the destination point**/
     Node end(x_robot_des,y_robot_des);
@@ -229,7 +240,7 @@ int main(int argc, char **argv)
     n.param<double>("/pi",pf.pi,PI);
     n.param<double>("/loop_rate",pf.loop_rate,LOOP_RATE);
     n.param<double>("/diametre_robot",pf.diametre_robot,ROBOT_DIAMETER );
-    n.param<double>("/distance_obstacle_detection",pf.distance_obstacle_detection,DISTANCE_OBSTACLE);
+    //n.param<double>("/distance_obstacle_detection",pf.distance_obstacle_detection,DISTANCE_OBSTACLE);
 
 
 

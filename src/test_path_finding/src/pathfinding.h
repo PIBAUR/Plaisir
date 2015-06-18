@@ -17,7 +17,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include "test_param_path_finding/PathFinding.h"
+#include "test_path_finding/TestPathFinding.h"
 /* CONSTANTS */
 
 #define SMOOTHING_STRENGTH 0.5
@@ -60,7 +60,7 @@ public:
     void computeTF(std::string robot_id);
     std::vector<Node*> algorithm();
     void map_origine_point(const nav_msgs::OccupancyGrid::ConstPtr& msg);
-    bool serviceCB(test_param_path_finding::PathFinding::Request  &req,test_param_path_finding::PathFinding::Response &res);
+    bool serviceCB(test_path_finding::TestPathFinding::Request  &req,test_path_finding::TestPathFinding::Response &res);
  
 };
 

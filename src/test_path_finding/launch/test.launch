@@ -14,6 +14,8 @@
 	
 	<!--<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>-->
 	
+	<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
+	    env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
 	<!--<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>-->
 	
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
@@ -21,12 +23,16 @@
 	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init.rviz"/>-->
 	
     <param name="prefix" value="robot$(arg robot)"/>
+    
+    
+
+
 	
-	<node pkg="tf" type="static_transform_publisher" name="odom_to_map" args="1 0 0 0 0 0 /map robot$(arg robot)/odom 20"/>
-   <node pkg="tf" type="static_transform_publisher" name="base_to_odom" args="0 1 0 0 0 0 robot$(arg robot)/odom robot$(arg robot)/base_link 20"/>
-   <!--<node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.08 0 0.045 3.14159265359 0 0  robot$(arg robot)/base_link robot$(arg robot)/base_laser_link 20"/>-->
+	   <node pkg="tf" type="static_transform_publisher" name="odom_to_map" args="0.5 0 0 0 0 0 /map robot$(arg robot)/odom 20"/>
+      <node pkg="tf" type="static_transform_publisher" name="base_to_odom" args="0 0 0 0 0 0 robot$(arg robot)/odom robot$(arg robot)/base_link 20"/>
+ <!--<node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.08 0 0.045 3.14159265359 0 0  robot$(arg robot)/base_laser_link robot$(arg robot)/base_link 20"/>-->
 	<!--<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/map_auto_pid.yaml"/>-->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/last_map.yaml"/>
+    	<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/last_map.yaml"/>
 
 	
 	<node name="topic_router" pkg="topic_router" type="__init__.py"/>
