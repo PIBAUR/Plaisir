@@ -1,7 +1,5 @@
 <launch>
-	<arg name="robot" value="01"/>
 	<arg name="map" value="last_map"/>
-	
 	
 	<!-- Setting and loading params and args -->
 	<param name="use_sim_time" value="false" />
@@ -54,6 +52,11 @@
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>
 	</node>
+
+     <!-- SECOND LOCALISATION PARAMETERS CONFIG -->
+      	<!-- always at the end of the launch file -->
+    	<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" args="-sever-debug" >
+        </node>
 </launch>
 
 

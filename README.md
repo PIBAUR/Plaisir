@@ -9,6 +9,11 @@ notre_bon_plaisir
     * phonon
     * phonon-backend-vlc
     * python-qt4-phonon
+    
+
+  * après avoir installer ros-hydro à coté de ros groovy
+  * installer ros-hydro-cmake modules (environnement de visualisation stdr simulator)
+  
 
 * odroid
   * firefox

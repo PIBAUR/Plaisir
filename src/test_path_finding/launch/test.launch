@@ -1,0 +1,54 @@
+<launch>
+    <arg name="map" value="last_map"/>
+	<param name="use_sim_time" value="false" />
+	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
+	<arg name="robot" value="01"/>
+    <!--<arg name="robot" value="00"/>-->
+    <!--<arg name="robot" value="02"/>-->
+
+	<!--<include file="$(find robot)/launch/plaisir_state_machine.machine">
+		<arg name="robot" value="$(arg robot)"/> 
+	</include>-->
+   
+   <!-- <arg     if="$(arg debug)" name="script_type" value="debug"/>-->
+	
+	<!--<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>-->
+	
+	<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
+	    env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+	<!--<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>-->
+	
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
+	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/test.rviz"/>-->
+	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init.rviz"/>-->
+	
+    <param name="prefix" value="robot$(arg robot)"/>
+    
+    
+
+
+	
+	   <node pkg="tf" type="static_transform_publisher" name="odom_to_map" args="0.5 0 0 0 0 0 /map robot$(arg robot)/odom 20"/>
+      <node pkg="tf" type="static_transform_publisher" name="base_to_odom" args="0 0 0 0 0 0 robot$(arg robot)/odom robot$(arg robot)/base_link 20"/>
+ <!--<node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.08 0 0.045 3.14159265359 0 0  robot$(arg robot)/base_laser_link robot$(arg robot)/base_link 20"/>-->
+	<!--<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/map_auto_pid.yaml"/>-->
+    	<node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/last_map.yaml"/>
+
+	
+	<node name="topic_router" pkg="topic_router" type="__init__.py"/>
+	
+	<!--<node name="gui_controller" pkg="gui_controller" type="__init__.py">
+		<remap from="cmd_vel" to="/robot$(arg robot)/cmd_vel"/>
+	</node>-->
+
+
+   
+
+	<!-- <env name="DISPLAY" value=":0"/>
+	<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)"/> -->
+	
+	<!--<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
+		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
+		<remap from="scenario" to="robot$(arg robot)/scenario"/>
+	</node>-->
+</launch>
