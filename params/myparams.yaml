@@ -15,12 +15,12 @@ md25_serial_port: "/dev/ttyUSB0"
 bezier_curve_step_in_meter: 0.05
 
 ## format des medias sur l ecran
-monitor_screen_width_ratio: 16
-monitor_screen_height_ratio: 10
+monitor_screen_width_ratio: 10
+monitor_screen_height_ratio: 16
 
 ## GUI
 ## durée en secondes de la base temporelle des vidéos
-media_time_base: 2.5
+media_time_base: 2
 ## chemins
 scenario_db_path: "/home/artlab/.notrebonplaisir/scenarios"
 server_videos_path: "/home/artlab/.notrebonplaisir/videos"
@@ -37,21 +37,25 @@ distance_obstacle_max: 0.80
 
 ## PATH FINDING
 ## nombre d'itérations algorithme RRT
-rrt_iterations_number: 10000
-## Ecart entre chaque point du graphe RRT en centimètres 
-deltaQ: 50 
+rrt_iterations_number: 6000
+#10000
+## Ecart entre chaque point du graphe RRT en centimètres entre (35 et 45 -> nb=6000/30 et 35 -> nb=8000/25 et 30 -> nb=10000 et +)
+deltaQ: 35
+#30
+#45
+#14 
 ## Force de lissage RRT
 lissage_force: 0.5
 ## Tolerance lissage RRT
-lissage_tolerance: 6
+lissage_tolerance: 5
 ## Coefficient lissage RRT
 lissage_coef:  0.5
 ## pi
 pi: 3.14159265359
 ## durée boucle path_finding en hertz
 loop_rate: 50
-## diamètre robot sur l'horizontale en centimètres (longueur de l'écran sur le robot) 
+## diamètre robot en centimètres (longueur de la diagonale de l'écran sur le robot) 
 diametre_robot: 55
 ## distance de détection de l'obstacle en centimètres à partir de la largeur du robot
-distance_obstacle_detection: 14
+distance_obstacle_detection: 12
 

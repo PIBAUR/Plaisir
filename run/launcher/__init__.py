@@ -23,6 +23,8 @@ class Launcher(QMainWindow):
         self.ui.controller_button.clicked.connect(partial(self.handleCommandButtonClicked, "gui/gui_controller"))
         self.ui.scenarioDb_button.clicked.connect(partial(self.handleCommandButtonClicked, "gui/gui_scenario_db"))
         self.ui.scenarioExecutionDiagram_button.clicked.connect(partial(self.handleCommandButtonClicked, "gui/gui_execution_diagram"))
+        self.ui.videoDb_button.clicked.connect(partial(self.handleCommandButtonClicked, "gui/gui_video_db"))
+        self.ui.deployment_button.clicked.connect(partial(self.handleCommandButtonClicked, "../deployment/media/deploy_on_all_robots"))
         
         self.ui.show()
         
