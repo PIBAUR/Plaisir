@@ -723,7 +723,8 @@ void HectorExplorationPlanner::setupMapData()
 #else
   if (costmap_) delete costmap_;
   costmap_ = new costmap_2d::Costmap2D;
-  costmap_ros_->getCostmapCopy(*costmap_);
+  //costmap_ros_->getCostmapCopy(*costmap_);//getCostmapCopy has been changed into getCostmap because of the migration from groovy to hydro
+  costmap_=costmap_ros_->getCostmap(); 
 #endif
 
   if ((this->map_width_ != costmap_->getSizeInCellsX()) || (this->map_height_ != costmap_->getSizeInCellsY())){
