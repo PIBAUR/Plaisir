@@ -11,7 +11,7 @@ notre_bon_plaisir
     * python-qt4-phonon
     
 
-  * après avoir installer ros-hydro à coté de ros groovy
+  * après avoir installer ros-hydro à coté de ros groovy : https://github.com/digitalarti/notre_bon_plaisir/wiki/Migration-ros-hydro-probl%C3%A8mes-rencontr%C3%A9s
   * installer ros-hydro-cmake modules (environnement de visualisation stdr simulator)
   
 
