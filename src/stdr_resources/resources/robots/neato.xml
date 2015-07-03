@@ -1,0 +1,37 @@
+<robot>
+    <robot_specifications>
+        <initial_pose>
+            <x>0</x>
+            <y>0</y>
+            <theta>0</theta>
+        </initial_pose>
+        <footprint>
+            <footprint_specifications>
+                <radius>0.55</radius>
+                <points />
+            </footprint_specifications>
+        </footprint>
+        <laser>
+            <laser_specifications>
+                <max_angle>0.698132</max_angle>
+                <min_angle>-0.698132</min_angle>
+                <max_range>6</max_range>
+                <min_range>0.2</min_range>
+                <num_rays>360</num_rays>
+                <frequency>10</frequency>
+                <frame_id>laser_1</frame_id>
+                <pose>
+                    <x>0</x>
+                    <y>0</y>
+                    <theta>0</theta>
+                </pose>
+                <noise>
+                    <noise_specifications>
+                        <noise_mean>0</noise_mean>
+                        <noise_std>0</noise_std>
+                    </noise_specifications>
+                </noise>
+            </laser_specifications>
+        </laser>
+    </robot_specifications>
+</robot>
