@@ -30,8 +30,7 @@
 * Based heavily on the pose_follower package
 *********************************************************************/
 #include <hector_path_follower/hector_path_follower.h>
-#include <stdio.h>
-#include <string.h>
+
 
 namespace pose_follower {
   HectorPathFollower::HectorPathFollower(): tf_(NULL) {}
@@ -184,7 +183,7 @@ namespace pose_follower {
     {
       if(current_waypoint_ < global_plan_.size() - 1)
       {
-        current_waypoint_++;
+  current_waypoint_++;
         tf::poseStampedMsgToTF(global_plan_[current_waypoint_], target_pose);
         diff = diff2D(target_pose, robot_pose);
       }
@@ -242,13 +241,13 @@ namespace pose_follower {
 
     //in the case that we're not rotating to our goal position and we have a non-holonomic robot
     //we'll need to command a rotational velocity that will help us reach our desired heading
-    
+
     //we want to compute a goal based on the heading difference between our pose and the target
-    double yaw_diff = headingDiff(pose1.getOrigin().x(), pose1.getOrigin().y(), 
+    double yaw_diff = headingDiff(pose1.getOrigin().x(), pose1.getOrigin().y(),
         pose2.getOrigin().x(), pose2.getOrigin().y(), tf::getYaw(pose2.getRotation()));
 
     //we'll also check if we can move more effectively backwards
-    double neg_yaw_diff = headingDiff(pose1.getOrigin().x(), pose1.getOrigin().y(), 
+    double neg_yaw_diff = headingDiff(pose1.getOrigin().x(), pose1.getOrigin().y(),
         pose2.getOrigin().x(), pose2.getOrigin().y(), M_PI + tf::getYaw(pose2.getRotation()));
 
     //check if its faster to just back up
@@ -277,14 +276,14 @@ namespace pose_follower {
     res.linear.x *= K_trans_;
     if(!holonomic_)
       res.linear.y = 0.0;
-    else    
+    else
       res.linear.y *= K_trans_;
     res.angular.z *= K_rot_;
 
     //make sure to bound things by our velocity limits
     double lin_overshoot = sqrt(res.linear.x * res.linear.x + res.linear.y * res.linear.y) / max_vel_lin_;
     double lin_undershoot = min_vel_lin_ / sqrt(res.linear.x * res.linear.x + res.linear.y * res.linear.y);
-    if (lin_overshoot > 1.0) 
+    if (lin_overshoot > 1.0)
     {
       res.linear.x /= lin_overshoot;
       res.linear.y /= lin_overshoot;
@@ -321,21 +320,21 @@ namespace pose_follower {
     try{
       if (!global_plan.size() > 0)
       {
-          ROS_ERROR("Received plan with zero length");
-          char s[80];
-          char *p=getenv("USER");
-          strcpy (s,"/home/");
-          strcat (s,p);
-          strcat (s,"/catkin_ws/maps/last_map");
-          strcat (s,"\0");
+        ROS_ERROR("Received plan with zero length");
+        char s[80];
+        char *p=getenv("USER");
+        strcpy (s,"/home/");
+        strcat (s,p);
+        strcat (s,"/catkin_ws/maps/last_map");
+        strcat (s,"\0");
 
-          execlp("rosrun", "rosrun", "map_server", "map_saver", "-f", s, NULL);
+        execlp("rosrun", "rosrun", "map_server", "map_saver", "-f", s, NULL);
         return false;
       }
 
       tf::StampedTransform transform;
-      tf.lookupTransform(global_frame, ros::Time(), 
-          plan_pose.header.frame_id, plan_pose.header.stamp, 
+      tf.lookupTransform(global_frame, ros::Time(),
+          plan_pose.header.frame_id, plan_pose.header.stamp,
           plan_pose.header.frame_id, transform);
 
       tf::Stamped<tf::Pose> tf_pose;
