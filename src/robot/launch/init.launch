@@ -47,7 +47,7 @@
 	
 	<!-- GUI TOOLS -->
 	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init.rviz"/>
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init$(arg robot).rviz"/>
 	<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>
