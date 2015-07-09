@@ -12,7 +12,7 @@
 	<node pkg="tf" type="static_transform_publisher" name="world2map" args="0 0 0 0 0 0  world map 100" />
 
         <!--<node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/neato.xml $(arg position)"/>-->
-        <node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/odroid.xml $(arg position)"/>
+        <node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/odroid.xml 7 7 2"/>
 
 
         <node name="$(anon stdr_gui_node)" pkg="stdr_gui" type="stdr_gui_node"/>
