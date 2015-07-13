@@ -120,7 +120,22 @@ class Canvas(QWidget):
         elif self.currentAction == Canvas.ADD_ACTION:
             # set anchor
             self.currentPoint = CurvePoint(Point(mouseX, mouseY))
-            self.currentRobot.points.append(self.currentPoint)
+            # check if it is on the curve
+            addPointAfter = -1
+            for i in range(len(self.currentRobot.points) - 1):
+                point = self.currentRobot.points[i]
+                nextPoint = self.currentRobot.points[i + 1]
+                curveUPositionUnderPoint = point.isCurveUnderPoint(nextPoint, mouseX, mouseY, 5)
+                if curveUPositionUnderPoint is not None:
+                    addPointAfter = i + 1
+            
+            # add the point
+            if addPointAfter >= 0:
+                self.currentPoint
+                self.currentRobot.points.insert(addPointAfter, self.currentPoint)
+            else:
+                self.currentRobot.points.append(self.currentPoint)
+                
         elif self.currentAction == Canvas.REMOVE_ACTION:
             if self.currentItem is not None and self.currentItem == self.currentPoint.anchor:
                 self.currentRobot.points.remove(self.currentPoint)
@@ -281,7 +296,7 @@ class Canvas(QWidget):
             timePositionRelative = timePosition - pointIndex
             
             timeCurvePoint = robot.points[pointIndex]
-            result = timeCurvePoint.getPositionAndAngle(painter, robot.points[pointIndex + 1], timePositionRelative)
+            result = timeCurvePoint.getPositionAndAngle(robot.points[pointIndex + 1], timePositionRelative)
             position = result[0]
             angle = 180. * result[1] / math.pi
             

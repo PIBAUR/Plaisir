@@ -13,6 +13,7 @@ from src.scenario_lib.src.items.point import Point
 class CurvePoint():
     ANCHOR_SIZE = 5.0
     CONTROL_SIZE = 4.0
+    NUM_POINTS_PER_CURVE = 70
     
     blue = QColor(79, 128, 255)
     
@@ -90,9 +91,8 @@ class CurvePoint():
         curveToDraw = self.getBezierCurveWithNextPoint(nextPoint)
         
         previousBezierPoint = None
-        numPoints = 70
-        for i in range(0, numPoints + 1):
-            u = float(i) / numPoints
+        for i in range(0, CurvePoint.NUM_POINTS_PER_CURVE + 1):
+            u = float(i) / CurvePoint.NUM_POINTS_PER_CURVE
             bezierPoint = bezier_interpolate.getBezierCurveResult(u, curveToDraw)
             
             if previousBezierPoint is not None:
@@ -105,7 +105,7 @@ class CurvePoint():
     
     
     def drawTimePosition(self, painter, nextPoint, u, color, drawType = "bracket"):
-        result = self.getPositionAndAngle(painter, nextPoint, u)
+        result = self.getPositionAndAngle(nextPoint, u)
         timeCursorPoint = result[0]
         tangentAngle = result[1]
         
@@ -138,7 +138,7 @@ class CurvePoint():
             painter.drawPoint(timeCursorPoint._x, timeCursorPoint._y)
     
     
-    def getPositionAndAngle(self, painter, nextPoint, u):
+    def getPositionAndAngle(self, nextPoint, u):
         curveToDraw = self.getBezierCurveWithNextPoint(nextPoint)
         
         bezierPoint = bezier_interpolate.getBezierCurveResult(u, curveToDraw)
@@ -170,6 +170,18 @@ class CurvePoint():
             return (self.anchor, self)
         else:
             return None
+    
+    
+    def isCurveUnderPoint(self, nextPoint, x, y, tolerance):
+        curve = self.getBezierCurveWithNextPoint(nextPoint)
+        for i in range(0, CurvePoint.NUM_POINTS_PER_CURVE + 1):
+            u = float(i) / CurvePoint.NUM_POINTS_PER_CURVE
+            bezierPoint = bezier_interpolate.getBezierCurveResult(u, curve)
+            distanceToBezierPoint = math.sqrt(math.pow(bezierPoint.x - x, 2) + math.pow(bezierPoint.y - y, 2))
+            if distanceToBezierPoint < tolerance:
+                return u
+        
+        return None
     
     
     def isControlUnderPoint(self, control, x, y):
