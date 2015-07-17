@@ -33,8 +33,8 @@ class PlayNode(DiagramNode):
     minInputs = 1
     hasOutput = 0
     
-    def __init__(self, parent, canvas, position):
-        super(PlayNode, self).__init__(parent, canvas, position)
+    def __init__(self, robotId, parent, canvas, position):
+        super(PlayNode, self).__init__(robotId, parent, canvas, position)
         
         self.isPlaying = False
         self.playingScenario = None
@@ -42,15 +42,15 @@ class PlayNode(DiagramNode):
         self.transformOrientation = (0, 0, 0, 1)
         
         # set ROS scenarioPublisher to publish scenarios
-        self.scenarioPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)
-        self.freezePublisher = rospy.Publisher('/robot01/freeze', BoolMsg)
+        self.scenarioPublisher = rospy.Publisher("/" + self.robotId + "/scenario", ScenarioMsg)
+        self.freezePublisher = rospy.Publisher("/" + self.robotId + "/freeze", BoolMsg)
         
         # set ROS subscriber to get informations from the robot
         if PlayNode.transformListener is None:
             PlayNode.transformListener = tf.TransformListener()
         
         # state
-        self.stateSubscriber = rospy.Subscriber("robot01/state", StringMsg, self.handleStateReceived)
+        self.stateSubscriber = rospy.Subscriber("/" + self.robotId + "/state", StringMsg, self.handleStateReceived)
         
         # timer to not execute play or stop in an other thread
         self.hasToRestart = False
@@ -108,7 +108,7 @@ class PlayNode(DiagramNode):
     
     def getRobotTransform(self):
         try:
-            self.transformPosition, self.transformOrientation = self.transformListener.lookupTransform('/map', '/robot01/base_link', rospy.Time(0))
+            self.transformPosition, self.transformOrientation = self.transformListener.lookupTransform("/map", "/" + self.robotId + "/base_link", rospy.Time(0))
         except Exception, e:
             rospy.logerr(e)
         

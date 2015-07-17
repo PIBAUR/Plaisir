@@ -15,8 +15,8 @@ class RobotManager():
     INTERRUPTED_STATE = "INTERRUPTED_STATE"
     
     def __init__(self):
-        self.statePublisher = rospy.Publisher('/robot01/state', StringMsg)
-        self.stopPathFollowerPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)
+        self.statePublisher = rospy.Publisher('state', StringMsg)
+        self.stopPathFollowerPublisher = rospy.Publisher('scenario', ScenarioMsg)
         self.stopPathFollowerMsg = ScenarioMsg()
         
         # states
@@ -44,6 +44,6 @@ if __name__ == '__main__':
     
     # ros node
     rospy.init_node("robot_manager", log_level = rospy.INFO)
-    rospy.Subscriber("/robot01/freeze", BoolMsg, robotManager.freezeCB)
-    rospy.Subscriber("/robot01/front_obstacle", BoolMsg, robotManager.frontObstacleCB)
+    rospy.Subscriber("freeze", BoolMsg, robotManager.freezeCB)
+    rospy.Subscriber("front_obstacle", BoolMsg, robotManager.frontObstacleCB)
     rospy.spin()

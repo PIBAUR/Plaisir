@@ -20,8 +20,8 @@ class CompleteScenarioNode(DiagramNode):
     minInputs = 2
     hasOutput = 1
     
-    def __init__(self, parent, canvas, position):
-        super(CompleteScenarioNode, self).__init__(parent, canvas, position)
+    def __init__(self, robotId, parent, canvas, position):
+        super(CompleteScenarioNode, self).__init__(robotId, parent, canvas, position)
         
         self.currentInputIndex = 0
         

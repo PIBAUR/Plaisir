@@ -45,5 +45,5 @@ if __name__ == '__main__':
     
     # ros node
     #rospy.init_node('media_player', log_level = rospy.INFO)
-    #rospy.Subscriber('/robot01/scenario', ScenarioMsg, mediaCB)
+    #rospy.Subscriber('scenario', ScenarioMsg, mediaCB)
     #rospy.spin()

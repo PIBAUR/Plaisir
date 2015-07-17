@@ -13,8 +13,8 @@ from src.gui_scenario_db.src.ui import ScenarioDataBase
 class ChoregraphicScenarioNode(ScenarioNode):
     nodeName = u"Sc. choré."
     
-    def __init__(self, parent, canvas, position):
-        super(ChoregraphicScenarioNode, self).__init__(parent, canvas, position)
+    def __init__(self, robotId, parent, canvas, position):
+        super(ChoregraphicScenarioNode, self).__init__(robotId, parent, canvas, position)
         
         # ui
         self.browse_button = QPushButton(u"non défini")

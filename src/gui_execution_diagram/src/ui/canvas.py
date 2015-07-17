@@ -232,18 +232,21 @@ class Canvas(QWidget):
         menu = QMenu()
         nodesCategories = nodesDict.keys()
         nodesCategories.sort()
-        for nodeCategory in nodesCategories:
-            if nodeCategory == "":
-                for nodeClass in nodesDict[nodeCategory]:
-                    if nodeClass.nodeName != "":
-                        menuAction = menu.addAction(nodeClass.nodeName)
-                        menuAction.triggered.connect(partial(self.handleMenuActionTriggered, nodeClass, position))
+        
+        for robotId in ["robot01", "robot02"]:
+            robotMenu = menu.addMenu(robotId)
+            for nodeCategory in nodesCategories:
+                if nodeCategory == "":
+                    for nodeClass in nodesDict[nodeCategory]:
+                        if nodeClass.nodeName != "":
+                            menuAction = robotMenu.addAction(nodeClass.nodeName)
+                            menuAction.triggered.connect(partial(self.handleMenuActionTriggered, nodeClass, robotId, position))
         
         menu.exec_(self.mapToGlobal(position))
     
     
-    def handleMenuActionTriggered(self, nodeClass, position):
-        nodeInstance = nodeClass(self.ui.canvasContainer, self, position)
+    def handleMenuActionTriggered(self, nodeClass, robotId, position):
+        nodeInstance = nodeClass(robotId, self.ui.canvasContainer, self, position)
         nodeInstance.widget.move(position.x() - nodeInstance.widget.width() / 2, position.y() - 10)
         self.nodesInstances.append(nodeInstance)
         

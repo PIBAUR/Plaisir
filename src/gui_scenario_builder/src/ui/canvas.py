@@ -27,6 +27,7 @@ class Canvas(QWidget):
         self.changeCallback = changeCallback
         
         # get params
+        self.canvasZoom = 1
         try:
             self.mediaTimeBase = float(rospy.get_param("media_time_base"))
         except Exception:
@@ -41,6 +42,8 @@ class Canvas(QWidget):
         Canvas.targetOutlinePen.setWidth(1)
         
         self.ui.zoomCanvas_slider.valueChanged.connect(self.handleZoomSliderValueChanged)
+        
+        self.updateBounds()
         
         # vars
         self.currentAction = None
@@ -64,7 +67,7 @@ class Canvas(QWidget):
     
     def paintEvent(self, e):
         painter = QPainter(self)
-
+        
         self.drawBackground(painter)
         
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -83,7 +86,22 @@ class Canvas(QWidget):
         for otherRobot in self.otherRobots:
             self.drawTimelineCursor(painter, otherRobot, self.currentTimelinePosition)
             self.drawPoints(painter, otherRobot, False)
+         
+    
+    def updateBounds(self):
+        print self.ui.canvasScrollArea.width()
+        maxWidth = self.ui.canvasContainer.width() + 1000
+        maxHeight = self.ui.canvasContainer.height() + 1000
         
+        """for nodeInstance in self.nodesInstances:
+            nodeInstanceMaxWidth = nodeInstance.widget.x() + nodeInstance.widget.width()
+            nodeInstanceMaxHeight = nodeInstance.widget.y() + nodeInstance.widget.height()
+            if nodeInstanceMaxWidth > maxWidth:
+                maxWidth = nodeInstanceMaxWidth
+            if nodeInstanceMaxHeight > maxHeight:
+                maxHeight = nodeInstanceMaxHeight"""
+        #self.ui.canvasContainer.setMinimumSize(maxWidth, maxHeight)
+        #self.ui.canvasContainer.setMinimumSize(maxWidth, maxHeight)
         
         
     def mousePressEvent(self, event):
@@ -92,6 +110,10 @@ class Canvas(QWidget):
         itemUnderMouseResult = None
         
         mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
+        
+        # zoom transform
+        mouseX /= self.canvasZoom
+        mouseY /= self.canvasZoom
         
         # get item under the mouse (= clicked item)
         distanceTargetMouse = math.sqrt(math.pow(mouseX - self.main.currentScenario.targetPosition[0], 2) + math.pow(mouseY - self.main.currentScenario.targetPosition[1], 2))
@@ -141,6 +163,8 @@ class Canvas(QWidget):
                 self.currentRobot.points.remove(self.currentPoint)
             
         self.update()
+        
+        self.updateBounds()
     
         
     def mouseReleaseEvent(self, event):
@@ -150,9 +174,15 @@ class Canvas(QWidget):
         
         self.changeCallback()
         
+        self.updateBounds()
+        
         
     def mouseMoveEvent(self, event):
         mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
+        
+        # zoom transform
+        mouseX /= self.canvasZoom
+        mouseY /= self.canvasZoom
         
         if self.targetDragging:
             self.main.currentScenario.targetPosition[0] = mouseX - self.currentItemOffset.x()
@@ -187,10 +217,14 @@ class Canvas(QWidget):
                 self.currentPoint.control1.setY(2 * self.currentPoint.anchor.y() - self.currentPoint.control2.y())
                 
                 self.update()
+        
+        self.updateBounds()
     
     
     def handleZoomSliderValueChanged(self, value):
-        self.changeCallback()
+        self.canvasZoom = float(value)
+        
+        self.updateBounds()
         
         
     def setGridSize(self, gridSize):
@@ -198,7 +232,7 @@ class Canvas(QWidget):
         
         
     def getGridSize(self):
-        return 10 * self.ui.zoomCanvas_slider.value()
+        return 10
         
     
     def addSnapToGrid(self, mouseX, mouseY):
@@ -224,7 +258,7 @@ class Canvas(QWidget):
         
         # grid
         painter.setPen(Canvas.gridPen)
-        gridSize = self.getGridSize()
+        gridSize = self.getGridSize() * self.canvasZoom
         numCols = int(math.floor(self.width() / gridSize)) + 1
         for i in range(numCols):
             col = i * gridSize
@@ -236,7 +270,7 @@ class Canvas(QWidget):
     
     
     def drawTargetPoint(self, painter):
-        targetPoint = QPoint(self.main.currentScenario.targetPosition[0], self.main.currentScenario.targetPosition[1])
+        targetPoint = QPoint(self.main.currentScenario.targetPosition[0] * self.canvasZoom, self.main.currentScenario.targetPosition[1] * self.canvasZoom)
         
         painter.setPen(Canvas.targetPen)
         painter.drawPoint(targetPoint)
@@ -254,10 +288,10 @@ class Canvas(QWidget):
             
             if i + 1 < len(robot.points):
                 nextPoint = robot.points[i + 1]
-                point.drawCurve(painter, nextPoint, robot.color)
+                point.drawCurve(painter, nextPoint, robot.color, self.canvasZoom)
             
             if showControls:
-                point.drawKnobs(painter)
+                point.drawKnobs(painter, self.canvasZoom)
                 
                 
     def drawTemporization(self, painter, robot):
@@ -268,13 +302,13 @@ class Canvas(QWidget):
                 mediaTime = media.endTime - media.startTime
                 # for each "2.5s"
                 for j in range(numTimeBases):
-                    lala = media.startTime + (mediaTime / numTimeBases) * j
-                    timePosition = lala * (len(robot.points) - 1)
+                    temporization = media.startTime + (mediaTime / numTimeBases) * j
+                    timePosition = temporization * (len(robot.points) - 1)
                     pointIndex = int(math.floor(timePosition))
                     timePositionRelative = timePosition - pointIndex
                     
                     timeCurvePoint = robot.points[pointIndex]
-                    timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, media.color, "bracket" if j == 0 else "pipe")
+                    timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, media.color, self.canvasZoom, "bracket" if j == 0 else "pipe")
                 
                 i += 1
                 
@@ -286,7 +320,7 @@ class Canvas(QWidget):
             timePositionRelative = timePosition - pointIndex
             
             timeCurvePoint = robot.points[pointIndex]
-            timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, QColor(255, 0, 0), "point")
+            timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, QColor(255, 0, 0), self.canvasZoom, "point")
     
     
     def drawMedia(self, painter, robot, timePosition):
@@ -298,6 +332,8 @@ class Canvas(QWidget):
             timeCurvePoint = robot.points[pointIndex]
             result = timeCurvePoint.getPositionAndAngle(robot.points[pointIndex + 1], timePositionRelative)
             position = result[0]
+            position.setX(position.x() * self.canvasZoom)
+            position.setY(position.y() * self.canvasZoom)
             angle = 180. * result[1] / math.pi
             
             if self.mediaPixmap is not None:

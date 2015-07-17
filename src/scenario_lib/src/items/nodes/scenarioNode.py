@@ -30,8 +30,8 @@ class ScenarioNode(DiagramNode):
     
     simulation = False
     
-    def __init__(self, parent, canvas, position):
-        super(ScenarioNode, self).__init__(parent, canvas, position)
+    def __init__(self, robotId, parent, canvas, position):
+        super(ScenarioNode, self).__init__(robotId, parent, canvas, position)
         
         self.scenarioRunningOnRobotUid = -1
         self.currentScenario = None
@@ -67,7 +67,7 @@ class ScenarioNode(DiagramNode):
             
             # init subscription on the path feedback
             if not ScenarioNode.simulation:
-                self.pathFeedbackSubscriber = rospy.Subscriber("/robot01/path_feedback", PathFeedbackMsg, self.handlePathFeedbackReceived)
+                self.pathFeedbackSubscriber = rospy.Subscriber("/" + self.robotId + "/path_feedback", PathFeedbackMsg, self.handlePathFeedbackReceived)
                 self.handlePathFeedbackReceived(None)
             else:
                 self.pathFeedbackValue = 0

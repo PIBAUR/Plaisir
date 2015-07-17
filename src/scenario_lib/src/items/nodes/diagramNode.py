@@ -33,7 +33,7 @@ class DiagramNode(object):
         input_button_ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_execution_diagram/resource/input_button.ui"
     
     
-    def __init__(self, parent, canvas, position):
+    def __init__(self, robotId, parent, canvas, position):
         # vars
         self.id = DiagramNode.currentNodeId
         DiagramNode.currentNodeId += 1
@@ -42,6 +42,8 @@ class DiagramNode(object):
         
         self.executing = False
         self.executingInputWidget = None
+        
+        self.robotId = robotId
         
         # ui
         self.canvas = canvas
@@ -64,7 +66,7 @@ class DiagramNode(object):
         
         self.widget.enabled_checkBox.stateChanged.connect(self.handleEnabledCheckboxStateChanged)
         
-        self.widget.title_label.setText(self.__class__.nodeName)
+        self.widget.title_label.setText(self.robotId + " - " + self.__class__.nodeName)
         
         self.setTimelineValue(0)
         

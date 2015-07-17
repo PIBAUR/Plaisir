@@ -16,8 +16,8 @@ class RandomChoiceNode(DiagramNode):
     minInputs = 1
     hasOutput = 1
     
-    def __init__(self, parent, canvas, position):
-        super(RandomChoiceNode, self).__init__(parent, canvas, position)
+    def __init__(self, robotId, parent, canvas, position):
+        super(RandomChoiceNode, self).__init__(robotId, parent, canvas, position)
         
         self.randomIndex = -1
         

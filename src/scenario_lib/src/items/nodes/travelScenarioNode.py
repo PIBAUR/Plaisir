@@ -23,8 +23,8 @@ from path_finding.srv import PathFinding as PathFindingSrv
 class TravelScenarioNode(ScenarioNode):
     nodeName = u"Sc. dépl."
     
-    def __init__(self, parent, canvas, position):
-        super(TravelScenarioNode, self).__init__(parent, canvas, position)
+    def __init__(self, robotId, parent, canvas, position):
+        super(TravelScenarioNode, self).__init__(robotId, parent, canvas, position)
     
     
     def output(self, args, updateRatioCallback):
@@ -39,7 +39,7 @@ class TravelScenarioNode(ScenarioNode):
         rospy.wait_for_service('path_finding')
         pathFinding = rospy.ServiceProxy('path_finding', PathFindingSrv)
         target = Pose2DMsg(targetPosition[0], targetPosition[1], targetOrientation)
-        robotId = StringMsg("/robot01")
+        robotId = StringMsg("/" + self.robotId)
         pathResult = pathFinding(robotId, target)
         print "path finding succeed"
         

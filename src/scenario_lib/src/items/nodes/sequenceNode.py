@@ -14,8 +14,8 @@ class SequenceNode(DiagramNode):
     minInputs = 1
     hasOutput = 1
     
-    def __init__(self, parent, canvas, position):
-        super(SequenceNode, self).__init__(parent, canvas, position)
+    def __init__(self, robotId, parent, canvas, position):
+        super(SequenceNode, self).__init__(robotId, parent, canvas, position)
         
         self.currentInputIndex = 0
         self.numInputs = 0

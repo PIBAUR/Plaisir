@@ -196,7 +196,7 @@ class ScenarioEdition():
     def changeCallback(self):
         self.lastChangesSaved = False
         self.updateWindowTitle()
-        self.currentScenario.gridSize = self.canvas.getGridSize()
+        #self.currentScenario.gridSize = self.canvas.getGridSize()
     
     
     def updateWindowTitle(self):

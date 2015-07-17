@@ -104,6 +104,6 @@ if __name__ == '__main__':
     
     # ros node
     rospy.init_node('media_player', log_level = rospy.INFO)
-    rospy.Subscriber('/robot01/scenario', ScenarioMsg, mediaPlayer.mediaCB)
-    rospy.Subscriber('/robot01/path_feedback', PathFeedbackMsg, mediaPlayer.pathFeedbackCB)
+    rospy.Subscriber('scenario', ScenarioMsg, mediaPlayer.mediaCB)
+    rospy.Subscriber('path_feedback', PathFeedbackMsg, mediaPlayer.pathFeedbackCB)
     rospy.spin()

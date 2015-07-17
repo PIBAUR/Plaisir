@@ -18,10 +18,10 @@ class ObstacleNode(DiagramNode):
     minInputs = 2
     hasOutput = 1
     
-    def __init__(self, parent, canvas, position):
-        super(ObstacleNode, self).__init__(parent, canvas, position)
+    def __init__(self, robotId, parent, canvas, position):
+        super(ObstacleNode, self).__init__(robotId, parent, canvas, position)
         
-        self.stateSubscriber = rospy.Subscriber("robot01/front_obstacle", BoolMsg, self.handleFrontObstacleReceived)
+        self.stateSubscriber = rospy.Subscriber("/" + self.robotId + "/front_obstacle", BoolMsg, self.handleFrontObstacleReceived)
         self.isObstacle = False
         
         # ui
