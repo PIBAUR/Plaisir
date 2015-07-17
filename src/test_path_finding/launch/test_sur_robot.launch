@@ -1,0 +1,47 @@
+<launch>
+    <arg name="map" value="last_map"/>
+	<param name="use_sim_time" value="false" />
+	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
+	<arg name="robot" value="02"/>
+    <!--<arg name="robot" value="00"/>-->
+    <!--<arg name="robot" value="02"/>-->
+
+	<!--<include file="$(find robot)/launch/plaisir_state_machine.machine">
+		<arg name="robot" value="$(arg robot)"/> 
+	</include>-->
+   
+   <!-- <arg     if="$(arg debug)" name="script_type" value="debug"/>-->
+	
+	<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
+	
+	 <machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
+	    env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+	<!--<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>-->
+	
+	<!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>-->
+	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/test.rviz"/>-->
+	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init.rviz"/>-->
+	
+     <!--  <param name="prefix" value="robot$(arg robot)"/>
+	   <node pkg="tf" type="static_transform_publisher" name="odom_to_map" args="0.5 0 0 0 0 0 /map robot$(arg robot)/odom 20"/>
+      <node pkg="tf" type="static_transform_publisher" name="base_to_odom" args="0 0 0 0 0 0 robot$(arg robot)/odom robot$(arg robot)/base_link 20"/>-->
+      
+    
+    
+    <!--   A voir si utile ou pas-->
+      <!--<node pkg="tf" type="static_transform_publisher" name="laser_to_base" machine="robot$(arg robot)" respawn="true" 
+		args="-0.080 0 0.045 3.14159265359 0 0 base_link base_laser_link 20"/>  
+    	<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
+	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true"/>
+        -->
+	
+	
+	
+	
+    <node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/last_map.yaml"/>
+
+  	<param name="tf_prefix" value="robot$(arg robot)"/>
+	<node name="test_path_finding" pkg="test_path_finding" type="server_test" respawn="true"/>
+	
+   
+</launch>
