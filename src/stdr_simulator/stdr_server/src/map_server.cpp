@@ -68,7 +68,7 @@ namespace stdr_server {
     metadata_pub.publish( meta_data_message_ );
     
     //!< Latched publisher for data
-    map_pub = n.advertise<nav_msgs::OccupancyGrid>("map", 1, true);
+    map_pub = n.advertise<nav_msgs::OccupancyGrid>("world", 1, true);
     map_pub.publish( map_ );
   }
 
@@ -91,7 +91,7 @@ namespace stdr_server {
     tf::Transform worldTomap(rotation, translation);
 
     tfBroadcaster.sendTransform(
-      tf::StampedTransform(worldTomap, ros::Time::now(), "map", "map_static"));
+      tf::StampedTransform(worldTomap, ros::Time::now(), "world", "map_static"));
     
   }
 

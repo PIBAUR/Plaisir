@@ -1,8 +1,8 @@
 <launch>
-    <arg name="robot" value="01"/>
-   	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
-	
-	<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" args="-sever-debug" >
-	
-	</node>
+        <arg name="robot"/>
+	   <param name="tf_prefix" value="robot$(arg robot)"/>
+
+    
+    	<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" args="-sever-debug" >
+        </node>
 </launch>

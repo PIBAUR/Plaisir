@@ -4,30 +4,46 @@
     <rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
 	
 	<arg name="robot"/>
+	<!--<param name="tf_prefix" value="robot$(arg robot)"/>-->
 	
+	<!-- MACHINES  -->
 	<machine name="serveur" address="192.168.150.1" user="$(env USER)" default="true" 
 		env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
 		env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
 	
+	
 	<node pkg="tf" type="static_transform_publisher" name="laser_to_base" machine="robot$(arg robot)" respawn="true" 
 		args="-0.080 0 0.045 3.14159265359 0 0 base_link base_laser_link 20"/>
 		
+	<!-- HARDWARE -->
 	<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
 	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true"/>
-	
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init$(arg robot).rviz"/>
-	
-	<!--_____________SERVER_____________-->
+	<node name="bumper" pkg="robot_sensor" type="bumper" machine="robot$(arg robot)" respawn="true"/>
+		
 	
 	<!-- MAPPING -->
-	<node name="map_server" type="map_server" pkg="map_server" output="screen"
-		args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" respawn="true"/>
+	<node name="map_server" type="map_server" pkg="map_server" args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" output="screen"/>
 	<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="true"/>
 	
 	<include file="$(find robot)/launch/server_localisation.launch">
 		<arg name="robot" value="$(arg robot)"/> 
 	</include>
+
+
+
+
+
+
+
+
+
+      <!-- SECOND LOCALISATION PARAMETERS CONFIG -->
+      	<!-- always at the end of the launch file -->
+        	
+        <!--<param name="tf_prefix" value="robot$(arg robot)"/>
+    	<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" args="-sever-debug" >
+        </node>-->
 	 
 	
  

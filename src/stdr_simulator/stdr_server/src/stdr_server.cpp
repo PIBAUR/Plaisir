@@ -538,7 +538,7 @@ namespace stdr_server {
     
     namedRobot.robot = description;
     
-    namedRobot.name = "robot" + boost::lexical_cast<std::string>(_id++);
+    namedRobot.name = "robot0" + boost::lexical_cast<std::string>(1+_id++); //change the robot topic name here and the start ID
     
     _robotMap.insert( std::make_pair(namedRobot.name, namedRobot) );
     

@@ -25,14 +25,15 @@ rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/src/rviz' \
 	--exclude '/catkin_ws/src/teleop_twist_keyboard' \
 	--exclude '/catkin_ws/src/topic_router' \
-	--exclude '/catkin_ws/src/stdr_server' \
-    --exclude '/catkin_ws/src/stdr_gui' \
-    --exclude '/catkin_ws/src/stdr_launchers' \
-    --exclude '/catkin_ws/src/stdr_msgs' \
-    --exclude '/catkin_ws/src/stdr_parser' \
-    --exclude '/catkin_ws/src/stdr_resources' \
-    --exclude '/catkin_ws/src/stdr_robot' \
+	 --exclude '/catkin_ws/src/stdr_server' \
+     --exclude '/catkin_ws/src/stdr_gui' \
+     --exclude '/catkin_ws/src/stdr_launchers' \
+     --exclude '/catkin_ws/src/stdr_msgs' \
+     --exclude '/catkin_ws/src/stdr_parser' \
+     --exclude '/catkin_ws/src/stdr_resources' \
+     --exclude '/catkin_ws/src/stdr_robot' \
     --exclude '/catkin_ws/src/stdr_samples' \
+    --exclude '/catkin_ws/src/stdr_simulator' \
 	--exclude '/catkin_ws/bag/' \
 	--exclude '/catkin_ws/devel/' \
 	--exclude '/catkin_ws/build/' \
