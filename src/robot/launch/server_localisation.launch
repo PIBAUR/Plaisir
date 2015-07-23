@@ -2,18 +2,16 @@
 	<arg name="robot"/>
 	<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	
-	
 	<!-- AMCL-->
 	<node pkg="amcl" type="amcl" name="amcl" output="screen" respawn="false">
 		<!-- remap for namespace -->>
-
+		<remap from="scan" to="/robot$(arg robot)/scan"/>
 		<remap from="initialpose" to="/robot$(arg robot)/initialpose"/>
-		<!--<remap from="scan" to="/robot$(arg robot)/scan"/>-->
 		
 		<!--Overall filter parameters-->
 		<!--Minimum and maximumallowed number of particles. -->
-		<param name="min_particles" value="500"/>
-		<param name="max_particles" value="600"/>
+		<param name="min_particles" value="100"/>
+		<param name="max_particles" value="500"/>
 		
 		<!--Maximum error between the true distribution and the estimated distribution.--> 
 		<param name="kld_err" value="0.01"/>
@@ -139,8 +137,8 @@
 		<param name="odom_alpha5" value="1.0"/>
 		
 		<!--Which frame to use for odometry, the robot base and frame published .-->
-		<param name="odom_frame_id" value="/odom"/>
-		<param name="base_frame_id" value="/base_link"/>
+		<param name="odom_frame_id" value="/robot$(arg robot)/odom"/>
+		<param name="base_frame_id" value="/robot$(arg robot)/base_link"/>
 		<param name="global_frame_id" value="/map"/>
 	</node>
   

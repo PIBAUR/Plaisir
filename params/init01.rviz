@@ -78,6 +78,27 @@ Visualization Manager:
       Use rainbow: true
       Value: true
     - Alpha: 0.7
+      Class: rviz/LaserScan
+      Color: 170; 255; 0
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: true
+      Max Color: 255; 255; 255
+      Max Intensity: 0
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: LaserScan
+      Position Transformer: XYZ
+      Queue Size: 0
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.05
+      Style: Flat Squares
+      Topic: /robot01/scan
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 0.7
       Class: rviz/Map
       Draw Behind: false
       Enabled: true

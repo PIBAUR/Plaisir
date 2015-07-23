@@ -4,21 +4,32 @@
     <rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
 	
 	<arg name="robot"/>
-	<!--<param name="tf_prefix" value="robot$(arg robot)"/>-->
+	<param name="tf_prefix" value="robot$(arg robot)"/>
 	
 	<!-- MACHINES  -->
 	<machine name="serveur" address="192.168.150.1" user="$(env USER)" default="true" 
 		env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
 		env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
-	
-	
+		
+	<!-- general tf -->
+	<node pkg="tf" type="static_transform_publisher" name="odom_to_map" respawn="true"
+		args="0 0 0 0 0 0 /map odom 20"/> 
 	<node pkg="tf" type="static_transform_publisher" name="laser_to_base" machine="robot$(arg robot)" respawn="true" 
 		args="-0.080 0 0.045 3.14159265359 0 0 base_link base_laser_link 20"/>
-		
+    
+    <!-- particular tf for robot -->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="odom_to_map_robot" respawn="true"
+		args="0 0 0 0 0 0 /map /robot$(arg robot)/odom 20"/> -->
+    <node pkg="tf" type="static_transform_publisher" name="base_to_odom" args="0 0 0 0 0 0 robot$(arg robot)/odom robot$(arg robot)/base_link 20"/>
+	<node pkg="tf" type="static_transform_publisher" name="laser_to_base_robot" machine="robot$(arg robot)" respawn="true" 
+		args="-0.080 0 0.045 3.14159265359 0 0 /robot$(arg robot)/base_link /robot$(arg robot)/base_laser_link 20"/>
+	
 	<!-- HARDWARE -->
 	<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
-	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true"/>
+	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true">
+	<remap from="scan" to="/robot$(arg robot)/scan"/>
+	</node>
 	<node name="bumper" pkg="robot_sensor" type="bumper" machine="robot$(arg robot)" respawn="true"/>
 		
 	

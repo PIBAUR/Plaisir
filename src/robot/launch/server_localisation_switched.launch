@@ -2,7 +2,7 @@
 	<!-- AMCL-->
 	<node pkg="amcl" type="amcl" name="amcl" output="screen" respawn="true">
 		<!-- remap for namespace -->>
-		<!--<remap from="scan" to="/robot$(arg robot)/scan"/>  -->
+		<remap from="scan" to="/robot$(arg robot)/scan"/>
 		<remap from="initialpose" to="/robot$(arg robot)/initialpose_bis"/>
 		<remap from="amcl_pose" to="/robot$(arg robot)/amcl_pose_bis"/>
 		
@@ -136,12 +136,8 @@
 		<param name="odom_alpha5" value="1.0"/>
 		
 		<!--Which frame to use for odometry, the robot base and frame published .-->
-		<!--<param name="odom_frame_id" value="/robot$(arg robot)/odom"/>
+		<param name="odom_frame_id" value="/robot$(arg robot)/odom"/>
 		<param name="base_frame_id" value="/robot$(arg robot)/base_link"/>
-		<param name="global_frame_id" value="/map"/>  -->
-		
-		<param name="odom_frame_id" value="/odom"/>
-		<param name="base_frame_id" value="/base_link"/>
 		<param name="global_frame_id" value="/map"/>
 	</node>
 </launch>
