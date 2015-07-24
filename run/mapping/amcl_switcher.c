@@ -63,7 +63,7 @@ int main(int argc, char **argv){
                     printf("==========LAUNCH NEW AMCL_PARAM==============\n");
                     printf("=================================================\n");
                     snprintf(robot_arg, sizeof robot_arg, "robot:=%s", argv[1]);
-                    printf("1er argument: %s\n",robot_arg);
+                    //printf("1er argument: %s\n",robot_arg);
                     execlp("roslaunch", "roslaunch", "robot", "server_localisation_switched.launch", robot_arg, NULL);
                     while(1){
                         printf("fils 2 running...\n");
@@ -88,7 +88,7 @@ int main(int argc, char **argv){
                             printf("==========TRIGGER PUBLISH INIT POSE========\n");
                             printf("=================================================\n");
                             snprintf(robot_arg, sizeof robot_arg, "robot%s/publish_trigger", argv[1]);
-                            printf("2eme argument: %s\n",robot_arg);
+                            //printf("2eme argument: %s\n",robot_arg);
                             execlp("rostopic", "rostopic", "pub", robot_arg, "std_msgs/Bool",
                             		"true", NULL);
                             printf("fils 3 running...\n");
