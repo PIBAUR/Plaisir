@@ -1,16 +1,21 @@
 <launch>
      
        <!-- For 2D simulation -->
-        <include file="$(find stdr_robot)/launch/robot_manager.launch" />
-	
+        <include file="$(find stdr_robot)/launch/robot_manager.launch"/>
+        <node pkg="tf" type="static_transform_publisher" name="map2world" args="0 0 0 0 0 0  map world 0" />
         
-     <node type="stdr_server_node" pkg="stdr_server" name="stdr_server" output="screen" args="$(env HOME)/catkin_ws/maps/last_map.yaml"/>
+     <node type="stdr_server_node" pkg="stdr_server" name="stdr_server" output="screen" args="$(env HOME)/catkin_ws/maps/last_map.yaml"> 
+      	          <!--  <remap from="world" to="map"/>-->
+      	           <!--  <remap from="map_static" to="robot01/odom"/>-->
+	</node>
+
 
 
 	<!--<node pkg="tf" type="static_transform_publisher" name="world2map" args="0 0 0 0 0 0  world map 100" />-->
 
  
-       <node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/odroid.xml $(arg position)" respawn="false"/>
+<node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/odroid1.xml $(arg position)" />
+
 
         <node name="$(anon stdr_gui_node)" pkg="stdr_gui" type="stdr_gui_node"/>
 	

@@ -1,7 +1,7 @@
 <launch>
     <arg name="robot"/>
 	<arg name="map" value="last_map"/>
-	
+
 	<!-- Setting and loading params and args -->
 	<param name="use_sim_time" value="false" />
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
@@ -85,10 +85,11 @@
 
         
     <!-- SIMULATION ENVIRONMENT -->
-    <!-- <include file="$(find robot_visualisation)/launch/run.launch">
-			<arg name="robot" value="$(arg robot)"/> 
+    <!-- VISUALISATION second robot -->
+        <include file="$(find robot_visualisation)/launch/run.launch">
+			<arg name="robot" value="$(arg robot)"/>  
 	
-	</include>-->
+		</include> 
 
 
  

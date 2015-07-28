@@ -43,7 +43,7 @@
 		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node" machine="robot$(arg robot)" respawn="false">
 			<remap from="scan" to="/robot$(arg robot)/scan"/> 
 	</node>
-	    
+
 	    <!-- SCENARIO EXECUTION-->
    	<!--<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)" respawn="false">
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
@@ -76,13 +76,17 @@
         <param name="tf_prefix2" value="robot$(arg robot)"/>
     	<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init2__.py" output="screen" args="-sever-debug" >
         </node>
-
         
-    <!-- SIMULATION ENVIRONMENT -->
-    <!-- <include file="$(find robot_visualisation)/launch/run.launch">
+   	    <!-- SIMULATION ENVIRONMENT -->
+    	<!-- VISUALISATION first robot -->
+       <include file="$(find robot_visualisation)/launch/run.launch">
 			<arg name="robot" value="$(arg robot)"/> 
 	
-	</include>-->
+		</include>
+
+        
+
+
 
 
  

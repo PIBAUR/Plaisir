@@ -3,7 +3,7 @@
        <!-- For 2D simulation -->
         <!--<include file="$(find stdr_robot)/launch/robot_manager.launch" />-->
 
-       <node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/odroid.xml $(arg position)"/>
+       <node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/odroid2.xml $(arg position)" />
 
 
        <!-- <node name="$(anon stdr_gui_node)" pkg="stdr_gui" type="stdr_gui_node"/>-->
