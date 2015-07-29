@@ -27,7 +27,12 @@ class Canvas(QWidget):
         self.changeCallback = changeCallback
         
         # get params
+        self.canvasMoving = False
+        self.canvasTranslateX = 0
+        self.canvasTranslateY = 0
         self.canvasZoom = 1
+        self.canvasMovingOriginX, self.canvasMovingOriginY = 0, 0
+        
         try:
             self.mediaTimeBase = float(rospy.get_param("media_time_base"))
         except Exception:
@@ -89,78 +94,72 @@ class Canvas(QWidget):
          
     
     def updateBounds(self):
-        print self.ui.canvasScrollArea.width()
-        maxWidth = self.ui.canvasContainer.width() + 1000
-        maxHeight = self.ui.canvasContainer.height() + 1000
-        
-        """for nodeInstance in self.nodesInstances:
-            nodeInstanceMaxWidth = nodeInstance.widget.x() + nodeInstance.widget.width()
-            nodeInstanceMaxHeight = nodeInstance.widget.y() + nodeInstance.widget.height()
-            if nodeInstanceMaxWidth > maxWidth:
-                maxWidth = nodeInstanceMaxWidth
-            if nodeInstanceMaxHeight > maxHeight:
-                maxHeight = nodeInstanceMaxHeight"""
-        #self.ui.canvasContainer.setMinimumSize(maxWidth, maxHeight)
-        #self.ui.canvasContainer.setMinimumSize(maxWidth, maxHeight)
+        pass
         
         
     def mousePressEvent(self, event):
-        self.currentItem = None
-        self.currentPoint = None
-        itemUnderMouseResult = None
-        
-        mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
-        
-        # zoom transform
-        mouseX /= self.canvasZoom
-        mouseY /= self.canvasZoom
-        
-        # get item under the mouse (= clicked item)
-        distanceTargetMouse = math.sqrt(math.pow(mouseX - self.main.currentScenario.targetPosition[0], 2) + math.pow(mouseY - self.main.currentScenario.targetPosition[1], 2))
-        if distanceTargetMouse <= Canvas.targetRadius:
-            self.targetDragging = True
-        else:
-            for point in self.currentRobot.points:
-                itemUnderMouseResult = point.getItemUnderMouse(event.x(), event.y())
-                if itemUnderMouseResult is not None:
-                    self.currentItem = itemUnderMouseResult[0]
-                    self.currentPoint = itemUnderMouseResult[1]
-                    break
-        
-        self.isEditing = self.currentAction != Canvas.REMOVE_ACTION and itemUnderMouseResult is not None
-        
-        if self.targetDragging:
-            currentItemOffsetX, currentItemOffsetY = self.addSnapToGrid(mouseX - self.main.currentScenario.targetPosition[0], mouseY - self.main.currentScenario.targetPosition[1])
-            self.currentItemOffset = QPoint(currentItemOffsetX, currentItemOffsetY)
-        elif self.isEditing:
-            currentItemOffsetX, currentItemOffsetY = self.addSnapToGrid(mouseX - self.currentItem.x(), mouseY - self.currentItem.y())
-            self.currentItemOffset = QPoint(currentItemOffsetX, currentItemOffsetY)
+        if event.button() == 1:
+            self.currentItem = None
+            self.currentPoint = None
+            itemUnderMouseResult = None
             
-            self.currentAnchorOrigins = QPoint(self.currentPoint.anchor.x(), self.currentPoint.anchor.y())
-            self.currentControl1Origins = QPoint(self.currentPoint.control1.x(), self.currentPoint.control1.y())
-            self.currentControl2Origins = QPoint(self.currentPoint.control2.x(), self.currentPoint.control2.y())
-        elif self.currentAction == Canvas.ADD_ACTION:
-            # set anchor
-            self.currentPoint = CurvePoint(Point(mouseX, mouseY))
-            # check if it is on the curve
-            addPointAfter = -1
-            for i in range(len(self.currentRobot.points) - 1):
-                point = self.currentRobot.points[i]
-                nextPoint = self.currentRobot.points[i + 1]
-                curveUPositionUnderPoint = point.isCurveUnderPoint(nextPoint, mouseX, mouseY, 5)
-                if curveUPositionUnderPoint is not None:
-                    addPointAfter = i + 1
+            mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
             
-            # add the point
-            if addPointAfter >= 0:
-                self.currentPoint
-                self.currentRobot.points.insert(addPointAfter, self.currentPoint)
+            # zoom transform
+            mouseX /= self.canvasZoom
+            mouseY /= self.canvasZoom
+            mouseX += self.canvasTranslateX
+            mouseY += self.canvasTranslateY
+            
+            # get item under the mouse (= clicked item)
+            distanceTargetMouse = math.sqrt(math.pow(mouseX - self.main.currentScenario.targetPosition[0], 2) + math.pow(mouseY - self.main.currentScenario.targetPosition[1], 2))
+            if distanceTargetMouse <= Canvas.targetRadius:
+                self.targetDragging = True
             else:
-                self.currentRobot.points.append(self.currentPoint)
+                for point in self.currentRobot.points:
+                    itemUnderMouseResult = point.getItemUnderMouse(event.x(), event.y())
+                    if itemUnderMouseResult is not None:
+                        self.currentItem = itemUnderMouseResult[0]
+                        self.currentPoint = itemUnderMouseResult[1]
+                        break
+            
+            self.isEditing = self.currentAction != Canvas.REMOVE_ACTION and itemUnderMouseResult is not None
+            
+            if self.targetDragging:
+                currentItemOffsetX, currentItemOffsetY = self.addSnapToGrid(mouseX - self.main.currentScenario.targetPosition[0], mouseY - self.main.currentScenario.targetPosition[1])
+                self.currentItemOffset = QPoint(currentItemOffsetX, currentItemOffsetY)
+            elif self.isEditing:
+                currentItemOffsetX, currentItemOffsetY = self.addSnapToGrid(mouseX - self.currentItem.x(), mouseY - self.currentItem.y())
+                self.currentItemOffset = QPoint(currentItemOffsetX, currentItemOffsetY)
                 
-        elif self.currentAction == Canvas.REMOVE_ACTION:
-            if self.currentItem is not None and self.currentItem == self.currentPoint.anchor:
-                self.currentRobot.points.remove(self.currentPoint)
+                self.currentAnchorOrigins = QPoint(self.currentPoint.anchor.x(), self.currentPoint.anchor.y())
+                self.currentControl1Origins = QPoint(self.currentPoint.control1.x(), self.currentPoint.control1.y())
+                self.currentControl2Origins = QPoint(self.currentPoint.control2.x(), self.currentPoint.control2.y())
+            elif self.currentAction == Canvas.ADD_ACTION:
+                # set anchor
+                self.currentPoint = CurvePoint(Point(mouseX, mouseY))
+                # check if it is on the curve
+                addPointAfter = -1
+                for i in range(len(self.currentRobot.points) - 1):
+                    point = self.currentRobot.points[i]
+                    nextPoint = self.currentRobot.points[i + 1]
+                    curveUPositionUnderPoint = point.isCurveUnderPoint(nextPoint, mouseX, mouseY, 5)
+                    if curveUPositionUnderPoint is not None:
+                        addPointAfter = i + 1
+                
+                # add the point
+                if addPointAfter >= 0:
+                    self.currentPoint
+                    self.currentRobot.points.insert(addPointAfter, self.currentPoint)
+                else:
+                    self.currentRobot.points.append(self.currentPoint)
+                    
+            elif self.currentAction == Canvas.REMOVE_ACTION:
+                if self.currentItem is not None and self.currentItem == self.currentPoint.anchor:
+                    self.currentRobot.points.remove(self.currentPoint)
+        elif event.button() == 4:
+            self.canvasMoving = True
+            self.canvasMovingOriginX, self.canvasMovingOriginY = event.x(), event.y()
             
         self.update()
         
@@ -169,6 +168,7 @@ class Canvas(QWidget):
         
     def mouseReleaseEvent(self, event):
         self.targetDragging = False
+        self.canvasMoving = False
         
         self.update()
         
@@ -183,8 +183,15 @@ class Canvas(QWidget):
         # zoom transform
         mouseX /= self.canvasZoom
         mouseY /= self.canvasZoom
+        mouseX -= self.canvasTranslateX
+        mouseY -= self.canvasTranslateX
         
-        if self.targetDragging:
+        if self.canvasMoving:
+            self.canvasTranslateX += event.x() - self.canvasMovingOriginX
+            self.canvasTranslateY += event.y() - self.canvasMovingOriginY
+            self.canvasMovingOriginX = event.x()
+            self.canvasMovingOriginY = event.y()
+        elif self.targetDragging:
             self.main.currentScenario.targetPosition[0] = mouseX - self.currentItemOffset.x()
             self.main.currentScenario.targetPosition[1] = mouseY - self.currentItemOffset.y()
         elif self.isEditing:
@@ -220,6 +227,14 @@ class Canvas(QWidget):
         
         self.updateBounds()
     
+    
+    def wheelEvent(self, event):
+        self.canvasZoom += event.delta() * .005
+        if self.canvasZoom > 20:
+            self.canvasZoom = 20
+        if self.canvasZoom < .3:
+            self.canvasZoom = .3
+        
     
     def handleZoomSliderValueChanged(self, value):
         self.canvasZoom = float(value)
@@ -262,15 +277,15 @@ class Canvas(QWidget):
         numCols = int(math.floor(self.width() / gridSize)) + 1
         for i in range(numCols):
             col = i * gridSize
-            painter.drawLine(QPoint(col, 0), QPoint(col, self.height()))
+            painter.drawLine(QPoint(col + self.canvasTranslateX % gridSize, 0), QPoint(col + self.canvasTranslateX % gridSize, self.height()))
         numRows = int(math.floor(self.height() / gridSize)) + 1
         for i in range(numRows):
             row = i * gridSize
-            painter.drawLine(QPoint(0, row), QPoint(self.width(), row))
+            painter.drawLine(QPoint(0, row + self.canvasTranslateY % gridSize), QPoint(self.width(), row + self.canvasTranslateY % gridSize))
     
     
     def drawTargetPoint(self, painter):
-        targetPoint = QPoint(self.main.currentScenario.targetPosition[0] * self.canvasZoom, self.main.currentScenario.targetPosition[1] * self.canvasZoom)
+        targetPoint = QPoint(self.main.currentScenario.targetPosition[0] * self.canvasZoom + self.canvasTranslateX, self.main.currentScenario.targetPosition[1] * self.canvasZoom + self.canvasTranslateY)
         
         painter.setPen(Canvas.targetPen)
         painter.drawPoint(targetPoint)
@@ -288,10 +303,10 @@ class Canvas(QWidget):
             
             if i + 1 < len(robot.points):
                 nextPoint = robot.points[i + 1]
-                point.drawCurve(painter, nextPoint, robot.color, self.canvasZoom)
+                point.drawCurve(painter, nextPoint, robot.color, self.canvasZoom, (self.canvasTranslateX,  + self.canvasTranslateY))
             
             if showControls:
-                point.drawKnobs(painter, self.canvasZoom)
+                point.drawKnobs(painter, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY))
                 
                 
     def drawTemporization(self, painter, robot):
@@ -308,7 +323,7 @@ class Canvas(QWidget):
                     timePositionRelative = timePosition - pointIndex
                     
                     timeCurvePoint = robot.points[pointIndex]
-                    timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, media.color, self.canvasZoom, "bracket" if j == 0 else "pipe")
+                    timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, media.color, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "bracket" if j == 0 else "pipe")
                 
                 i += 1
                 
@@ -320,7 +335,7 @@ class Canvas(QWidget):
             timePositionRelative = timePosition - pointIndex
             
             timeCurvePoint = robot.points[pointIndex]
-            timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, QColor(255, 0, 0), self.canvasZoom, "point")
+            timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, QColor(255, 0, 0), self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "point")
     
     
     def drawMedia(self, painter, robot, timePosition):
@@ -332,8 +347,8 @@ class Canvas(QWidget):
             timeCurvePoint = robot.points[pointIndex]
             result = timeCurvePoint.getPositionAndAngle(robot.points[pointIndex + 1], timePositionRelative)
             position = result[0]
-            position.setX(position.x() * self.canvasZoom)
-            position.setY(position.y() * self.canvasZoom)
+            position.setX(position.x() * self.canvasZoom + self.canvasTranslateX)
+            position.setY(position.y() * self.canvasZoom + self.canvasTranslateY)
             angle = 180. * result[1] / math.pi
             
             if self.mediaPixmap is not None:

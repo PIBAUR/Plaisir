@@ -64,30 +64,30 @@ class CurvePoint():
         return result
         
         
-    def drawKnobs(self, painter, canvasZoom):
+    def drawKnobs(self, painter, canvasZoom, canvasTranslate):
         # disable antialiasing, and enable at the end
         painter.setRenderHint(QPainter.Antialiasing, False)
         
         # draw control
         painter.setPen(CurvePoint.controlPen)
-        painter.drawPoint(self.control1._x * canvasZoom, self.control1._y * canvasZoom)
-        painter.drawPoint(self.control2._x * canvasZoom, self.control2._y * canvasZoom)
+        painter.drawPoint(self.control1._x * canvasZoom + canvasTranslate[0], self.control1._y * canvasZoom + canvasTranslate[1])
+        painter.drawPoint(self.control2._x * canvasZoom + canvasTranslate[0], self.control2._y * canvasZoom + canvasTranslate[1])
         
         # draw line
         painter.setPen(CurvePoint.linePen)
-        painter.drawLine(self.control1._x * canvasZoom, self.control1._y * canvasZoom, self.anchor._x * canvasZoom, self.anchor._y * canvasZoom)
-        painter.drawLine(self.control2._x * canvasZoom, self.control2._y * canvasZoom, self.anchor._x * canvasZoom, self.anchor._y * canvasZoom)
+        painter.drawLine(self.control1._x * canvasZoom + canvasTranslate[0], self.control1._y * canvasZoom + canvasTranslate[1], self.anchor._x * canvasZoom + canvasTranslate[0], self.anchor._y * canvasZoom + canvasTranslate[1])
+        painter.drawLine(self.control2._x * canvasZoom + canvasTranslate[0], self.control2._y * canvasZoom + canvasTranslate[1], self.anchor._x * canvasZoom + canvasTranslate[0], self.anchor._y * canvasZoom + canvasTranslate[1])
         
         # draw anchor
         painter.setPen(CurvePoint.anchorPen)
-        rect = QRectF(self.anchor._x * canvasZoom - CurvePoint.CONTROL_SIZE / 2, self.anchor._y * canvasZoom - CurvePoint.CONTROL_SIZE / 2, CurvePoint.CONTROL_SIZE, CurvePoint.CONTROL_SIZE)
+        rect = QRectF(self.anchor._x * canvasZoom + canvasTranslate[0] - CurvePoint.CONTROL_SIZE / 2, self.anchor._y * canvasZoom + canvasTranslate[1] - CurvePoint.CONTROL_SIZE / 2, CurvePoint.CONTROL_SIZE, CurvePoint.CONTROL_SIZE)
         painter.fillRect(rect, QColor(255, 255, 255))
         painter.drawRect(rect)
         
         painter.setRenderHint(QPainter.Antialiasing, True)
     
     
-    def drawCurve(self, painter, nextPoint, color, canvasZoom):
+    def drawCurve(self, painter, nextPoint, color, canvasZoom, canvasTranslate):
         curveToDraw = self.getBezierCurveWithNextPoint(nextPoint)
         
         previousBezierPoint = None
@@ -99,16 +99,18 @@ class CurvePoint():
                 # draw line
                 CurvePoint.curvePen.setColor(color)
                 painter.setPen(CurvePoint.curvePen)
-                painter.drawLine(previousBezierPoint.x * canvasZoom, previousBezierPoint.y * canvasZoom, bezierPoint.x * canvasZoom, bezierPoint.y * canvasZoom)
+                painter.drawLine(previousBezierPoint.x * canvasZoom + canvasTranslate[0], previousBezierPoint.y * canvasZoom + canvasTranslate[1], bezierPoint.x * canvasZoom + canvasTranslate[0], bezierPoint.y * canvasZoom + canvasTranslate[1])
             
             previousBezierPoint = bezierPoint
     
     
-    def drawTimePosition(self, painter, nextPoint, u, color, canvasZoom, drawType = "bracket"):
+    def drawTimePosition(self, painter, nextPoint, u, color, canvasZoom, canvasTranslate, drawType = "bracket"):
         result = self.getPositionAndAngle(nextPoint, u)
         timeCursorPoint = result[0]
         timeCursorPoint._x *= canvasZoom
         timeCursorPoint._y *= canvasZoom
+        timeCursorPoint._x += canvasTranslate[0]
+        timeCursorPoint._y += canvasTranslate[1]
         tangentAngle = result[1]
         
         if drawType == "bracket" or drawType == "pipe":
