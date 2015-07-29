@@ -40,7 +40,7 @@ namespace stdr_server {
       double res;
       int negate;
       double occ_th, free_th;
-      std::string frame_id = "map";
+      std::string frame_id = "world";
           
     #ifdef HAVE_NEW_YAMLCPP
       // The document loading process changed in yaml-cpp 0.5.

@@ -1,33 +1,24 @@
 <launch>
      
        <!-- For 2D simulation -->
-        <include file="$(find stdr_robot)/launch/robot_manager.launch" />
-	
-	<!--<node type="stdr_server_node" pkg="stdr_server" name="stdr_server" output="screen" args="$(find stdr_resources)/maps/sparse_obstacles.yaml"/>-->
-	
+        <include file="$(find stdr_robot)/launch/robot_manager.launch"/>
+        <node pkg="tf" type="static_transform_publisher" name="map2world" args="0 0 0 0 0 0  map world 0" />
         
-      <node type="stdr_server_node" pkg="stdr_server" name="stdr_server" output="screen" args="$(env HOME)/catkin_ws/maps/last_map.yaml"/>
-        
+     <node type="stdr_server_node" pkg="stdr_server" name="stdr_server" output="screen" args="$(env HOME)/catkin_ws/maps/last_map.yaml"> 
+      	          <!--  <remap from="world" to="map"/>-->
+      	           <!--  <remap from="map_static" to="robot01/odom"/>-->
+	</node>
 
-	<node pkg="tf" type="static_transform_publisher" name="world2map" args="0 0 0 0 0 0  world map 100" />
 
-        <!--<node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/neato.xml $(arg position)"/>-->
-        <node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/odroid.xml 7 7 2"/>
+
+	<!--<node pkg="tf" type="static_transform_publisher" name="world2map" args="0 0 0 0 0 0  world map 100" />-->
+
+ 
+<node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/odroid1.xml $(arg position)" />
 
 
         <node name="$(anon stdr_gui_node)" pkg="stdr_gui" type="stdr_gui_node"/>
 	
-	<!--Add a second robot on the visualisation-->
-	<!--Be careful do it into another launch file-->
-	<!--For a sample-->
-	
-	<!--<node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="add $(find stdr_resources)/resources/robots/odroid.xml $(arg position)"/>-->
-	
-	
-	
-	<!--Remove a robot from the visualisation-->
-	<!--robot=robot0-->
-	<!--<node name="stdr_robot" pkg="stdr_robot" type="robot_handler" args="delete $(arg robot)"/>-->
 
 
 </launch>

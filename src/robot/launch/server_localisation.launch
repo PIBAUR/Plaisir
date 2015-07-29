@@ -10,8 +10,8 @@
 		
 		<!--Overall filter parameters-->
 		<!--Minimum and maximumallowed number of particles. -->
-		<param name="min_particles" value="500"/>
-		<param name="max_particles" value="600"/>
+		<param name="min_particles" value="100"/>
+		<param name="max_particles" value="500"/>
 		
 		<!--Maximum error between the true distribution and the estimated distribution.--> 
 		<param name="kld_err" value="0.01"/>

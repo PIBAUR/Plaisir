@@ -1,12 +1,32 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <signal.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv){
     printf("=================================================\n");
     printf("====================START AMCL_SwITCHER================\n");
     printf("=================================================\n");
 
+    //add those following lines for the second robot and others
+
+    char *robot_id =NULL;
+    robot_id = malloc(argc * sizeof(char*));
+    if (argc != 2)
+      {
+        printf("Erreur read argument. \n");
+
+       }
+    else
+       {
+
+        printf("1er argument: %s\n", argv[1]);
+        //const char robot_id_chaine[] =(const char)*argv[1];
+
+
+       }
+    //*********************
+    char robot_arg[256];
     pid_t pid1;
     pid_t pid2;
     pid_t pid3;
@@ -22,9 +42,8 @@ int main(int argc, char **argv){
             printf("=================================================\n");
             printf("===========READ AMCL_POSE=============\n");
             printf("=================================================\n");
-            char robot_arg[256];
-            snprintf(robot_arg, sizeof robot_arg, "robot:=%s", argv[1]);
             execlp("rosrun", "rosrun", "amcl_test", "__init__.py", NULL);
+
             while(1){
                 printf("fils 1 running...\n");
                 sleep(10);
@@ -43,7 +62,9 @@ int main(int argc, char **argv){
                     printf("=================================================\n");
                     printf("==========LAUNCH NEW AMCL_PARAM==============\n");
                     printf("=================================================\n");
-                    execlp("roslaunch", "roslaunch", "robot", "server_localisation_switched.launch", "robot:=01", NULL);
+                    snprintf(robot_arg, sizeof robot_arg, "robot:=%s", argv[1]);
+                    //printf("1er argument: %s\n",robot_arg);
+                    execlp("roslaunch", "roslaunch", "robot", "server_localisation_switched.launch", robot_arg, NULL);
                     while(1){
                         printf("fils 2 running...\n");
                         sleep(10);
@@ -66,8 +87,9 @@ int main(int argc, char **argv){
                             printf("=================================================\n");
                             printf("==========TRIGGER PUBLISH INIT POSE========\n");
                             printf("=================================================\n");
-
-                            execlp("rostopic", "rostopic", "pub", "robot01/publish_trigger", "std_msgs/Bool",
+                            snprintf(robot_arg, sizeof robot_arg, "robot%s/publish_trigger", argv[1]);
+                            //printf("2eme argument: %s\n",robot_arg);
+                            execlp("rostopic", "rostopic", "pub", robot_arg, "std_msgs/Bool",
                             		"true", NULL);
                             printf("fils 3 running...\n");
                             while(1){

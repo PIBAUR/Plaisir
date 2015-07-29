@@ -31,13 +31,14 @@ initialpose_msg.pose.pose.orientation.w = 1
 
 def poseCallback(msg):
     rospy.loginfo("in CB")
+    #print("in CB")
     initialpose_msg.pose = PoseWithCovariance()
     initialpose_msg.pose.pose = msg.pose.pose
 
 def publishTriggerCallback(msg):
     
     rospy.loginfo(initialpose_msg)
-    
+    print("Trigger")
     rospy.loginfo(initialpose_msg.header)
     rospy.loginfo(initialpose_msg.pose)
     rospy.loginfo(initialpose_msg.pose.pose)
@@ -48,7 +49,7 @@ def publishTriggerCallback(msg):
     
 if __name__ == '__main__':
     
-    print("ok")
+    #print("ok")
     rospy.Subscriber("/amcl_pose", PoseWithCovarianceStamped, poseCallback)
     rospy.Subscriber("/robot01/publish_trigger", Bool, publishTriggerCallback)
     

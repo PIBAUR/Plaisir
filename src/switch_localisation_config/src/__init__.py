@@ -11,7 +11,10 @@ def execute():
 	rospy.init_node('execute',anonymous=True)
 	time.sleep(10)
 	#while not rospy.is_shutdown():
-	os.system("cd ~/catkin_ws/bin/ && ./amcl_switcher")
+	if rospy.get_param("tf_prefix"):
+		prefix=rospy.get_param("tf_prefix")
+	#print("cd ~/catkin_ws/bin/ && ./amcl_switcher "+prefix[-2]+prefix[-1])
+	os.system("cd ~/catkin_ws/bin/ && ./amcl_switcher "+prefix[-2]+prefix[-1])
 	
 	
 
