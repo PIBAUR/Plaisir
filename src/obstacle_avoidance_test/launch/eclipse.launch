@@ -1,0 +1,13 @@
+<launch>
+   <arg name="robot"/>
+  <!-- start the laser filter : change the range parameter in the file name /catkin_ws/params/my_laser_config.yaml-->
+    <include file="$(find obstacle_avoidance_test)/launch/my_laser_filter.launch"/>
+  
+  <param name="tf_prefix3" value="robot$(arg robot)"/>
+  <!-- start local_obstacles node -->
+  <node pkg="obstacle_avoidance_test" type="local_obstacles_node" name="local_obstacles" output="screen">
+	<remap from="scan_filtered" to="robot$(arg robot)/scan_filtered"/>
+	<remap from="amcl_pose_bis" to="robot$(arg robot)/amcl_pose_bis"/>
+  </node>
+  
+</launch>
