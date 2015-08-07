@@ -6,6 +6,7 @@
 		<!-- remap for namespace -->
 		<remap from="scan" to="/robot$(arg robot)/scan"/>
 		<remap from="initialpose" to="/robot$(arg robot)/initialpose"/>
+		<remap from="robot01/scan" to="/scan"/>
 		
 		
 		<!--Overall filter parameters-->
@@ -22,9 +23,11 @@
 		
 		<!--Translational movement and Rotational movement required before
 		performing a filter update.-->
+		 
 		<param name="update_min_d" value="-0.10"/>
 		<param name="update_min_a" value="-0.30"/>
-		
+		 
+		 
 		<!--Number of filter updates required before resampling.-->
 		<param name="resample_interval" value="5"/>
 		
@@ -40,7 +43,9 @@
 		
 		<!--Initial pose mean (x), (y) and (yaw), used to initialize filter with 
 		Gaussian distribution. Load from yaml file.-->    
-		<rosparam command="load" file="$(env HOME)/catkin_ws/params/amcl_start_pose.yaml"/>
+		<!-- ------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+		<!-- |||| A Modifier en fonction de la position en mètres du robot N % au robot01 -->
+		<rosparam command="load" file="$(env HOME)/catkin_ws/params/amcl_start_pose_20.yaml"/>
 		
 		<!--Initial pose covariance (x*x), (y*y) and (yaw*yaw) used to initialize 
 		filter with Gaussian distribution. -->

@@ -1,0 +1,3 @@
+geometry_msgs/Pose2D target
+---
+scenario_msgs/Pose2DArray path

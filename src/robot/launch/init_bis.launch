@@ -29,18 +29,18 @@
 		</include>
 	
 		<!-- SCENARIO -->
-		<node name="robot_manager" pkg="robot" type="__init__.py" machine="robot$(arg robot)" respawn="false">
-			<!--<remap from="scenario" to="robot$(arg robot)/scenario"/>-->
+		<node name="robot_manager" pkg="robot" type="__init__.py" machine="robot$(arg robot)" >
+			<remap from="scenario" to="robot$(arg robot)/scenario"/>
 		</node>
-		<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py" machine="robot$(arg robot)" respawn="false">
+		<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py" machine="robot$(arg robot)" >
 			<remap from="scenario" to="robot$(arg robot)/scenario"/>
 		</node>
 		<env name="DISPLAY" value=":0"/>
 		<!--<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)" respawn="true"/>-->
 		
 		<!-- MOVING AND OBSTACLES -->
-		<node name="path_follower" pkg="path_follower" type="path_follower_node" machine="robot$(arg robot)" respawn="false"/>
-		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node" machine="robot$(arg robot)" respawn="false">
+		<node name="path_follower" pkg="path_follower" type="path_follower_node" machine="robot$(arg robot)"/>
+		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node" machine="robot$(arg robot)" >
 			<remap from="scan" to="/robot$(arg robot)/scan"/> 
 	</node>
 
@@ -55,7 +55,7 @@
 	
 	<!-- MAPPING -->
 	<node name="map_server" type="map_server" pkg="map_server" args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" output="screen"/>
-	<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="false"/>
+	<!--  <node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="false"/> -->
 	
 	<include file="$(find robot)/launch/server_localisation.launch">
 		<arg name="robot" value="$(arg robot)"/> 
@@ -73,13 +73,13 @@
 
      <!-- SECOND LOCALISATION PARAMETERS CONFIG -->
       	<!-- always at the end of the launch file -->
-        <param name="tf_prefix2" value="robot$(arg robot)"/>
+        <!-- <param name="tf_prefix2" value="robot$(arg robot)"/>
     	<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init2__.py" output="screen" args="-sever-debug" >
-        </node>
+        </node> -->
         
    	    <!-- SIMULATION ENVIRONMENT -->
     	<!-- VISUALISATION first robot -->
-       <include file="$(find robot_visualisation)/launch/run.launch">
+         <include file="$(find robot_visualisation)/launch/run.launch">
 			<arg name="robot" value="$(arg robot)"/> 
 	
 		</include>
