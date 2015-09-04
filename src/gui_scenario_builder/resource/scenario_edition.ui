@@ -519,22 +519,6 @@
                  </property>
                 </widget>
                </item>
-               <item>
-                <widget class="QSlider" name="zoomCanvas_slider">
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>20</number>
-                 </property>
-                 <property name="value">
-                  <number>5</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
               </layout>
              </item>
              <item>
@@ -548,7 +532,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>604</width>
-                  <height>448</height>
+                  <height>450</height>
                  </rect>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_4"/>

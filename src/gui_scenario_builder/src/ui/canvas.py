@@ -46,8 +46,6 @@ class Canvas(QWidget):
         Canvas.targetOutlinePen.setCapStyle(Qt.SquareCap)
         Canvas.targetOutlinePen.setWidth(1)
         
-        self.ui.zoomCanvas_slider.valueChanged.connect(self.handleZoomSliderValueChanged)
-        
         self.updateBounds()
         
         # vars
@@ -106,10 +104,10 @@ class Canvas(QWidget):
             mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
             
             # zoom transform
+            mouseX -= self.canvasTranslateX
+            mouseY -= self.canvasTranslateY
             mouseX /= self.canvasZoom
             mouseY /= self.canvasZoom
-            mouseX += self.canvasTranslateX
-            mouseY += self.canvasTranslateY
             
             # get item under the mouse (= clicked item)
             distanceTargetMouse = math.sqrt(math.pow(mouseX - self.main.currentScenario.targetPosition[0], 2) + math.pow(mouseY - self.main.currentScenario.targetPosition[1], 2))
@@ -117,7 +115,7 @@ class Canvas(QWidget):
                 self.targetDragging = True
             else:
                 for point in self.currentRobot.points:
-                    itemUnderMouseResult = point.getItemUnderMouse(event.x(), event.y())
+                    itemUnderMouseResult = point.getItemUnderMouse(mouseX, mouseY)
                     if itemUnderMouseResult is not None:
                         self.currentItem = itemUnderMouseResult[0]
                         self.currentPoint = itemUnderMouseResult[1]
@@ -181,10 +179,10 @@ class Canvas(QWidget):
         mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
         
         # zoom transform
+        mouseX -= self.canvasTranslateX
+        mouseY -= self.canvasTranslateY
         mouseX /= self.canvasZoom
         mouseY /= self.canvasZoom
-        mouseX -= self.canvasTranslateX
-        mouseY -= self.canvasTranslateX
         
         if self.canvasMoving:
             self.canvasTranslateX += event.x() - self.canvasMovingOriginX
@@ -236,16 +234,6 @@ class Canvas(QWidget):
             self.canvasZoom = .3
         
     
-    def handleZoomSliderValueChanged(self, value):
-        self.canvasZoom = float(value)
-        
-        self.updateBounds()
-        
-        
-    def setGridSize(self, gridSize):
-        return self.ui.zoomCanvas_slider.setValue(float(gridSize) / 10.0)
-        
-        
     def getGridSize(self):
         return 10
         
@@ -253,8 +241,8 @@ class Canvas(QWidget):
     def addSnapToGrid(self, mouseX, mouseY):
         if self.ui.snapToGrid_button.isChecked():
             gridSize = self.getGridSize()
-            mouseX = round(mouseX / gridSize) * gridSize
-            mouseY = round(mouseY / gridSize) * gridSize
+            mouseX = (round(mouseX / gridSize) * gridSize)#TODO: GRID AVEC LE SCALE toussa / 
+            mouseY = (round(mouseY / gridSize) * gridSize)# / 
         
         if mouseX < 0:
             mouseX = 0

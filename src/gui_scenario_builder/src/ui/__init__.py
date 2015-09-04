@@ -183,7 +183,6 @@ class ScenarioEdition():
         
         self.currentScenario = scenario
         self.setAttributes(scenario.getAttributes())
-        self.canvas.setGridSize(self.currentScenario.gridSize)
         self.canvas.currentRobot = self.currentScenario.robots[0]
         
         # update
