@@ -307,7 +307,7 @@ class DiagramNode(object):
     def createInstanceFromData(canvas, nodeData):
         nodeClass = eval(nodeData["class"])
         position = QPoint(nodeData["position"][0], nodeData["position"][1]) + (canvas.mapToGlobal(QPoint(canvas.pos())) - canvas.mapToGlobal(QPoint()))
-        nodeInstance = nodeClass(canvas.ui.canvasContainer, canvas, position)
+        nodeInstance = nodeClass(nodeData["id"], canvas.ui.canvasContainer, canvas, position)
         nodeInstance.id = nodeData["id"]
         while len(nodeInstance.getInputsWidgets()) < len(nodeData["links"]):
             nodeInstance.addEmptyInput()

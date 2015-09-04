@@ -19,7 +19,6 @@ def callback(data):
     map_pose.info.origin.position=data.info.origin.position
     #map_pose.info.origin.position.y=data.info.origin.position.y
     map_pose.info.origin.orientation=data.info.origin.orientation
-    
 
 def execute():
     rospy.init_node('execute',anonymous=True)
@@ -60,11 +59,14 @@ def execute():
     print(position) 
     if prefix=="robot01":
         #os.system("roslaunch robot_visualisation delete_robot.launch robot:=robot0")
-        os.system("roslaunch robot_visualisation visualisation_environment.launch position:="+"\"" + " ".join([str(item) for item in position[0:3]])+"\"")            
+        os.system("roslaunch robot_visualisation visualisation_environment.launch position:="+"\"" + " ".join([str(item) for item in position[0:3]])+"\"") 
+                   
     
-    if prefix=="robot02" :
-        os.system("roslaunch robot_visualisation add_robot.launch position:="+"\"" + " ".join([str(item) for item in position[0:3]])+"\"")
-    
+    if prefix!="robot01" :
+        if prefix=="robot02" :
+            os.system("roslaunch robot_visualisation add_robot.launch position:="+"\"" + " ".join([str(item) for item in position[0:3]])+"\"")
+        else:
+            os.system("roslaunch robot_visualisation delete_robot.launch position:="+"\"" + " ".join([str(item) for item in position[0:3]])+"\"")
         
         
 if __name__=='__main__':
