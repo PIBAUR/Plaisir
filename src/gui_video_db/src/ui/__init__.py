@@ -26,31 +26,19 @@ class VideoDatabase():
         
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_video_db'), 'resource', 'video_db.ui')
-            self.videosPath = rospy.get_param("server_videos_path")
-            self.thumbsPath = rospy.get_param("server_thumbs_path")
+            self.videosBasePath = "/home/artlab/Bureau/films_notre_bon_plaisir"
             self.monitorScreenWidthRatio = rospy.get_param("monitor_screen_width_ratio")
             self.monitorScreenHeightRatio = rospy.get_param("monitor_screen_height_ratio")
         except Exception:
             ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_video_db/resource/video_db.ui"
-            self.videosPath = os.path.expanduser("~") + "/.notrebonplaisir/videos"
-            self.thumbsPath = os.path.expanduser("~") + "/.notrebonplaisir/thumbs"
+            self.videosBasePath = "/home/artlab/Bureau/films_notre_bon_plaisir"
             self.monitorScreenWidthRatio = 16
             self.monitorScreenHeightRatio = 10
-        self.dbPath = self.videosPath + "/video_db.json"
         
         # path
-        if not os.path.exists(self.videosPath):
-            os.makedirs(self.videosPath)
-        if not os.path.exists(self.thumbsPath):
-            os.makedirs(self.thumbsPath)
+        if not os.path.exists(self.videosBasePath):
+            os.makedirs(self.videosBasePath)
             
-        if os.path.exists(self.dbPath):
-            self.dbVideo = json.load(open(self.dbPath))
-        else:
-            # initialize new db file
-            self.dbVideo = []
-            self.dumpDbVideo()
-        
         # load ui
         self.ui = uic.loadUi(ui_file)
         
@@ -58,9 +46,8 @@ class VideoDatabase():
         if self.importCallback is not None:
             self.ui.setWindowTitle(u"Importer une vidéo")
         
-        self.ui.video_db_table.itemChanged.connect(self.handleTableItemChanged)
         self.ui.video_db_table.verticalHeader().setVisible(False)
-        columns = [("Nom", 160), (u"Catégorie", 160), (u"Position de début", 160), (u"Position de fin", 160), (u"Miniatures", 150), ("Action", 80)]
+        columns = [("Nom", 160), (u"Catégorie", 160), (u"Position de début", 160), (u"Position de fin", 160), ("Action", 80)]
         for i in range(len(columns)):
             self.ui.video_db_table.insertColumn(i)
             self.ui.video_db_table.setColumnWidth(i, columns[i][1])
@@ -68,8 +55,6 @@ class VideoDatabase():
         self.ui.video_db_table.horizontalHeader().setStretchLastSection(True)
         self.ui.video_db_table.horizontalHeader().sectionResized.connect(self.handleColumnResized)
         self.ui.video_db_table.verticalHeader().setMovable(True)
-        
-        self.ui.newVideo_button.clicked.connect(self.handleNewVideoClicked)
         
         self.initTable()
         self.acceptTableItemChanged = True
@@ -120,6 +105,38 @@ class VideoDatabase():
         startPositionFilterValue = self.startPositionFilterLineEdit.text()
         endPositionFilterValue = self.endPositionFilterLineEdit.text()
         
+        # get videos
+        self.dbVideo = []
+        for videosDir in sorted(os.listdir(self.videosBasePath)):
+            videosDirPath = os.path.join(self.videosBasePath, videosDir)
+            if os.path.isdir(videosDirPath):
+                for videoFile in sorted(os.listdir(os.path.join(self.videosBasePath, videosDir))):
+                    videoFilePath = os.path.join(self.videosBasePath, videoFile)
+                    if os.path.isfile(videoFilePath) and videoFile.split(".")[-1] == "mp4":
+                        videoFileName = ".".join(videoFile.split(".")[:-1])
+                        splittedVideoFileName = videoFileName.split("-")
+                        video = {}
+                        video["path"] = videoFilePath
+                        video["category"] = splittedVideoFileName[-2]
+                        video["name"] = "-".join(splittedVideoFileName[:-3])
+                        video["startPosition"] = splittedVideoFileName[-3]
+                        video["endPosition"] = splittedVideoFileName[-1]
+                        
+                        # eventually create thumbs
+                        """startThumbFile = videoFileName + "_start_thumb.png"
+                        endThumbFile = videoFileName + "_end_thumb.png"
+                        startThumbPath = os.path.join(videosDirPath, startThumbFile)
+                        endThumbPath = os.path.join(videosDirPath, endThumbFile)
+                        if not os.path.exists(startThumbPath):
+                            os.system("ffmpeg -i " + videoFilePath + " -v quiet -vf \"select='eq(n, " + str(0) + ")'\" -vframes 1 " + startThumbPath)
+                        video["startThumbFile"] = startThumbPath
+                        if not os.path.exists(endThumbPath):
+                            numberFrames = Media.getNumberFramesOfVideo(videoFilePath)
+                            os.system("ffmpeg -i " + videoFilePath + " -v quiet -vf \"select='eq(n, " + str(numberFrames - 1) + ")'\" -vframes 1 " + endThumbPath)
+                        video["endThumbFile"] = endThumbPath
+                        """
+                        self.dbVideo.append(video)
+        
         for video in self.dbVideo:
             # filter attributes
             if video["name"].startswith(str(nameFilterValue.toUtf8()).decode("utf-8")) and video["category"].startswith(str(categoryFilterValue.toUtf8()).decode("utf-8")) and video["startPosition"].startswith(str(startPositionFilterValue.toUtf8()).decode("utf-8")) and video["endPosition"].startswith(str(endPositionFilterValue.toUtf8()).decode("utf-8")):
@@ -144,16 +161,17 @@ class VideoDatabase():
             self.ui.video_db_table.setItem(index, i, item)
             i += 1
         
-        thumbsWidget = QWidget()
+        """thumbsWidget = QWidget()
         thumbsWidget.setLayout(QHBoxLayout())
         thumbsWidget.setContentsMargins(0, -10, 0, -10)
         startImageWidget = QWidget()
-        startImageWidget.setStyleSheet("border-image: url('" + os.path.join(self.thumbsPath, video["startThumbFile"]) + "') 0 0 0 0 stretch stretch;")
+        startImageWidget.setStyleSheet("border-image: url('" + video["startThumbFile"] + "') 0 0 0 0 stretch stretch;")
         thumbsWidget.layout().addWidget(startImageWidget)
         endImageWidget = QWidget()
-        endImageWidget.setStyleSheet("border-image: url('" + os.path.join(self.thumbsPath, video["endThumbFile"]) + "') 0 0 0 0 stretch stretch;")
+        endImageWidget.setStyleSheet("border-image: url('" + video["endThumbFile"] + "') 0 0 0 0 stretch stretch;")
         thumbsWidget.layout().addWidget(endImageWidget)
         self.ui.video_db_table.setCellWidget(index, 4, thumbsWidget)
+        """
         
         # add buttons for action
         actionButtonsContainer = QWidget()
@@ -164,14 +182,11 @@ class VideoDatabase():
             importButton.clicked.connect(partial(self.handleImportButtonClicked, index))
             actionButtonsContainer.layout().addWidget(importButton)
         else:
-            deleteButton = QPushButton(u"Supprimer")
-            deleteButton.clicked.connect(partial(self.handleDeleteButtonClicked, index))
             playButton = QPushButton(u"Lire")
             playButton.clicked.connect(partial(self.handlePlayButtonClicked, index))
-            actionButtonsContainer.layout().addWidget(deleteButton)
             actionButtonsContainer.layout().addWidget(playButton)
             
-        self.ui.video_db_table.setCellWidget(index, 5, actionButtonsContainer)
+        self.ui.video_db_table.setCellWidget(index, 4, actionButtonsContainer)
         
         self.acceptTableItemChanged = False
 
@@ -220,60 +235,6 @@ class VideoDatabase():
             self.ui.video_db_table.setRowHeight(i, rowHeight)
         
         
-    def handleNewVideoClicked(self, event):
-        newName = str(self.ui.newVideoName_lineEdit.text().toUtf8()).decode("utf-8")
-        newCategory = str(self.ui.newVideoCategory_lineEdit.text().toUtf8()).decode("utf-8")
-        newStartPosition = str(self.ui.newVideoStartPosition_lineEdit.text().toUtf8()).decode("utf-8")
-        newEndPosition = str(self.ui.newVideoEndPosition_lineEdit.text().toUtf8()).decode("utf-8")
-        
-        filePaths = QFileDialog.getOpenFileNames(self.ui, u"Ajouter un média", os.path.expanduser("~"), u"Vidéos: *.mp4, *.mov (*.mov *.mp4)")
-        for filePath in filePaths:
-            filePath = str(filePath.toUtf8())
-            extension = filePath.split(".")[-1]
-            # new video path
-            newVideoName = str(time.time()).replace(".", "") + "_" + str(len(os.listdir(self.videosPath)))
-            newVideoPath = os.path.join(self.videosPath, newVideoName) + "." + extension
-            # copy file
-            shutil.copyfile(filePath, newVideoPath)
-            # make thumbs
-            numberFrames = Media.getNumberFramesOfVideo(newVideoPath)
-            
-            startThumbFile = newVideoName + "_start.png"
-            endThumbFile = newVideoName + "_end.png"
-            os.system("ffmpeg -i " + newVideoPath + " -v quiet -vf \"select='eq(n, " + str(0) + ")'\" -vframes 1 " + os.path.join(self.thumbsPath, startThumbFile))
-            os.system("ffmpeg -i " + newVideoPath + " -v quiet -vf \"select='eq(n, " + str(numberFrames - 1) + ")'\" -vframes 1 " + os.path.join(self.thumbsPath, endThumbFile))
-            # data
-            newVideo = {"name": newName, "category": newCategory, "startPosition": newStartPosition, "endPosition": newEndPosition, "path": newVideoPath, "startThumbFile": startThumbFile, "endThumbFile": endThumbFile}
-            self.dbVideo.append(newVideo)
-            
-        self.dumpDbVideo()
-        self.populateTable()
-        
-    
-    def handleTableCurrentItemChanged(self, item):
-        self.current
-        
-        
-    def handleTableItemChanged(self, item):
-        if self.acceptTableItemChanged:
-            self.acceptTableItemChanged = False
-            
-            # get the video path (as id)
-            index = self.ui.video_db_table.indexFromItem(item)
-            videoPath = self.ui.video_db_table.item(index.row(), 0).videoPath
-            itemType = VideoDatabase.dataColumns[index.column()]
-            newName = str(item.text().toUtf8())
-            video = self.getVideoByVideoPath(videoPath)
-            oldName = video[itemType]
-            if itemType != "name" or newName != "":
-                video[itemType] = newName
-                self.dumpDbVideo()
-            else:
-                item.setText(oldName)
-                
-            self.acceptTableItemChanged = True
-                        
-        
     def handleImportButtonClicked(self, row):
         videoPath = self.ui.video_db_table.item(row, 0).videoPath
         
@@ -282,21 +243,6 @@ class VideoDatabase():
         self.ui.close()
                         
         
-    def handleDeleteButtonClicked(self, row):
-        videoPath = self.ui.video_db_table.item(row, 0).videoPath
-        video = self.getVideoByVideoPath(videoPath)
-        
-        # remove files
-        os.remove(videoPath)
-        os.remove(os.path.join(self.thumbsPath, video["startThumbFile"]))
-        os.remove(os.path.join(self.thumbsPath, video["endThumbFile"]))
-        # remove data
-        self.dbVideo.remove(video)
-        
-        self.dumpDbVideo()
-        self.populateTable()
-        
-    
     def handlePlayButtonClicked(self, row):
         videoPath = self.ui.video_db_table.item(row, 0).videoPath
         subprocess.Popen(['/usr/bin/totem', videoPath])
