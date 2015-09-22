@@ -4,15 +4,11 @@
 	
 	<param name="tf_prefix" value="robot$(arg robot)"/>
 	
-	<arg name="map" value="last_map"/>
-  	 
-
-     <node pkg="tf" type="static_transform_publisher" name="odom_to_map" args="0.5 0 0 0 0 0 /map robot$(arg robot)/odom 20"/>
-      <node pkg="tf" type="static_transform_publisher" name="base_to_odom" args="0 0.5 0 0 0 3 robot$(arg robot)/odom robot$(arg robot)/base_link 20"/>
+	   	 <rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
       
-      	<!--  <node name="map_server" pkg="map_server" type="map_server" args="$(env HOME)/catkin_ws/maps/(arg map).yaml"/>-->
-      
+     <!--  <node pkg="tf" type="static_transform_publisher" name="base_to_odom$(arg robot)" args="0 0 0 0 0 0 robot$(arg robot)/odom robot$(arg robot)/base_link 20" respawn="false" />-->
+        
         <node name="robot_visualisation" pkg="robot_visualisation" type="__init__.py" output="screen"/>
 
-</launch>
 
+</launch>
