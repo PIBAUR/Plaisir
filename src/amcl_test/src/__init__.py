@@ -16,7 +16,8 @@ from std_msgs.msg import Header
 from std_msgs.msg import Bool
 
 rospy.init_node('amcl_init_pose', anonymous = True)
-pub_pose = rospy.Publisher('/robot01/initialpose_bis',PoseWithCovarianceStamped)
+#pub_pose = rospy.Publisher('/robot01/initialpose_bis',PoseWithCovarianceStamped)
+pub_pose = rospy.Publisher('/initialpose_bis',PoseWithCovarianceStamped)
 initialpose_msg = PoseWithCovarianceStamped()
 initialpose_msg.header.frame_id = "/map"
 initialpose_msg.pose.pose.position.x =1
@@ -51,7 +52,8 @@ if __name__ == '__main__':
     
     #print("ok")
     rospy.Subscriber("/amcl_pose", PoseWithCovarianceStamped, poseCallback)
-    rospy.Subscriber("/robot01/publish_trigger", Bool, publishTriggerCallback)
+    #rospy.Subscriber("/robot01/publish_trigger", Bool, publishTriggerCallback)
+    rospy.Subscriber("/publish_trigger", Bool, publishTriggerCallback)
     
     
     while not rospy.is_shutdown():

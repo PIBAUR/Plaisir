@@ -1,7 +1,7 @@
 <launch>
 	<arg name="robot"/>
 	
-	<param name="tf_prefix" value="robot$(arg robot)"/>
+	<!--<param name="tf_prefix" value="robot$(arg robot)"/>-->
 	
 	<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
 		env-loader="/home/odroid/catkin_ws/devel/env.sh"/>

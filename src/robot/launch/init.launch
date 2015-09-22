@@ -1,4 +1,4 @@
-<launch> 
+<launch>
 	<arg name="map" value="last_map"/>
 	
 	<!-- Setting and loading params and args -->
@@ -55,15 +55,15 @@
 
      <!-- SECOND LOCALISATION PARAMETERS CONFIG -->
       	<!-- always at the end of the launch file -->
-    	<!-- <node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" args="-sever-debug" >
-        </node> -->
+    	<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" args="-sever-debug" >
+        </node>
         
     <!-- SIMULATION ENVIRONMENT -->
-    <!-- <include file="$(find robot_visualisation)/launch/visualisation_environment.launch"/>
+    <!--<include file="$(find robot_visualisation)/launch/visualisation_environment.launch"/>
 
 	<include file="$(find robot_visualisation)/launch/run.launch">
 		<arg name="robot" value="$(arg robot)"/> 
-	</include> -->
+	</include>-->
 
  
 </launch>
