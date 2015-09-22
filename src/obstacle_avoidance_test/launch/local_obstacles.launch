@@ -9,4 +9,5 @@
 	<remap from="scan_filtered" to="robot$(arg robot)/scan_filtered"/>
 	<remap from="amcl_pose_bis" to="robot$(arg robot)/amcl_pose_bis"/>
   </node>
+  
 </launch>
