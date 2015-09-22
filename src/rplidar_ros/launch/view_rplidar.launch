@@ -6,7 +6,5 @@
 <launch>
   <include file="$(find rplidar_ros)/launch/rplidar.launch" />
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rplidar_ros)/rviz/rplidar.rviz">
-      <remap from="scan" to="base_scan"/>
-  </node> 
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rplidar_ros)/rviz/rplidar.rviz" />
 </launch>
