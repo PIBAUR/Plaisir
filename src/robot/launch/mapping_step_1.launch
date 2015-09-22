@@ -9,10 +9,11 @@
 		env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
 	
 	<node pkg="tf" type="static_transform_publisher" name="laser_to_base" machine="robot$(arg robot)" respawn="true" 
-		args="-0.080 0 0.045 3.14159265359 0 0 base_link base_laser_link 20"/>
+		args="-0.080 0 0.045  0 0 3.14159265359 base_link base_laser_link 20"/>
 	<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
 	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true"/>
 	
 	<node name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(env HOME)/catkin_ws/params/default$(arg robot).rviz"/>
+	<node name="rqt" pkg="rqt_gui" type="rqt_gui" respawn="false"/>
 </launch>
 

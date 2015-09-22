@@ -15,7 +15,7 @@
 	 <node name="qt_bezier_sender" pkg="gui_controller" type="__init__.py" machine="artlab"/>
 	 -->
 	  
-	<node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.100 0 0.045 0 0 0 base_link base_laser_link 20" machine="neato" />
+	<node pkg="tf" type="static_transform_publisher" name="laser_to_base" args="-0.080 0 0.045  0 0 3.14159265359 base_link base_laser_link 20" machine="neato" />
 	<node pkg="tf" type="static_transform_publisher" name="odom_to_map" args="0 0 0 0 0 0 map odom 20" machine="neato" />
 	
 	<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="neato" />

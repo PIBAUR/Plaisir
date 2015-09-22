@@ -4,7 +4,7 @@
    <rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
   
   <node pkg="tf" type="static_transform_publisher" name="laser_to_base" 
-    args="-0.100 0 0.045 3.14 0 0 base_link base_laser_link 100"/>
+    args="-0.080 0 0.045  0 0 3.14159265359 base_link base_laser_link 100"/>
 
   <node name="MD25" pkg="md25" type="md25_node" output="screen">
   </node>
