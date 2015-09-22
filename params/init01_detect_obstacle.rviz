@@ -152,7 +152,7 @@ Visualization Manager:
       Value: true
     - Arrow Length: 0.05
       Class: rviz/PoseArray
-      Color: 255; 0; 127
+      Color: 0; 0; 127
       Enabled: true
       Name: Path
       Topic: /robot01/path_viz
@@ -270,5 +270,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1199
-  X: 749
+  X: 712
   Y: 24
