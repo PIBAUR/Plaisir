@@ -11,7 +11,7 @@ void PathFinding::computeTF(std::string robot_id)
 
     try
     {  
-        tf_listener_.lookupTransform("/map", robot_id + "/base_link", ros::Time(0), tf_robot); /***/
+		tf_listener_.lookupTransform("/map", robot_id + "/base_link", ros::Time(0), tf_robot); /***/
         //tf_listener_.lookupTransform("/map", "robot02/base_link", ros::Time(0), tf_robot);
 
     }

@@ -2,7 +2,7 @@
 	<!-- AMCL-->
 	<node pkg="amcl" type="amcl" name="amcl" output="screen" respawn="true">
 		<!-- remap for namespace -->>
-		<!--<remap from="scan" to="/robot$(arg robot)/scan"/>  -->
+		<remap from="scan" to="/robot$(arg robot)/scan"/>
 		<remap from="initialpose" to="/robot$(arg robot)/initialpose_bis"/>
 		<remap from="amcl_pose" to="/robot$(arg robot)/amcl_pose_bis"/>
 		

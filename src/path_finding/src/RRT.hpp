@@ -79,12 +79,10 @@ bool is_in_map2(int xTemp,int yTemp,int map_size, int x, int y){
 
 bool pixel_test(Node& u, cv::Mat &map, int mode, int largeur_robot,int distance_detection){
 
- int y_val=0;
- int x_val=0;
  int R=largeur_robot;
  int xTemp =  u.x - R;
  int yTemp = u.y - R;
- int obstacle_distance= R + distance_detection;
+ int obstacle_distance= 2*R + distance_detection;
  if(mode == 0){
  // Round of all the square
  for(int i=0;i<obstacle_distance;++i) //look up obstacle around the robot situated at distance_detection from robot
@@ -96,11 +94,11 @@ bool pixel_test(Node& u, cv::Mat &map, int mode, int largeur_robot,int distance_
         if(is_in_map2(xTemp,yTemp,map.cols,i,j)){
   		    cv::Scalar h = 0;
             h=(int) map.at<uchar>(yTemp + j,xTemp+i);
-   		    //if(h[0] < 254)
-  		      //return false;
-            if(h[0] >= 254)
+   		    if(h[0] < 254)
+  		      return false;
+            /*if(h[0] >= 254)
                 return true;
-            else return false;
+            else return false;*/
         }
   		  
   		}
@@ -201,6 +199,7 @@ bool _collision_with_object(Node* qNew, Node* qNear, cv::Mat &map,int largeur_ro
   Node n1;
   n1.x = qNear->x + u.x*(delta/normU);
   n1.y = qNear->y + u.y*(delta/normU);
+  //collision test with mode=0 (a square around the robot)
   if (!pixel_test(n1, map, mode,largeur_robot,distance_detection))
    return false;
   // Choice of the collision mode depends on the desired direction 

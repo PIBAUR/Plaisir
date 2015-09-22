@@ -14,7 +14,7 @@
 	
 	
 	<node pkg="tf" type="static_transform_publisher" name="laser_to_base" machine="robot$(arg robot)" respawn="true" 
-		args="-0.080 0 0.045 3.14159265359 0 0 base_link base_laser_link 20"/>
+		args="-0.080 0 0.045  0 0 3.14159265359 base_link base_laser_link 20"/>
 		
 	<!-- HARDWARE -->
 	<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
@@ -23,8 +23,7 @@
 		
 	
 	<!-- MAPPING -->
-	<node name="map_server" type="map_server" pkg="map_server" args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" output="screen"/>
-	<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="true"/>
+		<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="true"/>
 	
 	<include file="$(find robot)/launch/server_localisation.launch">
 		<arg name="robot" value="$(arg robot)"/> 
