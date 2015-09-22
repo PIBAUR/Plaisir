@@ -1,4 +1,4 @@
-<launch> 
+<launch>
 	<arg name="map" value="last_map"/>
 	
 	<!-- Setting and loading params and args -->
@@ -33,8 +33,12 @@
 	<!--_____________SERVER_____________-->
 	
 	<!-- MAPPING -->
-	<node name="map_server" type="map_server" pkg="map_server" output="screen"
-		args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" respawn="true"/>
+	
+	
+	<!-- <node name="map_server" type="map_server" pkg="map_server" output="screen"
+		args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" respawn="true"/>-->
+		
+	<!-- Modify path-finding server for the second robot properties /robot02/base_link -->	
 	<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="true"/>
 	
 	<include file="$(find robot)/launch/server_localisation.launch">
@@ -46,26 +50,26 @@
 	<node pkg="topic_router" type="__init__.py" name="path_viz_pub" respawn="true"/>
 	
 	<!-- GUI TOOLS -->
-	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
+	<!--<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init$(arg robot).rviz"/>
 	<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>
-	</node>
+	</node>  -->
 
      <!-- SECOND LOCALISATION PARAMETERS CONFIG -->
       	<!-- always at the end of the launch file -->
-    	<!-- <node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" args="-sever-debug" >
-        </node> -->
+    	<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" args="-sever-debug" >
+        </node>
         
     <!-- SIMULATION ENVIRONMENT -->
-    <!-- <include file="$(find robot_visualisation)/launch/visualisation_environment.launch"/>
+    <!--<include file="$(find robot_visualisation)/launch/visualisation_environment.launch"/>  -->
 
 	<include file="$(find robot_visualisation)/launch/run.launch">
 		<arg name="robot" value="$(arg robot)"/> 
-	</include> -->
+	</include>
 
- 
+ dheg
 </launch>
 
 
