@@ -18,7 +18,7 @@ class BatteryStateNode(DiagramNode):
     hasOutput = 1
     
     def __init__(self, robotId, parent, canvas, position):
-        super(BatteryStateNode, self).__init__(parent, robotId, canvas, position)
+        super(BatteryStateNode, self).__init__(robotId, parent, canvas, position)
         
         #TODO: pourcentage ascendant et descendant
         #TODO: subscriber
