@@ -5,9 +5,5 @@
 	
 	<node name="gui_controller" pkg="gui_controller" type="__init__.py" output="screen">
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
-<<<<<<< HEAD
-=======
-		<!--remap from="robot$(arg robot)/cmd_vel" to="/robot0/cmd_vel"/ for visualisation -->
->>>>>>> branch 'master' of https://github.com/digitalarti/notre_bon_plaisir.git
 	</node>
 </launch>
