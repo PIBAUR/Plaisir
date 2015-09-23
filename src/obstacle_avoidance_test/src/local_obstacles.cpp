@@ -114,7 +114,7 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_in) {
   // create a grid cell message for obstacles
   nav_msgs::GridCells gco;
   gco.header.frame_id = "/map";
-  gco.header.stamp = ros::Time();
+  gco.header.stamp = ros::Time(0);
   gco.cell_width = RESOLUTION;
   gco.cell_height = RESOLUTION;
 
@@ -135,13 +135,13 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_in) {
 
   int nb = (scan_in->angle_max - scan_in->angle_min) /scan_in->angle_increment;
   std::cout<<"nb points dans scan"<<"  "<<nb<<std::endl;
-  for (int i = 105; i <225; i++) {
-  //for (int i = 60; i <225; i++) {
+  for (int i = 100; i <225; i++) {
+  //for (int i = 135; i <225; i++) {
     double range = scan_in->ranges[i];
-    std::cout<<"scan range"<<"  "<<scan_in->ranges[i]<<std::endl;
-    std::cout<<"angle min"<<"  "<<scan_in->angle_min<<std::endl;
-    std::cout<<"angle max"<<"  "<<scan_in->angle_max<<std::endl;
-     std::cout<<"increment"<<"  "<<scan_in->angle_increment<<std::endl;
+   // std::cout<<"scan range"<<"  "<<scan_in->ranges[i]<<std::endl;
+   // std::cout<<"angle min"<<"  "<<scan_in->angle_min<<std::endl;
+    //std::cout<<"angle max"<<"  "<<scan_in->angle_max<<std::endl;
+    // std::cout<<"increment"<<"  "<<scan_in->angle_increment<<std::endl;
     //find the point in base_laser_link frame corresponding to the scan
     closest_angle = ((double)i*scan_in->angle_increment)+scan_in->angle_min;
     std::cout<<"angle le plus proche"<<"  "<<closest_angle<<std::endl;
@@ -173,10 +173,13 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_in) {
 
     if(y_index<0) y_index=y_index+360; // Remove the seg fault about negative angles for the laser angle range. 
     if(x_index<0) x_index=x_index+360;
+    /*
     std::cout<<"X-Y laser origin in map A"<<x_o<<"  "<<y_o<<std::endl;
       std::cout<<"X-Y laser origin in map"<<x_o_index<<"  "<<y_o_index<<std::endl;
       std::cout<<"X-Y laser A"<<"  "<<x_l<<"  "<<y_l<<std::endl;
       std::cout<<"X-Y laser"<<"  "<<x_index<<"  "<<y_index<<std::endl;
+      std::cout<<"X-Y laser VAL ABS"<<"  "<<abs(x_index)<<"  "<<abs(y_index)<<std::endl;
+      */
      // ray-tracing
      if (x_index == x_o_index) {
      	// special case
@@ -210,13 +213,33 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_in) {
      //locate laser scan cells within a certain range
     // if ( (range < LASER_RANGE) && (range > 0.35)) {
     if ( (range!=7.0)) {
-		if (x_index >= 0 && x_index < SIZE && y_index >= 0 && x_index < SIZE) {
+        //if (x_index >= 0 && x_index < SIZE && y_index >= 0 && x_index < SIZE) {
+		//if (x_index >= 0 && x_index < SIZE && y_index >= 0 && y_index < SIZE) {
+		if (x_index >= 0 && x_index < SIZE && y_index < SIZE) {
 		    //std::cout<<"laser range"<<"  "<<range<<std::endl;
 		    //std::cout<<"laser range define"<<"  "<<LASER_RANGE<<std::endl;
 		    laser_x.push_back(x_index);
 		    laser_y.push_back(y_index);
-		      std::cout<<"ok4"<<std::endl;
+		      //std::cout<<"ok41"<<std::endl;
 		}
+			/*
+		if (x_index >= 0 && x_index < SIZE && y_index < 0 && x_index < SIZE){
+		//if (x_index < 0 && abs(x_index) < SIZE) {
+		    //std::cout<<"laser range"<<"  "<<range<<std::endl;
+		    std::cout<<"y_index"<<"  "<<y_index<<std::endl;
+		    laser_x.push_back(x_index);
+		    laser_y.push_back(y_index);
+		      std::cout<<"ok42"<<std::endl;
+		}
+	
+		if (y_index < 0 && abs(x_index) < SIZE) {
+		    //std::cout<<"laser range"<<"  "<<range<<std::endl;
+		    //std::cout<<"laser range define"<<"  "<<LASER_RANGE<<std::endl;
+		    laser_x.push_back(x_index);
+		    laser_y.push_back(y_index);
+		      std::cout<<"ok43"<<std::endl;
+		}
+		*/
 	}
   }
 
@@ -228,14 +251,15 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_in) {
         laser_x.pop_back();
 	laser_y.pop_back();
   }
-
+  std::cout<<"ok5"<<std::endl;
   // find obstacle cells to be put in the obstacle grid cell message
   vector<geometry_msgs::Point> obstaclerepo;
-  for (int i = x_o_index - WINDOW_SIZE / 2; i < x_o_index + WINDOW_SIZE / 2; i++) {
-	for (int j = y_o_index - WINDOW_SIZE / 2; j < y_o_index + WINDOW_SIZE / 2; j++) {
-    //for (int i = x_o_index - WINDOW_SIZE / 2; i < x_o_index + WINDOW_SIZE ; i++) {
-	//for (int j = y_o_index - WINDOW_SIZE / 2; j < y_o_index + WINDOW_SIZE ; j++) {
+    std::cout<<"X-Y ZERO"<<"  "<<x_o_index<<"  "<<y_o_index<<"  "<<std::endl;
+    for (int i = x_o_index - WINDOW_SIZE / 2; i < x_o_index + WINDOW_SIZE / 2; i++) {
+    for (int j = y_o_index - WINDOW_SIZE / 2; j < y_o_index + WINDOW_SIZE / 2; j++) {
+    //for (int j = -y_o_index - WINDOW_SIZE / 2; j < y_o_index + WINDOW_SIZE / 2; j++) {
 		if (i >= 0 && i < SIZE && j >= 0 && j < SIZE) {
+		//if (i >= 0 && i < SIZE && j < SIZE) {
 			if (obstaclemap[i][j]) {
 				geometry_msgs::Point a;
 				a.x = i * RESOLUTION;
@@ -258,6 +282,7 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_in) {
     
     gco.cells[obstacle_counter++] = obstaclerepo.back();
     obstaclerepo.pop_back();
+     //std::cout<<"yes  "<<" "<<obstacle_counter<<std::endl;
 
   }
 
@@ -304,6 +329,8 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_in) {
   // find inflation cells in a rolling window centered at the robot
   for (int i = x_o_index - WINDOW_SIZE / 2; i < x_o_index + WINDOW_SIZE / 2; i++) {
 	for (int j = y_o_index - WINDOW_SIZE / 2; j < y_o_index + WINDOW_SIZE / 2; j++) {
+    //for (int j = -y_o_index - WINDOW_SIZE / 2; j < y_o_index + WINDOW_SIZE / 2; j++) {
+   	    //if (i >= 0 && i < SIZE && j < SIZE) {
 		if (i >= 0 && i < SIZE && j >= 0 && j < SIZE) {
 			if (inflationmap[i][j] != -1 && !obstaclemap[i][j]) {
 				geometry_msgs::Point a;
@@ -319,7 +346,7 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_in) {
   // put inflation cells in the inflation grid cell message
   gci.cells.resize(repo.size());
   while (!repo.empty())
-  {
+  { 
     gci.cells[cell_counter++]=repo.back();
     repo.pop_back();
  
@@ -332,7 +359,7 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_in) {
   // create a occupancy grid message for the entire local map
   nav_msgs::OccupancyGrid og;
   og.header.frame_id = "/map";
-  og.header.stamp = ros::Time::now();
+  og.header.stamp = ros::Time(0);
   og.info.resolution = RESOLUTION;
   og.info.width = SIZE;
   og.info.height = SIZE;

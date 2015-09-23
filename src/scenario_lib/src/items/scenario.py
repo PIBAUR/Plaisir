@@ -17,7 +17,7 @@ class Scenario():
         self.gridSize = 10
         self.loadWithVideos = loadWithVideos
         
-        self.targetPosition = [100, 100]
+        self.targetPosition = [10, 10]
         self.robots = [Robot(self)]
         
         self.transformPosition = (0, 0, 0)

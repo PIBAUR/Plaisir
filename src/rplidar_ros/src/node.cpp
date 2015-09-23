@@ -38,6 +38,7 @@
 
 #include "ros/ros.h"
 #include "sensor_msgs/LaserScan.h"
+#include "std_srvs/Empty.h"
 
 #include "rplidar.h" //RPLIDAR standard sdk, all-in-one header
 
@@ -48,6 +49,8 @@
 #define DEG2RAD(x) ((x)*M_PI/180.)
 
 using namespace rp::standalone::rplidar;
+
+RPlidarDriver * drv = NULL;
 
 void publish_scan(ros::Publisher *pub, 
                   rplidar_response_measurement_node_t *nodes, 
@@ -63,8 +66,8 @@ void publish_scan(ros::Publisher *pub,
     scan_msg.header.frame_id = frame_id;
     scan_count++;
 
-    scan_msg.angle_min = angle_min;
-    scan_msg.angle_max = angle_max;
+    scan_msg.angle_min =  M_PI - angle_min;
+    scan_msg.angle_max =  M_PI - angle_max;
     scan_msg.angle_increment = 
         (scan_msg.angle_max - scan_msg.angle_min) / (double)(node_count-1);
 
@@ -74,6 +77,7 @@ void publish_scan(ros::Publisher *pub,
     scan_msg.range_min = 0.15;
     scan_msg.range_max = 6.;
 
+    scan_msg.intensities.resize(node_count);
     scan_msg.ranges.resize(node_count);
     if (!inverted) { // assumes scan window at the top
         for (size_t i = 0; i < node_count; i++) {
@@ -82,6 +86,7 @@ void publish_scan(ros::Publisher *pub,
                 scan_msg.ranges[i] = std::numeric_limits<float>::infinity();
             else
                 scan_msg.ranges[i] = read_value;
+            scan_msg.intensities[i] = (float) (nodes[i].sync_quality >> 2);
         }
     } else {
         for (size_t i = 0; i < node_count; i++) {
@@ -90,12 +95,8 @@ void publish_scan(ros::Publisher *pub,
                 scan_msg.ranges[node_count-1-i] = std::numeric_limits<float>::infinity();
             else
                 scan_msg.ranges[node_count-1-i] = read_value;
+            scan_msg.intensities[node_count-1-i] = (float) (nodes[i].sync_quality >> 2);
         }
-    }
-
-    scan_msg.intensities.resize(node_count);
-    for (size_t i = 0; i < node_count; i++) {
-        scan_msg.intensities[i] = (float)0;
     }
 
     pub->publish(scan_msg);
@@ -125,6 +126,30 @@ bool checkRPLIDARHealth(RPlidarDriver * drv)
     }
 }
 
+bool stop_motor(std_srvs::Empty::Request &req,
+				std_srvs::Empty::Response &res)
+{
+  if(!drv)
+	return false;
+
+  ROS_DEBUG("Stop motor");
+  drv->stop();
+  drv->stopMotor();
+  return true;
+}
+
+bool start_motor(std_srvs::Empty::Request &req,
+				std_srvs::Empty::Response &res)
+{
+  if(!drv)
+	return false;
+  ROS_DEBUG("Start motor");
+  drv->startMotor();
+  drv->startScan();;
+  return true;
+}
+
+
 int main(int argc, char * argv[]) {
     ros::init(argc, argv, "rplidar_node");
 
@@ -137,13 +162,15 @@ int main(int argc, char * argv[]) {
     ros::NodeHandle nh;
     ros::Publisher scan_pub = nh.advertise<sensor_msgs::LaserScan>("scan", 1000);
     ros::NodeHandle nh_private("~");
-    nh_private.param<std::string>("serial_port", serial_port, "/dev/ttyUSB1");
+    nh_private.param<std::string>("serial_port", serial_port, "/dev/ttyUSB1"); 
     nh_private.param<int>("serial_baudrate", serial_baudrate, 115200); 
     nh_private.param<std::string>("frame_id", frame_id, "base_laser_link");
-    nh_private.param<bool>("inverted", inverted, "false");
+    nh_private.param<bool>("inverted", inverted, "true");
     nh_private.param<bool>("angle_compensate", angle_compensate, "true");
 
-   std::string tf_prefix;
+    inverted = true;
+
+    std::string tf_prefix;
 
     if (nh.getParam("tf_prefix", tf_prefix))
     {
@@ -152,10 +179,9 @@ int main(int argc, char * argv[]) {
 
 
     u_result     op_result;
-
+   
     // create the driver instance
-    RPlidarDriver * drv = 
-        RPlidarDriver::CreateDriver(RPlidarDriver::DRIVER_TYPE_SERIALPORT);
+	drv = RPlidarDriver::CreateDriver(RPlidarDriver::DRIVER_TYPE_SERIALPORT);
     
     if (!drv) {
         fprintf(stderr, "Create Driver fail, exit\n");
@@ -176,6 +202,10 @@ int main(int argc, char * argv[]) {
         return -1;
     }
 
+
+	ros::ServiceServer stop_motor_service = nh.advertiseService("stop_motor", stop_motor);
+	ros::ServiceServer start_motor_service = nh.advertiseService("start_motor", start_motor);
+	
     // start scan...
     drv->startScan();
 
@@ -252,8 +282,8 @@ int main(int argc, char * argv[]) {
 
         ros::spinOnce();
     }
-
+	
     // done!
-    RPlidarDriver::DisposeDriver(drv);
+	RPlidarDriver::DisposeDriver(drv);
     return 0;
 }

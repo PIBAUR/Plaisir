@@ -104,7 +104,7 @@ class CurvePoint():
             previousBezierPoint = bezierPoint
     
     
-    def drawTimePosition(self, painter, nextPoint, u, color, canvasZoom, canvasTranslate, drawType = "bracket"):
+    def drawTimePosition(self, painter, nextPoint, u, color, canvasZoom, canvasTranslate, drawType = "bracket", **kwargs):
         result = self.getPositionAndAngle(nextPoint, u)
         timeCursorPoint = result[0]
         timeCursorPoint._x *= canvasZoom
@@ -136,6 +136,17 @@ class CurvePoint():
             painter.drawLine(timeCursorPoint._x, timeCursorPoint._y, bottomTimeCursorPoint._x, bottomTimeCursorPoint._y)
             if drawType == "bracket":
                 painter.drawLine(bottomTimeCursorPoint._x, bottomTimeCursorPoint._y, bottomRightTimeCursorPoint._x, bottomRightTimeCursorPoint._y)
+        elif drawType == "wireframe_media":
+            CurvePoint.timePositionBracketPen.setColor(color)
+            painter.setPen(CurvePoint.timePositionBracketPen)
+            transform = QTransform() 
+            transform.translate(timeCursorPoint._x, timeCursorPoint._y)
+            transform.rotate((tangentAngle / math.pi) * 180.)
+            painter.setTransform(transform)
+            screenWidth = kwargs["monitorScreenWidth"]
+            screenHeight = kwargs["monitorScreenHeight"]
+            painter.drawRect(-screenWidth / 2, -screenHeight / 2, screenWidth, screenHeight)
+            painter.resetTransform()
         elif drawType == "point":
             CurvePoint.timePositionPointPen.setColor(color)
             painter.setPen(CurvePoint.timePositionPointPen)
@@ -165,12 +176,12 @@ class CurvePoint():
         return result
         
     
-    def getItemUnderMouse(self, x, y):
-        if self.isControlUnderPoint(self.control1, x, y):
+    def getItemUnderMouse(self, x, y, zoom = 1):
+        if self.isControlUnderPoint(self.control1, x, y, zoom):
             return (self.control1, self)
-        elif self.isControlUnderPoint(self.control2, x, y):
+        elif self.isControlUnderPoint(self.control2, x, y, zoom):
             return (self.control2, self)
-        elif self.isAnchorUnderPoint(self.anchor, x, y):
+        elif self.isAnchorUnderPoint(self.anchor, x, y, zoom):
             return (self.anchor, self)
         else:
             return None
@@ -188,10 +199,10 @@ class CurvePoint():
         return None
     
     
-    def isControlUnderPoint(self, control, x, y):
-        return (math.sqrt(math.pow(control._x - x, 2) + math.pow(control._y - y, 2))) <= (CurvePoint.CONTROL_SIZE)
+    def isControlUnderPoint(self, control, x, y, zoom = 1):
+        return (math.sqrt(math.pow(control._x - x, 2) + math.pow(control._y - y, 2))) * zoom <= (CurvePoint.CONTROL_SIZE)
 
     
-    def isAnchorUnderPoint(self, anchor, x, y):
-        return anchor._x - CurvePoint.ANCHOR_SIZE <= x and anchor._x + CurvePoint.ANCHOR_SIZE >= x and anchor._y - CurvePoint.ANCHOR_SIZE <= y and anchor._y + CurvePoint.ANCHOR_SIZE >= y
+    def isAnchorUnderPoint(self, anchor, x, y, zoom = 1):
+        return anchor._x - CurvePoint.ANCHOR_SIZE / zoom <= x and anchor._x + CurvePoint.ANCHOR_SIZE / zoom >= x and anchor._y - CurvePoint.ANCHOR_SIZE / zoom <= y and anchor._y + CurvePoint.ANCHOR_SIZE / zoom >= y
     

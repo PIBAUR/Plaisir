@@ -1,18 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(test_path_finding)
+project(simple_navigation_goals)
 
-#set(CMAKE_BUILD_TYPE Debug)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  scenario_msgs
-  nav_msgs
+  actionlib
+  move_base_msgs
   roscpp
-  rospy
-  std_msgs
-  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -56,10 +51,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-   FILES
-   TestPathFinding.srv
-)
+# add_service_files(
+#   FILES
+#   Service1.srv
+#   Service2.srv
+# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -69,9 +65,10 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(   
-DEPENDENCIES scenario_msgs   geometry_msgs   nav_msgs   std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   move_base_msgs
+# )
 
 ###################################
 ## catkin specific configuration ##
@@ -84,8 +81,8 @@ DEPENDENCIES scenario_msgs   geometry_msgs   nav_msgs   std_msgs
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES test_param_PFinding
-#  CATKIN_DEPENDS roscpp std_msgs
+#  LIBRARIES simple_navigation_goals
+#  CATKIN_DEPENDS actionlib move_base_msgs roscpp
 #  DEPENDS system_lib
 )
 
@@ -101,28 +98,22 @@ include_directories(
 )
 
 ## Declare a cpp library
-# add_library(test_param_PFinding
-#   src/${PROJECT_NAME}/test_param_PFinding.cpp
+# add_library(simple_navigation_goals
+#   src/${PROJECT_NAME}/simple_navigation_goals.cpp
 # )
 
 ## Declare a cpp executable
-# add_executable(test_param_PFinding_node src/test_param_PFinding_node.cpp)
+add_executable(simple_navigation_goals src/simple_navigation_goals.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(test_param_PFinding_node test_param_PFinding_generate_messages_cpp)
+# add_dependencies(simple_navigation_goals_node simple_navigation_goals_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(test_param_PFinding_node
-#   ${catkin_LIBRARIES}
-# )
-add_executable(server_test src/server_test.cpp)
-add_executable(client_test src/client_test.cpp)
-#add_dependencies(path_finding_server services_gencpp)
-add_dependencies(server_test test_path_finding_generate_messages_cpp)
-add_dependencies(client_test test_path_finding_generate_messages_cpp)
-target_link_libraries(server_test -L/opt/ros/groovy/lib opencv_core opencv_highgui opencv_imgproc opencv_video ${catkin_LIBRARIES})
-target_link_libraries(client_test -L/opt/ros/groovy/lib opencv_core opencv_highgui opencv_imgproc opencv_video ${catkin_LIBRARIES})
+target_link_libraries(simple_navigation_goals
+  ${catkin_LIBRARIES}
+ )
+
 #############
 ## Install ##
 #############
@@ -138,7 +129,7 @@ target_link_libraries(client_test -L/opt/ros/groovy/lib opencv_core opencv_highg
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS test_param_PFinding test_param_PFinding_node
+# install(TARGETS simple_navigation_goals simple_navigation_goals_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -163,7 +154,7 @@ target_link_libraries(client_test -L/opt/ros/groovy/lib opencv_core opencv_highg
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_test_param_PFinding.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_simple_navigation_goals.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

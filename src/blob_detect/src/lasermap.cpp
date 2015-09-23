@@ -27,7 +27,6 @@
 #define RADIUS_DECREASE_VALUE 0.05
 #define PIXEL_ERODE_SIZE 3
 #define MATCH_DIST_MAX 0.50
-#define INCREASE_RADIUS_COEF 1.25
 
 //
 // %Tag(CLASS_WITH_DECLARATION)%
@@ -114,7 +113,7 @@ void LidarBliter::laser_filter(const sensor_msgs::LaserScan& laser)
 
         for(size_t i=0; i<= nb+1; i++)
         {
-            if (laser.ranges[i] < laser.range_max && laser.ranges[i] > 0.40)
+            if (laser.ranges[i] < laser.range_max && laser.ranges[i] > laser.range_min)
             {
                 float x = laser.ranges[i] * cos(laser.angle_min+i*laser.angle_increment + laser_yaw_);
                 float y = laser.ranges[i] * sin(laser.angle_min+i*laser.angle_increment + laser_yaw_);
@@ -270,7 +269,7 @@ void LidarBliter::display_group()
             scenario_msgs::Obstacle obs;
             obs.x = pt_centre.x*metadata_.resolution+metadata_.origin.position.x;
             obs.y = -pt_centre.y*metadata_.resolution-metadata_.origin.position.y;;
-            obs.radius = radius*metadata_.resolution*INCREASE_RADIUS_COEF;
+            obs.radius = radius*metadata_.resolution;
 
 
             if(obstacles_old_.obstacles.size()!=0)

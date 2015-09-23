@@ -30,13 +30,17 @@ class Canvas(QWidget):
         self.canvasMoving = False
         self.canvasTranslateX = 0
         self.canvasTranslateY = 0
-        self.canvasZoom = 1
+        self.canvasZoom = 10
         self.canvasMovingOriginX, self.canvasMovingOriginY = 0, 0
         
         try:
             self.mediaTimeBase = float(rospy.get_param("media_time_base"))
+            self.monitorScreenWidth = rospy.get_param("monitor_screen_width")
+            self.monitorScreenHeight = rospy.get_param("monitor_screen_height")
         except Exception:
             self.mediaTimeBase = 2.5
+            self.monitorScreenWidth = 55
+            self.monitorScreenHeight = 35
         
         Canvas.gridPen.setCapStyle(Qt.SquareCap)
         Canvas.gridPen.setWidth(1)
@@ -75,20 +79,23 @@ class Canvas(QWidget):
         
         painter.setRenderHint(QPainter.Antialiasing, True)
         
-        if self.showTemporalization:
-            self.drawTemporization(painter, self.currentRobot)
-        
-        if self.showMedia:
-            self.drawMedia(painter, self.currentRobot, self.currentTimelinePosition)
-        else:
-            self.drawTimelineCursor(painter, self.currentRobot, self.currentTimelinePosition)
-        
         self.drawPoints(painter, self.currentRobot, self.showControls)
         self.drawTargetPoint(painter)
-        
+    
         for otherRobot in self.otherRobots:
+            if self.showTemporalization:
+                self.drawTemporization(painter, otherRobot)
             self.drawTimelineCursor(painter, otherRobot, self.currentTimelinePosition)
             self.drawPoints(painter, otherRobot, False)
+        
+        for otherRobot in self.otherRobots:
+            if self.showMedia:
+                if self.currentRobot == otherRobot:
+                    self.drawMedia(painter, otherRobot, self.currentTimelinePosition)
+                else:
+                    self.drawTimelineWireframeMedia(painter, otherRobot, self.currentTimelinePosition)
+            else:
+                self.drawTimelineCursor(painter, otherRobot, self.currentTimelinePosition)
          
     
     def updateBounds(self):
@@ -101,7 +108,8 @@ class Canvas(QWidget):
             self.currentPoint = None
             itemUnderMouseResult = None
             
-            mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
+            mouseX = float(event.x())
+            mouseY = float(event.y())
             
             # zoom transform
             mouseX -= self.canvasTranslateX
@@ -111,11 +119,11 @@ class Canvas(QWidget):
             
             # get item under the mouse (= clicked item)
             distanceTargetMouse = math.sqrt(math.pow(mouseX - self.main.currentScenario.targetPosition[0], 2) + math.pow(mouseY - self.main.currentScenario.targetPosition[1], 2))
-            if distanceTargetMouse <= Canvas.targetRadius:
+            if (distanceTargetMouse * self.canvasZoom) <= Canvas.targetRadius:
                 self.targetDragging = True
             else:
                 for point in self.currentRobot.points:
-                    itemUnderMouseResult = point.getItemUnderMouse(mouseX, mouseY)
+                    itemUnderMouseResult = point.getItemUnderMouse(mouseX, mouseY, self.canvasZoom)
                     if itemUnderMouseResult is not None:
                         self.currentItem = itemUnderMouseResult[0]
                         self.currentPoint = itemUnderMouseResult[1]
@@ -124,15 +132,15 @@ class Canvas(QWidget):
             self.isEditing = self.currentAction != Canvas.REMOVE_ACTION and itemUnderMouseResult is not None
             
             if self.targetDragging:
-                currentItemOffsetX, currentItemOffsetY = self.addSnapToGrid(mouseX - self.main.currentScenario.targetPosition[0], mouseY - self.main.currentScenario.targetPosition[1])
-                self.currentItemOffset = QPoint(currentItemOffsetX, currentItemOffsetY)
+                currentItemOffsetX = mouseX - self.main.currentScenario.targetPosition[0]
+                currentItemOffsetY = mouseY - self.main.currentScenario.targetPosition[1]
+                self.currentItemOffset = (currentItemOffsetX, currentItemOffsetY)
             elif self.isEditing:
-                currentItemOffsetX, currentItemOffsetY = self.addSnapToGrid(mouseX - self.currentItem.x(), mouseY - self.currentItem.y())
-                self.currentItemOffset = QPoint(currentItemOffsetX, currentItemOffsetY)
+                self.currentItemOffset = (mouseX - self.currentItem.x(), mouseY - self.currentItem.y())
                 
-                self.currentAnchorOrigins = QPoint(self.currentPoint.anchor.x(), self.currentPoint.anchor.y())
-                self.currentControl1Origins = QPoint(self.currentPoint.control1.x(), self.currentPoint.control1.y())
-                self.currentControl2Origins = QPoint(self.currentPoint.control2.x(), self.currentPoint.control2.y())
+                self.currentAnchorOrigins = (self.currentPoint.anchor.x(), self.currentPoint.anchor.y())
+                self.currentControl1Origins = (self.currentPoint.control1.x(), self.currentPoint.control1.y())
+                self.currentControl2Origins = (self.currentPoint.control2.x(), self.currentPoint.control2.y())
             elif self.currentAction == Canvas.ADD_ACTION:
                 # set anchor
                 self.currentPoint = CurvePoint(Point(mouseX, mouseY))
@@ -176,7 +184,8 @@ class Canvas(QWidget):
         
         
     def mouseMoveEvent(self, event):
-        mouseX, mouseY = self.addSnapToGrid(event.x(), event.y())
+        mouseX = float(event.x())
+        mouseY = float(event.y())
         
         # zoom transform
         mouseX -= self.canvasTranslateX
@@ -190,18 +199,18 @@ class Canvas(QWidget):
             self.canvasMovingOriginX = event.x()
             self.canvasMovingOriginY = event.y()
         elif self.targetDragging:
-            self.main.currentScenario.targetPosition[0] = mouseX - self.currentItemOffset.x()
-            self.main.currentScenario.targetPosition[1] = mouseY - self.currentItemOffset.y()
+            self.main.currentScenario.targetPosition[0] = mouseX - self.currentItemOffset[0]
+            self.main.currentScenario.targetPosition[1] = mouseY - self.currentItemOffset[1]
         elif self.isEditing:
             if self.currentItem is not None:
-                self.currentItem.setX(mouseX - self.currentItemOffset.x())
-                self.currentItem.setY(mouseY - self.currentItemOffset.y())
+                self.currentItem.setX(mouseX - self.currentItemOffset[0])
+                self.currentItem.setY(mouseY - self.currentItemOffset[1])
                 # move controls with anchor
                 if self.currentItem == self.currentPoint.anchor:
-                    self.currentPoint.control1.setX(self.currentControl1Origins.x() + (self.currentItem.x() - self.currentAnchorOrigins.x()))
-                    self.currentPoint.control1.setY(self.currentControl1Origins.y() + (self.currentItem.y() - self.currentAnchorOrigins.y()))
-                    self.currentPoint.control2.setX(self.currentControl2Origins.x() + (self.currentItem.x() - self.currentAnchorOrigins.x()))
-                    self.currentPoint.control2.setY(self.currentControl2Origins.y() + (self.currentItem.y() - self.currentAnchorOrigins.y()))
+                    self.currentPoint.control1.setX(self.currentControl1Origins[0] + (self.currentItem.x() - self.currentAnchorOrigins[0]))
+                    self.currentPoint.control1.setY(self.currentControl1Origins[1] + (self.currentItem.y() - self.currentAnchorOrigins[1]))
+                    self.currentPoint.control2.setX(self.currentControl2Origins[0] + (self.currentItem.x() - self.currentAnchorOrigins[0]))
+                    self.currentPoint.control2.setY(self.currentControl2Origins[1] + (self.currentItem.y() - self.currentAnchorOrigins[1]))
                 else:
                     # maybe control other if not broken tangent
                     if not self.breakTangent:
@@ -227,35 +236,17 @@ class Canvas(QWidget):
     
     
     def wheelEvent(self, event):
-        self.canvasZoom += event.delta() * .005
-        if self.canvasZoom > 20:
-            self.canvasZoom = 20
-        if self.canvasZoom < .3:
-            self.canvasZoom = .3
+        self.canvasZoom += event.delta() * .01
+        if self.canvasZoom > 40:
+            self.canvasZoom = 40
+        if self.canvasZoom < 1:
+            self.canvasZoom = 1
         
     
     def getGridSize(self):
         return 10
         
     
-    def addSnapToGrid(self, mouseX, mouseY):
-        if self.ui.snapToGrid_button.isChecked():
-            gridSize = self.getGridSize()
-            mouseX = (round(mouseX / gridSize) * gridSize)#TODO: GRID AVEC LE SCALE toussa / 
-            mouseY = (round(mouseY / gridSize) * gridSize)# / 
-        
-        if mouseX < 0:
-            mouseX = 0
-        elif mouseX > self.width():
-            mouseX = self.width()
-        if mouseY < 0:
-            mouseY = 0
-        elif mouseY > self.height():
-            mouseY = self.height()
-        
-        return mouseX, mouseY
-        
-        
     def drawBackground(self, painter):
         painter.fillRect(QRectF(0, 0, self.width(), self.height()), Canvas.grey)
         
@@ -304,7 +295,7 @@ class Canvas(QWidget):
                 numTimeBases = int(math.ceil(media.duration / self.mediaTimeBase))
                 mediaTime = media.endTime - media.startTime
                 # for each "2.5s"
-                for j in range(numTimeBases):
+                for j in [0]:
                     temporization = media.startTime + (mediaTime / numTimeBases) * j
                     timePosition = temporization * (len(robot.points) - 1)
                     pointIndex = int(math.floor(timePosition))
@@ -323,7 +314,19 @@ class Canvas(QWidget):
             timePositionRelative = timePosition - pointIndex
             
             timeCurvePoint = robot.points[pointIndex]
-            timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, QColor(255, 0, 0), self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "point")
+            timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, robot.color, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "point")
+    
+    
+    def drawTimelineWireframeMedia(self, painter, robot, timePosition):
+        if len(robot.points) > 1:
+            timePosition *= len(robot.points) - 1
+            pointIndex = int(math.floor(timePosition))
+            timePositionRelative = timePosition - pointIndex
+            
+            screenSize = self.getMonitorScreenSize()
+            
+            timeCurvePoint = robot.points[pointIndex]
+            timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, robot.color, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "wireframe_media", monitorScreenWidth = screenSize[0], monitorScreenHeight = screenSize[1])
     
     
     def drawMedia(self, painter, robot, timePosition):
@@ -342,9 +345,15 @@ class Canvas(QWidget):
             if self.mediaPixmap is not None:
                 transform = QTransform() 
                 transform.translate(position.x(), position.y())
-                transform.scale(.5, .5)
+                screenSize = self.getMonitorScreenSize()
+                transform.scale(screenSize[0] / self.mediaPixmap.width(), screenSize[1] / self.mediaPixmap.height())
                 transform.rotate(angle)
                 transform.translate(-self.mediaPixmap.width() / 2, -self.mediaPixmap.height() / 2)
                 painter.setTransform(transform)
                 
                 painter.drawPixmap(0, 0, self.mediaPixmap)#position.x(), position.y(), self.mediaPixmap)# - self.mediaPixmap.width() / 2, position.y() - self.mediaPixmap.height() / 2, self.mediaPixmap)
+                painter.resetTransform()
+    
+    
+    def getMonitorScreenSize(self):
+        return ((self.monitorScreenWidth / 100.) * self.getGridSize() * self.canvasZoom, (self.monitorScreenHeight / 100.) * self.getGridSize() * self.canvasZoom)

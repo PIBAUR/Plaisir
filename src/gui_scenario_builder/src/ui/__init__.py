@@ -34,13 +34,13 @@ class ScenarioEdition():
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_scenario_builder'), 'resource', 'scenario_edition.ui')
             self.numMaxRobots = rospy.get_param("num_robots")
-            self.monitorScreenWidthRatio = rospy.get_param("monitor_screen_width_ratio")
-            self.monitorScreenHeightRatio = rospy.get_param("monitor_screen_height_ratio")
+            self.monitorScreenWidth = rospy.get_param("monitor_screen_width")
+            self.monitorScreenHeight = rospy.get_param("monitor_screen_height")
         except Exception:
             ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_scenario_builder/resource/scenario_edition.ui"
             self.numMaxRobots = 7
-            self.monitorScreenWidthRatio = 16
-            self.monitorScreenHeightRatio = 10
+            self.monitorScreenWidth = 55
+            self.monitorScreenHeight = 35
             
         # load ui
         self.ui = uic.loadUi(ui_file)
@@ -293,7 +293,7 @@ class ScenarioEdition():
         self.ui.addMedia_button.setMinimumSize(addMediaButtonSize, addMediaButtonSize)
         self.ui.addMedia_button.setMaximumSize(addMediaButtonSize, addMediaButtonSize)
         # media player ratio
-        self.ui.mediaContainer_widget.setMaximumHeight(self.ui.mediaContainer_widget.width() * (self.monitorScreenWidthRatio / self.monitorScreenHeightRatio))
+        self.ui.mediaContainer_widget.setMaximumHeight(self.ui.mediaContainer_widget.width() * (self.monitorScreenWidth / self.monitorScreenHeight))
     
     
     # buttons

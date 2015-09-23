@@ -27,13 +27,13 @@ class VideoDatabase():
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_video_db'), 'resource', 'video_db.ui')
             self.videosBasePath = "/home/artlab/Bureau/films_notre_bon_plaisir"
-            self.monitorScreenWidthRatio = rospy.get_param("monitor_screen_width_ratio")
-            self.monitorScreenHeightRatio = rospy.get_param("monitor_screen_height_ratio")
+            self.monitorScreenWidth = rospy.get_param("monitor_screen_width")
+            self.monitorScreenHeight = rospy.get_param("monitor_screen_height")
         except Exception:
             ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_video_db/resource/video_db.ui"
             self.videosBasePath = "/home/artlab/Bureau/films_notre_bon_plaisir"
-            self.monitorScreenWidthRatio = 16
-            self.monitorScreenHeightRatio = 10
+            self.monitorScreenWidth = 16
+            self.monitorScreenHeight = 10
         
         # path
         if not os.path.exists(self.videosBasePath):
@@ -230,7 +230,7 @@ class VideoDatabase():
     
     def handleColumnResized(self):
         # set row height to have the good ratio for thumbs
-        rowHeight = (float((self.ui.video_db_table.columnWidth(4) - 24)) / float(self.monitorScreenWidthRatio) / 2.0) * float(self.monitorScreenHeightRatio)
+        rowHeight = 30#(float((self.ui.video_db_table.columnWidth(4) - 24)) / float(self.monitorScreenWidth) / 2.0) * float(self.monitorScreenHeight)
         for i in range(1, self.ui.video_db_table.rowCount()):
             self.ui.video_db_table.setRowHeight(i, rowHeight)
         

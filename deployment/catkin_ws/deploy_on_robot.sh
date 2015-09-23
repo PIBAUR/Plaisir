@@ -15,6 +15,7 @@ rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/.settings/' \
 	--exclude '/catkin_ws/src/blob_detect' \
 	--exclude '/catkin_ws/src/path_finding' \
+	--exclude '/catkin_ws/src/local_path' \
 	--exclude '/catkin_ws/src/gui_controller' \
 	--exclude '/catkin_ws/src/gui_execution_diagram' \
 	--exclude '/catkin_ws/src/gui_execution_viz' \

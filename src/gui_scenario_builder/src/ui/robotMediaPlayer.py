@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 from functools import partial
+import math
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -85,17 +86,22 @@ class RobotMediaPlayer():
         
         
     def handleMediaPlaying(self):
+        value = 0
         if self.currentVideoMediaSource is None:
-            self.ui.mediaSeek_slider.setValue(0)
-            
-        if self.videoPlayer.isPlaying():
+            self.ui.mediaSeek_slider.setValue(value)
+        else:
             value = float(self.videoPlayer.currentTime()) / self.videoPlayer.totalTime()
             
-            self.mediaSeekValueIsSetByCode = True
-            self.ui.mediaSeek_slider.setValue(value * self.ui.mediaSeek_slider.maximum())
-            self.temporalization.setTimelineValueCurrentMedia(value)
-            self.mediaSeekValueIsSetByCode = False
+            if self.videoPlayer.isPlaying():
+                
+                self.mediaSeekValueIsSetByCode = True
+                self.ui.mediaSeek_slider.setValue(value * self.ui.mediaSeek_slider.maximum())
+                self.temporalization.setTimelineValueCurrentMedia(value)
+                self.mediaSeekValueIsSetByCode = False
             
+        # update seek bar label
+        self.ui.mediaSeek_label.setText(str((float(math.floor(value * 10000)) / 10000) * 100) + " %")
+        
         # update canvas
         self.sendMediaToCanvas()
         

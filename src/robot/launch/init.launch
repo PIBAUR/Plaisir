@@ -59,11 +59,11 @@
         </node>
         
     <!-- SIMULATION ENVIRONMENT -->
-    <include file="$(find robot_visualisation)/launch/visualisation_environment.launch"/>
+    <!--<include file="$(find robot_visualisation)/launch/visualisation_environment.launch"/>
 
 	<include file="$(find robot_visualisation)/launch/run.launch">
 		<arg name="robot" value="$(arg robot)"/> 
-	</include>
+	</include>-->
 
  
 </launch>
