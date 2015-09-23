@@ -14,9 +14,9 @@ md25_serial_port: "/dev/ttyUSB0"
 #bezier_curve_step: 0.1    
 bezier_curve_step_in_meter: 0.05
 
-## format des medias sur l ecran
-monitor_screen_width_ratio: 16
-monitor_screen_height_ratio: 10
+## taille de l ecran (cm)
+monitor_screen_width: 55
+monitor_screen_height: 35
 
 ## GUI
 ## durée en secondes de la base temporelle des vidéos
