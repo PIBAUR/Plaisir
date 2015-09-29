@@ -25,16 +25,19 @@ MD25::MD25() :
     /*** Initialisation des messages ****/
     /* odometry */
     std::string tf_prefix;
-    std::stringstream frame_id;
+    std::stringstream frame_odom, frame_base;
 
     if (nh_.getParam("tf_prefix", tf_prefix))
     {
-        frame_id << tf_prefix <<"/odom";
+        frame_odom << tf_prefix <<"/odom";
+        frame_base << tf_prefix <<"/base_link";
     }
     else
-        frame_id<<"/odom";
-
-    odom_msg.header.frame_id = frame_id.str();
+    {
+        frame_odom<<"/odom";
+        frame_base<<"/base_link";
+    }
+    odom_msg.header.frame_id = frame_odom.str();
 
     odom_msg.pose.pose.position.z = 0.0;
     odom_msg.twist.twist.linear.y = 0.0;
@@ -45,24 +48,24 @@ MD25::MD25() :
     publish_batt= nh_.advertise<geometry_msgs::Vector3> ("md25_input_power", 1);
 
     /* tf */
-    odom_tf.header.frame_id = "odom";
+    odom_tf.header.frame_id = frame_odom.str();
     //odom_msg.header.frame_id = odom_tf.header.frame_id;
-    odom_tf.child_frame_id = "base_link";
+    odom_tf.child_frame_id = frame_base.str();
     odom_tf.transform.translation.z = 0.0;
 
     /* Time */
     current_time = ros::Time::now();
-    
-    
+
+
     /*** get rosparam ***/
     nh_.param<double>("/semi_axe_length",semi_axe_length,SEMI_AXE_LENGTH);
     nh_.param<double>("/wheel_diameter",wheel_diameter,WHEEL_DIAMETER);
     nh_.param<std::string>("/md25_serial_port",name_port,"/dev/ttyUSB0");
-    
+
     ROS_INFO_STREAM_NAMED("MD25_node","Wheel diameter : "<< wheel_diameter);
     ROS_INFO_STREAM_NAMED("MD25_node","Robot semi axe : "<< semi_axe_length);
     ROS_INFO_STREAM_NAMED("MD25_node","Using port : "<< name_port);
-    
+
 
     /**** Initialisation du port ****/
     /* Open and config port */
@@ -630,7 +633,7 @@ void MD25::stop()
     hex_vel[1]=SPD_NULL;
     set_speed1(SPD_NULL);
     set_speed2(SPD_NULL);
-    
+
 }
 
 void MD25::get_battery_state()
