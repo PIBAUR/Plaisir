@@ -27,6 +27,8 @@ class RobotMediaPlayer():
         self.ui.playPauseMedia_button.clicked.connect(self.handlePlayPauseMediaButtonClicked)
         self.ui.mediaSeek_slider.valueChanged.connect(self.handleMediaSeekSliderValueChanged)
         
+        self.ui.media_groupBox.setEnabled(False)
+        
         self.mediaPlayingTimer = QTimer()
         self.mediaPlayingTimer.setInterval(30)
         self.mediaPlayingTimer.timeout.connect(self.handleMediaPlaying)
@@ -99,9 +101,6 @@ class RobotMediaPlayer():
                 self.temporalization.setTimelineValueCurrentMedia(value)
                 self.mediaSeekValueIsSetByCode = False
             
-        # update seek bar label
-        self.ui.mediaSeek_label.setText(str((float(math.floor(value * 10000)) / 10000) * 100) + " %")
-        
         # update canvas
         self.sendMediaToCanvas()
         

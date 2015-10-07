@@ -309,6 +309,9 @@
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
                   <layout class="QHBoxLayout" name="horizontalLayout_6"/>
                  </widget>
                 </item>
@@ -318,6 +321,9 @@
                <widget class="QCheckBox" name="continuousPlaying_checkbox">
                 <property name="text">
                  <string>lecture continue</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -352,13 +358,6 @@
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="mediaSeek_label">
-                  <property name="text">
-                   <string>100%</string>
                   </property>
                  </widget>
                 </item>
@@ -690,6 +689,16 @@
                   </size>
                  </property>
                 </spacer>
+               </item>
+               <item>
+                <widget class="QLabel" name="timelinePosition_label">
+                 <property name="text">
+                  <string>0%</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
                </item>
               </layout>
              </item>

@@ -26,6 +26,8 @@ class Canvas(QWidget):
         self.ui = ui
         self.changeCallback = changeCallback
         
+        self.sequences = None
+        
         # get params
         self.canvasMoving = False
         self.canvasTranslateX = 0
@@ -84,7 +86,7 @@ class Canvas(QWidget):
     
         for otherRobot in self.otherRobots:
             if self.showTemporalization:
-                self.drawTemporization(painter, otherRobot)
+                self.drawSequences(painter, otherRobot)
             self.drawTimelineCursor(painter, otherRobot, self.currentTimelinePosition)
             self.drawPoints(painter, otherRobot, False)
         
@@ -155,8 +157,10 @@ class Canvas(QWidget):
                 
                 # add the point
                 if addPointAfter >= 0:
-                    self.currentPoint
                     self.currentRobot.points.insert(addPointAfter, self.currentPoint)
+                    
+                    # offset the sequences
+                    self.sequences.offsetTimesAfter(addPointAfter)
                 else:
                     self.currentRobot.points.append(self.currentPoint)
                     
@@ -288,21 +292,16 @@ class Canvas(QWidget):
                 point.drawKnobs(painter, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY))
                 
                 
-    def drawTemporization(self, painter, robot):
+    def drawSequences(self, painter, robot):
         if len(robot.points) > 1:
             i = 0
-            for media in robot.medias:
-                numTimeBases = int(math.ceil(media.duration / self.mediaTimeBase))
-                mediaTime = media.endTime - media.startTime
-                # for each "2.5s"
-                for j in [0]:
-                    temporization = media.startTime + (mediaTime / numTimeBases) * j
-                    timePosition = temporization * (len(robot.points) - 1)
-                    pointIndex = int(math.floor(timePosition))
-                    timePositionRelative = timePosition - pointIndex
-                    
+            for sequence in robot.sequences:
+                pointIndex = sequence.getPositionPointIndex()
+                timePositionRelative = sequence.getPositionRelative()
+                
+                if pointIndex < len(robot.points) - 1:
                     timeCurvePoint = robot.points[pointIndex]
-                    timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, media.color, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "bracket" if j == 0 else "pipe")
+                    timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, QColor(223, 103, 55) if sequence.focused else QColor(0, 0, 0), self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "pipe")
                 
                 i += 1
                 

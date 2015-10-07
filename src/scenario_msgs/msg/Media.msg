@@ -9,5 +9,3 @@ string path
 string type
 
 float64 duration
-float64 start_time
-float64 end_time

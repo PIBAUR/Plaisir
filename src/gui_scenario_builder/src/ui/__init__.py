@@ -20,6 +20,7 @@ from src.bezier_curve.src import bezier_interpolate
 from canvas import Canvas
 from robotMediaPlayer import RobotMediaPlayer
 from temporalization import Temporalization
+from sequences import Sequences
 
 
 class ScenarioEdition():
@@ -68,6 +69,9 @@ class ScenarioEdition():
         # temporalization
         self.temporalization = Temporalization(self.ui, self.canvas, self.robotMediaPlayer, self.changeCallback)
         self.robotMediaPlayer.temporalization = self.temporalization
+        
+        # sequences
+        self.sequences = Sequences(self.ui, self.canvas, self.temporalization)
         
         # physical robot
         self.scenarioPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)
@@ -292,8 +296,6 @@ class ScenarioEdition():
         addMediaButtonSize = self.ui.temporalization_widget.height()
         self.ui.addMedia_button.setMinimumSize(addMediaButtonSize, addMediaButtonSize)
         self.ui.addMedia_button.setMaximumSize(addMediaButtonSize, addMediaButtonSize)
-        # media player ratio
-        self.ui.mediaContainer_widget.setMaximumHeight(self.ui.mediaContainer_widget.width() * (self.monitorScreenWidth / self.monitorScreenHeight))
     
     
     # buttons
@@ -325,6 +327,7 @@ class ScenarioEdition():
             self.canvas.update()
             
             self.temporalization.update()
+            self.sequences.update()
         
     
     def handleAddRobotButtonClicked(self, event):

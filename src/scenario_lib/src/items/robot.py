@@ -21,6 +21,7 @@ from geometry_msgs.msg import Point as PointMsg
 from std_msgs.msg import Header as HeaderMsg
 
 from media import Media
+from sequence import Sequence
 from curvePoint import CurvePoint
 from point import Point
 from src.bezier_curve.src import bezier_interpolate
@@ -43,6 +44,7 @@ class Robot():
         
         self.points = []
         self.medias = []
+        self.sequences = []
         
         # only for display
         self.color = self.getColor()
@@ -54,6 +56,7 @@ class Robot():
         result["points"] = [point.save() for point in self.points]
         result["pathLength"] = self.getPathLength()
         result["medias"] = [media.save() for media in self.medias]
+        result["sequences"] = [sequence.save() for sequence in self.sequences]
         result["color"] = str(self.color.name())
                 
         return result    
@@ -62,6 +65,7 @@ class Robot():
     def load(self, data):
         self.points = []
         self.medias = []
+        self.sequences = []
         
         for pointData in data["points"]:
             pointToAppend = CurvePoint(Point(pointData["anchor"][0], pointData["anchor"][1]), Point(pointData["control1"][0], pointData["control1"][1]), Point(pointData["control2"][0], pointData["control2"][1]))
@@ -75,6 +79,11 @@ class Robot():
             else:
                 #TODO: display error
                 pass
+        
+        if "sequences" in data.keys():
+            for sequenceData in data["sequences"]:
+                sequenceToAppend = Sequence(sequenceData["timePosition"], sequenceData["position"], sequenceData["backward"])
+                self.sequences.append(sequenceToAppend)
         
         self.color = QColor(data["color"])
     
@@ -139,8 +148,6 @@ class Robot():
             # replace file from server to robot 
             mediaMsg.path = media.filePath.replace(Robot.server_videos_path, Robot.robot_videos_path)
             mediaMsg.duration = media.duration
-            mediaMsg.start_time = media.startTime
-            mediaMsg.end_time = media.endTime
             scenarioMsg.medias.medias.append(mediaMsg)
        
         headerMsg.frame_id = "/map"

@@ -13,8 +13,6 @@ class Media():
     def __init__(self, filePath, loadWithVideos = True):
         self.filePath = filePath
         self.duration = Media.getDurationOfVideo(filePath)
-        self.startTime = -1
-        self.endTime = -1
         
         # only for display
         if loadWithVideos:
@@ -28,16 +26,12 @@ class Media():
         result = {}
         result["filePath"] = self.filePath
         self.duration = Media.getDurationOfVideo(self.filePath)
-        result["startTime"] = self.startTime
-        result["endTime"] = self.endTime
         result["color"] = str(self.color.name())
         
         return result
     
     
     def load(self, data):
-        self.startTime = data["startTime"]
-        self.endTime = data["endTime"]
         self.color = QColor(data["color"])
     
     
