@@ -43,6 +43,7 @@ public:
     cv::Mat map_received, map;
     double theta_robot_origin, theta_robot_des, z_map_origin;
     int x_robot_origin, y_robot_origin, x_robot_des, y_robot_des;
+    int x_map_pixel, y_map_pixel;
     double map_resolution;
     double x_map_origin, y_map_origin;
     double  dx, dy,du, alpha, angle,time;
@@ -51,7 +52,11 @@ public:
 
 public:
 
-    PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0), theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0), y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0), map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0)
+    PathFinding(ros::NodeHandle nh): nh_(nh),theta_robot_origin(0.0),
+        theta_robot_des(0.0), z_map_origin(0.0),x_robot_origin(0.0),
+        y_robot_origin(0.0), x_robot_des(0.0), y_robot_des(0.0),
+        x_map_pixel(0), y_map_pixel(0),
+        map_resolution(1.0), dx(0.0), dy(0.0),du(0.0), alpha(0.0), angle(0.0), time(0.0)
     {
     	//pub=nh_.advertise<geometry_msgs::PoseArray>("/robot01/path_viz", 1);
 
@@ -88,8 +93,8 @@ void affiche_tree_rec(Node* q_i,cv::Mat* map){
     cv::Point point_q_i(q_i->x,q_i->y);
     cv::Point point_q_f(q_i->forest[i]->x,q_i->forest[i]->y);
     //cv::Scalar color_c(127,127,172);
-    cv::Scalar color_c(0,0,255);
-    line(*map,point_q_i,point_q_f,color_c);
+    cv::Scalar color_c(0,0,0);
+    line(*map,point_q_i,point_q_f,0);
     // recursive call on q_i's forest
     affiche_tree_rec(q_i->forest[i],map);
 
