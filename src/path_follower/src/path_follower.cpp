@@ -3,11 +3,13 @@
 #include <geometry_msgs/Twist.h>
 #include <tf/transform_listener.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Bool.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/PoseArray.h>
 #include <scenario_msgs/Path.h>
 #include <scenario_msgs/PathFeedback.h>
 
+#include "sstream"
 
 #define PI 3.14159265359
 #define K_TH 3.0
@@ -36,6 +38,9 @@ protected:
     int cpt_;
     float linear_speed_;
     double first_du_;
+    bool reversed_;
+    std::string robot_frame_;
+
 
 public:
     PathFollower(ros::NodeHandle nh):
@@ -45,12 +50,26 @@ public:
         du_(INIT_DU),
         dth_(PI),
         cpt_(0),
-        linear_speed_(0.10)
-{
+        linear_speed_(0.10),
+        reversed_(false)
+    {
+        cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+        ratio_pub_ = nh_.advertise<scenario_msgs::PathFeedback>("path_feedback", 1);
 
-     cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
-     ratio_pub_ = nh_.advertise<scenario_msgs::PathFeedback>("path_feedback", 1);
-}
+        std::string tf_prefix;
+        std::stringstream frame;
+
+        if (nh_.getParam("tf_prefix", tf_prefix))
+        {
+            frame << tf_prefix <<"/base_link";
+        }
+        else
+        {
+            frame<<"/base_link";
+        }
+        robot_frame_ = frame.str();
+        ROS_INFO_STREAM("frame robot in path follower : "<<frame);
+    }
     ~PathFollower(){};
 
     void pathCB(const scenario_msgs::Path &msg);
@@ -58,6 +77,7 @@ public:
     void computeLastPointAngleCmd(double &lin, double &ang);
     void spinOnce();
     void speedCB(const std_msgs::Float64 &msg);
+    void reversedCB(const std_msgs::Bool &msg);
     void publishRatio();
 };
 
@@ -94,7 +114,7 @@ void PathFollower::computeCmd(double &lin, double &ang)
     try
     {
         //TODO: replace "map" by path.header.frame_id
-        tf_listener_.lookupTransform("/map", "base_link", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map", robot_frame_, ros::Time(0), tf_robot);
     }
     catch (tf::TransformException ex)
     {
@@ -133,11 +153,17 @@ void PathFollower::computeCmd(double &lin, double &ang)
     while(ang>=PI)
         ang-=2*PI;
 
-
     ang*=K_TH;
     lin=linear_speed_;
 
-
+    if(reversed_)
+    {
+        if(ang>0)
+            ang=PI-ang;
+        else if(ang<0)
+            ang=-PI-ang;
+        lin*=-1;
+    }
 
     if(ang>ANGULAR_SPEED_MAX)
     {
@@ -160,7 +186,11 @@ void PathFollower::computeCmd(double &lin, double &ang)
 	}
 
 
+
+
 }
+
+
 
 
 
