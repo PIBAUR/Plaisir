@@ -26,7 +26,7 @@ class VideoDatabase():
         
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_video_db'), 'resource', 'video_db.ui')
-            self.videosBasePath = "/home/artlab/Bureau/films_notre_bon_plaisir"
+            self.videosBasePath = rospy.get_param("video_db_path")
             self.monitorScreenWidth = rospy.get_param("monitor_screen_width")
             self.monitorScreenHeight = rospy.get_param("monitor_screen_height")
         except Exception:

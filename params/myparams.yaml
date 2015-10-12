@@ -26,6 +26,7 @@ scenario_db_path: "/home/artlab/.notrebonplaisir/scenarios"
 server_videos_path: "/home/artlab/.notrebonplaisir/videos"
 server_thumbs_path: "/home/artlab/.notrebonplaisir/thumbs"
 robot_videos_path: "/home/odroid/.notrebonplaisir/videos"
+video_db_path: "/home/artlab/Bureau/films_notre_bon_plaisir"
 
 ## FRONT OBSTACLE
 ## angle de détection d'obsatcle à l'avant du robot (en degré)
