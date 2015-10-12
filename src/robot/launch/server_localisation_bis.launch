@@ -43,7 +43,7 @@
 		
 		<!--Initial pose mean (x), (y) and (yaw), used to initialize filter with 
 		Gaussian distribution. Load from yaml file.-->    
-		<!-- ------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+		
 		<!-- |||| A Modifier en fonction de la position en mètres du robot N % au robot01 -->
 		<rosparam command="load" file="$(env HOME)/catkin_ws/params/amcl_start_pose_20.yaml"/>
 		

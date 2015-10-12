@@ -14,14 +14,13 @@
 	
 	<!--_____________ROBOT_____________-->
 	
-	<!-- HARDWARE -->
 	<group ns="robot$(arg robot)" clear_params="false">
+    	<!-- HARDWARE -->
         <include file="$(find robot)/launch/robot_hardware_bis.launch">
 			<arg name="robot" value="$(arg robot)"/> 
-	
 		</include>
+		<param name="tf_prefix" value="robot$(arg robot)"/>
 
-		
 		<!-- SCENARIO -->
 		<node name="robot_manager" pkg="robot" type="__init__.py" machine="robot$(arg robot)" respawn="true"/>
 		<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py" machine="robot$(arg robot)" respawn="true"/>
@@ -31,6 +30,14 @@
 		<!-- MOVING AND OBSTACLES -->
 		<node name="path_follower" pkg="path_follower" type="path_follower_node" machine="robot$(arg robot)" respawn="true"/>
 		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node" machine="robot$(arg robot)" respawn="true"/>
+		<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="true"/>
+		<!-- 
+		<include file="$(find robot)/launch/server_localisation.launch">
+			<arg name="robot" value="$(arg robot)"/> 
+		</include>
+		 -->
+		<node pkg="tf" type="static_transform_publisher" name="map_to_odom" machine="robot$(arg robot)" respawn="true" 
+		args="0 0 0 0 0 0  /map /robot$(arg robot)/odom 100"/>
 	</group>
 	
 	<!--_____________SERVER_____________-->
@@ -41,7 +48,9 @@
 	 
 	<!-- DEBUG TOOLS -->
 	<node pkg="topic_router" name="robot_model" type="robot_model" respawn="true"/>
-	<node pkg="topic_router" type="__init__.py" name="path_viz_pub" respawn="true"/>
+	<node pkg="topic_router" type="__init__.py" name="path_viz_pub" respawn="true">
+		<remap from="path" to="/robot$(arg robot)/path"/>
+	</node>
 	
 	<!-- GUI TOOLS -->
 	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
@@ -53,10 +62,10 @@
 
      <!-- SECOND LOCALISATION PARAMETERS CONFIG -->
       	<!-- always at the end of the launch file -->
-            <param name="tf_prefix2" value="robot$(arg robot)"/>
+           <!-- <param name="tf_prefix2" value="robot$(arg robot)"/>
     	    <node name="switch_localisation_config" pkg="switch_localisation_config" type="__init2__.py" output="screen" args="-sever-debug" >
             </node>
-        
+        	 -->
     <!-- SIMULATION ENVIRONMENT -->
     <!-- <include file="$(find robot_visualisation)/launch/run.launch">
 			<arg name="robot" value="$(arg robot)"/> 
