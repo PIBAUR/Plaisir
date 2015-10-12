@@ -112,16 +112,16 @@ class VideoDatabase():
             if os.path.isdir(videosDirPath):
                 for videoFile in sorted(os.listdir(os.path.join(self.videosBasePath, videosDir))):
                     videoFilePath = os.path.join(self.videosBasePath, videoFile)
-                    if os.path.isfile(videoFilePath) and videoFile.split(".")[-1] == "mp4":
+                    if not os.path.isdir(videoFilePath) and videoFile.split(".")[-1] == "mp4":
                         videoFileName = ".".join(videoFile.split(".")[:-1])
                         splittedVideoFileName = videoFileName.split("-")
-                        video = {}
-                        video["path"] = videoFilePath
-                        video["category"] = splittedVideoFileName[-2]
-                        video["name"] = "-".join(splittedVideoFileName[:-3])
-                        video["startPosition"] = splittedVideoFileName[-3]
-                        video["endPosition"] = splittedVideoFileName[-1]
-                        
+                        if len(splittedVideoFileName) == 5:
+                            video = {}
+                            video["path"] = (videoFilePath).decode("utf-8")
+                            video["category"] = (splittedVideoFileName[-2]).decode("utf-8")
+                            video["name"] = ("-".join(splittedVideoFileName[:-3])).decode("utf-8")
+                            video["startPosition"] = (splittedVideoFileName[-3]).decode("utf-8")
+                            video["endPosition"] = (splittedVideoFileName[-1]).decode("utf-8")
                         # eventually create thumbs
                         """startThumbFile = videoFileName + "_start_thumb.png"
                         endThumbFile = videoFileName + "_end_thumb.png"
@@ -139,10 +139,12 @@ class VideoDatabase():
         
         for video in self.dbVideo:
             # filter attributes
-            if video["name"].startswith(str(nameFilterValue.toUtf8()).decode("utf-8")) and video["category"].startswith(str(categoryFilterValue.toUtf8()).decode("utf-8")) and video["startPosition"].startswith(str(startPositionFilterValue.toUtf8()).decode("utf-8")) and video["endPosition"].startswith(str(endPositionFilterValue.toUtf8()).decode("utf-8")):
-                # inser
-                self.insertRow(self.ui.video_db_table.rowCount(), video)
-                        
+            try:
+                if video["name"].startswith(str(nameFilterValue.toUtf8()).decode("utf-8")) and video["category"].startswith(str(categoryFilterValue.toUtf8()).decode("utf-8")) and video["startPosition"].startswith(str(startPositionFilterValue.toUtf8()).decode("utf-8")) and video["endPosition"].startswith(str(endPositionFilterValue.toUtf8()).decode("utf-8")):
+                    # inser
+                    self.insertRow(self.ui.video_db_table.rowCount(), video)
+            except:
+                pass    
         self.acceptTableItemChanged = True
         
         self.handleColumnResized()
