@@ -312,8 +312,9 @@ class Canvas(QWidget):
             pointIndex = int(math.floor(timePosition))
             timePositionRelative = timePosition - pointIndex
             
-            timeCurvePoint = robot.points[pointIndex]
-            timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, robot.color, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "point")
+            if pointIndex in robot.points:
+                timeCurvePoint = robot.points[pointIndex]
+                timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, robot.color, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "point")
     
     
     def drawTimelineWireframeMedia(self, painter, robot, timePosition):

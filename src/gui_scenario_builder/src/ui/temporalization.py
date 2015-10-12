@@ -174,7 +174,8 @@ class Temporalization():
         if value == -1:
             value = self.ui.timeline_slider.value()
         
-        """value = float(value) / (self.ui.timeline_slider.maximum() + 1)
+        value = float(value) / (self.ui.timeline_slider.maximum() + 1)
+        """
         if not self.timelineValueIsSetByCode:
             if len(self.canvas.currentRobot.medias) > 0:
                 # set current media
@@ -192,6 +193,7 @@ class Temporalization():
             else:
                 self.updateMedia()
             """
+        
         # update canvas
         self.canvas.currentTimelinePosition = value
         self.ui.timelinePosition_label.setText(str((float(math.floor(value * self.fullDuration * 100)) / 100)) + " s")
