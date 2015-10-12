@@ -111,8 +111,8 @@ class VideoDatabase():
             videosDirPath = os.path.join(self.videosBasePath, videosDir)
             if os.path.isdir(videosDirPath):
                 for videoFile in sorted(os.listdir(os.path.join(self.videosBasePath, videosDir))):
-                    videoFilePath = os.path.join(self.videosBasePath, videoFile)
-                    if not os.path.isdir(videoFilePath) and videoFile.split(".")[-1] == "mp4":
+                    videoFilePath = os.path.join(videosDirPath , videoFile)
+                    if os.path.isfile(videoFilePath) and videoFile.split(".")[-1] == "mp4":
                         videoFileName = ".".join(videoFile.split(".")[:-1])
                         splittedVideoFileName = videoFileName.split("-")
                         if len(splittedVideoFileName) == 5:
