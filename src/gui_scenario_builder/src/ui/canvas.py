@@ -7,6 +7,7 @@ from PyQt4.QtCore import *
 
 from src.scenario_lib.src.items.curvePoint import CurvePoint
 from src.scenario_lib.src.items.point import Point
+from src.scenario_lib.src.items.sequence import Sequence
 
 class Canvas(QWidget):
     ADD_ACTION = 0
@@ -241,8 +242,8 @@ class Canvas(QWidget):
     
     def wheelEvent(self, event):
         self.canvasZoom += event.delta() * .01
-        if self.canvasZoom > 40:
-            self.canvasZoom = 40
+        if self.canvasZoom > 80:
+            self.canvasZoom = 80
         if self.canvasZoom < 1:
             self.canvasZoom = 1
         
@@ -297,62 +298,100 @@ class Canvas(QWidget):
             i = 0
             for sequence in robot.sequences:
                 pointIndex = sequence.getPositionPointIndex()
-                timePositionRelative = sequence.getPositionRelative()
                 
                 if pointIndex < len(robot.points) - 1:
                     timeCurvePoint = robot.points[pointIndex]
-                    timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, QColor(223, 103, 55) if sequence.focused else QColor(0, 0, 0), self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "pipe")
+                    timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], 0, QColor(223, 103, 55) if sequence.focused else QColor(0, 0, 0), self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "pipe")
                 
                 i += 1
                 
                 
     def drawTimelineCursor(self, painter, robot, timePosition):
-        if len(robot.points) > 1:
-            timePosition *= len(robot.points) - 1
-            pointIndex = int(math.floor(timePosition))
-            timePositionRelative = timePosition - pointIndex
-            
-            if pointIndex in robot.points:
-                timeCurvePoint = robot.points[pointIndex]
-                timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, robot.color, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "point")
+        result = self.getCurvePosition(robot, timePosition)
+        
+        if result is not None:
+            result[0].drawTimePosition(painter, result[1], result[2], robot.color, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "point")
     
     
     def drawTimelineWireframeMedia(self, painter, robot, timePosition):
-        if len(robot.points) > 1:
-            timePosition *= len(robot.points) - 1
-            pointIndex = int(math.floor(timePosition))
-            timePositionRelative = timePosition - pointIndex
-            
+        result = self.getCurvePosition(robot, timePosition)
+        
+        if result is not None:
             screenSize = self.getMonitorScreenSize()
-            
-            timeCurvePoint = robot.points[pointIndex]
-            timeCurvePoint.drawTimePosition(painter, robot.points[pointIndex + 1], timePositionRelative, robot.color, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "wireframe_media", monitorScreenWidth = screenSize[0], monitorScreenHeight = screenSize[1])
+            result[0].drawTimePosition(painter, result[1], result[2], robot.color, self.canvasZoom, (self.canvasTranslateX, self.canvasTranslateY), "wireframe_media", monitorScreenWidth = screenSize[0], monitorScreenHeight = screenSize[1])
     
     
     def drawMedia(self, painter, robot, timePosition):
-        if len(robot.points) > 1:
-            timePosition *= len(robot.points) - 1
-            pointIndex = int(math.floor(timePosition))
-            timePositionRelative = timePosition - pointIndex
-            
-            timeCurvePoint = robot.points[pointIndex]
-            result = timeCurvePoint.getPositionAndAngle(robot.points[pointIndex + 1], timePositionRelative)
-            position = result[0]
+        result = self.getCurvePosition(robot, timePosition)
+        
+        if result is not None:
+            positionAndAngleResult = result[0].getPositionAndAngle(result[1], result[2])
+            position = positionAndAngleResult[0]
             position.setX(position.x() * self.canvasZoom + self.canvasTranslateX)
             position.setY(position.y() * self.canvasZoom + self.canvasTranslateY)
-            angle = 180. * result[1] / math.pi
+            angle = 180. * positionAndAngleResult[1] / math.pi
             
             if self.mediaPixmap is not None:
                 transform = QTransform() 
                 transform.translate(position.x(), position.y())
-                screenSize = self.getMonitorScreenSize()
-                transform.scale(screenSize[0] / self.mediaPixmap.width(), screenSize[1] / self.mediaPixmap.height())
+                screenSize = [self.getMonitorScreenSize()[1], self.getMonitorScreenSize()[0]]
                 transform.rotate(angle)
+                transform.rotate(90)
+                transform.scale(screenSize[0] / self.mediaPixmap.width(), screenSize[1] / self.mediaPixmap.height())
                 transform.translate(-self.mediaPixmap.width() / 2, -self.mediaPixmap.height() / 2)
                 painter.setTransform(transform)
                 
                 painter.drawPixmap(0, 0, self.mediaPixmap)#position.x(), position.y(), self.mediaPixmap)# - self.mediaPixmap.width() / 2, position.y() - self.mediaPixmap.height() / 2, self.mediaPixmap)
                 painter.resetTransform()
+
+
+    def getCurvePosition(self, robot, timePosition):
+        absoluteTimePosition = timePosition * self.sequences.temporalization.fullDuration#robot.getDuration()
+        # get the interval corresponding to the current time
+        if len(robot.points) > 1 and len(robot.sequences) > 0:
+            toDrawSequence = None
+            toDrawNextSequence = None
+            for sequenceId in range(-1, len(robot.sequences)):
+                if sequenceId == -1: 
+                    currentSequence = Sequence(0, 0, False)
+                else: 
+                    currentSequence = robot.sequences[sequenceId]
+                
+                if sequenceId == len(robot.sequences) - 1: 
+                    nextSequence = Sequence(robot.getDuration(), len(robot.points) - 1, False)
+                else: 
+                    nextSequence = robot.sequences[sequenceId + 1]
+                
+                if absoluteTimePosition >= currentSequence.timePosition and absoluteTimePosition < nextSequence.timePosition:
+                    toDrawSequence = currentSequence
+                    toDrawNextSequence = nextSequence
+                    break
+            
+            if toDrawSequence is not None and toDrawNextSequence is not None:
+                pointIndex = toDrawSequence.getPositionPointIndex()
+                nextPointIndex = toDrawNextSequence.getPositionPointIndex()
+                
+                if pointIndex < len(robot.points):
+                    timeCurvePoint = robot.points[pointIndex]
+                    nextTimeCurvePoint = robot.points[nextPointIndex]
+                    
+                    # due to a bug, cancel relative position if it the same point
+                    if timeCurvePoint.anchor.isEqual(nextTimeCurvePoint.anchor):
+                        timePositionRelative = 0
+                    else:
+                        timePositionRelative = (absoluteTimePosition - toDrawSequence.timePosition) / (toDrawNextSequence.timePosition - toDrawSequence.timePosition)
+                    
+                    # calculate intermediate points
+                    deltaPointIndex = nextPointIndex - pointIndex
+                    if deltaPointIndex > 1:
+                        offsetPointIndex = int(math.floor(deltaPointIndex * timePositionRelative))
+                        timeCurvePoint = robot.points[pointIndex + offsetPointIndex]
+                        nextTimeCurvePoint = robot.points[pointIndex + offsetPointIndex + 1]
+                        timePositionRelative = (timePositionRelative * deltaPointIndex) % 1
+                    
+                    return timeCurvePoint, nextTimeCurvePoint, timePositionRelative
+    
+        return None
     
     
     def getMonitorScreenSize(self):

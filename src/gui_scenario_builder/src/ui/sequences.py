@@ -46,7 +46,7 @@ class Sequences():
                 spinBoxesLayout = item.layout()
                 backwardValue = spinBoxesLayout.itemAt(0).widget().isChecked()
                 timeValue = spinBoxesLayout.itemAt(1).widget().value()
-                positionValue = spinBoxesLayout.itemAt(2).widget().value() + float(spinBoxesLayout.itemAt(3).widget().value()) / 100.
+                positionValue = spinBoxesLayout.itemAt(2).widget().value()
                 newSequence = Sequence(timeValue, positionValue, backwardValue, self.ui.sequences_list.currentRow() == i)
                 self.canvas.currentRobot.sequences.append(newSequence)
         
@@ -67,7 +67,7 @@ class Sequences():
         
         
     def handleAddSequenceButtonClicked(self, *args):
-        self.addSequenceToList((math.floor((self.canvas.currentTimelinePosition * self.temporalization.fullDuration) * 100)) / 100., self.canvas.currentRobot.sequences[-1].position if len(self.canvas.currentRobot.sequences) > 0 else 0)
+        self.addSequenceToList((math.floor((self.canvas.currentTimelinePosition * self.temporalization.fullDuration) * 10)) / 10., self.canvas.currentRobot.sequences[-1].position if len(self.canvas.currentRobot.sequences) > 0 else 0)
         
         
     def handleRemoveSequenceButtonClicked(self, *args):
@@ -93,10 +93,10 @@ class Sequences():
         
         timeSpinBox = QDoubleSpinBox()
         timeSpinBox.valueChanged.connect(partial(self.handleValueChanged, sequenceIndex))
+        timeSpinBox.setDecimals(1)
         timeSpinBox.setMinimum(0)
         timeSpinBox.setMaximum(99999999)
         timeSpinBox.setValue(timePosition)
-        timeSpinBox.setMaximumWidth(60)
         sequenceWidget.layout().addWidget(timeSpinBox)
         
         positionSpinBox = QSpinBox()
@@ -104,14 +104,7 @@ class Sequences():
         positionSpinBox.setMinimum(0)
         positionSpinBox.setMaximum(99999999)
         positionSpinBox.setValue(position)
-        positionSpinBox.setMaximumWidth(60)
         sequenceWidget.layout().addWidget(positionSpinBox)
-        positionSlider = QSlider()
-        positionSlider.setValue((position - int(position)) * 100.0)
-        positionSlider.setOrientation(Qt.Horizontal)
-        positionSlider.setMinimum(0)
-        positionSlider.valueChanged.connect(partial(self.handleValueChanged, sequenceIndex))
-        sequenceWidget.layout().addWidget(positionSlider)
         
         listWidget = self.ui.sequences_list.item(sequenceIndex)
         listWidget.setSizeHint(QSize(0, 40))

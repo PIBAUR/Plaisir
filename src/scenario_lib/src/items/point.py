@@ -29,5 +29,9 @@ class Point():
         self._theta = float(theta)
     
     
+    def isEqual(self, otherPoint):
+        return self._x == otherPoint.x() and self._y == otherPoint.y()
+    
+    
     def clone(self):
         return Point(self._x, self._y, self._theta)

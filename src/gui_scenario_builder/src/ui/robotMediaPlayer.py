@@ -81,7 +81,6 @@ class RobotMediaPlayer():
         videoWidgetAbsoluteCoords = videoWidget.mapToGlobal(QPoint(0, 0))
         snapshotRect = QRect(videoWidgetAbsoluteCoords.x(), videoWidgetAbsoluteCoords.y(), videoWidget.width(), videoWidget.height())
         snapshotPixmap = QPixmap.grabWindow(self.videoPlayer.winId(), snapshotRect.x(), snapshotRect.y(), snapshotRect.width(), snapshotRect.height())
-        
         self.canvas.mediaPixmap = snapshotPixmap
         self.canvas.update()
         del snapshotPixmap

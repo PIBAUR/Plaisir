@@ -54,7 +54,7 @@ class Temporalization():
             self.fullDuration += media.duration
             
         for media in self.canvas.currentRobot.medias:
-            mediaButton = QPushButton(media.niceName + "\n" + str(float(int((media.duration) * 100) / 100)) + " s")
+            mediaButton = QPushButton(media.niceName + "\n" + str(float(int((media.duration) * 10) / 10)) + " s")
             mediaButton.setStyleSheet("background: " + media.color.name() + "; text-align: left;")
             mediaButton.setMinimumWidth(1)
             mediaButton.setCheckable(True)
@@ -117,9 +117,10 @@ class Temporalization():
                 else:
                     currentMediaStartTime += media.duration
             
-            newTimelineValue = currentMediaStartTime / self.fullDuration + value * (self.robotMediaPlayer.currentMedia.duration / self.fullDuration)
-            newTimelineValue *= self.ui.timeline_slider.maximum()
-            self.ui.timeline_slider.setValue(newTimelineValue)
+            if self.fullDuration != 0:
+                newTimelineValue = currentMediaStartTime / self.fullDuration + value * (self.robotMediaPlayer.currentMedia.duration / self.fullDuration)
+                newTimelineValue *= self.ui.timeline_slider.maximum()
+                self.ui.timeline_slider.setValue(newTimelineValue)
         self.timelineValueIsSetByCode = False
         
     

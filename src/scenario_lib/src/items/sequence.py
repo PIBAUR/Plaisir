@@ -26,7 +26,3 @@ class Sequence():
     def getPositionPointIndex(self):
         return int(math.floor(self.position))
     
-    
-    def getPositionRelative(self):
-        return self.position - self.getPositionPointIndex()
-    

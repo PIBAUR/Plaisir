@@ -37,11 +37,15 @@ class ScenarioEdition():
             self.numMaxRobots = rospy.get_param("num_robots")
             self.monitorScreenWidth = rospy.get_param("monitor_screen_width")
             self.monitorScreenHeight = rospy.get_param("monitor_screen_height")
+            self.monitorScreenResolutionWidth = rospy.get_param("monitor_screen_resolution_width")
+            self.monitorScreenResolutionHeight = rospy.get_param("monitor_screen_resolution_height")
         except Exception:
             ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_scenario_builder/resource/scenario_edition.ui"
             self.numMaxRobots = 7
-            self.monitorScreenWidth = 55
-            self.monitorScreenHeight = 35
+            self.monitorScreenWidth = 35
+            self.monitorScreenHeight = 55
+            self.monitorScreenResolutionWidth = 1280
+            self.monitorScreenResolutionHeight = 720
             
         # load ui
         self.ui = uic.loadUi(ui_file)
@@ -271,7 +275,7 @@ class ScenarioEdition():
             itemWidget.layout().addWidget(deleteButton)
             
             item = QListWidgetItem()
-            item.setSizeHint(itemWidget.sizeHint())
+            item.setSizeHint(QSize(0, 30))
             
             self.ui.robots_list.addItem(item)
             self.ui.robots_list.setItemWidget(item, itemWidget)
@@ -291,6 +295,8 @@ class ScenarioEdition():
         absoluteCoords -= self.ui.mapToGlobal(QPoint(0, 0))
         self.canvas.setGeometry(absoluteCoords.x(), absoluteCoords.y(), self.ui.canvasContainer.width(), self.ui.canvasContainer.height())
         self.canvas.update()
+        # media
+        self.ui.mediaContainer_widget.setMaximumHeight(self.ui.mediaContainer_widget.width() * (float(self.monitorScreenResolutionHeight) / float(self.monitorScreenResolutionWidth)))
         # temporalization
         self.ui.temporalization_widget.setMaximumWidth(self.ui.timeline_groupBox.width() - 76)
         addMediaButtonSize = self.ui.temporalization_widget.height()
