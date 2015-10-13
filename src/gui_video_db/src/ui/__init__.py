@@ -122,20 +122,20 @@ class VideoDatabase():
                             video["name"] = ("-".join(splittedVideoFileName[:-3])).decode("utf-8")
                             video["startPosition"] = (splittedVideoFileName[-3]).decode("utf-8")
                             video["endPosition"] = (splittedVideoFileName[-1]).decode("utf-8")
-                        # eventually create thumbs
-                        """startThumbFile = videoFileName + "_start_thumb.png"
-                        endThumbFile = videoFileName + "_end_thumb.png"
-                        startThumbPath = os.path.join(videosDirPath, startThumbFile)
-                        endThumbPath = os.path.join(videosDirPath, endThumbFile)
-                        if not os.path.exists(startThumbPath):
-                            os.system("ffmpeg -i " + videoFilePath + " -v quiet -vf \"select='eq(n, " + str(0) + ")'\" -vframes 1 " + startThumbPath)
-                        video["startThumbFile"] = startThumbPath
-                        if not os.path.exists(endThumbPath):
-                            numberFrames = Media.getNumberFramesOfVideo(videoFilePath)
-                            os.system("ffmpeg -i " + videoFilePath + " -v quiet -vf \"select='eq(n, " + str(numberFrames - 1) + ")'\" -vframes 1 " + endThumbPath)
-                        video["endThumbFile"] = endThumbPath
-                        """
-                        self.dbVideo.append(video)
+	                    # eventually create thumbs
+	                    """startThumbFile = videoFileName + "_start_thumb.png"
+	                    endThumbFile = videoFileName + "_end_thumb.png"
+	                    startThumbPath = os.path.join(videosDirPath, startThumbFile)
+	                    endThumbPath = os.path.join(videosDirPath, endThumbFile)
+	                    if not os.path.exists(startThumbPath):
+	                        os.system("ffmpeg -i " + videoFilePath + " -v quiet -vf \"select='eq(n, " + str(0) + ")'\" -vframes 1 " + startThumbPath)
+	                    video["startThumbFile"] = startThumbPath
+	                    if not os.path.exists(endThumbPath):
+	                        numberFrames = Media.getNumberFramesOfVideo(videoFilePath)
+	                        os.system("ffmpeg -i " + videoFilePath + " -v quiet -vf \"select='eq(n, " + str(numberFrames - 1) + ")'\" -vframes 1 " + endThumbPath)
+	                    video["endThumbFile"] = endThumbPath
+	                    """
+	                    self.dbVideo.append(video)
         
         for video in self.dbVideo:
             # filter attributes
