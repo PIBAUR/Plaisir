@@ -52,16 +52,10 @@ def scenarioCallback(msg):
                     
                 path.path.poses.append(pose)
             
-    
-    speed = Float64Msg()
-    speed.data = (distance / duration) if duration > 0 else 0.1
-    speedPublisher.publish(speed)
-    
     rospy.loginfo("""new """ + msg.type + """ scenario: 
 - """ + str(len(msg.bezier_paths.curves)) + """ curves
 - distance of """ + str(distance) + """
 - """ + str(path.path.poses) + """ poses
-- speed of """ + str(speed.data) + """
 - media (""" + str(len(msg.medias.medias)) + """) duration of """ + str(duration) + """s""")
     
     pathPublisher.publish(path)
@@ -154,7 +148,6 @@ if __name__ == "__main__":
     rospy.Subscriber("scenario", ScenarioMsg, scenarioCallback)
     
     pathPublisher = rospy.Publisher("path", PathMsg)
-    speedPublisher = rospy.Publisher("linear_speed", Float64Msg)
     
     step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
     stepInMeter = rospy.get_param("bezier_curve_step_in_meter", DEFAULT_BEZIER_CURVE_STEP)
