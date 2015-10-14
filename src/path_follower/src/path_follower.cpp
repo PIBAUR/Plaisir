@@ -324,7 +324,6 @@ int main(int argc, char** argv)
 	ros::NodeHandle nh;
 	PathFollower pf(nh);
 	ros::Subscriber path_sub = nh.subscribe("path", 1, &PathFollower::pathCB, &pf);
-	ros::Subscriber speed_sub = nh.subscribe("linear_speed", 1, &PathFollower::speedCB, &pf);
 	ros::Rate loop(LOOP_RATE);
 
 	while(ros::ok())

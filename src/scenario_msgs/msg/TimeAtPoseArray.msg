@@ -1,0 +1,1 @@
+scenario_msgs/TimeAtPose[] time_at_poses

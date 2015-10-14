@@ -58,6 +58,10 @@ add_message_files(
   ObstacleArray.msg
   Path.msg
   PathFeedback.msg
+  Sequence.msg
+  SequenceArray.msg
+  TimeAtPose.msg
+  TimeAtPoseArray.msg
 )
 
 

@@ -14,6 +14,7 @@ import numpy
 
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from scenario_msgs.msg import Media as MediaMsg
+from scenario_msgs.msg import Sequence as SequenceMsg
 from scenario_msgs.msg import MediaArray as MediaArrayMsg
 from scenario_msgs.msg import BezierPath as BezierPathMsg
 from scenario_msgs.msg import BezierCurve as BezierCurveMsg
@@ -149,6 +150,14 @@ class Robot():
             mediaMsg.path = media.filePath.replace(Robot.server_videos_path, Robot.robot_videos_path)
             mediaMsg.duration = media.duration
             scenarioMsg.medias.medias.append(mediaMsg)
+       
+        scenarioMsg.sequences.sequences = []
+        for sequence in self.sequences:
+            sequenceMsg = SequenceMsg()
+            sequenceMsg.timePosition = sequence.timePosition
+            sequenceMsg.position = sequence.position
+            sequenceMsg.backward = sequence.backward
+            scenarioMsg.sequences.sequences.append(sequenceMsg)
        
         headerMsg.frame_id = "/map"
         headerMsg.stamp = rospy.Time.now()

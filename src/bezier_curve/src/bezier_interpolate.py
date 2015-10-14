@@ -4,6 +4,7 @@ import math
 import rospy
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from scenario_msgs.msg import Path as PathMsg
+from scenario_msgs.msg import TimeAtPose as TimeAtPoseMsg
 from geometry_msgs.msg import Pose as PoseMsg
 from geometry_msgs.msg import Point as PointMsg
 from std_msgs.msg import Float64 as Float64Msg
@@ -18,6 +19,7 @@ def scenarioCallback(msg):
     # to execute only choregraphic scenario
     path.uid = msg.uid
     path.path.poses = []
+    path.path.time_at_poses = []
     path.path.header = msg.bezier_paths.header
     distance = 0
     duration = 0
@@ -26,7 +28,17 @@ def scenarioCallback(msg):
     for media in msg.medias.medias:
         duration += media.duration
     
+    curveIndex = 0
     for curve in msg.bezier_paths.curves:
+        # get the pose index to specify the speed
+        lastIndex = len(path.path.poses)
+        for sequenceMsg in msg.sequences:
+            if sequenceMsg.position == curveIndex:
+                timeAtPose = TimeAtPoseMsg()
+                timeAtPose.pose_index = lastIndex
+                timeAtPose.time = sequenceMsg.timePosition
+                path.path.time_at_poses.append(timeAtPose)
+                
         if msg.type == "travel" or (msg.type == "choregraphic" and curve != msg.bezier_paths.curves[-1]):
             distance += getBezierCurveLength(curve)
             i = 0
@@ -51,17 +63,14 @@ def scenarioCallback(msg):
                     i += 2
                     
                 path.path.poses.append(pose)
+                
+        
+        curveIndex += 1
             
-    
-    speed = Float64Msg()
-    speed.data = (distance / duration) if duration > 0 else 0.1
-    speedPublisher.publish(speed)
-    
     rospy.loginfo("""new """ + msg.type + """ scenario: 
 - """ + str(len(msg.bezier_paths.curves)) + """ curves
 - distance of """ + str(distance) + """
 - """ + str(path.path.poses) + """ poses
-- speed of """ + str(speed.data) + """
 - media (""" + str(len(msg.medias.medias)) + """) duration of """ + str(duration) + """s""")
     
     pathPublisher.publish(path)
@@ -154,7 +163,6 @@ if __name__ == "__main__":
     rospy.Subscriber("scenario", ScenarioMsg, scenarioCallback)
     
     pathPublisher = rospy.Publisher("path", PathMsg)
-    speedPublisher = rospy.Publisher("linear_speed", Float64Msg)
     
     step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
     stepInMeter = rospy.get_param("bezier_curve_step_in_meter", DEFAULT_BEZIER_CURVE_STEP)
