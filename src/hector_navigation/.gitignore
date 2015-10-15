@@ -14,3 +14,4 @@ hector_elevation_visualization/src/hector_elevation_visualization/
 *~
 /hector_driving_aid_markers/
 /hector_elevation_msgs/
+/.gitignore

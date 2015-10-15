@@ -2,3 +2,5 @@
 /wilson.launch
 /localisation_test.launch
 /bag_player.launch
+/server_localisation_switched.launch
+/test.launch

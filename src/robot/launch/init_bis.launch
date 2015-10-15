@@ -25,19 +25,20 @@
 		<node name="robot_manager" pkg="robot" type="__init__.py" machine="robot$(arg robot)" respawn="true"/>
 		<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py" machine="robot$(arg robot)" respawn="true"/>
 		<env name="DISPLAY" value=":0"/>
-		<!--<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)" respawn="true"/>-->
+		<node name="media_player" pkg="media_player" type="__init__.py" machine="robot$(arg robot)" respawn="true"/>
 		
 		<!-- MOVING AND OBSTACLES -->
 		<node name="path_follower" pkg="path_follower" type="path_follower_node" machine="robot$(arg robot)" respawn="true"/>
 		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node" machine="robot$(arg robot)" respawn="true"/>
 		<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="true"/>
-		<!-- 
-		<include file="$(find robot)/launch/server_localisation.launch">
-			<arg name="robot" value="$(arg robot)"/> 
+
+		<include file="$(find robot)/launch/server_localisation_bis.launch">
+			<arg name="robot" value="$(arg robot)"/>
+			<arg name='init_done' value="false"/>
 		</include>
-		 -->
-		<node pkg="tf" type="static_transform_publisher" name="map_to_odom" machine="robot$(arg robot)" respawn="true" 
-		args="0 0 0 0 0 0  /map /robot$(arg robot)/odom 100"/>
+		<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" respawn="false">
+   		</node>
+		 
 	</group>
 	
 	<!--_____________SERVER_____________-->
@@ -60,12 +61,9 @@
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>
 	</node>
 
-     <!-- SECOND LOCALISATION PARAMETERS CONFIG -->
-      	<!-- always at the end of the launch file -->
-           <!-- <param name="tf_prefix2" value="robot$(arg robot)"/>
-    	    <node name="switch_localisation_config" pkg="switch_localisation_config" type="__init2__.py" output="screen" args="-sever-debug" >
-            </node>
-        	 -->
+	<!-- SECOND LOCALISATION PARAMETERS CONFIG -->
+	<!-- always at the end of the launch file -->
+	
     <!-- SIMULATION ENVIRONMENT -->
     <!-- <include file="$(find robot_visualisation)/launch/run.launch">
 			<arg name="robot" value="$(arg robot)"/> 
