@@ -252,7 +252,7 @@ void PathFollower::initNextGoal()
     delta_time = abs(time_at_poses_.time_at_poses[index_sequence_+1].time) - abs(time_at_poses_.time_at_poses[index_sequence_].time);
 
     //if time < 0, go backward (true), else go forward (false)
-    backward_ = (time_at_poses_.time_at_poses[index_sequence_].time < 0);
+    backward_ = time_at_poses_.time_at_poses[index_sequence_].backward;
     ROS_INFO_STREAM("Next goal : pose : "<< time_at_poses_.time_at_poses[index_sequence_+1].pose_index
                     <<"  duration : "<<delta_time<<" seconds.");
 
