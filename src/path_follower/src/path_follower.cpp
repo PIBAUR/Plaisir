@@ -1,85 +1,36 @@
-#include <ros/ros.h>
+#include "path_follower.hpp"
 
-#include <geometry_msgs/Twist.h>
-#include <tf/transform_listener.h>
-#include <std_msgs/Float64.h>
-#include <std_msgs/Bool.h>
-#include <geometry_msgs/TransformStamped.h>
-#include <geometry_msgs/PoseArray.h>
-#include <scenario_msgs/Path.h>
-#include <scenario_msgs/PathFeedback.h>
 
-#include "sstream"
-
-#define PI 3.14159265359
-#define K_TH 3.0
-#define LOOP_RATE 60.0
-#define ANGULAR_SPEED_MAX (PI/2.0)
-#define LINEAR_SPEED_MAX (0.20)
-#define INIT_DU 10.0
-#define NEXT_POINT_DISTANCE_THRESH 0.10
-#define LAST_POINT_DISTANCE_THRESH 0.01
-#define LAST_POINT_ANGLE_THRESH (PI/18) // PI/18 rad = 10°
-#define RATIO_PUBLISH_RATE_DIVIDOR (6)
-
-class PathFollower
+PathFollower::PathFollower(ros::NodeHandle nh):
+    nh_(nh),
+    index_path_(0),
+    size_path_(-1),
+    du_(INIT_DU),
+    dth_(PI),
+    cpt_(0),
+    linear_speed_(0.10),
+    backward_(false),
+    idle_(false),
+    end_idle_time_(0.0)
 {
-protected:
-    ros::NodeHandle nh_;
-    geometry_msgs::PoseArray path_;
-    int path_uid_;
-    ros::Publisher cmd_pub_;
-    ros::Publisher ratio_pub_;
-    tf::TransformListener tf_listener_;
-    int index_path_;
-    int size_path_;
-    double du_;
-    double dth_;
-    int cpt_;
-    float linear_speed_;
-    double first_du_;
-    bool reversed_;
-    std::string robot_frame_;
+    cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+    ratio_pub_ = nh_.advertise<scenario_msgs::PathFeedback>("path_feedback", 1);
 
+    std::string tf_prefix;
+    std::stringstream frame;
 
-public:
-    PathFollower(ros::NodeHandle nh):
-        nh_(nh),
-        index_path_(0),
-        size_path_(-1),
-        du_(INIT_DU),
-        dth_(PI),
-        cpt_(0),
-        linear_speed_(0.10),
-        reversed_(false)
+    if(nh_.getParam("tf_prefix", tf_prefix))
     {
-        cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
-        ratio_pub_ = nh_.advertise<scenario_msgs::PathFeedback>("path_feedback", 1);
-
-        std::string tf_prefix;
-        std::stringstream frame;
-
-        if (nh_.getParam("tf_prefix", tf_prefix))
-        {
-            frame << tf_prefix <<"/base_link";
-        }
-        else
-        {
-            frame<<"/base_link";
-        }
-        robot_frame_ = frame.str();
-        ROS_INFO_STREAM("frame robot in path follower : "<<frame);
+        frame << tf_prefix <<"/base_link";
     }
-    ~PathFollower(){};
+    else
+    {
+        frame<<"/base_link";
+    }
+    robot_frame_ = frame.str();
+    ROS_INFO_STREAM("frame robot in path follower : "<<frame.str());
+}
 
-    void pathCB(const scenario_msgs::Path &msg);
-    void computeCmd(double &lin, double &ang);
-    void computeLastPointAngleCmd(double &lin, double &ang);
-    void spinOnce();
-    void speedCB(const std_msgs::Float64 &msg);
-    void reversedCB(const std_msgs::Bool &msg);
-    void publishRatio();
-};
 
 
 
@@ -87,12 +38,17 @@ void PathFollower::pathCB(const scenario_msgs::Path &msg)
 {
 	path_uid_ = msg.uid;
     path_ = msg.path;
+    time_at_poses_ = msg.time_at_poses;
+    index_sequence_ = 0;
     index_path_ = 0;
     size_path_ = path_.poses.size();
+
+
     if (size_path_ > 0)
 	{
 		ROS_INFO_STREAM("New path received :   id = " << path_uid_ << "  |  size = " << size_path_ << "  |  goal = "
-						<< path_.poses.rbegin()->position.x << " ; " <<path_.poses.rbegin()->position.y);
+						<< path_.poses.rbegin()->position.x << " ; " <<path_.poses.rbegin()->position.y
+						<<"  |  elements in sequences = " << time_at_poses_.time_at_poses.size());
 	}
     else
     {
@@ -101,10 +57,6 @@ void PathFollower::pathCB(const scenario_msgs::Path &msg)
 }
 
 
-void PathFollower::speedCB(const std_msgs::Float64 &msg)
-{
-    linear_speed_= msg.data;
-}
 
 
 void PathFollower::computeCmd(double &lin, double &ang)
@@ -139,31 +91,26 @@ void PathFollower::computeCmd(double &lin, double &ang)
     dx = x_des - x_robot;
     dy = y_des - y_robot;
     if(du_ == INIT_DU)
-    {
         first_du_ = du_;
-    }
     du_=sqrt(dx*dx+dy*dy);
 
     alpha = atan2(dy,dx);
-
-
     ang = alpha-theta_robot;
     while(ang<-PI)
         ang+=2*PI;
     while(ang>=PI)
         ang-=2*PI;
 
+    if(backward_)
+    {
+        if(ang<0)
+            ang=PI-abs(ang);
+        else
+            ang=-(PI-abs(ang));
+    }
+    ROS_DEBUG_STREAM("du = "<< du_<< "  | ang " << ang);
     ang*=K_TH;
     lin=linear_speed_;
-
-    if(reversed_)
-    {
-        if(ang>0)
-            ang=PI-ang;
-        else if(ang<0)
-            ang=-PI-ang;
-        lin*=-1;
-    }
 
     if(ang>ANGULAR_SPEED_MAX)
     {
@@ -177,16 +124,9 @@ void PathFollower::computeCmd(double &lin, double &ang)
     }
 
     if(lin>LINEAR_SPEED_MAX)
-	{
 		lin = LINEAR_SPEED_MAX;
-	}
 	else if(lin < (- LINEAR_SPEED_MAX) )
-	{
 		lin = -LINEAR_SPEED_MAX;
-	}
-
-
-
 
 }
 
@@ -243,6 +183,91 @@ void PathFollower::publishRatio()
 }
 
 
+
+
+float PathFollower::distanceToGoal(size_t index_goal)
+{
+    float distance = 0.0;
+    for(size_t index = index_path_; index<index_goal; index++ )
+    {
+        distance += distanceBetweenPoints(index,index+1);
+    }
+    return distance;
+}
+
+
+float PathFollower::distanceBetweenPoints(size_t index1, size_t index2)
+{
+    float d, dx, dy;
+    dx = path_.poses[index1].position.x - path_.poses[index2].position.x;
+    dy = path_.poses[index1].position.y - path_.poses[index2].position.y;
+    d = sqrt(dx*dx + dy*dy);
+    return d;
+}
+
+
+
+void PathFollower::computeAverageSpeed(size_t index_goal, float time)
+{
+    if(time == 0.0)
+    {
+        ROS_ERROR_STREAM("RECIEVED TIME NUL FOR NEXT GOAL IN THE CURRENT SEQUENCE");
+        linear_speed_ = 0.0;
+        return;
+    }
+    float distance = distanceToGoal(index_goal);
+    linear_speed_ = distance / abs(time) ;
+    ROS_INFO_STREAM("Linear speed  = "<<linear_speed_<<"   for distance/time : "<<distance<<" / "<<time);
+    if(backward_)
+    {
+        linear_speed_ *= -1;
+        ROS_INFO("Going backward to next goal");
+    }
+    else
+    {
+        ROS_INFO("Going forward to next goal");
+    }
+
+    if(abs(linear_speed_) >= LINEAR_SPEED_MAX)
+    {
+        ROS_WARN_STREAM("Linear speed (asbolute) is too high : "<<linear_speed_<<" . Value set to max : "<<LINEAR_SPEED_MAX);
+        linear_speed_ = LINEAR_SPEED_MAX;
+    }
+    else if(abs(linear_speed_) >= float(LINEAR_SPEED_MAX/2.0))
+    {
+        ROS_WARN_STREAM("Linear speed (asbolute) is high : "<<linear_speed_<<" . May not be able to turn");
+        linear_speed_ = LINEAR_SPEED_MAX;
+    }
+    else
+    {
+        ROS_INFO_STREAM("Average linear speed for next goal : "<<linear_speed_);
+    }
+}
+
+
+void PathFollower::initNextGoal()
+{
+    float delta_time;
+
+    delta_time = abs(time_at_poses_.time_at_poses[index_sequence_+1].time) - abs(time_at_poses_.time_at_poses[index_sequence_].time);
+
+    //if time < 0, go backward (true), else go forward (false)
+    backward_ = (time_at_poses_.time_at_poses[index_sequence_].time < 0);
+    ROS_INFO_STREAM("Next goal : pose : "<< time_at_poses_.time_at_poses[index_sequence_+1].pose_index
+                    <<"  duration : "<<delta_time<<" seconds.");
+
+    computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_+1].pose_index, delta_time);
+    if(time_at_poses_.time_at_poses[index_sequence_+1].pose_index==time_at_poses_.time_at_poses[index_sequence_].pose_index)
+    {
+        ROS_INFO_STREAM("Idle for "<<delta_time<<" seconds.");
+        end_idle_time_ = ros::Time::now() + ros::Duration(delta_time);
+        idle_=true;
+
+    }
+    index_sequence_++;
+}
+
+
 void PathFollower::spinOnce()
 {
 	geometry_msgs::Twist cmd;
@@ -253,43 +278,58 @@ void PathFollower::spinOnce()
 
     if(size_path_ > 0 && index_path_<size_path_)
     {
-        if(index_path_ == size_path_-1)
+        if(idle_)
         {
-            if(du_ > LAST_POINT_DISTANCE_THRESH)
-            {
-                computeCmd(cmd.linear.x, cmd.angular.z);
-                cmd_pub_.publish(cmd);
-            }
-            else if(dth_ > LAST_POINT_ANGLE_THRESH)
-            {
-                computeLastPointAngleCmd(cmd.linear.x, cmd.angular.z);
-                cmd_pub_.publish(cmd);
-            }
-            else
-            {
-                index_path_++;
-                du_=INIT_DU;
-                dth_ = PI;
-                ROS_INFO_STREAM("Heading to point #"<<index_path_<<"/"<<size_path_<<" : ("
-                                        <<path_.poses[index_path_].position.x<<"|"<<path_.poses[index_path_].position.y<<")");
-            }
+            cmd.linear.x = 0;
+            cmd.angular.z = 0;
+            cmd_pub_.publish(cmd);
+
+            if(end_idle_time_ <= ros::Time::now())
+                idle_ = false;
         }
         else
         {
-            if( du_ > NEXT_POINT_DISTANCE_THRESH)
+            if( index_sequence_+1 <time_at_poses_.time_at_poses.size()
+                    && index_path_ >= time_at_poses_.time_at_poses[index_sequence_].pose_index)
+                initNextGoal();
+            else if(index_path_ == size_path_-1)
             {
-                computeCmd(cmd.linear.x, cmd.angular.z);
-                cmd_pub_.publish(cmd);
+                if(du_ > LAST_POINT_DISTANCE_THRESH)
+                {
+                    computeCmd(cmd.linear.x, cmd.angular.z);
+                    cmd_pub_.publish(cmd);
+                }
+                else if(dth_ > LAST_POINT_ANGLE_THRESH)
+                {
+                    computeLastPointAngleCmd(cmd.linear.x, cmd.angular.z);
+                    cmd_pub_.publish(cmd);
+                }
+                else
+                {
+                    index_path_++;
+                    du_=INIT_DU;
+                    dth_ = PI;
+                    ROS_INFO_STREAM("Heading to point #"<<index_path_<<"/"<<size_path_<<" : ("
+                        <<path_.poses[index_path_].position.x<<"|"<<path_.poses[index_path_].position.y<<")");
+                }
             }
             else
             {
-                index_path_++;
-                du_=INIT_DU;
-                dth_ = PI;
+                if( du_ > NEXT_POINT_DISTANCE_THRESH)
+                {
+                    computeCmd(cmd.linear.x, cmd.angular.z);
+                    cmd_pub_.publish(cmd);
+                }
+                else
+                {
+                    index_path_++;
+                    du_=INIT_DU;
+                    dth_ = PI;
+                }
             }
         }
     }
-    else if(size_path_ > 0 && index_path_==size_path_)
+    else if(size_path_ > 0 && index_path_>=size_path_)
     {
         cmd.linear.x = 0;
         cmd.angular.z = 0;

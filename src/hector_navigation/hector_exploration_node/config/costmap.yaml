@@ -5,11 +5,11 @@ global_costmap:
   unknown_cost_value: 255
   obstacle_range: 2.0
   raytrace_range: 5.0
-  footprint: [[0.225, 0.20], [0.225, -0.15], [-0.225, -0.15], [-0.225, 0.15]]
-  inflation_radius: 1.5
+  footprint: [[0.15, 0.30], [0.15, -0.25], [-0.15, -0.25], [-0.15, 0.30]]
+  inflation_radius: 2.0
   #transform_tolerance: 0.5
   inscribed_radius: 0.15
-  circumscribed_radius: 0.30
+  circumscribed_radius: 0.33
 
   global_frame: /map
   robot_base_frame: /base_link
@@ -33,4 +33,4 @@ local_costmap:
   rolling_window: true
   width: 5.0
   height: 5.0
-  resolution: 0.025
+  resolution: 0.05

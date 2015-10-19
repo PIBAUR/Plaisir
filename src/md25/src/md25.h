@@ -68,7 +68,7 @@
 #define BATTERY_IN_VOLT         0.10    // 123 = 12.3 V
 #define COMMAND_METER           12.633  // Convert from m.s^-1 to increment : 1m.s^-1 = 127
 #define ROTATION_CORRECT        1.0     // Coefficient correcting rotation
-#define LOOP_RATE               30      // frenquence du noeud
+#define LOOP_RATE               60      // frenquence du noeud
 
 class MD25
 {
@@ -106,11 +106,11 @@ private:
     double x;
     double y;
     double th;
-    
+
     /* Robot param */
     double semi_axe_length;
     double wheel_diameter;
-    
+
 
     ///----- CONSTRUCTOR/DESCTRUCTOR -----///
 public:
@@ -137,7 +137,7 @@ private :
     void set_speed2(unsigned char speed);             // Set the speed of motor 2 (if mode 0 or 1) or angular twist (if mode 2 or 3).
     void set_acceleration(unsigned char acceleration);// Set a desired acceleration rate.
     void set_motor();
-    
+
     void get_mode();                         // Get the current mode of operation.
     void get_encoder1();                     // Encoder 1 position.
     void get_encoder2();                     // Encoder 2 position.
