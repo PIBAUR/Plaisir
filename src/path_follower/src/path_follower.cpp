@@ -289,7 +289,7 @@ void PathFollower::spinOnce()
         }
         else
         {
-            if( index_sequence_ <time_at_poses_.time_at_poses.size()
+            if( index_sequence_+1 <time_at_poses_.time_at_poses.size()
                     && index_path_ >= time_at_poses_.time_at_poses[index_sequence_].pose_index)
                 initNextGoal();
             else if(index_path_ == size_path_-1)
@@ -329,7 +329,7 @@ void PathFollower::spinOnce()
             }
         }
     }
-    else if(size_path_ > 0 && index_path_==size_path_)
+    else if(size_path_ > 0 && index_path_>=size_path_)
     {
         cmd.linear.x = 0;
         cmd.angular.z = 0;
