@@ -16,5 +16,6 @@ notre_bon_plaisir
   
 
 * odroid
-  * firefox
+  * 
   * selenium (pip)
+  * désactiver l'écran de veille

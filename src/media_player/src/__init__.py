@@ -16,8 +16,14 @@ from selenium.webdriver.common.keys import Keys
 
 class MediaPlayer():
     def __init__(self):
+        chromedriver = os.path.sep.join(os.path.dirname(__file__).split(os.path.sep)[:-1]) + os.path.sep + "resources/chromedriver"
+        print chromedriver
+        os.environ["webdriver.chrome.driver"] = chromedriver
+        self.browser = webdriver.Chrome(chromedriver)
         # create browser
+        """
         self.browser = webdriver.Firefox()
+        """
         # load html file
         self.browser.get("file://" + os.path.split(os.path.abspath(__file__))[0] + "/media_player.html")
         # wait for loading complete

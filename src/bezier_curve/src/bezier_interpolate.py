@@ -5,6 +5,7 @@ import rospy
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from scenario_msgs.msg import Path as PathMsg
 from scenario_msgs.msg import TimeAtPose as TimeAtPoseMsg
+from scenario_msgs.msg import TimeAtPoseArray as TimeAtPoseArrayMsg
 from geometry_msgs.msg import Pose as PoseMsg
 from geometry_msgs.msg import Point as PointMsg
 from std_msgs.msg import Float64 as Float64Msg
@@ -19,8 +20,8 @@ def scenarioCallback(msg):
     # to execute only choregraphic scenario
     path.uid = msg.uid
     path.path.poses = []
-    path.path.time_at_poses = []
     path.path.header = msg.bezier_paths.header
+    path.time_at_poses = TimeAtPoseArrayMsg()
     distance = 0
     duration = 0
     rospy.loginfo("received " + str(msg))
@@ -32,12 +33,13 @@ def scenarioCallback(msg):
     for curve in msg.bezier_paths.curves:
         # get the pose index to specify the speed
         lastIndex = len(path.path.poses)
-        for sequenceMsg in msg.sequences:
+        for sequenceMsg in msg.sequences.sequences:
             if sequenceMsg.position == curveIndex:
                 timeAtPose = TimeAtPoseMsg()
                 timeAtPose.pose_index = lastIndex
                 timeAtPose.time = sequenceMsg.timePosition
-                path.path.time_at_poses.append(timeAtPose)
+                timeAtPose.backward = sequenceMsg.backward
+                path.time_at_poses.time_at_poses.append(timeAtPose)
                 
         if msg.type == "travel" or (msg.type == "choregraphic" and curve != msg.bezier_paths.curves[-1]):
             distance += getBezierCurveLength(curve)
@@ -64,7 +66,6 @@ def scenarioCallback(msg):
                     
                 path.path.poses.append(pose)
                 
-        
         curveIndex += 1
             
     rospy.loginfo("""new """ + msg.type + """ scenario: 
