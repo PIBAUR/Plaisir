@@ -32,6 +32,7 @@ rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/src/launch_utils' \
 	--exclude '/catkin_ws/src/local_path' \
 	--exclude '/catkin_ws/src/obstacle_avoidance_test' \
+	--exclude '/catkin_ws/src/path_checker' \
 	--exclude '/catkin_ws/src/path_finding' \
 	--exclude '/catkin_ws/src/robot_visualisation' \
 	--exclude '/catkin_ws/src/rviz' \
