@@ -331,6 +331,11 @@ class Canvas(QWidget):
             position.setY(position.y() * self.canvasZoom + self.canvasTranslateY)
             angle = 180. * positionAndAngleResult[1] / math.pi
             
+            # if backward, turn over
+            absoluteTimePosition = timePosition * self.sequences.temporalization.fullDuration
+            if self.getSequencesIntervalOnTimePosition(robot, absoluteTimePosition)[0].backward:
+                angle += 180.
+            
             if self.mediaPixmap is not None:
                 transform = QTransform() 
                 transform.translate(position.x(), position.y())
@@ -344,28 +349,35 @@ class Canvas(QWidget):
                 painter.drawPixmap(0, 0, self.mediaPixmap)#position.x(), position.y(), self.mediaPixmap)# - self.mediaPixmap.width() / 2, position.y() - self.mediaPixmap.height() / 2, self.mediaPixmap)
                 painter.resetTransform()
 
-
+    
+    def getSequencesIntervalOnTimePosition(self, robot, timePosition):
+        toDrawSequence = None
+        toDrawNextSequence = None
+        for sequenceId in range(-1, len(robot.sequences)):
+            if sequenceId == -1: 
+                currentSequence = Sequence(0, 0, False)
+            else: 
+                currentSequence = robot.sequences[sequenceId]
+            
+            if sequenceId == len(robot.sequences) - 1: 
+                nextSequence = Sequence(robot.getDuration(), len(robot.points) - 1, False)
+            else: 
+                nextSequence = robot.sequences[sequenceId + 1]
+            
+            if timePosition >= currentSequence.timePosition and timePosition < nextSequence.timePosition:
+                toDrawSequence = currentSequence
+                toDrawNextSequence = nextSequence
+                break
+        
+        return toDrawSequence, toDrawNextSequence
+        
+                
     def getCurvePosition(self, robot, timePosition):
-        absoluteTimePosition = timePosition * self.sequences.temporalization.fullDuration#robot.getDuration()
-        # get the interval corresponding to the current time
         if len(robot.points) > 1 and len(robot.sequences) > 0:
-            toDrawSequence = None
-            toDrawNextSequence = None
-            for sequenceId in range(-1, len(robot.sequences)):
-                if sequenceId == -1: 
-                    currentSequence = Sequence(0, 0, False)
-                else: 
-                    currentSequence = robot.sequences[sequenceId]
-                
-                if sequenceId == len(robot.sequences) - 1: 
-                    nextSequence = Sequence(robot.getDuration(), len(robot.points) - 1, False)
-                else: 
-                    nextSequence = robot.sequences[sequenceId + 1]
-                
-                if absoluteTimePosition >= currentSequence.timePosition and absoluteTimePosition < nextSequence.timePosition:
-                    toDrawSequence = currentSequence
-                    toDrawNextSequence = nextSequence
-                    break
+            absoluteTimePosition = timePosition * self.sequences.temporalization.fullDuration
+            
+            # get the interval corresponding to the current time
+            toDrawSequence, toDrawNextSequence = self.getSequencesIntervalOnTimePosition(robot, absoluteTimePosition)
             
             if toDrawSequence is not None and toDrawNextSequence is not None:
                 pointIndex = toDrawSequence.getPositionPointIndex()

@@ -21,10 +21,17 @@ class Temporalization():
         self.timelineValueIsSetByCode = False
         self.temporalizationSplitter = None
         self.fullDuration = 0.
+        self.isPlaying = False
         
         self.ui.timeline_slider.valueChanged.connect(self.handleTimelineSliderValueChanged)
         self.ui.addMedia_button.clicked.connect(self.handleAddMediaButtonClicked)
         self.ui.deleteMedia_button.clicked.connect(self.handleDeleteMediaButtonClicked)
+        self.ui.playPause_button.clicked.connect(self.handlePlayPauseMediaButtonClicked)
+        
+        self.playingTimer = QTimer()
+        self.playingTimer.setInterval(41)
+        self.playingTimer.timeout.connect(self.handlePlaying)
+        self.playingTimer.start()
     
     
     def update(self):
@@ -86,7 +93,7 @@ class Temporalization():
         self.changeCallback()
     
 
-    def updateMedia(self, checkedMediaButton = None):
+    def updateMedia(self, checkedMediaButton = None, tryToPause = True):
         previousMedia = self.robotMediaPlayer.currentVideoMediaSource
         
         mediaToPlay = None
@@ -103,7 +110,7 @@ class Temporalization():
         
         if mediaToPlay is None or mediaToPlay.media != previousMedia:
             self.robotMediaPlayer.stop()
-            self.robotMediaPlayer.setCurrentMedia(mediaToPlay)
+            self.robotMediaPlayer.setCurrentMedia(mediaToPlay, tryToPause)
     
     
     def setTimelineValueCurrentMedia(self, value):
@@ -130,7 +137,7 @@ class Temporalization():
         if currentMediaIndex < len(self.canvas.currentRobot.medias) - 1:
             mediaButton = self.temporalizationSplitter.widget(currentMediaIndex + 1)
             mediaButton.setChecked(True)
-            self.updateMedia(mediaButton)
+            self.updateMedia(mediaButton, False)
             self.robotMediaPlayer.videoPlayer.seek(0)
             self.robotMediaPlayer.play()
         else:
@@ -176,26 +183,58 @@ class Temporalization():
             value = self.ui.timeline_slider.value()
         
         value = float(value) / (self.ui.timeline_slider.maximum() + 1)
-        """
+        timelineValue = value * self.fullDuration
+        
         if not self.timelineValueIsSetByCode:
             if len(self.canvas.currentRobot.medias) > 0:
                 # set current media
                 currentDuration = 0
-                for i in range(len(self.canvas.currentRobot.medias)):
-                    media = self.canvas.currentRobot.medias[i]
-                    if value <= currentDuration:
-                        mediaSeek = 0
+                mediaIndex = 0
+                for media in self.canvas.currentRobot.medias:
+                    currentDuration += media.duration
+                    
+                    if timelineValue <= currentDuration:
+                        mediaSeek = int((timelineValue - (currentDuration - media.duration)) * 1000)
                         self.robotMediaPlayer.seek(mediaSeek)
-                        mediaButton = self.temporalizationSplitter.widget(i)
+                        mediaButton = self.temporalizationSplitter.widget(mediaIndex)
                         mediaButton.setChecked(True)
                         self.updateMedia(mediaButton)
                         break
-                    currentDuration += media.duration
+                    
+                    mediaIndex += 1
             else:
                 self.updateMedia()
-            """
         
         # update canvas
         self.canvas.currentTimelinePosition = value
         self.ui.timelinePosition_label.setText(str((float(math.floor(value * self.fullDuration * 100)) / 100)) + " s")
         self.canvas.update()
+        
+    
+    def handlePlaying(self):
+        if self.isPlaying:
+            #newTimelineValue = ((self.getTimelineCurrentTime() + 1. / self.playingTimer.interval()) / self.fullDuration) * self.ui.timeline_slider.maximum()
+            #self.setTimelineValueCurrentMedia(newTimelineValue)
+            toSeek = self.robotMediaPlayer.currentTime() + self.playingTimer.interval()
+            if toSeek < self.robotMediaPlayer.totalTime():
+                self.robotMediaPlayer.seek(int(toSeek))
+            else:
+                self.robotMediaPlayer.handleVideoPlayerFinished()
+            #newTimelineValue = ((self.getTimelineCurrentTime() + 1. / self.playingTimer.interval()) / self.fullDuration) * self.ui.timeline_slider.maximum()
+        
+        
+    def handlePlayPauseMediaButtonClicked(self):
+        if self.isPlaying:
+            self.pause()
+        else:
+            self.play()
+            
+            
+    def play(self):
+        self.ui.playPause_button.setText("||")
+        self.isPlaying = True
+    
+    
+    def pause(self):
+        self.ui.playPause_button.setText(">")
+        self.isPlaying = False

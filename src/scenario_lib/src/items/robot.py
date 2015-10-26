@@ -139,6 +139,8 @@ class Robot():
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()
         
+        scenarioMsg.type = "choregraphic"
+        
         # put medias into the message
         scenarioMsg.medias = MediaArrayMsg()
         scenarioMsg.medias.medias = []
@@ -158,6 +160,10 @@ class Robot():
             sequenceMsg.position = sequence.position
             sequenceMsg.backward = sequence.backward
             scenarioMsg.sequences.sequences.append(sequenceMsg)
+        
+        # add first and last one
+        scenarioMsg.sequences.sequences.insert(0, SequenceMsg(timePosition = 0, position = 0, backward = False))
+        scenarioMsg.sequences.sequences.append(SequenceMsg(timePosition = self.getDuration(), position = len(self.points) - 1, backward = False))
        
         headerMsg.frame_id = "/map"
         headerMsg.stamp = rospy.Time.now()

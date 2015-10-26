@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
 from functools import partial
@@ -17,15 +16,11 @@ class RobotMediaPlayer():
         self.currentVideoMediaSource = None
         self.currentMedia = None
         self.tryToPause = False
-        self.mediaSeekValueIsSetByCode = False
         
         #TODO: conditions depending on the type of media
         self.videoPlayer = Phonon.VideoPlayer()
         self.ui.mediaContainer_widget.layout().addWidget(self.videoPlayer.videoWidget())
         self.videoPlayer.finished.connect(self.handleVideoPlayerFinished)
-        
-        self.ui.playPauseMedia_button.clicked.connect(self.handlePlayPauseMediaButtonClicked)
-        self.ui.mediaSeek_slider.valueChanged.connect(self.handleMediaSeekSliderValueChanged)
         
         self.ui.media_groupBox.setEnabled(False)
         
@@ -36,33 +31,40 @@ class RobotMediaPlayer():
     
     
     def play(self):
-        self.videoPlayer.play(self.currentVideoMediaSource)
-        self.ui.playPauseMedia_button.setText("||")
+        if self.currentVideoMediaSource is not None:
+            self.videoPlayer.play()
     
     
     def pause(self):
         self.videoPlayer.pause()
-        self.ui.playPauseMedia_button.setText(">")
         
     
     def stop(self):
         self.videoPlayer.stop()
-        self.ui.mediaSeek_slider.setValue(0)
-        self.ui.playPauseMedia_button.setText(">")
     
     
     def seek(self, value):
-        self.ui.mediaSeek_slider.setValue(value * self.ui.mediaSeek_slider.maximum())
+        self.videoPlayer.seek(value)
     
     
-    def setCurrentMedia(self, media):
+    def currentTime(self):
+        return self.videoPlayer.currentTime()
+    
+    
+    def totalTime(self):
+        return self.videoPlayer.totalTime()
+    
+    
+    def setCurrentMedia(self, media, tryToPause = True):
         #TODO: conditions depending on the type of media
         if media is not None:
             self.currentVideoMediaSource = media.media
             self.currentMedia = media
             self.videoPlayer.load(media.media)
             self.play()
-            self.tryToPause = True
+            # if was playing, don't try to pause
+            if tryToPause:
+                self.tryToPause = True
             self.ui.media_groupBox.setEnabled(True)
             self.ui.media_groupBox.setTitle(u"Vidéo (" + os.path.basename(media.niceName) + ")")
         else:
@@ -87,40 +89,20 @@ class RobotMediaPlayer():
         
         
     def handleMediaPlaying(self):
-        value = 0
-        if self.currentVideoMediaSource is None:
-            self.ui.mediaSeek_slider.setValue(value)
-        else:
-            value = float(self.videoPlayer.currentTime()) / self.videoPlayer.totalTime()
-            
-            if self.videoPlayer.isPlaying():
-                
-                self.mediaSeekValueIsSetByCode = True
-                self.ui.mediaSeek_slider.setValue(value * self.ui.mediaSeek_slider.maximum())
-                self.temporalization.setTimelineValueCurrentMedia(value)
-                self.mediaSeekValueIsSetByCode = False
-            
+        value = float(self.videoPlayer.currentTime()) / self.videoPlayer.totalTime()
+        
+        if self.videoPlayer.isPlaying():
+            self.temporalization.setTimelineValueCurrentMedia(value)
+            self.pause()
+        
+        if self.tryToPause:
+            self.pause()
+            self.tryToPause = False
+        
         # update canvas
         self.sendMediaToCanvas()
         
     
-    def handlePlayPauseMediaButtonClicked(self):
-        if self.videoPlayer.isPlaying():
-            self.pause()
-        else:
-            self.play()
-    
-    
     def handleVideoPlayerFinished(self):
-        if self.ui.continuousPlaying_checkbox.isChecked():
-            self.temporalization.playNextMedia()
-        else:
-            self.stop()
-        
-    
-    def handleMediaSeekSliderValueChanged(self, value):
-        if not self.mediaSeekValueIsSetByCode:
-            sliderValue = float(value) / self.ui.mediaSeek_slider.maximum()
-            self.videoPlayer.pause()
-            self.videoPlayer.seek(sliderValue * self.videoPlayer.totalTime())
-            self.temporalization.setTimelineValueCurrentMedia(sliderValue)
+        print "play next media"
+        self.temporalization.playNextMedia()

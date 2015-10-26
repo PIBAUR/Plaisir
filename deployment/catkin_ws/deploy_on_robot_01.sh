@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sh $(dirname $0)/deploy_on_robot.sh "01"
+sh $(dirname $0)/deploy_on_robot.sh "01" $*
