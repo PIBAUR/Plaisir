@@ -82,7 +82,7 @@ MD25::MD25() :
 
     /* Enable the receiver and set local mode */
     options.c_cflag |= (CLOCAL | CREAD);
-    options.c_cflag &= ~PARENB;         /* Mask the character size to 8 bits, no parity */
+    options.c_cflag &= ~(PARENB | PARODD);         /* Mask the character size to 8 bits, no parity */
     options.c_cflag &= ~CSTOPB;         /* Two stop bits*/
     options.c_cflag &= ~CSIZE;
     options.c_cflag |=  CS8;            /* Select 8 data bits */
