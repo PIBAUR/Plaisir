@@ -17,19 +17,9 @@
 		
 	<!-- HARDWARE -->
 	<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
-	<!-- 
-	 <node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true"/>
-	 -->
+	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true"/>
 	<node name="bumper" pkg="robot_sensor" type="bumper" machine="robot$(arg robot)" respawn="true"/>
-		
-      <!-- SECOND LOCALISATION PARAMETERS CONFIG -->
-      	<!-- always at the end of the launch file -->
-        	
-        <!--<param name="tf_prefix" value="robot$(arg robot)"/>
-    	<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" args="-sever-debug" >
-        </node>-->
-	 
-	
+
  
 </launch>
 
