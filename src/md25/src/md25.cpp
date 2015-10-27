@@ -230,7 +230,7 @@ void MD25::get_encoder1()
         encoder[0] *= -1;
     }
     encoder[0]*=ENCODER_IN_METER;
-    ROS_DEBUG_STREAM("Codeur 1 : "<<encoder[0]<<" | "<<(int)data[0]<<" "<<(int)data[1]<<" "<<(int) data[2]<<" "<<(int)data[3]);
+    ROS_DEBUG_STREAM("Codeur 1 : "<<encoder[0]<<" |\t"<<(int)data[0]<<"\t"<<(int)data[1]<<"\t"<<(int) data[2]<<"\t"<<(int)data[3]);
     //ROS_DEBUG_STREAM(encoder[0]);
     //std::cout<<"Codeur 1 : "<<(int)data[0]<<" "<<(int)data[1]<<" "<<(int) data[2]<<" "<<(int)data[3]<<std::endl;
     return ;
@@ -271,7 +271,7 @@ void MD25::get_encoder2()
         encoder[1] *= -1;
     }
     encoder[1]*=ENCODER_IN_METER;
-    ROS_DEBUG_STREAM("Codeur 2 : "<<encoder[1]<<" | "<<(int)data[0]<<" "<<(int)data[1]<<" "<<(int) data[2]<<" "<<(int)data[3]);
+    ROS_DEBUG_STREAM("Codeur 2 : "<<encoder[1]<<" |\t"<<(int)data[0]<<"\t"<<(int)data[1]<<"\t"<<(int) data[2]<<"\t"<<(int)data[3]);
     //ROS_DEBUG_STREAM(encoder[1]);
     //std::cout<<"Codeur 2 : "<<(int)data[0]<<" "<<(int)data[1]<<" "<<(int) data[2]<<" "<<(int)data[3]<<std::endl;
     return ;
