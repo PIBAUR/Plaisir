@@ -233,7 +233,7 @@ class Canvas(QWidget):
         nodesCategories = nodesDict.keys()
         nodesCategories.sort()
         
-        for robotId in ["robot01", "robot02"]:
+        for robotId in ["robot01", "robot02", "robot03"]:
             robotMenu = menu.addMenu(robotId)
             for nodeCategory in nodesCategories:
                 if nodeCategory == "":
