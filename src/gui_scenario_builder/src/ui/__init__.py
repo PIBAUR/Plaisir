@@ -79,7 +79,7 @@ class ScenarioEdition():
         
         # physical robot
         self.scenarioPublishers = {}
-        for robotIndex in self.numMaxRobots:
+        for robotIndex in range(self.numMaxRobots):
             self.scenarioPublishers[robotIndex] = rospy.Publisher("/robot" + ("0" if robotIndex < 10 else "") + str(robotIndex) + "/scenario", ScenarioMsg)
         
         # other buttons

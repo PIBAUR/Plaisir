@@ -17,7 +17,9 @@
 		
 	<!-- HARDWARE -->
 	<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
-	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true"/>
+	<!-- 
+	 <node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true"/>
+	 -->
 	<node name="bumper" pkg="robot_sensor" type="bumper" machine="robot$(arg robot)" respawn="true"/>
 		
       <!-- SECOND LOCALISATION PARAMETERS CONFIG -->
