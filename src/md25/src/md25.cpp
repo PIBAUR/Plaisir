@@ -75,31 +75,67 @@ MD25::MD25() :
     ROS_ERROR_STREAM_COND_NAMED(port_opened < 0, "MD25_node", "Unable to open " << name_port);
 
     struct termios options;
+
+
     /* Get the current options for the port */
-    tcgetattr(port_opened, &options);
-    cfsetispeed(&options, B38400);      /* Set the baud rates to 38400 */
+    ROS_ERROR_STREAM_COND_NAMED( (tcgetattr(port_opened, &options)!=0),
+        "MD25_node", "tcgetattr() 3 failed");
+
+    /* Set the baud rates to 38400 */
     cfsetospeed(&options, B38400);
+    cfsetispeed(&options, B38400);
+
+
+    /* Mask the character size to 8 bits*/
+    options.c_cflag = (options.c_cflag & ~CSIZE) | CS8;
+    //options.c_cflag &= ~CSIZE;
+    //options.c_cflag |=  CS8;
 
     /* Enable the receiver and set local mode */
-    options.c_cflag |= (CLOCAL | CREAD);
-    options.c_cflag &= ~(PARENB | PARODD);         /* Mask the character size to 8 bits, no parity */
-    options.c_cflag &= ~CSTOPB;         /* Two stop bits*/
-    options.c_cflag &= ~CSIZE;
-    options.c_cflag |=  CS8;            /* Select 8 data bits */
-    options.c_cflag &= ~CRTSCTS;        /* Disable hardware flow control */
+    options.c_cflag |= CLOCAL | CREAD;
+    //options.c_cflag |= (CLOCAL | CREAD);
+
+    /* No parity */
+    options.c_cflag &= ~(PARENB | PARODD);
+
+    /* Two stop bits*/
+    options.c_cflag |= CSTOPB;
+    //options.c_cflag &= ~CSTOPB;
+
+    /* Disable hardware flow control */
+    options.c_cflag &= ~CRTSCTS;
+
+    /* Break */
+    options.c_iflag=IGNBRK;
+
+    /* Software handshake */
+    options.c_iflag &= ~(IXON|IXOFF|IXANY);
 
     /* Enable data to be processed as raw input */
-    options.c_lflag &= ~(ICANON | ECHO | ISIG);
+    //options.c_lflag &= ~(ICANON | ECHO | ISIG);
     //options.c_lflag &= ~(ISIG);
+    options.c_lflag=0;
+    options.c_oflag=0;
+
+    /* */
     options.c_cc[VMIN]  = 4;
     options.c_cc[VTIME] = 1;
 
     /* Set the new options for the port */
-    tcsetattr(port_opened, TCSANOW, &options);
+    ROS_ERROR_STREAM_COND_NAMED( tcsetattr(port_opened, TCSANOW, &options) != 0,
+        "MD25_node", "tcsetattr() 1 failed");
+    //tcsetattr(port_opened, TCSANOW, &options) != 0;
+
+    int mcs=0;
+    ioctl(port_opened, TIOCMGET, &mcs);
+    mcs |= TIOCM_RTS;
+    ioctl(port_opened, TIOCMSET, &mcs);
 
     /* Clear both the input and output buffers. */
-    tcflush(port_opened, TCIOFLUSH);
+    ROS_ERROR_STREAM_COND_NAMED( tcsetattr(port_opened, TCSANOW, &options)!=0,
+        "MD25_node", "tcsetattr() 2 failed");
 
+    tcflush(port_opened, TCIOFLUSH);
 
     /**** Initialisation des parametres du MD25 ****/
     reset_encoders();
