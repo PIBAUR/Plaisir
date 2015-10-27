@@ -78,7 +78,9 @@ class ScenarioEdition():
         self.sequences = Sequences(self.ui, self.canvas, self.temporalization)
         
         # physical robot
-        self.scenarioPublisher = rospy.Publisher('/robot01/scenario', ScenarioMsg)
+        self.scenarioPublishers = {}
+        for robotIndex in self.numMaxRobots:
+            self.scenarioPublishers[robotIndex] = rospy.Publisher("/robot" + ("0" if robotIndex < 10 else "") + str(robotIndex) + "/scenario", ScenarioMsg)
         
         # other buttons
         self.ui.showControls_button.clicked.connect(self.handleShowControlsButtonClicked)
@@ -364,7 +366,10 @@ class ScenarioEdition():
     
     
     def handleTestOnPhysicalRobot(self):
-        scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
-        
-        rospy.loginfo(str(scenarioMsg))
-        self.scenarioPublisher.publish(scenarioMsg)
+        robotIndex = 0
+        for robot in self.currentScenario.robots:
+            scenarioMsg = robot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
+            rospy.loginfo(str(scenarioMsg))
+            self.scenarioPublishers[robotIndex].publish(scenarioMsg)
+            
+            robotIndex += 1
