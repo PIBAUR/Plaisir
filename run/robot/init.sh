@@ -7,12 +7,5 @@ user=$USER
 #set time on odroid
 ssh odroid@192.168.150.1$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate 192.168.150.1'
 
-
-if [ "$robot" = "01" ]; then
-    roslaunch robot init_bis.launch robot:=$robot
-
-elif [ "$robot" = "02" ]; then
-    roslaunch robot init_bis_second_robot.launch robot:=$robot
-    
-fi
-
+#launch robot
+roslaunch robot init_bis.launch robot:=$robot

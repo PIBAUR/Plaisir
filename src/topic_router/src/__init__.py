@@ -15,10 +15,10 @@ from scenario_msgs.msg import ObstacleArray as ObstacleArrayMsg
 class TopicRouter():
     def __init__(self):
         self.clickedPointSubscriber = rospy.Subscriber('/clicked_point', PointStampedMsg, self.clickedPointCB)
-        self.clickedPointSubscriber = rospy.Subscriber('/robot01/path', PathMsg, self.pathCB)
+        self.clickedPointSubscriber = rospy.Subscriber('/path', PathMsg, self.pathCB)
         self.obstaclesPublisher = rospy.Publisher('/obstacles', ObstacleArrayMsg)
         
-        self.pathVizPublisher = rospy.Publisher('/robot01/path_viz', PoseArrayMsg)
+        self.pathVizPublisher = rospy.Publisher('/path_viz', PoseArrayMsg)
 
     def pathCB(self, msg):
         self.pathVizPublisher.publish(PoseArrayMsg(header = HeaderMsg(frame_id = "/map"), poses = msg.path.poses))

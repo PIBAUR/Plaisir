@@ -13,7 +13,7 @@
 	<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
 	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true"/>
 	
-	<node name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(env HOME)/catkin_ws/params/default$(arg robot).rviz"/>
+	<node name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(env HOME)/catkin_ws/params/cartography_viewer.rviz"/>
 	<node name="rqt" pkg="rqt_gui" type="rqt_gui" respawn="false"/>
 </launch>
 
