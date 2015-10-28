@@ -153,7 +153,7 @@ class Temporalization():
         
     def handleVideoSelected(self, filePath):
         if filePath is not None:
-            filePath = str(filePath)
+            filePath = str(filePath.encode("utf-8"))
             self.lastMediaDirectory = os.path.dirname(filePath)
             
             # create media

@@ -41,7 +41,7 @@ class Canvas(QWidget):
             self.monitorScreenWidth = rospy.get_param("monitor_screen_width")
             self.monitorScreenHeight = rospy.get_param("monitor_screen_height")
         except Exception:
-            self.mediaTimeBase = 2.5
+            self.mediaTimeBase = 2
             self.monitorScreenWidth = 55
             self.monitorScreenHeight = 35
         

@@ -30,18 +30,18 @@ from src.bezier_curve.src import bezier_interpolate
 class Robot():
     currentHue = 0
     currentLuminosity = 100
-    server_videos_path = None
+    video_db_path = None
     robot_videos_path = None
     
     def __init__(self, scenario):
         self.scenario = scenario
         
         try:
-            Robot.server_videos_path = rospy.get_param("server_videos_path")
+            Robot.video_db_path = rospy.get_param("video_db_path")
             Robot.robot_videos_path = rospy.get_param("robot_videos_path")
         except:
-            Robot.server_videos_path = os.path.expanduser("~") + "/.notrebonplaisir/videos"
-            Robot.robot_videos_path = os.path.expanduser("~") + "/.notrebonplaisir/videos"
+            Robot.video_db_path = os.path.expanduser("~") + "/Bureau/films_notre_bon_plaisir"
+            Robot.robot_videos_path = "/home/odroid/.notrebonplaisir/videos"
         
         self.points = []
         self.medias = []
@@ -149,7 +149,7 @@ class Robot():
             mediaMsg = MediaMsg()
             mediaMsg.type = "video"
             # replace file from server to robot 
-            mediaMsg.path = media.filePath.replace(Robot.server_videos_path, Robot.robot_videos_path)
+            mediaMsg.path = media.filePath.replace(Robot.video_db_path, Robot.robot_videos_path)
             mediaMsg.duration = media.duration
             scenarioMsg.medias.medias.append(mediaMsg)
        

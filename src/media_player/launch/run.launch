@@ -1,0 +1,5 @@
+<launch>
+	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
+	
+	<node name="media_player" pkg="media_player" type="__init__.py" output="screen"/>
+</launch>

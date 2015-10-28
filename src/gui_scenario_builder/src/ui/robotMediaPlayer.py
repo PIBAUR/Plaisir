@@ -66,7 +66,7 @@ class RobotMediaPlayer():
             if tryToPause:
                 self.tryToPause = True
             self.ui.media_groupBox.setEnabled(True)
-            self.ui.media_groupBox.setTitle(u"Vidéo (" + os.path.basename(media.niceName) + ")")
+            self.ui.media_groupBox.setTitle(u"Vidéo (" + os.path.basename(media.niceName).decode("utf-8") + u")")
         else:
             self.currentVideoMediaSource = None
             self.currentMedia = None

@@ -16,6 +16,5 @@ notre_bon_plaisir
   
 
 * odroid
-  * 
-  * selenium (pip)
-  * désactiver l'écran de veille
+  * sudo apt-get install chromium-browser chromium-codecs-ffmpeg chromium-codecs-ffmpeg-extra
+  * désactiver l'écran de veille (luminosité & verrouillage)
