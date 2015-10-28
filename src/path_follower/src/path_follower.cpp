@@ -43,7 +43,8 @@ void PathFollower::pathCB(const scenario_msgs::Path &msg)
     index_path_ = 0;
     size_path_ = path_.poses.size();
 
-
+    if(time_at_poses_.time_at_poses.size() == 0)
+        linear_speed_= LINEAR_SPEED_DEFAULT ;
     if (size_path_ > 0)
 	{
 		ROS_INFO_STREAM("New path received :   id = " << path_uid_ << "  |  size = " << size_path_ << "  |  goal = "
@@ -212,7 +213,7 @@ void PathFollower::computeAverageSpeed(size_t index_goal, float time)
     if(time == 0.0)
     {
         ROS_ERROR_STREAM("RECIEVED TIME NUL FOR NEXT GOAL IN THE CURRENT SEQUENCE");
-        linear_speed_ = 0.0;
+        linear_speed_ = LINEAR_SPEED_DEFAULT;
         return;
     }
     float distance = distanceToGoal(index_goal);
@@ -251,7 +252,6 @@ void PathFollower::initNextGoal()
 
     delta_time = abs(time_at_poses_.time_at_poses[index_sequence_+1].time) - abs(time_at_poses_.time_at_poses[index_sequence_].time);
 
-    //if time < 0, go backward (true), else go forward (false)
     backward_ = time_at_poses_.time_at_poses[index_sequence_].backward;
     ROS_INFO_STREAM("Next goal : pose : "<< time_at_poses_.time_at_poses[index_sequence_+1].pose_index
                     <<"  duration : "<<delta_time<<" seconds.");

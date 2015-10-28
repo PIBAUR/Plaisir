@@ -22,8 +22,8 @@
 		
 		<!--Translational movement and Rotational movement required before
 		performing a filter update.-->
-		<param name="update_min_d" value="-0.10"/>
-		<param name="update_min_a" value="-0.30"/>
+		<param name="update_min_d" value="0.10"/>
+		<param name="update_min_a" value="0.30"/>
 		
 		<!--Number of filter updates required before resampling.-->
 		<param name="resample_interval" value="5"/>
@@ -44,8 +44,8 @@
 		
 		<!--Initial pose covariance (x*x), (y*y) and (yaw*yaw) used to initialize 
 		filter with Gaussian distribution. -->
-		<param name="initial_cov_xx" value="0.25"/>
-		<param name="initial_cov_yy" value="0.25"/>
+		<param name="initial_cov_xx" value="0.50"/>
+		<param name="initial_cov_yy" value="0.50"/>
 		<param name="initial_cov_aa" value="1.0"/>
 		
 		<!--Maximum rate (Hz) at which scans and paths are published for visualization,
