@@ -1,7 +1,6 @@
 #!/bin/bash
 
 robot=$1
-arg=$2
 user=$USER
 
 # to make a backup
@@ -51,6 +50,8 @@ rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/src/topic_router' \
 	--exclude '/catkin_ws/bag/' \
 	--exclude '/catkin_ws/devel/' \
+	--exclude '/catkin_ws/maps/' \
+	--exclude '/catkin_ws/run/' \
 	--exclude '/catkin_ws/build/' \
 	--exclude '/catkin_ws/deployment/' \
 	--exclude '/catkin_ws/build_isolated/' \
