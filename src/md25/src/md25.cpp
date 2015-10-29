@@ -60,7 +60,7 @@ MD25::MD25() :
     /*** get rosparam ***/
     nh_.param<double>("/semi_axe_length",semi_axe_length,SEMI_AXE_LENGTH);
     nh_.param<double>("/wheel_diameter",wheel_diameter,WHEEL_DIAMETER);
-    nh_.param<std::string>("/md25_serial_port",name_port,"/dev/ttyUSB0");
+    nh_.param<std::string>("/md25_serial_port",name_port,"/dev/md25");
 
     ROS_INFO_STREAM_NAMED("MD25_node","Wheel diameter : "<< wheel_diameter);
     ROS_INFO_STREAM_NAMED("MD25_node","Robot semi axe : "<< semi_axe_length);
@@ -189,6 +189,7 @@ void MD25::get_mode()
 
     if (read(port_opened, &data, 1) == -1)
     {
+
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
     }
 
@@ -220,7 +221,8 @@ void MD25::get_encoder1()
         return ;
     }
 
-    /* Combine the position bytes */
+    /* Combine the position
+     *  bytes */
     encoder[0] = ((data[0]<<24) | (data[1]<<16) | (data[2]<<8) | data[3]);
 
     /* convert value */
@@ -427,6 +429,7 @@ void MD25::get_speed2()
         return ;
     }
 
+
     ROS_DEBUG_STREAM("Speed motor 2 : " << (int)data);
     speed[1]=data;
     return ;
@@ -503,7 +506,8 @@ void MD25::set_acceleration(unsigned char acceleration)
  * Get the set desired acceleration rate.
  *
  * if new speed > current speed:
- *      steps = (new speed - current speed) / acceleration register
+ *      steps = (new speed - current speed) / accel
+ *      eration register
  * if new speed < current speed:
  *      steps = (current speed - new speed) / acceleration register
  * time = steps * 25ms
@@ -625,6 +629,7 @@ void MD25::publish()
     double du = -(de1+de2)/2.0;
     double dth = ROTATION_CORRECT*(de2-de1)/(2*semi_axe_length);
     double dt = current_time.toSec() - last_time.toSec();
+
 
     //calcul de la nouvelle posture
     x += du*cos(th);

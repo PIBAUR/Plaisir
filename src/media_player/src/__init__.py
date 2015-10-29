@@ -28,7 +28,7 @@ class MediaPlayer():
         
         # load html file
         mediaPlayerUrl = "file://" + os.path.split(os.path.abspath(__file__))[0] + "/media_player.html"
-        subprocess.Popen(['chromium-browser', "--kiosk", mediaPlayerUrl])
+        self.process = subprocess.Popen(['chromium-browser', "--kiosk", mediaPlayerUrl])
         #subprocess.Popen(['chromium-browser', mediaPlayerUrl])
         # start communication
         webSocketServer = SimpleWebSocketServer("127.0.0.1", 9001, StreamingWebSocketServer, self.handleBrowserMessageReceived)
@@ -39,6 +39,7 @@ class MediaPlayer():
         if message == "media_player_client_initialized":
             self.mediaPlayerClientInitialized = True
             self.browser = browser
+            rospy.loginfo("chromium browser opened with pid: " + str(self.process.pid))
 
 
     def mediaCB(self, data):

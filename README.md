@@ -18,3 +18,4 @@ notre_bon_plaisir
 * odroid
   * sudo apt-get install chromium-browser chromium-codecs-ffmpeg chromium-codecs-ffmpeg-extra
   * désactiver l'écran de veille (luminosité & verrouillage)
+  * désactiver le message d'erreur "System program problem detected" : https://chrisjean.com/fix-system-program-problem-detected-messages-from-ubuntu/
