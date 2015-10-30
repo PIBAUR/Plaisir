@@ -50,7 +50,7 @@ def execute():
     os.system("rosnode kill /" + str(tfPrefix) + "/amcl")
     rospy.loginfo("Killing node "+ str(tfPrefix) + "/amcl")
     rospy.sleep(1)
-    os.system("roslaunch robot server_localisation_bis.launch init_done:=true robot:="+str(tfPrefix[-2:])+xArg+yArg+thArg)
+    os.system("roslaunch robot server_localisation.launch init_done:=true robot:="+str(tfPrefix[-2:])+xArg+yArg+thArg)
     #sys.exit():
     
 
