@@ -1,3 +1,5 @@
+import os
+import shutil
 from functools import partial
 import math
 import json
@@ -168,7 +170,7 @@ class Canvas(QWidget):
         self.setMinimumSize(maxWidth, maxHeight)
         self.setMaximumSize(maxWidth, maxHeight)
     
-    # persistance
+    
     def save(self, filePath):
         nodesDataList = []
         
@@ -176,8 +178,23 @@ class Canvas(QWidget):
             nodeData = nodeInstance.getDataFromInstance()
             nodesDataList.append(nodeData)
         
+        if os.path.exists(filePath):
+            # make a backup
+            i = 0
+            while True:
+                backupFilePath = filePath.replace(os.path.basename(filePath), "." + os.path.basename(filePath)) + "." + str(i) + ".history"
+                
+                if not os.path.exists(backupFilePath):
+                    break
+                
+                i += 1
+                
+            shutil.copy(filePath, backupFilePath)
+        
         with open(filePath, 'w') as outFile:
             json.dump(nodesDataList, outFile)
+        
+        outFile.close()
     
     
     def load(self, filePath):

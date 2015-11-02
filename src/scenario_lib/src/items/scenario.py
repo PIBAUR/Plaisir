@@ -3,6 +3,7 @@
 import os
 import time
 import json
+import shutil
 
 from robot import Robot
 from media import Media
@@ -64,10 +65,24 @@ class Scenario():
     
     
     def save(self, filePath, gridSize = 10):
+        if os.path.exists(filePath):
+            # make a backup
+            i = 0
+            while True:
+                backupFilePath = filePath.replace(os.path.basename(filePath), "." + os.path.basename(filePath)) + "." + str(i) + ".history"
+                if not os.path.exists(backupFilePath):
+                    break
+                
+                i += 1
+                
+            shutil.copy(filePath, backupFilePath)
+        
         self.name = os.path.basename(str(filePath))
         
         with open(filePath, 'w') as outFile:
             json.dump(self.getDataDict(gridSize), outFile)
+        
+        outFile.close()
     
     
     def loadVideos(self):
@@ -96,9 +111,12 @@ class Scenario():
     
     @staticmethod
     def loadFile(filePath, loadWithVideos = True):
-        data = json.loads(open(filePath).read())
+        outfile = open(filePath)
+        data = json.loads(outfile.read())
         scenario = Scenario(loadWithVideos)
         scenario.name = os.path.basename(str(filePath))
         scenario.setDataDict(data)
+        
+        outfile.close()
         
         return scenario

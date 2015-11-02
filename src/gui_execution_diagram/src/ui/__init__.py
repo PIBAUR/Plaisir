@@ -95,7 +95,6 @@ class ExecutionDiagram():
         self.canvas.show()
         
         filePathToOpen = str(filePathToOpen)
-            
         
         if filePathToOpen != "":
             if not filePathToOpen.endswith(".dge"):

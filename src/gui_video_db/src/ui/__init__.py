@@ -19,7 +19,7 @@ from src.scenario_lib.src.items.media import Media
     
 
 class VideoDatabase():
-    dataColumns = ["name", "category", "startPosition", "endPosition"]
+    dataColumns = ["name", "category", "startPosition", "endPosition", "duration"]
     
     def __init__(self, importCallback = None):
         self.importCallback = importCallback
@@ -47,7 +47,7 @@ class VideoDatabase():
             self.ui.setWindowTitle(u"Importer une vidéo")
         
         self.ui.video_db_table.verticalHeader().setVisible(False)
-        columns = [("Nom", 160), (u"Catégorie", 160), (u"Position de début", 160), (u"Position de fin", 160), ("Action", 80)]
+        columns = [("Nom", 160), (u"Catégorie", 160), (u"Position de début", 160), (u"Position de fin", 160), (u"Durée", 80), ("Action", 80)]
         for i in range(len(columns)):
             self.ui.video_db_table.insertColumn(i)
             self.ui.video_db_table.setColumnWidth(i, columns[i][1])
@@ -117,13 +117,17 @@ class VideoDatabase():
                         splittedVideoFileName = videoFileName.split("-")
                         if len(splittedVideoFileName) == 5:
                             video = {}
-                            video["path"] = (videoFilePath).decode("utf-8")
-                            video["category"] = (splittedVideoFileName[-2]).decode("utf-8")
-                            video["name"] = ("-".join(splittedVideoFileName[:-3])).decode("utf-8")
-                            video["startPosition"] = (splittedVideoFileName[-3]).decode("utf-8")
-                            video["endPosition"] = (splittedVideoFileName[-1]).decode("utf-8")
-	                    # eventually create thumbs
-	                    """startThumbFile = videoFileName + "_start_thumb.png"
+                            video["path"] = videoFilePath
+                            video["category"] = splittedVideoFileName[-2]
+                            video["name"] = "-".join(splittedVideoFileName[:-3])
+                            video["startPosition"] = splittedVideoFileName[-3]
+                            video["endPosition"] = splittedVideoFileName[-1]
+                            videoDuration = str(Media.getDurationOfVideo(video["path"]))
+                            videoDurationSplitted = videoDuration.split(".")
+                            videoDuration = videoDurationSplitted[0] + "," + videoDurationSplitted[1][:2] + " s"
+                            video["duration"] = videoDuration
+                        # eventually create thumbs
+                        """startThumbFile = videoFileName + "_start_thumb.png"
 	                    endThumbFile = videoFileName + "_end_thumb.png"
 	                    startThumbPath = os.path.join(videosDirPath, startThumbFile)
 	                    endThumbPath = os.path.join(videosDirPath, endThumbFile)
@@ -135,7 +139,7 @@ class VideoDatabase():
 	                        os.system("ffmpeg -i " + videoFilePath + " -v quiet -vf \"select='eq(n, " + str(numberFrames - 1) + ")'\" -vframes 1 " + endThumbPath)
 	                    video["endThumbFile"] = endThumbPath
 	                    """
-	                    self.dbVideo.append(video)
+                        self.dbVideo.append(video)
         
         for video in self.dbVideo:
             # filter attributes
@@ -188,7 +192,7 @@ class VideoDatabase():
             playButton.clicked.connect(partial(self.handlePlayButtonClicked, index))
             actionButtonsContainer.layout().addWidget(playButton)
             
-        self.ui.video_db_table.setCellWidget(index, 4, actionButtonsContainer)
+        self.ui.video_db_table.setCellWidget(index, 5, actionButtonsContainer)
         
         self.acceptTableItemChanged = False
 
