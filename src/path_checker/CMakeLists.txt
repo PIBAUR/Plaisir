@@ -69,10 +69,10 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-#generate_messages(
-#  DEPENDENCIES
-#  scenario_msgs
-#)
+generate_messages(
+  DEPENDENCIES
+  scenario_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
