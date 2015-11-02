@@ -126,8 +126,8 @@ class VideoDatabase():
                             videoDurationSplitted = videoDuration.split(".")
                             videoDuration = videoDurationSplitted[0] + "," + videoDurationSplitted[1][:2] + " s"
                             video["duration"] = videoDuration
-	                    # eventually create thumbs
-	                    """startThumbFile = videoFileName + "_start_thumb.png"
+                        # eventually create thumbs
+                        """startThumbFile = videoFileName + "_start_thumb.png"
 	                    endThumbFile = videoFileName + "_end_thumb.png"
 	                    startThumbPath = os.path.join(videosDirPath, startThumbFile)
 	                    endThumbPath = os.path.join(videosDirPath, endThumbFile)
@@ -139,7 +139,7 @@ class VideoDatabase():
 	                        os.system("ffmpeg -i " + videoFilePath + " -v quiet -vf \"select='eq(n, " + str(numberFrames - 1) + ")'\" -vframes 1 " + endThumbPath)
 	                    video["endThumbFile"] = endThumbPath
 	                    """
-	                    self.dbVideo.append(video)
+                        self.dbVideo.append(video)
         
         for video in self.dbVideo:
             # filter attributes
