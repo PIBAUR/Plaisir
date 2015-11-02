@@ -1,0 +1,4 @@
+scenario_msgs/Pose2DArray path_request
+---
+bool is_possible
+scenario_msgs/Pose2DArray path_result

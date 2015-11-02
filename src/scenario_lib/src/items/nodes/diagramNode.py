@@ -338,3 +338,4 @@ from src.scenario_lib.src.items.nodes.randomChoiceNode import RandomChoiceNode
 from src.scenario_lib.src.items.nodes.visitorNode import VisitorNode
 from src.scenario_lib.src.items.nodes.obstacleNode import ObstacleNode
 from src.scenario_lib.src.items.nodes.batteryStateNode import BatteryStateNode
+from src.scenario_lib.src.items.nodes.pathCheckerNode import PathCheckerNode

@@ -5,12 +5,15 @@ import math
 
 from PyQt4.QtGui import *
 
+import rospy
 import tf
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.nodes.travelScenarioNode import TravelScenarioNode
 from src.scenario_lib.src.items.nodes.choregraphicScenarioNode import ChoregraphicScenarioNode
+
+from path_checker.srv import PathCheckerReq as PathCheckerReq
 
 class CompleteScenarioNode(DiagramNode):
     nodeName = "Sc. complet"
@@ -60,6 +63,14 @@ class CompleteScenarioNode(DiagramNode):
             # store values for absolute coords for choregraphic scenario
             self.targetOrientation = transformOrientation
             self.targetPosition = args["targetPosition"]
+            
+            # check path with service
+            print "try to check path"
+            rospy.wait_for_service('path_checker_node')
+            pathChecker = rospy.ServiceProxy('path_checker_node', PathCheckerReq)
+            #target = Pose2DMsg(targetPosition[0], targetPosition[1], targetOrientation)
+            #checkResult = pathChecker()
+            print "path checking succeed"
             
         # continue output routine
         if choregraphicScenario.scenarioType == "choregraphic":
