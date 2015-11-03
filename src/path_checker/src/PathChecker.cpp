@@ -75,11 +75,11 @@ PathChecker::PathChecker(ros::NodeHandle nh):
     ros::spinOnce();
 
     // calling map service
-    ros::ServiceClient map_client = nh_.serviceClient<nav_msgs::GetMap>("map_server");
+    ros::ServiceClient map_client = nh_.serviceClient<nav_msgs::GetMap>("static_map");
     nav_msgs::GetMap map_service;
     ROS_INFO_STREAM("Sending map request...");
     bool srv_call_success = false;
-    while(!srv_call_success)
+    while(!srv_call_success && ros::ok())
     {
         ros::spinOnce();
         if (map_client.call(map_service))
