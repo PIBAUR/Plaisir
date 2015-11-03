@@ -139,6 +139,7 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
         //try to shrink with rotate first
         for(float k = 1.0 - SHRINK_DEFAULT_STEP ; k >= SHRINK_DEFAULT_LIMIT ; k -= SHRINK_DEFAULT_STEP)
         {
+            ROS_DEBUG_STREAM("Try shrinked to "<< k*100<<"%.");
             //reset path with path received
             path_working_ = req.path_request;
             shrinkPath(k);
@@ -154,6 +155,7 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
         //then, try to rotate and shrink
         for(float w = ROTATE_DEFAULT_STEP ; w >= ROTATE_DEFAULT_LIMIT ; w += ROTATE_DEFAULT_STEP)
         {
+            ROS_DEBUG_STREAM("Try rotate by "<< w*180.0/PI <<"°.");
             //reset path with path received
             path_working_ = req.path_request;
             // rotate and check
@@ -171,6 +173,7 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
             for(float k = 1.0 - SHRINK_DEFAULT_STEP ; k >= SHRINK_DEFAULT_LIMIT ; k -= SHRINK_DEFAULT_STEP)
             {
                 //reset path with path after rotation
+                ROS_DEBUG_STREAM("Try rotate by "<< w*180.0/PI <<"° and shrinked to "<< k*100<<"%.");
                 path_working_ = rotated_path;
                 shrinkPath(k);
                 if(isPathWayFree(path_working_))
