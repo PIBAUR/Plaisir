@@ -1,4 +1,5 @@
-scenario_msgs/Pose2DArray path_request
+geometry_msgs/PoseArray path_request
+geometry_msgs/Pose2D target_pose
 ---
 bool is_possible
-scenario_msgs/Pose2DArray path_result
+geometry_msgs/PoseArray path_result
