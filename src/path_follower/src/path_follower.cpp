@@ -212,7 +212,7 @@ void PathFollower::computeAverageSpeed(size_t index_goal, float time)
 {
     if(time == 0.0)
     {
-        ROS_ERROR_STREAM("RECIEVED TIME NUL FOR NEXT GOAL IN THE CURRENT SEQUENCE");
+        ROS_WARN_STREAM("RECEIVED TIME NULL FOR NEXT GOAL IN THE CURRENT SEQUENCE");
         linear_speed_ = LINEAR_SPEED_DEFAULT;
         return;
     }

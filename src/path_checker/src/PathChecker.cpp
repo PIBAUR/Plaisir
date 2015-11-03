@@ -137,23 +137,25 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
     else
     {
         //try to shrink with rotate first
-        for(float k = 1.0 - SHRINK_DEFAULT_STEP ; k >= SHRINK_DEFAULT_LIMIT ; k -= SHRINK_DEFAULT_STEP)
+
+    	for(float k = 1.0 - 0.10 ; k > 0.79 ; k = k - 0.10)
         {
             ROS_DEBUG_STREAM("Try shrinked to "<< k*100<<"%.");
-            //reset path with path received
+            //reset pathrv with path received
             path_working_ = req.path_request;
             shrinkPath(k);
             if(isPathWayFree(path_working_))
             {
-                ROS_INFO_STREAM("Path shrinked to "<< k*100<<"%. Process within "
+                ROS_INFO_STREAM("Path shrinked to "<< k*100.0<<"%. Process within "
                                 <<(then-ros::Time::now()).toSec()<<" sec.");
                 res.path_result = path_working_;
                 res.is_possible = true;
                 return true;
             }
         }
+
         //then, try to rotate and shrink
-        for(float w = ROTATE_DEFAULT_STEP ; w >= ROTATE_DEFAULT_LIMIT ; w += ROTATE_DEFAULT_STEP)
+        for(float w = PI/6.0 ; w < 2.0*PI ; w = w + PI/6.0)
         {
             ROS_DEBUG_STREAM("Try rotate by "<< w*180.0/PI <<"°.");
             //reset path with path received
@@ -170,7 +172,7 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
             }
             //try to shrink
             geometry_msgs::PoseArray rotated_path = path_working_;
-            for(float k = 1.0 - SHRINK_DEFAULT_STEP ; k >= SHRINK_DEFAULT_LIMIT ; k -= SHRINK_DEFAULT_STEP)
+            for(float k = 1.0 - 0.1 ; k > 0.79 ; k = k - 0.1)
             {
                 //reset path with path after rotation
                 ROS_DEBUG_STREAM("Try rotate by "<< w*180.0/PI <<"° and shrinked to "<< k*100<<"%.");
@@ -214,9 +216,13 @@ void PathChecker::rotatePath(const float angle)
     {
         float cos_a = cos(angle);
         float sin_a = sin(angle);
+        float x = it_pose->position.x-pose_target_.x;
+        float y = it_pose->position.y-pose_target_.y;
+        //it_pose->position.x = (cos_a - sin_a - 1.0)*(-pose_target_.x) + cos_a*(it_pose->position.x) - sin_a*(it_pose->position.y);
+        //it_pose->position.y = (cos_a + sin_a - 1.0)*(-pose_target_.y) + sin_a*(it_pose->position.x) + cos_a*(it_pose->position.y);
+        it_pose->position.x = (pose_target_.x) + cos_a*x - sin_a*y;
+        it_pose->position.y = (pose_target_.y) + sin_a*x + cos_a*y;
 
-        it_pose->position.x = (cos_a - sin_a - 1.0)*(-pose_target_.x) + cos_a*(it_pose->position.x) - sin_a*(it_pose->position.y);
-        it_pose->position.y = (cos_a + sin_a - 1.0)*(-pose_target_.y) + sin_a*(it_pose->position.x) + cos_a*(it_pose->position.y);
     }
 }
 

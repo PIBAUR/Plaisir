@@ -182,7 +182,7 @@ class Canvas(QWidget):
             # make a backup
             i = 0
             while True:
-                backupFilePath = filePath.replace(os.path.basename(filePath), "." + os.path.basename(filePath)) + "." + str(i) + ".history"
+                backupFilePath = str(filePath).replace(os.path.basename(filePath), "." + os.path.basename(filePath)) + "." + str(i) + ".history"
                 
                 if not os.path.exists(backupFilePath):
                     break

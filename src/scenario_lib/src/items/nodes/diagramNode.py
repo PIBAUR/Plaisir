@@ -292,6 +292,7 @@ class DiagramNode(object):
     def getDataFromInstance(self):
         nodeData = {}
         nodeData["id"] = self.id
+        nodeData["robotId"] = self.robotId
         nodeData["class"] = self.__class__.__name__
         position = QPoint(self.widget.x(), self.widget.y()) - (self.canvas.mapToGlobal(QPoint(self.canvas.pos())) - self.canvas.mapToGlobal(QPoint()))
         nodeData["position"] = (position.x(), position.y())
@@ -307,7 +308,7 @@ class DiagramNode(object):
     def createInstanceFromData(canvas, nodeData):
         nodeClass = eval(nodeData["class"])
         position = QPoint(nodeData["position"][0], nodeData["position"][1]) + (canvas.mapToGlobal(QPoint(canvas.pos())) - canvas.mapToGlobal(QPoint()))
-        nodeInstance = nodeClass(nodeData["id"], canvas.ui.canvasContainer, canvas, position)
+        nodeInstance = nodeClass(nodeData["robotId"], canvas.ui.canvasContainer, canvas, position)
         nodeInstance.id = nodeData["id"]
         while len(nodeInstance.getInputsWidgets()) < len(nodeData["links"]):
             nodeInstance.addEmptyInput()
@@ -338,4 +339,3 @@ from src.scenario_lib.src.items.nodes.randomChoiceNode import RandomChoiceNode
 from src.scenario_lib.src.items.nodes.visitorNode import VisitorNode
 from src.scenario_lib.src.items.nodes.obstacleNode import ObstacleNode
 from src.scenario_lib.src.items.nodes.batteryStateNode import BatteryStateNode
-from src.scenario_lib.src.items.nodes.pathCheckerNode import PathCheckerNode

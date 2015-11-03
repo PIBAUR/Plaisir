@@ -25,9 +25,9 @@
 //CONSTANT
 #define PI 3.14159265358979323846
 #define SHRINK_DEFAULT_STEP     0.10
-#define SHRINK_DEFAULT_LIMIT    0.80
-#define ROTATE_DEFAULT_STEP     (PI/6) // 30°
-#define ROTATE_DEFAULT_LIMIT    (2*PI) // 360 °
+#define SHRINK_DEFAULT_LIMIT    0.79
+#define ROTATE_DEFAULT_STEP     (PI/6.00) // 30°
+#define ROTATE_DEFAULT_LIMIT    (2.00*PI) // 360 °
 
 
 class PathChecker

@@ -12,22 +12,20 @@ from std_msgs.msg import Float64 as Float64Msg
 
 # consts
 DEFAULT_BEZIER_CURVE_STEP = .05
-path = PathMsg()
 step = 0
 stepInMeter = 0
 
-def scenarioCallback(msg):
-    # to execute only choregraphic scenario
+step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
+stepInMeter = rospy.get_param("bezier_curve_step_in_meter", DEFAULT_BEZIER_CURVE_STEP)
+
+def getPathAndDistanceFromMessage(msg, checkedChoregraphicPath):
+    path = PathMsg()
+    
     path.uid = msg.uid
     path.path.poses = []
     path.path.header = msg.bezier_paths.header
     path.time_at_poses = TimeAtPoseArrayMsg()
     distance = 0
-    duration = 0
-    rospy.loginfo("received " + str(msg))
-    
-    for media in msg.medias.medias:
-        duration += media.duration
     
     curveIndex = 0
     for curve in msg.bezier_paths.curves:
@@ -40,37 +38,53 @@ def scenarioCallback(msg):
                 timeAtPose.time = sequenceMsg.timePosition
                 timeAtPose.backward = sequenceMsg.backward
                 path.time_at_poses.time_at_poses.append(timeAtPose)
-                
-        if msg.type == "travel" or (msg.type == "choregraphic" and curve != msg.bezier_paths.curves[-1]):
-            distance += getBezierCurveLength(curve)
-            i = 0
-            step = 1.0 * stepInMeter / getBezierCurveLength(curve)
-            while i <= 1:  
-                pose = PoseMsg()
-                
-                if msg.type == "choregraphic":
-                    pose.position = getBezierCurveResult(i, curve)
-                    theta = getBezierCurveTangentResult(i, curve)
-                    pose.orientation.z = math.sin(theta / 2)
-                    pose.orientation.w = math.cos(theta / 2)
+        
+        if checkedChoregraphicPath is not None:
+            path.path = checkedChoregraphicPath
+        else:
+            if msg.type == "travel" or (msg.type == "choregraphic" and curve != msg.bezier_paths.curves[-1]):
+                distance += getBezierCurveLength(curve)
+                i = 0
+                step = 1.0 * stepInMeter / getBezierCurveLength(curve)
+                while i <= 1:  
+                    pose = PoseMsg()
                     
-                    i += step
-                elif msg.type == "travel":
-                    pose.position.x = curve.anchor_1.x
-                    pose.position.y = curve.anchor_1.y
-                    theta = curve.anchor_1.z
-                    pose.orientation.z = math.sin(theta / 2)
-                    pose.orientation.w = math.cos(theta / 2)
+                    if msg.type == "choregraphic":
+                        pose.position = getBezierCurveResult(i, curve)
+                        theta = getBezierCurveTangentResult(i, curve)
+                        pose.orientation.z = math.sin(theta / 2)
+                        pose.orientation.w = math.cos(theta / 2)
+                        
+                        i += step
+                    elif msg.type == "travel":
+                        pose.position.x = curve.anchor_1.x
+                        pose.position.y = curve.anchor_1.y
+                        theta = curve.anchor_1.z
+                        pose.orientation.z = math.sin(theta / 2)
+                        pose.orientation.w = math.cos(theta / 2)
+                        
+                        i += 2
+                        
+                    path.path.poses.append(pose)
                     
-                    i += 2
-                    
-                path.path.poses.append(pose)
-                
-        curveIndex += 1
-            
+            curveIndex += 1
+    
+    return path, distance
+
+        
+def scenarioCallback(msg):
+    rospy.loginfo("received " + str(msg))
+    
+    # to execute only choregraphic scenario
+    path, distance = getPathAndDistanceFromMessage(msg, msg.checkedChoregraphicPath if len(msg.checkedChoregraphicPath.poses) > 0 else None)
+    
+    duration = 0
+    for media in msg.medias.medias:
+        duration += media.duration
+        
     rospy.loginfo("""new """ + msg.type + """ scenario: 
 - """ + str(len(msg.bezier_paths.curves)) + """ curves
-- distance of """ + str(distance) + """
+- distance of """ + str(distance) if distance is not None else "???" + """
 - """ + str(path.path.poses) + """ poses
 - media (""" + str(len(msg.medias.medias)) + """) duration of """ + str(duration) + """s""")
     
@@ -164,8 +178,5 @@ if __name__ == "__main__":
     rospy.Subscriber("scenario", ScenarioMsg, scenarioCallback)
     
     pathPublisher = rospy.Publisher("path", PathMsg)
-    
-    step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
-    stepInMeter = rospy.get_param("bezier_curve_step_in_meter", DEFAULT_BEZIER_CURVE_STEP)
     
     rospy.spin()

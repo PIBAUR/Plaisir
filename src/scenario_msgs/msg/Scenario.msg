@@ -12,6 +12,9 @@ string type
 #Liste des courbes de beziers
 scenario_msgs/BezierPath bezier_paths
 
+#Courbe recalculee
+geometry_msgs/PoseArray checkedChoregraphicPath
+
 #destination du scenario 
 geometry_msgs/Pose2D target
 

@@ -10,6 +10,7 @@ from functools import partial
 from std_msgs.msg import String as StringMsg
 from std_msgs.msg import Header as HeaderMsg
 from std_msgs.msg import Bool as BoolMsg
+from scenario_msgs.msg import Path as PathMsg
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from scenario_msgs.msg import BezierPath as BezierPathMsg
 from scenario_msgs.msg import BezierCurve as BezierCurveMsg
@@ -77,6 +78,7 @@ class PlayNode(DiagramNode):
         self.lookupTransformTimer.setSingleShot(True)
         self.lookupTransformTimer.timeout.connect(partial(self.getRobotTransform))
         self.lookupTransformTimer.start(2000)
+    
     
     def output(self):
         self.stopExecution()
@@ -168,6 +170,8 @@ class PlayNode(DiagramNode):
             scenarioMsg = robot.getScenarioMsgWithParams(transformPosition, scale, transformOrientation, interpolation, False)
             scenarioMsg.uid = self.playingScenario.uid
             scenarioMsg.type = self.playingScenario.scenarioType
+            if self.playingScenario.checkedChoregraphicPath is not None:
+                scenarioMsg.checkedChoregraphicPath = self.playingScenario.checkedChoregraphicPath
             self.scenarioPublisher.publish(scenarioMsg)
         except NodeException as error:
             self.playButton.setEnabled(True)

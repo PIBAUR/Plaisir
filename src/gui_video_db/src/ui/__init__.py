@@ -17,7 +17,6 @@ from PyQt4 import uic
 
 from src.scenario_lib.src.items.media import Media
     
-
 class VideoDatabase():
     dataColumns = ["name", "category", "startPosition", "endPosition", "duration"]
     

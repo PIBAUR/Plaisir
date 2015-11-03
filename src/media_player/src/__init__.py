@@ -5,6 +5,7 @@ import sys
 import os
 import subprocess
 from threading import Thread
+import signal
 
 import rospy
 
@@ -28,11 +29,12 @@ class MediaPlayer():
         
         # load html file
         mediaPlayerUrl = "file://" + os.path.split(os.path.abspath(__file__))[0] + "/media_player.html"
-        self.process = subprocess.Popen(['chromium-browser', "--kiosk", mediaPlayerUrl])
+        self.process = subprocess.Popen(['chromium-browser', "--disable-session-crashed-bubble", "--disable-infobars", "--kiosk", mediaPlayerUrl])
         #subprocess.Popen(['chromium-browser', mediaPlayerUrl])
+        
         # start communication
-        webSocketServer = SimpleWebSocketServer("127.0.0.1", 9001, StreamingWebSocketServer, self.handleBrowserMessageReceived)
-        Thread(target = webSocketServer.serveforever).start()
+        self.webSocketServer = SimpleWebSocketServer("127.0.0.1", 9001, StreamingWebSocketServer, self.handleBrowserMessageReceived)
+        Thread(target = self.webSocketServer.serveforever).start()
         
     
     def handleBrowserMessageReceived(self, message, browser = None):
@@ -63,6 +65,12 @@ class MediaPlayer():
         pass
     
     
+    def destroy(self):
+        #TODO: pourquoi ca marche pas ?????????????
+        os.killpg(self.process.pid, signal.SIGTERM)
+        self.webSocketServer.close()
+                
+    
 if __name__ == '__main__':
     mediaPlayer = MediaPlayer()
     
@@ -70,4 +78,9 @@ if __name__ == '__main__':
     rospy.init_node('media_player', log_level = rospy.INFO)
     rospy.Subscriber('scenario', ScenarioMsg, mediaPlayer.mediaCB)
     rospy.Subscriber('path_feedback', PathFeedbackMsg, mediaPlayer.pathFeedbackCB)
-    rospy.spin()
+    
+    duration = rospy.Duration(.1)
+    while not rospy.is_shutdown():
+        rospy.sleep(duration)
+    
+    mediaPlayer.destroy()

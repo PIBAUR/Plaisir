@@ -8,11 +8,14 @@ from PyQt4.QtGui import *
 import rospy
 import tf
 
+from geometry_msgs.msg import Pose2D as Pose2DMsg
+
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.nodes.travelScenarioNode import TravelScenarioNode
 from src.scenario_lib.src.items.nodes.choregraphicScenarioNode import ChoregraphicScenarioNode
 
+from src.bezier_curve.src import bezier_interpolate
 from path_checker.srv import PathCheckerReq as PathCheckerReq
 
 class CompleteScenarioNode(DiagramNode):
@@ -37,12 +40,14 @@ class CompleteScenarioNode(DiagramNode):
         # get the position of the start of choregraphic scenario to reach this point with the travel scenario
         choregraphicScenario = inputs[1].output(args, None)
         
+        ROBOT_ID_DIRTY_BEARK = 3
+        
         if self.currentInputIndex == 0:
             # get scale
             scale = 1. / float(choregraphicScenario.gridSize)
             
             # get the line between the first point of the curve and the target
-            robot = choregraphicScenario.robots[0]
+            robot = choregraphicScenario.robots[ROBOT_ID_DIRTY_BEARK] #TODO: oulala !
             firstPoint = robot.points[0].anchor
             targetPoint = choregraphicScenario.targetPosition
             directionLineVector = ((targetPoint[0] - firstPoint.x()) * scale, (targetPoint[1] - firstPoint.y()) * scale)
@@ -57,20 +62,24 @@ class CompleteScenarioNode(DiagramNode):
             orientation = math.atan2((args["targetPosition"][1] - args["robotPosition"][1]), (args["targetPosition"][0] - args["robotPosition"][0]))
             
             transformOrientation = tf.transformations.quaternion_from_euler(0, 0, orientation)
-            scenarioMsg = choregraphicScenario.robots[0].getScenarioMsgWithParams((originPosition[0], originPosition[1], 0), scale, transformOrientation, True, True)
+            scenarioMsg = choregraphicScenario.robots[ROBOT_ID_DIRTY_BEARK].getScenarioMsgWithParams((originPosition[0], originPosition[1], 0), scale, transformOrientation, True, True)
             args["targetPosition"] = (scenarioMsg.bezier_paths.curves[0].anchor_1.x, scenarioMsg.bezier_paths.curves[0].anchor_1.y, 0)
             args["targetOrientation"] = orientation
             # store values for absolute coords for choregraphic scenario
             self.targetOrientation = transformOrientation
             self.targetPosition = args["targetPosition"]
             
+            path, distance = bezier_interpolate.getPathAndDistanceFromMessage(scenarioMsg, None)
             # check path with service
             print "try to check path"
-            rospy.wait_for_service('path_checker_node')
-            pathChecker = rospy.ServiceProxy('path_checker_node', PathCheckerReq)
-            #target = Pose2DMsg(targetPosition[0], targetPosition[1], targetOrientation)
-            #checkResult = pathChecker()
+            rospy.wait_for_service('path_checker')
+            pathChecker = rospy.ServiceProxy('path_checker', PathCheckerReq)
+            target = Pose2DMsg(args["targetPosition"][0], args["targetPosition"][1], args["targetOrientation"])
+            checkResult = pathChecker(path.path, target)
+            print "check result: " + str(checkResult.is_possible)
             print "path checking succeed"
+            
+            self.checkedChoregraphicPath = checkResult.path_result
             
         # continue output routine
         if choregraphicScenario.scenarioType == "choregraphic":
@@ -87,6 +96,7 @@ class CompleteScenarioNode(DiagramNode):
                 if self.currentInputIndex == 1:
                     scenarioResult.startPosition = self.targetPosition
                     scenarioResult.startOrientation = self.targetOrientation
+                    scenarioResult.checkedChoregraphicPath = self.checkedChoregraphicPath
                     
                 return scenarioResult
             else:

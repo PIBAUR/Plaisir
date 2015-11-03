@@ -34,7 +34,6 @@
 		<!--
 		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node" machine="robot$(arg robot)" respawn="true"/>
 		-->
-		<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="true"/>
 
 		<!-- LOCALISATION -->
 		<!-- TO BYPASS LOCALISATION -->
@@ -55,7 +54,11 @@
     
     <!-- MAP -->	
     <node name="map_server" type="map_server" pkg="map_server" args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" output="screen"/>
+	
+	<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="true"/>
 
+	<node name="path_checker" pkg="path_checker" type="path_checker_node" respawn="true"/>
+	
 	<!-- DEBUG TOOLS -->
 	<node pkg="topic_router" name="robot_model" type="robot_model" respawn="true"/>
 	<node pkg="topic_router" type="__init__.py" name="path_viz_pub" respawn="true">
@@ -65,8 +68,8 @@
 	<!-- GUI TOOLS -->
 	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init$(arg robot).rviz" />
-	<node name="gui_scenario_db" pkg="gui_scenario_db" type="__init__.py" machine="$(env USER)"/>
 	<!--
+	<node name="gui_scenario_db" pkg="gui_scenario_db" type="__init__.py" machine="$(env USER)"/>
 	<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>
