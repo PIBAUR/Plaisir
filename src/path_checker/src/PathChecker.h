@@ -6,7 +6,8 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/GetMap.h>
 #include <nav_msgs/MapMetaData.h>
-#include <scenario_msgs/Pose2DArray.h>
+#include <geometry_msgs/PoseArray.h>
+#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Pose2D.h>
 
 //service
@@ -22,6 +23,11 @@
 #include <sstream>
 
 //CONSTANT
+#define PI 3.14159265358979323846
+#define SHRINK_DEFAULT_STEP     0.10
+#define SHRINK_DEFAULT_LIMIT    0.80
+#define ROTATE_DEFAULT_STEP     (PI/6) // 30°
+#define ROTATE_DEFAULT_LIMIT    (2*PI) // 360 °
 
 
 class PathChecker
@@ -39,25 +45,25 @@ protected:
 
     double robot_size_;
 
-    scenario_msgs::Pose2DArray path_received_;
-    //scenario_msgs::Pose2DArray path_result_;
-    scenario_msgs::Pose2DArray path_of_pose_;
+    geometry_msgs::PoseArray path_working_;
+    geometry_msgs::PoseArray path_of_pose_;
     cv::Point_<int> path_of_point_[];
 
 public:
     PathChecker(ros::NodeHandle nh);
     ~PathChecker(){};
 
-    void poseToPoint(const geometry_msgs::Pose2D &pose, cv::Point_<int> &point);
-    void pointToPose(const cv::Point_<int> &point, geometry_msgs::Pose2D &pose);
+    void poseToPoint(const geometry_msgs::Pose &pose, cv::Point_<int> &point);
+    void pointToPose(const cv::Point_<int> &point, geometry_msgs::Pose &pose);
     void occupancyGridToMat(const nav_msgs::OccupancyGrid &occupancy_grid);
-    void poseMapToTarget(geometry_msgs::Pose2D &pose);
+    void poseFromTarget(geometry_msgs::Pose &pose);
 
-    bool isPathWayFree();
+    bool isPathWayFree(geometry_msgs::PoseArray const &path);
+
     bool isWayFree(const cv::Point_<int> &point1, const cv::Point_<int> &point2);
 
     bool serviceCB(path_checker::PathCheckerReq::Request &req, path_checker::PathCheckerReq::Response &res);
 
-    void rotatePath(const float coef, scenario_msgs::Pose2DArray &poses);
-    void shrinkPath(const float angle);
+    void shrinkPath(const float coef);
+    void rotatePath(const float angle);
 };

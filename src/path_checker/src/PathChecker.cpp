@@ -1,67 +1,4 @@
-#include <ros/ros.h>
-
-// messages
-#include <tf/transform_listener.h>
-#include <tf/tf.h>
-#include <nav_msgs/OccupancyGrid.h>
-#include <nav_msgs/GetMap.h>
-#include <nav_msgs/MapMetaData.h>
-#include <scenario_msgs/Pose2DArray.h>
-#include <geometry_msgs/Pose2D.h>
-
-//service
-#include <path_checker/PathCheckerReq.h>
-#include <nav_msgs/GetMap.h>
-
-//lib opencv
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/features2d/features2d.hpp>
-
-#include <sstream>
-
-//CONSTANT
-
-
-class PathChecker
-{
-protected:
-    ros::NodeHandle nh_;
-
-    cv::Mat_<bool> map_;
-    double map_resolution_;
-    int x_origin_map_pixel_;
-    int y_origin_map_pixel_;
-    double x_origin_map_meter_;
-    double y_origin_map_meter_;
-    geometry_msgs::Pose2D pose_target_;
-
-    double robot_size_;
-
-    scenario_msgs::Pose2DArray path_received_;
-    //scenario_msgs::Pose2DArray path_result_;
-    scenario_msgs::Pose2DArray path_of_pose_;
-    cv::Point_<int> path_of_point_[];
-
-public:
-    PathChecker(ros::NodeHandle nh);
-    ~PathChecker(){};
-
-    void poseToPoint(const geometry_msgs::Pose2D &pose, cv::Point_<int> &point);
-    void pointToPose(const cv::Point_<int> &point, geometry_msgs::Pose2D &pose);
-    void occupancyGridToMat(const nav_msgs::OccupancyGrid &occupancy_grid);
-    void poseFromTarget(geometry_msgs::Pose2D &pose);
-
-    bool isPathWayFree(scenario_msgs::Pose2DArray const &path2D);
-
-    bool isWayFree(const cv::Point_<int> &point1, const cv::Point_<int> &point2);
-
-    bool serviceCB(path_checker::PathCheckerReq::Request &req, path_checker::PathCheckerReq::Response &res);
-
-    void shrinkPath(const float coef);
-    void rotatePath(const float angle);
-};
+#include "PathChecker.h"
 
 
 
@@ -100,10 +37,10 @@ PathChecker::PathChecker(ros::NodeHandle nh):
 
 
 
-void PathChecker::poseToPoint(const geometry_msgs::Pose2D &pose, cv::Point_<int> &point)
+void PathChecker::poseToPoint(const geometry_msgs::Pose &pose, cv::Point_<int> &point)
 {
-    point.x = -(x_origin_map_meter_ - pose.x)/map_resolution_;
-    point.y = map_.rows+(y_origin_map_meter_ - pose.y)/map_resolution_;
+    point.x = -(x_origin_map_meter_ - pose.position.x)/map_resolution_;
+    point.y = map_.rows+(y_origin_map_meter_ - pose.position.y)/map_resolution_;
 }
 
 
@@ -142,10 +79,10 @@ void PathChecker::occupancyGridToMat(const nav_msgs::OccupancyGrid &occupancy_gr
 
 
 
-bool PathChecker::isPathWayFree(scenario_msgs::Pose2DArray const &path2D)
+bool PathChecker::isPathWayFree(geometry_msgs::PoseArray const &path)
 {
-    for(std::vector<geometry_msgs::Pose2D>::const_iterator it_pose = path2D.poses.begin();
-            it_pose < path2D.poses.end()-1; it_pose++)
+    for(std::vector<geometry_msgs::Pose>::const_iterator it_pose = path.poses.begin();
+            it_pose < path.poses.end()-1; it_pose++)
     {
         cv::Point_<int> pt1, pt2;
         poseToPoint(*it_pose, pt1);
@@ -181,23 +118,104 @@ bool PathChecker::isWayFree(const cv::Point_<int> &point1, const cv::Point_<int>
 bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_checker::PathCheckerReq::Response &res)
 {
     ros::Time then = ros::Time::now();
-    ROS_INFO_STREAM("Request received.");
-    path_received_ = req.path_request;
+    path_working_ = req.path_request;
+    pose_target_ = req.target_pose;
 
-    if(isPathWayFree(path_received_))
+    ROS_INFO_STREAM("Request received. Path starting from : "
+            << path_working_.poses.begin()->position.x << " ; " << path_working_.poses.begin()->position.x
+            << " . Target : " << pose_target_.x << " ; " << pose_target_.y);
+
+    //check if path already ok
+    if(isPathWayFree(path_working_))
     {
         ROS_INFO_STREAM("Path is free! Process within "<<(then-ros::Time::now()).toSec()<<" sec.");
+        res.path_result = path_working_;
+        res.is_possible = true;
         return true;
+    }
+    // else modify path
+    else
+    {
+        //try to shrink with rotate first
+        for(float k = 1.0 - SHRINK_DEFAULT_STEP ; k >= SHRINK_DEFAULT_LIMIT ; k -= SHRINK_DEFAULT_STEP)
+        {
+            //reset path with path received
+            path_working_ = req.path_request;
+            shrinkPath(k);
+            if(isPathWayFree(path_working_))
+            {
+                ROS_INFO_STREAM("Path shrinked to "<< k*100<<"%. Process within "
+                                <<(then-ros::Time::now()).toSec()<<" sec.");
+                res.path_result = path_working_;
+                res.is_possible = true;
+                return true;
+            }
+        }
+        //then, try to rotate and shrink
+        for(float w = ROTATE_DEFAULT_STEP ; w >= ROTATE_DEFAULT_LIMIT ; w += ROTATE_DEFAULT_STEP)
+        {
+            //reset path with path received
+            path_working_ = req.path_request;
+            // rotate and check
+            rotatePath(w);
+            if(isPathWayFree(path_working_))
+            {
+                ROS_INFO_STREAM("Path rotate by "<< w*180.0/PI <<"°. Process within "
+                                <<(then-ros::Time::now()).toSec()<<" sec.");
+                res.path_result = path_working_;
+                res.is_possible = true;
+                return true;
+            }
+            //try to shrink
+            geometry_msgs::PoseArray rotated_path = path_working_;
+            for(float k = 1.0 - SHRINK_DEFAULT_STEP ; k >= SHRINK_DEFAULT_LIMIT ; k -= SHRINK_DEFAULT_STEP)
+            {
+                //reset path with path after rotation
+                path_working_ = rotated_path;
+                shrinkPath(k);
+                if(isPathWayFree(path_working_))
+                {
+                    ROS_INFO_STREAM("Path rotate by "<< w*180.0/PI <<"° and shrinked to "<< k*100
+                                    <<"%. Process within "<<(then-ros::Time::now()).toSec()<<" sec.");
+                    res.path_result = path_working_;
+                    res.is_possible = true;
+                    return true;
+                }
+            }
+        }
     }
 
     ROS_INFO_STREAM("Unable to fit the path... Process within "<<(then-ros::Time::now()).toSec()<<" sec.");
-    return false;
+    res.is_possible = false;
+    return true;
 }
 
 
 
-//void PathChecker::shrinkPath(const float coef, scenario_msgs::Pose2DArray &poses);
-//void PathChecker::rotatePath(const float angle);
+void PathChecker::shrinkPath(const float coef)
+{
+    for(std::vector<geometry_msgs::Pose>::iterator it_pose = path_working_.poses.begin();
+            it_pose < path_working_.poses.end()-1; it_pose++)
+    {
+        it_pose->position.x = (coef -1.0) * (-pose_target_.x) + coef * (it_pose->position.x);
+        it_pose->position.y = (coef -1.0) * (-pose_target_.y) + coef * (it_pose->position.y);
+    }
+}
+
+
+
+void PathChecker::rotatePath(const float angle)
+{
+    for(std::vector<geometry_msgs::Pose>::iterator it_pose = path_working_.poses.begin();
+            it_pose < path_working_.poses.end()-1; it_pose++)
+    {
+        float cos_a = cos(angle);
+        float sin_a = sin(angle);
+
+        it_pose->position.x = (cos_a - sin_a - 1.0)*(-pose_target_.x) + cos_a*(it_pose->position.x) - sin_a*(it_pose->position.y);
+        it_pose->position.y = (cos_a + sin_a - 1.0)*(-pose_target_.y) + sin_a*(it_pose->position.x) + cos_a*(it_pose->position.y);
+    }
+}
 
 
 
