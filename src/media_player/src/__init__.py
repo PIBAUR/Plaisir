@@ -66,8 +66,6 @@ class MediaPlayer():
     
     
     def destroy(self):
-        #TODO: pourquoi ca marche pas ?????????????
-        os.killpg(self.process.pid, signal.SIGTERM)
         self.webSocketServer.close()
                 
     
