@@ -69,8 +69,6 @@ void PathChecker::occupancyGridToMat(const nav_msgs::OccupancyGrid &occupancy_gr
             map_.at<bool>(i,j) = (value == 0);
         }
     }
-    cv::imshow("Map from Service",map_);
-    cv::waitKey(200);
 }
 
 
@@ -81,8 +79,8 @@ void PathChecker::occupancyGridToMat(const nav_msgs::OccupancyGrid &occupancy_gr
 
 bool PathChecker::isPathWayFree(geometry_msgs::PoseArray const &path)
 {
-    for(std::vector<geometry_msgs::Pose>::const_iterator it_pose = path.poses.begin();
-            it_pose < path.poses.end()-1; it_pose++)
+    for(std::vector<geometry_msgs::Pose>::const_iterator it_pose = path.poses.begin() ;
+            it_pose != path.poses.end()-1 ; it_pose++)
     {
         cv::Point_<int> pt1, pt2;
         poseToPoint(*it_pose, pt1);
@@ -128,7 +126,7 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
     //check if path already ok
     if(isPathWayFree(path_working_))
     {
-        ROS_INFO_STREAM("Path is free! Process within "<<(then-ros::Time::now()).toSec()<<" sec.");
+        ROS_INFO_STREAM("Path is free! Process within "<<(ros::Time::now()-then).toSec()<<" sec.");
         res.path_result = path_working_;
         res.is_possible = true;
         return true;
@@ -147,7 +145,7 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
             if(isPathWayFree(path_working_))
             {
                 ROS_INFO_STREAM("Path shrinked to "<< k*100.0<<"%. Process within "
-                                <<(then-ros::Time::now()).toSec()<<" sec.");
+                                <<(ros::Time::now()-then).toSec()<<" sec.");
                 res.path_result = path_working_;
                 res.is_possible = true;
                 return true;
@@ -165,7 +163,7 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
             if(isPathWayFree(path_working_))
             {
                 ROS_INFO_STREAM("Path rotate by "<< w*180.0/PI <<"°. Process within "
-                                <<(then-ros::Time::now()).toSec()<<" sec.");
+                                <<(ros::Time::now()-then).toSec()<<" sec.");
                 res.path_result = path_working_;
                 res.is_possible = true;
                 return true;
@@ -181,7 +179,7 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
                 if(isPathWayFree(path_working_))
                 {
                     ROS_INFO_STREAM("Path rotate by "<< w*180.0/PI <<"° and shrinked to "<< k*100
-                                    <<"%. Process within "<<(then-ros::Time::now()).toSec()<<" sec.");
+                                    <<"%. Process within "<<(ros::Time::now()-then).toSec()<<" sec.");
                     res.path_result = path_working_;
                     res.is_possible = true;
                     return true;
@@ -190,7 +188,7 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
         }
     }
 
-    ROS_INFO_STREAM("Unable to fit the path... Process within "<<(then-ros::Time::now()).toSec()<<" sec.");
+    ROS_INFO_STREAM("Unable to fit the path... Process within "<<(ros::Time::now()-then).toSec()<<" sec.");
     res.is_possible = false;
     return true;
 }
@@ -199,8 +197,8 @@ bool PathChecker::serviceCB(path_checker::PathCheckerReq::Request &req, path_che
 
 void PathChecker::shrinkPath(const float coef)
 {
-    for(std::vector<geometry_msgs::Pose>::iterator it_pose = path_working_.poses.begin();
-            it_pose < path_working_.poses.end()-1; it_pose++)
+    for(std::vector<geometry_msgs::Pose>::iterator it_pose = path_working_.poses.begin() ;
+            it_pose != path_working_.poses.end() ; it_pose++)
     {
         it_pose->position.x = (coef -1.0) * (-pose_target_.x) + coef * (it_pose->position.x);
         it_pose->position.y = (coef -1.0) * (-pose_target_.y) + coef * (it_pose->position.y);
@@ -212,7 +210,7 @@ void PathChecker::shrinkPath(const float coef)
 void PathChecker::rotatePath(const float angle)
 {
     for(std::vector<geometry_msgs::Pose>::iterator it_pose = path_working_.poses.begin();
-            it_pose < path_working_.poses.end()-1; it_pose++)
+            it_pose != path_working_.poses.end() ; it_pose++)
     {
         float cos_a = cos(angle);
         float sin_a = sin(angle);
@@ -222,7 +220,14 @@ void PathChecker::rotatePath(const float angle)
         //it_pose->position.y = (cos_a + sin_a - 1.0)*(-pose_target_.y) + sin_a*(it_pose->position.x) + cos_a*(it_pose->position.y);
         it_pose->position.x = (pose_target_.x) + cos_a*x - sin_a*y;
         it_pose->position.y = (pose_target_.y) + sin_a*x + cos_a*y;
-
+        //update orientation
+        tf::Quaternion q(it_pose->orientation.x, it_pose->orientation.y,
+                           it_pose->orientation.z, it_pose->orientation.w);
+        float th = tf::getYaw(q) + angle;
+        it_pose->orientation.x = 0.0;
+        it_pose->orientation.y = 0.0;
+        it_pose->orientation.z = sin(th/2.0);
+        it_pose->orientation.w = cos(th/2.0);
     }
 }
 
