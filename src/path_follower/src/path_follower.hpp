@@ -18,6 +18,7 @@
 #define LOOP_RATE 60.0
 #define ANGULAR_SPEED_MAX (PI/2.0)
 #define LINEAR_SPEED_MAX (1.0)
+#define LINEAR_SPEED_MIN (0.01)
 #define LINEAR_SPEED_DEFAULT (0.15)
 #define INIT_DU 10.0
 #define NEXT_POINT_DISTANCE_THRESH 0.10
@@ -45,6 +46,7 @@ protected:
     float linear_speed_;
     bool idle_;
     ros::Time end_idle_time_;
+    ros::Time goal_time_;
 
     double first_du_;
     double du_;
