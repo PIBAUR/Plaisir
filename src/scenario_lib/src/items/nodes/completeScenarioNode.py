@@ -61,6 +61,10 @@ class CompleteScenarioNode(DiagramNode):
             # get the orientation: the angle between the robot position and the target point
             orientation = math.atan2((args["targetPosition"][1] - args["robotPosition"][1]), (args["targetPosition"][0] - args["robotPosition"][0]))
             
+            # keep target position and rotation to give to the path_checker
+            choregraphicScenarioTargetPosition = args["targetPosition"]
+            
+            # transform the point depending on the orientation wanted
             transformOrientation = tf.transformations.quaternion_from_euler(0, 0, orientation)
             scenarioMsg = choregraphicScenario.robots[ROBOT_ID_DIRTY_BEARK].getScenarioMsgWithParams((originPosition[0], originPosition[1], 0), scale, transformOrientation, True, True)
             args["targetPosition"] = (scenarioMsg.bezier_paths.curves[0].anchor_1.x, scenarioMsg.bezier_paths.curves[0].anchor_1.y, 0)
@@ -74,11 +78,17 @@ class CompleteScenarioNode(DiagramNode):
             print "try to check path"
             rospy.wait_for_service('path_checker')
             pathChecker = rospy.ServiceProxy('path_checker', PathCheckerReq)
-            target = Pose2DMsg(args["targetPosition"][0], args["targetPosition"][1], args["targetOrientation"])
+            target = Pose2DMsg(choregraphicScenarioTargetPosition[0], choregraphicScenarioTargetPosition[1], args["targetOrientation"])
             checkResult = pathChecker(path.path, target)
             print "check result: " + str(checkResult.is_possible)
             print "path checking succeed"
             
+            # define the first point of path finding with the new path checked
+            firstCheckedPathPose = checkResult.path_result.poses[0]
+            args["targetPosition"] = (firstCheckedPathPose.position.x, firstCheckedPathPose.position.y, 0)
+            args["targetOrientation"] = tf.transformations.euler_from_quaternion([firstCheckedPathPose.orientation.x, firstCheckedPathPose.orientation.y, firstCheckedPathPose.orientation.z, firstCheckedPathPose.orientation.w])[-1]
+            
+            # store checked path to execute it for choregraphic one
             self.checkedChoregraphicPath = checkResult.path_result
             
         # continue output routine
@@ -116,6 +126,7 @@ class CompleteScenarioNode(DiagramNode):
             self.currentInputIndex += 1
             if self.currentInputIndex >= 2:
                 self.currentInputIndex = 0
+                #######################TOOOOOOOOOOODOOOOOOOOOOOOOOOOOOO pour enlever le visiteur
         
         if sequenceRatio >= 1:
             # stop sequence
