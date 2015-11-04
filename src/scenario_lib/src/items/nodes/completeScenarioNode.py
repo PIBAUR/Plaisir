@@ -79,17 +79,26 @@ class CompleteScenarioNode(DiagramNode):
             rospy.wait_for_service('path_checker')
             pathChecker = rospy.ServiceProxy('path_checker', PathCheckerReq)
             target = Pose2DMsg(choregraphicScenarioTargetPosition[0], choregraphicScenarioTargetPosition[1], args["targetOrientation"])
-            checkResult = pathChecker(path.path, target)
-            print "check result: " + str(checkResult.is_possible)
-            print "path checking succeed"
+            try:
+                checkResult = pathChecker(path.path, target)
+                print "check result: " + str(checkResult.is_possible)
+                hasCheckResult = checkResult.is_possible
+            except rospy.service.ServiceException:
+                hasCheckResult = False
             
-            # define the first point of path finding with the new path checked
-            firstCheckedPathPose = checkResult.path_result.poses[0]
-            args["targetPosition"] = (firstCheckedPathPose.position.x, firstCheckedPathPose.position.y, 0)
-            args["targetOrientation"] = tf.transformations.euler_from_quaternion([firstCheckedPathPose.orientation.x, firstCheckedPathPose.orientation.y, firstCheckedPathPose.orientation.z, firstCheckedPathPose.orientation.w])[-1]
-            
-            # store checked path to execute it for choregraphic one
-            self.checkedChoregraphicPath = checkResult.path_result
+            if hasCheckResult:
+                # define the first point of path finding with the new path checked
+                firstCheckedPathPose = checkResult.path_result.poses[0]
+                args["targetPosition"] = (firstCheckedPathPose.position.x, firstCheckedPathPose.position.y, 0)
+                args["targetOrientation"] = tf.transformations.euler_from_quaternion([firstCheckedPathPose.orientation.x, firstCheckedPathPose.orientation.y, firstCheckedPathPose.orientation.z, firstCheckedPathPose.orientation.w])[-1]
+                
+                # store checked path to execute it for choregraphic one
+                self.checkedChoregraphicPath = checkResult.path_result
+            else:
+                # don't execute this node
+                self.stopExecution()
+                self.updateCallback(1, True)
+                return None
             
         # continue output routine
         if choregraphicScenario.scenarioType == "choregraphic":
@@ -126,7 +135,6 @@ class CompleteScenarioNode(DiagramNode):
             self.currentInputIndex += 1
             if self.currentInputIndex >= 2:
                 self.currentInputIndex = 0
-                #######################TOOOOOOOOOOODOOOOOOOOOOOOOOOOOOO pour enlever le visiteur
         
         if sequenceRatio >= 1:
             # stop sequence

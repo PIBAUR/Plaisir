@@ -25,6 +25,7 @@ class VisitorNode(DiagramNode):
         self.visitorSubscriber = rospy.Subscriber("/obstacles", ObstacleArrayMsg, self.handleObstaclesReceived)
         
         # ui
+        self.inputIndex = 0
         self.visitor = None
         self.isVisitor_label = QLabel()
         self.refreshIsVisitorLabel()
@@ -38,25 +39,29 @@ class VisitorNode(DiagramNode):
         if len(inputs) != 2:
             raise NodeException(u"Le noeud de visiteur doit comporter 2 entrées; 1: s'il y a un visiteur; 2: si non")
         
-        inputIndex = 0 if self.visitor is not None else 1
+        self.inputIndex = 0 if self.visitor is not None else 1
         
         if self.visitor is not None:
-            inputIndex = 0
+            self.inputIndex = 0
             args["targetPosition"] = (self.visitor.x, self.visitor.y)
         else:
-            inputIndex = 1
+            self.inputIndex = 1
         
-        inputItem = inputs[inputIndex]
+        inputItem = inputs[self.inputIndex]
         
         if updateRatioCallback is not None:
             # dry run
-            self.startExecution(self.getInputWidgetIndexFromInputIndex(inputIndex))
+            self.startExecution(self.getInputWidgetIndexFromInputIndex(self.inputIndex))
         
         return inputItem.output(args, self.updateRatio if updateRatioCallback is not None else None)
     
     
     def updateRatio(self, inputRatio, paused):
         if inputRatio >= 1 or paused:
+            # reset visitor once finished
+            if self.visitor is not None and self.inputIndex == 0:
+                self.handleObstaclesReceived(None)
+            
             self.stopExecution()
             self.updateCallback(inputRatio, True)
         else:
@@ -66,7 +71,7 @@ class VisitorNode(DiagramNode):
     
     
     def handleObstaclesReceived(self, msg):
-        if len(msg.obstacles) > 0:
+        if msg is not None and len(msg.obstacles) > 0:
             self.visitor = msg.obstacles[0]
         else:
             self.visitor = None

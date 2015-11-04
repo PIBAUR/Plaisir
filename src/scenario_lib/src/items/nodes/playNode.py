@@ -144,8 +144,11 @@ class PlayNode(DiagramNode):
             for nodeInstance in self.canvas.nodesInstances:
                 nodeInstance.widget.central_widget.setStyleSheet("#central_widget { background: #fff; }")
                 
-            # play
-            self.playingScenario = self.output()
+            # do play while there is not a scenario
+            while True:
+                self.playingScenario = self.output()
+                if self.playingScenario is not None:
+                    break
             self.playingScenarioLabel.setText(self.playingScenario.niceName())
             
             # publish message to ROS

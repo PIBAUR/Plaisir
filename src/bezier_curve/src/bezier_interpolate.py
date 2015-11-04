@@ -84,7 +84,7 @@ def scenarioCallback(msg):
         
     rospy.loginfo("""new """ + msg.type + """ scenario: 
 - """ + str(len(msg.bezier_paths.curves)) + """ curves
-- distance of """ + str(distance) if distance is not None else "???" + """
+- distance of """ + (str(distance) if distance is not None else "???") + """
 - """ + str(path.path.poses) + """ poses
 - media (""" + str(len(msg.medias.medias)) + """) duration of """ + str(duration) + """s""")
     
