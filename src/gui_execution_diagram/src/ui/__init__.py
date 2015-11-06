@@ -31,6 +31,8 @@ class ExecutionDiagram():
         self.canvas = Canvas(self.ui, self.changeCallback)
         self.ui.canvasContainer.layout().addWidget(self.canvas)
         
+        self.ui.switchToMultiRobots_button.clicked.connect(self.handleSwitchToMultiRobotsButtonClicked)
+        
         # menu
         self.ui.actionNew.triggered.connect(self.newDiagram)
         self.ui.actionOpen.triggered.connect(self.openDiagram)
@@ -117,6 +119,10 @@ class ExecutionDiagram():
         self.ui.setWindowTitle(u"Diagramme d'exécution - " + ("*" if not self.lastChangesSaved else "") + (self.currentFilePath if self.currentFilePath is not None else u"nouveau diagramme"))
         
     
+    def handleSwitchToMultiRobotsButtonClicked(self, *args):
+        self.canvas.switchToMultiRobots()
+        
+        
     def resizeEvent(self, event = None):
         # canvas
         absoluteCoords = self.ui.canvasContainer.mapToGlobal(QPoint(0, 0))

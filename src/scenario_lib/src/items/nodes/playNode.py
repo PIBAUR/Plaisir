@@ -240,3 +240,10 @@ class PlayNode(DiagramNode):
         self.stopButton.setEnabled(False)
         
         self.stopAllScenarios()
+    
+    
+    def destroy(self):
+        self.threadSafeTimer.stop()
+        
+        super(PlayNode, self).destroy()
+        

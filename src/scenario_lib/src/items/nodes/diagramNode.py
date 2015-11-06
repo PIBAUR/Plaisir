@@ -12,6 +12,7 @@ from PyQt4.QtCore import *
 from PyQt4 import uic
 
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
+from src.scenario_lib.src.items.robot import Robot
 
 class DiagramNode(object):
     currentNodeId = 0
@@ -22,8 +23,6 @@ class DiagramNode(object):
     maxInputs = 0 # 0 for infinity
     minInputs = 0
     hasOutput = 0
-    
-    executingOutputWidgetButtonCSS = "QPushButton { background: #cccc00; border-radius: 7px; }"
     
     try:
         ui_file = os.path.join(rospkg.RosPack().get_path('execution_diagram'), 'resource', 'diagram_node.ui')
@@ -48,17 +47,30 @@ class DiagramNode(object):
         # ui
         self.canvas = canvas
         
+        self.setLinkColor()
+        
         self.enabled = True 
         self.dragging = False
         self.draggingOrigin = None
         self.currentInputButtonPressed = None
         self.widget = uic.loadUi(DiagramNode.ui_file)
         self.outputWidget = None
-        self.originInOutputWidgetButtonCSS = None
         
         self.widget.nodeInstance = self
         self.widget.setParent(parent)
         self.widget.show()
+        
+        # set opacity
+        opacityEffect = QGraphicsOpacityEffect(self.widget)
+        opacityEffect.setOpacity(.7)
+        self.widget.setGraphicsEffect(opacityEffect)
+        self.widget.setAutoFillBackground(False)
+        
+        # set button color styles
+        colorSet = self.getColorSet(Robot.ROBOT_ID_LIST.index(robotId))
+        self.originInOutputWidgetButtonCSS = "QPushButton { background: " + str(colorSet[0].name()) + "; border-radius: 7px; }"
+        self.executingOutputWidgetButtonCSS = "QPushButton { background: " + str(colorSet[1].name()) + "; border-radius: 7px; }"
+        
         self.widget.move(position.x(), position.y())
         self.widget.title_label.mousePressEvent = self.titleMousePressEvent
         self.widget.title_label.mouseMoveEvent = self.titleMouseMoveEvent
@@ -83,9 +95,6 @@ class DiagramNode(object):
             xPosOutputWidget = self.widget.central_widget.width()
             yPosOutputWidget = self.widget.central_widget.height() / 2
             self.outputWidget.move(xPosOutputWidget, yPosOutputWidget)
-        
-            # backup origin style of button for restoring after
-            self.originInOutputWidgetButtonCSS = self.outputWidget.button.styleSheet()
     
     
     def getInputs(self):
@@ -120,6 +129,18 @@ class DiagramNode(object):
                 inputInstance.refreshUI(args)
        
     
+    def setMultiRobotsDisplay(self, offsetIndex):
+        self.setLinkColor(offsetIndex)
+        
+        self.widget.move(self.widget.pos().x() + (offsetIndex + 1) * 15, self.widget.pos().y())
+        
+        self.widget.setEnabled(False)
+        self.widget.frame.setVisible(False)
+        for inputWidget in self.getInputsWidgets():
+            if inputWidget.connectedToInstance is None:
+                inputWidget.setVisible(False)
+        
+        
     def stop(self):
         self.stopExecution()
     
@@ -131,14 +152,14 @@ class DiagramNode(object):
         # mark output button in yellow
         if self.outputWidget is not None:
             self.outputWidget.button.objectName = "executing"
-            self.outputWidget.button.setStyleSheet(DiagramNode.executingOutputWidgetButtonCSS)
+            self.outputWidget.button.setStyleSheet(self.executingOutputWidgetButtonCSS)
             self.outputWidget.button.setEnabled(False)
         
         # mark corresponding input button in yellow
         inputWidgets = self.getInputsWidgets()
         if len(inputWidgets) > 0:
             self.executingInputWidget = inputWidgets[inputIndexExecuted]
-            self.executingInputWidget.button.setStyleSheet(DiagramNode.executingOutputWidgetButtonCSS)
+            self.executingInputWidget.button.setStyleSheet(self.executingOutputWidgetButtonCSS)
             self.executingInputWidget.button.objectName = "executing"
             self.executingInputWidget.button.setEnabled(False)
 
@@ -209,10 +230,6 @@ class DiagramNode(object):
         
         # set data
         inputWidget.connectedToInstance = None
-        
-        # backup origin style of button for restoring after if there is no output
-        if self.originInOutputWidgetButtonCSS is None:
-            self.originInOutputWidgetButtonCSS = inputWidget.button.styleSheet()
         
     
     def setTimelineValue(self, value):
@@ -294,7 +311,7 @@ class DiagramNode(object):
         nodeData["id"] = self.id
         nodeData["robotId"] = self.robotId
         nodeData["class"] = self.__class__.__name__
-        position = QPoint(self.widget.x(), self.widget.y()) - (self.canvas.mapToGlobal(QPoint(self.canvas.pos())) - self.canvas.mapToGlobal(QPoint()))
+        position = self.getAbsolutePosition()
         nodeData["position"] = (position.x(), position.y())
         nodeData["specificsData"] = self.getSpecificsData()
         nodeData["links"] = []
@@ -304,6 +321,32 @@ class DiagramNode(object):
         return nodeData
                 
     
+    def getWidgetAbsolutePosition(self):
+        return QPoint(self.widget.x(), self.widget.y()) - (self.canvas.mapToGlobal(QPoint(self.canvas.pos())) - self.canvas.mapToGlobal(QPoint()))
+    
+    
+    def setLinkColor(self, inputIndex = -1):
+        inputIndex += 1
+        
+        colorSet = self.getColorSet(inputIndex)
+        
+        if inputIndex == -1:
+            self.linkColor = colorSet[0]
+            self.executingLinkColor = colorSet[1]
+            self.linkPen = QPen(self.linkColor)
+        else:
+            self.linkColor = colorSet[0]
+            self.executingLinkColor = colorSet[1]
+            self.linkPen = QPen(self.linkColor)
+        
+        self.linkPen.setCapStyle(Qt.SquareCap);
+        self.linkPen.setWidth(2);
+    
+    
+    def getColorSet(self, inputIndex):
+        return [Robot.getColor(inputIndex), Robot.getColor(inputIndex, 180)]
+        
+        
     @staticmethod
     def createInstanceFromData(canvas, nodeData):
         nodeClass = eval(nodeData["class"])

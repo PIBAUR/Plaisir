@@ -8,23 +8,18 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from src.scenario_lib.src.items import nodes
+from src.scenario_lib.src.items.robot import Robot
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 
 class Canvas(QWidget):
-    grey = QColor(100, 100, 100)
-    linkColor = QColor(79, 128, 255)
-    executingLinkColor = QColor(255, 255, 0)
-    linkPen = QPen(linkColor)
+    grey = QColor(150, 150, 150)
     
     def __init__(self, ui, changeCallback):
         super(QWidget, self).__init__()
         
         self.ui = ui
         self.changeCallback = changeCallback
-        
-        Canvas.linkPen.setCapStyle(Qt.SquareCap);
-        Canvas.linkPen.setWidth(2);
         
         # ui
         self.currentLink = None
@@ -49,8 +44,8 @@ class Canvas(QWidget):
         painter.setRenderHint(QPainter.Antialiasing, True)
         
         self.drawLinks(painter)
-        
-        
+    
+    
     def drawBackground(self, painter):
         painter.fillRect(QRectF(0, 0, self.width(), self.height()), Canvas.grey)
         
@@ -113,9 +108,9 @@ class Canvas(QWidget):
             self.nodeWidgetUnderMouse = None
         
         # draw line
-        linkColor = Canvas.linkColor if not executingLink else Canvas.executingLinkColor
-        Canvas.linkPen.setColor(linkColor)
-        painter.setPen(Canvas.linkPen)
+        linkColor = target.linkColor if not executingLink else target.executingLinkColor
+        target.linkPen.setColor(linkColor)
+        painter.setPen(target.linkPen)
         painter.drawLine(currentLinkStartPos, currentLinkEndPos)
         # draw direction triangle
         linkLine = currentLinkEndPos - currentLinkStartPos
@@ -236,6 +231,42 @@ class Canvas(QWidget):
         return None
     
     
+    def switchToMultiRobots(self):
+        newNodeInstances = []
+        i = 0
+        for robotId in Robot.ROBOT_ID_LIST[1:]:
+            # set array to connect later
+            newAffectations = {}
+            for nodeInstance in self.nodesInstances:
+                position = nodeInstance.getWidgetAbsolutePosition()
+                
+                newNodeInstance = nodeInstance.__class__(robotId, self.ui.canvasContainer, self, position)
+                newNodeInstances.append(newNodeInstance)
+                newAffectations[nodeInstance] = newNodeInstance
+            
+            # connect
+            for nodeInstance in newAffectations.keys():
+                linkIndex = 0
+                for link in nodeInstance.getInputsWidgets():
+                    newNodeInstance = newAffectations[nodeInstance]
+                    newNodeInstanceInputWidgets = newNodeInstance.getInputsWidgets()
+                    if link.connectedToInstance is not None:
+                        newNodeInstanceInputWidgets[linkIndex].connectedToInstance = newAffectations[link.connectedToInstance]
+                        if linkIndex >= len(newNodeInstanceInputWidgets) - 1 and len(newNodeInstanceInputWidgets) < newNodeInstance.__class__.maxInputs:
+                            newNodeInstance.addEmptyInput()
+                        
+                    linkIndex += 1
+            
+            for newNodeInstance in newAffectations.values():
+                newNodeInstance.setMultiRobotsDisplay(i)
+            
+            i += 1
+        
+        self.nodesInstances.extend(newNodeInstances)
+        
+        self.update()
+    
+    
     # context menu
     def handleContextMenuRequested(self, position):
         # get nodes
@@ -250,14 +281,12 @@ class Canvas(QWidget):
         nodesCategories = nodesDict.keys()
         nodesCategories.sort()
         
-        for robotId in ["robot01", "robot02", "robot03"]:
-            robotMenu = menu.addMenu(robotId)
-            for nodeCategory in nodesCategories:
-                if nodeCategory == "":
-                    for nodeClass in nodesDict[nodeCategory]:
-                        if nodeClass.nodeName != "":
-                            menuAction = robotMenu.addAction(nodeClass.nodeName)
-                            menuAction.triggered.connect(partial(self.handleMenuActionTriggered, nodeClass, robotId, position))
+        for nodeCategory in nodesCategories:
+            if nodeCategory == "":
+                for nodeClass in nodesDict[nodeCategory]:
+                    if nodeClass.nodeName != "":
+                        menuAction = menu.addAction(nodeClass.nodeName)
+                        menuAction.triggered.connect(partial(self.handleMenuActionTriggered, nodeClass, "robot00", position))
         
         menu.exec_(self.mapToGlobal(position))
     

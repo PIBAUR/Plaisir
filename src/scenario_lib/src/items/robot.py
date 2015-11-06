@@ -28,8 +28,10 @@ from point import Point
 from src.bezier_curve.src import bezier_interpolate
 
 class Robot():
-    currentHue = 0
-    currentLuminosity = 100
+    ROBOT_ID_LIST = ["robot00", "robot01", "robot02", "robot03"]
+    
+    currentColorIndex = 0
+    
     video_db_path = None
     robot_videos_path = None
     
@@ -48,7 +50,8 @@ class Robot():
         self.sequences = []
         
         # only for display
-        self.color = self.getColor()
+        self.color = self.getColor(Robot.currentColorIndex)
+        Robot.currentColorIndex += 1
         self.visible = True
     
     
@@ -208,20 +211,14 @@ class Robot():
         return result
     
     
-    def getColor(self):
+    @staticmethod
+    def getColor(inputIndex, offset = 0):
         color = QColor()
-        color.setHsl(Robot.currentHue, 255, Robot.currentLuminosity)
-        Robot.currentHue += 51
-        if Robot.currentHue > 255:
-            Robot.currentHue = 0
-            Robot.currentLuminosity -= 25
-            if Robot.currentLuminosity <= 25:
-                Robot.currentLuminosity = 100
+        color.setHsl(((inputIndex + 6) * (360. / 10) + offset) % 360, 255, 127)
         
         return color
     
     
     @staticmethod
     def reinit():
-        Robot.currentHue = 0
-        Robot.currentLuminosity = 100
+        pass
