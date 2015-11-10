@@ -34,7 +34,7 @@ class Sequences():
         self.ui.sequences_list.clear()
         
         for sequence in self.canvas.currentRobot.sequences:
-            self.addSequenceToList(float(sequence.timePosition), float(sequence.position), float(sequence.backward))
+            self.addSequenceToList(False, float(sequence.timePosition), float(sequence.position), float(sequence.backward))
             
         self.listClearing = False
         
@@ -70,8 +70,9 @@ class Sequences():
         # set timeline at this time
         if currentItem is not None:
             widget = self.ui.sequences_list.itemWidget(currentItem)
-            timeValue = widget.layout().itemAt(0).widget().value()
-            self.temporalization.setTimelineTime(timeValue * 1000)
+            if widget is not None:
+                timeValue = widget.layout().itemAt(0).widget().value()
+                self.temporalization.setTimelineTime(timeValue * 1000)
         
         
     def handleAddSequenceBeforeButtonClicked(self, *args):
@@ -116,7 +117,7 @@ class Sequences():
         timeSpinBox.setMinimum(0)
         timeSpinBox.setMaximum(99999999)
         timeSpinBox.setValue(timePosition)
-        timeSpinBox.setFocusPolicy(Qt.NoFocus)
+        #timeSpinBox.setFocusPolicy(Qt.NoFocus)
         sequenceWidget.layout().addWidget(timeSpinBox)
         
         positionSpinBox = QSpinBox()
@@ -124,7 +125,7 @@ class Sequences():
         positionSpinBox.setMinimum(0)
         positionSpinBox.setMaximum(99999999)
         positionSpinBox.setValue(position)
-        positionSpinBox.setFocusPolicy(Qt.NoFocus)
+        #positionSpinBox.setFocusPolicy(Qt.NoFocus)
         sequenceWidget.layout().addWidget(positionSpinBox)
         
         backwardCheckbox = QCheckBox(u"en arrière")

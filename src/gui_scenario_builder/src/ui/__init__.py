@@ -132,6 +132,7 @@ class ScenarioEdition():
         
         self.ui.resizeEvent = self.resizeEvent
         self.ui.closeEvent = self.closeEvent
+        self.ui.mousePressEvent = self.mousePressEvent
         self.ui.show()
         self.resizeEvent()
     
@@ -292,6 +293,13 @@ class ScenarioEdition():
         if self.closeCallback is not None:
             self.closeCallback(self.currentFilePath)
         
+    
+    def mousePressEvent(self, event):
+        focusedWidget = QApplication.focusWidget()
+        if focusedWidget is not None:
+            focusedWidget.clearFocus()
+        QMainWindow.mousePressEvent(self.ui, event)
+    
     
     def resizeEvent(self, event = None):
         # canvas
