@@ -38,12 +38,7 @@ class CompleteScenarioNode(DiagramNode):
         
         inputs = self.getInputs()
 
-        robotIndex = 0
-        for robotId in Robot.ROBOT_ID_LIST:
-            if self.robotId == robotId:
-                break
-            
-            robotIndex += 1
+        robotIndex = self.getRobotIndex()
                 
         # get the position of the start of choregraphic scenario to reach this point with the travel scenario
         choregraphicScenario = inputs[1].output(args, None)

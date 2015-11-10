@@ -339,7 +339,7 @@ class DiagramNode(object):
         nodeData["id"] = self.id
         nodeData["robotId"] = self.robotId
         nodeData["class"] = self.__class__.__name__
-        position = self.getAbsolutePosition()
+        position = self.getWidgetAbsolutePosition()
         nodeData["position"] = (position.x(), position.y())
         nodeData["specificsData"] = self.getSpecificsData()
         nodeData["links"] = []
@@ -351,6 +351,19 @@ class DiagramNode(object):
     
     def getWidgetAbsolutePosition(self):
         return QPoint(self.widget.x(), self.widget.y()) - (self.canvas.mapToGlobal(QPoint(self.canvas.pos())) - self.canvas.mapToGlobal(QPoint()))
+    
+    
+    def getRobotIndex(self):
+        result = 0
+        isResult = False
+        for robotId in Robot.ROBOT_ID_LIST:
+            if self.robotId == robotId:
+                isResult = True
+                break
+            
+            result += 1
+        
+        return result if isResult else -1
     
     
     def setColors(self, inputIndex = -1):

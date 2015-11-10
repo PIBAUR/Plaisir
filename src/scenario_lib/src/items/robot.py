@@ -28,7 +28,7 @@ from point import Point
 from src.bezier_curve.src import bezier_interpolate
 
 class Robot():
-    ROBOT_ID_LIST = ["robot00", "robot01", "robot02", "robot03"]
+    ROBOT_ID_LIST = ["robot00", "robot03"]
     
     currentColorIndex = 0
     

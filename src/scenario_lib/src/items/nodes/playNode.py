@@ -163,27 +163,30 @@ class PlayNode(DiagramNode):
             if self.playingScenario.scenarioType == "choregraphic":
                 scale = 1. / float(self.playingScenario.gridSize)
                 interpolation = True
+                robotIndex = self.getRobotIndex()
             else:
                 scale = 1
                 interpolation = False
+                robotIndex = 0
             
-            robot = self.playingScenario.robots[0]
-            if self.playingScenario.startPosition is not None:
-                transformPosition = self.playingScenario.startPosition
-            else:
-                transformPosition = self.transformPosition
+            if robotIndex < len(self.playingScenario.robots):
+                robot = self.playingScenario.robots[robotIndex]
+                if self.playingScenario.startPosition is not None:
+                    transformPosition = self.playingScenario.startPosition
+                else:
+                    transformPosition = self.transformPosition
+                    
+                if self.playingScenario.startOrientation is not None:
+                    transformOrientation = self.playingScenario.startOrientation
+                else:
+                    transformOrientation = self.transformOrientation
                 
-            if self.playingScenario.startOrientation is not None:
-                transformOrientation = self.playingScenario.startOrientation
-            else:
-                transformOrientation = self.transformOrientation
-            
-            scenarioMsg = robot.getScenarioMsgWithParams(transformPosition, scale, transformOrientation, interpolation, False)
-            scenarioMsg.uid = self.playingScenario.uid
-            scenarioMsg.type = self.playingScenario.scenarioType
-            if self.playingScenario.checkedChoregraphicPath is not None:
-                scenarioMsg.checkedChoregraphicPath = self.playingScenario.checkedChoregraphicPath
-            self.scenarioPublisher.publish(scenarioMsg)
+                scenarioMsg = robot.getScenarioMsgWithParams(transformPosition, scale, transformOrientation, interpolation, False)
+                scenarioMsg.uid = self.playingScenario.uid
+                scenarioMsg.type = self.playingScenario.scenarioType
+                if self.playingScenario.checkedChoregraphicPath is not None:
+                    scenarioMsg.checkedChoregraphicPath = self.playingScenario.checkedChoregraphicPath
+                self.scenarioPublisher.publish(scenarioMsg)
         except NodeException as error:
             self.playButton.setEnabled(True)
             self.stopButton.setEnabled(False)
