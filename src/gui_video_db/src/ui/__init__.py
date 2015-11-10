@@ -20,8 +20,9 @@ from src.scenario_lib.src.items.media import Media
 class VideoDatabase():
     dataColumns = ["name", "category", "startPosition", "endPosition", "duration"]
     
-    def __init__(self, importCallback = None):
+    def __init__(self, importCallback = None, before = False):
         self.importCallback = importCallback
+        self.before = before
         
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_video_db'), 'resource', 'video_db.ui')
@@ -37,6 +38,8 @@ class VideoDatabase():
         # path
         if not os.path.exists(self.videosBasePath):
             os.makedirs(self.videosBasePath)
+        
+        self.videoDurations = {}
             
         # load ui
         self.ui = uic.loadUi(ui_file)
@@ -69,6 +72,7 @@ class VideoDatabase():
         self.categoryFilterLineEdit = QLineEdit()
         self.startPositionFilterLineEdit = QLineEdit()
         self.endPositionFilterLineEdit = QLineEdit()
+        self.displayDurationsCheckbox = QCheckBox()
         
         # init auto completion
         categoryDelegate = CompleterDelegate(self.ui.video_db_table, self.completerSetupFunction, self.getCompleterStringList, ["category"])
@@ -83,10 +87,12 @@ class VideoDatabase():
         self.ui.video_db_table.setCellWidget(0, 1, self.categoryFilterLineEdit)
         self.ui.video_db_table.setCellWidget(0, 2, self.startPositionFilterLineEdit)
         self.ui.video_db_table.setCellWidget(0, 3, self.endPositionFilterLineEdit)
+        self.ui.video_db_table.setCellWidget(0, 4, self.displayDurationsCheckbox)
         self.nameFilterLineEdit.textChanged.connect(self.populateTable)
         self.categoryFilterLineEdit.textChanged.connect(self.populateTable)
         self.startPositionFilterLineEdit.textChanged.connect(self.populateTable)
         self.endPositionFilterLineEdit.textChanged.connect(self.populateTable)
+        self.displayDurationsCheckbox.stateChanged.connect(self.populateTable)
         
         self.populateTable()
         
@@ -121,10 +127,18 @@ class VideoDatabase():
                             video["name"] = "-".join(splittedVideoFileName[:-3])
                             video["startPosition"] = splittedVideoFileName[-3]
                             video["endPosition"] = splittedVideoFileName[-1]
-                            videoDuration = str(Media.getDurationOfVideo(video["path"]))
-                            videoDurationSplitted = videoDuration.split(".")
-                            videoDuration = videoDurationSplitted[0] + "," + videoDurationSplitted[1][:2] + " s"
-                            video["duration"] = videoDuration
+                            if self.displayDurationsCheckbox.isChecked():
+                                if videoFilePath in self.videoDurations.keys():
+                                    videoDuration = self.videoDurations[videoFilePath] 
+                                else:
+                                    videoDuration = str(Media.getDurationOfVideo(video["path"]))
+                                    self.videoDurations[videoFilePath] = videoDuration
+                                videoDurationSplitted = videoDuration.split(".")
+                                videoDuration = videoDurationSplitted[0] + "," + videoDurationSplitted[1][:2] + " s"
+                                video["duration"] = videoDuration
+                            else:
+                                video["duration"] = "?"
+                                
                         # eventually create thumbs
                         """startThumbFile = videoFileName + "_start_thumb.png"
 	                    endThumbFile = videoFileName + "_end_thumb.png"
@@ -243,7 +257,7 @@ class VideoDatabase():
     def handleImportButtonClicked(self, row):
         videoPath = self.ui.video_db_table.item(row, 0).videoPath
         
-        self.importCallback(videoPath)
+        self.importCallback(videoPath, self.before)
         
         self.ui.close()
                         

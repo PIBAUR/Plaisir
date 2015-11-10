@@ -47,14 +47,15 @@ class DiagramNode(object):
         # ui
         self.canvas = canvas
         
-        self.setLinkColor()
+        self.isMasterMultiRobotsDisplay = False
         
-        self.enabled = True 
         self.dragging = False
         self.draggingOrigin = None
         self.currentInputButtonPressed = None
         self.widget = uic.loadUi(DiagramNode.ui_file)
         self.outputWidget = None
+        
+        self.setColors()
         
         self.widget.nodeInstance = self
         self.widget.setParent(parent)
@@ -76,8 +77,6 @@ class DiagramNode(object):
         self.widget.title_label.mouseMoveEvent = self.titleMouseMoveEvent
         self.widget.title_label.mouseReleaseEvent = self.titleMouseReleaseEvent
         
-        self.widget.enabled_checkBox.stateChanged.connect(self.handleEnabledCheckboxStateChanged)
-        
         self.widget.title_label.setText(self.robotId + " - " + self.__class__.nodeName)
         
         self.setTimelineValue(0)
@@ -95,11 +94,12 @@ class DiagramNode(object):
             xPosOutputWidget = self.widget.central_widget.width()
             yPosOutputWidget = self.widget.central_widget.height() / 2
             self.outputWidget.move(xPosOutputWidget, yPosOutputWidget)
+            self.outputWidget.button.setStyleSheet(self.originInOutputWidgetButtonCSS)
     
     
     def getInputs(self):
         # get only enabled inputs
-        inputs = [inputNode for inputNode in self.getInputsInstances() if inputNode is not None and inputNode.enabled]
+        inputs = [inputNode for inputNode in self.getInputsInstances() if inputNode is not None]
         
         if len(inputs) < self.__class__.minInputs:
             raise NodeException(self, u"le nombre de noeud connectés est insuffisant")
@@ -129,16 +129,31 @@ class DiagramNode(object):
                 inputInstance.refreshUI(args)
        
     
-    def setMultiRobotsDisplay(self, offsetIndex):
-        self.setLinkColor(offsetIndex)
+    def setMultiRobotsDisplay(self, offsetIndex, originalNodeInstance):
+        self.setColors(offsetIndex)
         
-        self.widget.move(self.widget.pos().x() + (offsetIndex + 1) * 15, self.widget.pos().y())
+        self.widget.move(self.widget.pos().x(), self.widget.pos().y() + (offsetIndex + 1) * 3)
         
+        self.widget.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.widget.setEnabled(False)
-        self.widget.frame.setVisible(False)
+        self.widget.central_widget.setVisible(False)
+        self.widget.frame.setLineWidth(0)
+        self.widget.frame.setFrameStyle(QFrame.NoFrame)
+        self.widget.central_widget.setVisible(False)
+        self.widget.title_label.setStyleSheet("")
+        self.widget.title_label.setText("")
+        self.widget.frame.layout().addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        
         for inputWidget in self.getInputsWidgets():
             if inputWidget.connectedToInstance is None:
                 inputWidget.setVisible(False)
+        
+    
+    def setMasterMultiRobotsDisplay(self):
+        self.isMasterMultiRobotsDisplay = True
+        if type(self) != PlayNode:
+            self.widget.central_widget.setEnabled(False)
+        self.widget.title_label.setText(self.widget.title_label.text().replace(self.robotId + " - ", ""))
         
         
     def stop(self):
@@ -230,7 +245,7 @@ class DiagramNode(object):
         
         # set data
         inputWidget.connectedToInstance = None
-        
+    
     
     def setTimelineValue(self, value):
         if value < 0:
@@ -240,18 +255,19 @@ class DiagramNode(object):
         self.widget.timeline.setMaximumWidth(width)
         
     
-    def handleEnabledCheckboxStateChanged(self, state):
-        self.enabled = state
-        self.widget.title_label.setEnabled(state)
-        
-    
     # dragging
     def titleMousePressEvent(self, event):
+        if self.isMasterMultiRobotsDisplay:
+            return
+        
         self.dragging = True
         self.draggingOrigin = (event.globalX() - self.widget.x(), event.globalY() - self.widget.y())
         
         
     def titleMouseMoveEvent(self, event):
+        if self.isMasterMultiRobotsDisplay:
+            return
+        
         if self.dragging:
             moveToX, moveToY = event.globalX() - self.draggingOrigin[0], event.globalY() - self.draggingOrigin[1]
             # set limits
@@ -265,11 +281,17 @@ class DiagramNode(object):
             
             
     def titleMouseReleaseEvent(self, event):
+        if self.isMasterMultiRobotsDisplay:
+            return
+        
         self.dragging = False
         
     
     # linking
     def inputButtonMousePressEvent(self, target, event):
+        if self.isMasterMultiRobotsDisplay:
+            return
+        
         self.currentInputButtonPressed = target
         self.currentInputButtonPressed.setDown(True)
         self.currentInputButtonPressed.parent().connectedToInstance = None
@@ -278,11 +300,17 @@ class DiagramNode(object):
     
     
     def inputButtonMouseMoveEvent(self, event):
+        if self.isMasterMultiRobotsDisplay:
+            return
+        
         if self.currentInputButtonPressed is not None:
             self.canvas.setCurrrentLink(self.currentInputButtonPressed, QPoint(event.globalX(), event.globalY()))
     
     
     def inputButtonMouseReleaseEvent(self, event):
+        if self.isMasterMultiRobotsDisplay:
+            return
+        
         if self.canvas.nodeWidgetUnderMouse is not None:
             # add link
             self.currentInputButtonPressed.parent().connectedToInstance = self.canvas.nodeWidgetUnderMouse.nodeInstance
@@ -325,7 +353,7 @@ class DiagramNode(object):
         return QPoint(self.widget.x(), self.widget.y()) - (self.canvas.mapToGlobal(QPoint(self.canvas.pos())) - self.canvas.mapToGlobal(QPoint()))
     
     
-    def setLinkColor(self, inputIndex = -1):
+    def setColors(self, inputIndex = -1):
         inputIndex += 1
         
         colorSet = self.getColorSet(inputIndex)
@@ -341,6 +369,8 @@ class DiagramNode(object):
         
         self.linkPen.setCapStyle(Qt.SquareCap);
         self.linkPen.setWidth(2);
+        
+        self.widget.timeline.setStyleSheet("background: rgb(" + str(colorSet[0].red()) + ", " + str(colorSet[0].green()) + ", " + str(colorSet[0].blue()) + ")")
     
     
     def getColorSet(self, inputIndex):
@@ -368,8 +398,16 @@ class DiagramNode(object):
         linkIndex = 0
         for linkData in nodeData["links"]:
             nodeInstanceLinked = canvas.getNodeInstanceById(linkData)
-            nodeInstanceToLink.getInputsWidgets()[linkIndex].connectedToInstance = nodeInstanceLinked
+            inputWidget = nodeInstanceToLink.getInputsWidgets()[linkIndex]
+            DiagramNode.connectToInstance(inputWidget, nodeInstanceLinked)
             linkIndex += 1
+        
+    
+    @staticmethod
+    def connectToInstance(inputWidget, outputInstance):
+        inputWidget.connectedToInstance = outputInstance
+        if outputInstance is not None:
+            inputWidget.button.setStyleSheet(outputInstance.originInOutputWidgetButtonCSS)
 
 
 # voluntary on bottom

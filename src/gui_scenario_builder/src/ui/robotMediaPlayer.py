@@ -21,11 +21,11 @@ class RobotMediaPlayer():
         self.videoPlayer = Phonon.VideoPlayer()
         self.ui.mediaContainer_widget.layout().addWidget(self.videoPlayer.videoWidget())
         self.videoPlayer.finished.connect(self.handleVideoPlayerFinished)
-        
-        self.ui.media_groupBox.setEnabled(False)
+            
+        self.ui.deleteMedia_button.setEnabled(False)
         
         self.mediaPlayingTimer = QTimer()
-        self.mediaPlayingTimer.setInterval(30)
+        self.mediaPlayingTimer.setInterval(1000. / 25)
         self.mediaPlayingTimer.timeout.connect(self.handleMediaPlaying)
         self.mediaPlayingTimer.start()
     
@@ -65,12 +65,12 @@ class RobotMediaPlayer():
             # if was playing, don't try to pause
             if tryToPause:
                 self.tryToPause = True
-            self.ui.media_groupBox.setEnabled(True)
+            self.ui.deleteMedia_button.setEnabled(True)
             self.ui.media_groupBox.setTitle(u"Vidéo (" + os.path.basename(media.niceName).decode("utf-8") + u")")
         else:
             self.currentVideoMediaSource = None
             self.currentMedia = None
-            self.ui.media_groupBox.setEnabled(False)
+            self.ui.deleteMedia_button.setEnabled(False)
             self.ui.media_groupBox.setTitle(u"Vidéo")
         
         if self.temporalization is not None:
@@ -104,5 +104,4 @@ class RobotMediaPlayer():
         
     
     def handleVideoPlayerFinished(self):
-        print "play next media"
         self.temporalization.playNextMedia()

@@ -108,6 +108,14 @@ class PlayNode(DiagramNode):
             self.getRobotTransform()
     
     
+    def setMultiRobotsDisplay(self, offsetIndex, originalNodeInstance):
+        super(PlayNode, self).setMultiRobotsDisplay(offsetIndex, originalNodeInstance)
+        
+        originalNodeInstance.playButton.clicked.connect(self.handlePlayButtonClicked)
+        originalNodeInstance.simulateButton.clicked.connect(self.handleSimulateButtonClicked)
+        originalNodeInstance.stopButton.clicked.connect(self.handleStopButtonClicked)
+        
+        
     def getRobotTransform(self):
         try:
             self.transformPosition, self.transformOrientation = self.transformListener.lookupTransform("/map", "/" + self.robotId + "/base_link", rospy.Time(0))

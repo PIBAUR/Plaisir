@@ -242,8 +242,8 @@ class Canvas(QWidget):
     
     def wheelEvent(self, event):
         self.canvasZoom += event.delta() * .01
-        if self.canvasZoom > 80:
-            self.canvasZoom = 80
+        if self.canvasZoom > 100:
+            self.canvasZoom = 100
         if self.canvasZoom < 1:
             self.canvasZoom = 1
         

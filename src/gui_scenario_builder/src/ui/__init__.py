@@ -263,21 +263,23 @@ class ScenarioEdition():
             colorWidget.setMinimumSize(15, 15)
             colorWidget.setStyleSheet("background: " + robot.color.name() + ";")
             label = QLabel("Robot " + str(i + 1))
-            visibleCheckbox = QCheckBox()
+            visibleCheckbox = QCheckBox("visible")
             visibleCheckbox.setChecked(True)
+            visibleCheckbox.setFocusPolicy(Qt.NoFocus)
             visibleCheckbox.stateChanged.connect(partial(self.handleVisibleCheckboxChanged, visibleCheckbox, robot))
-            deleteButton = QPushButton("X")
+            deleteButton = QPushButton("Supprimer")
             if len(self.currentScenario.robots) <= 1:
                 deleteButton.setEnabled(False)
-            deleteButton.setMaximumSize(27, 27)
             deleteButton.clicked.connect(partial(self.handleRemoveRobotButton, robot))
+            deleteButton.setFocusPolicy(Qt.NoFocus)
             itemWidget.layout().addWidget(colorWidget)
             itemWidget.layout().addWidget(label)
             itemWidget.layout().addWidget(visibleCheckbox)
             itemWidget.layout().addWidget(deleteButton)
+            itemWidget.layout().setContentsMargins(9, 2, 2, 2)
             
             item = QListWidgetItem()
-            item.setSizeHint(QSize(0, 30))
+            item.setSizeHint(QSize(0, 27))
             
             self.ui.robots_list.addItem(item)
             self.ui.robots_list.setItemWidget(item, itemWidget)
@@ -297,13 +299,9 @@ class ScenarioEdition():
         absoluteCoords -= self.ui.mapToGlobal(QPoint(0, 0))
         self.canvas.setGeometry(absoluteCoords.x(), absoluteCoords.y(), self.ui.canvasContainer.width(), self.ui.canvasContainer.height())
         self.canvas.update()
+        
         # media
-        self.ui.mediaContainer_widget.setMaximumHeight(self.ui.mediaContainer_widget.width() * (float(self.monitorScreenResolutionHeight) / float(self.monitorScreenResolutionWidth)))
-        # temporalization
-        self.ui.temporalization_widget.setMaximumWidth(self.ui.timeline_groupBox.width() - 76)
-        addMediaButtonSize = self.ui.temporalization_widget.height()
-        self.ui.addMedia_button.setMinimumSize(addMediaButtonSize, addMediaButtonSize)
-        self.ui.addMedia_button.setMaximumSize(addMediaButtonSize, addMediaButtonSize)
+        #self.ui.mediaContainer_widget.setMaximumHeight(self.ui.mediaContainer_widget.width() * (float(self.monitorScreenResolutionHeight) / float(self.monitorScreenResolutionWidth)))
     
     
     # buttons

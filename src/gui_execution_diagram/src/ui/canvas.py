@@ -31,6 +31,7 @@ class Canvas(QWidget):
         
         # vars
         self.nodesInstances = []
+        self.multiRobotsMode = False
         
         self.updateBounds()
             
@@ -232,6 +233,8 @@ class Canvas(QWidget):
     
     
     def switchToMultiRobots(self):
+        self.multiRobotsMode = True
+        
         newNodeInstances = []
         i = 0
         for robotId in Robot.ROBOT_ID_LIST[1:]:
@@ -241,8 +244,11 @@ class Canvas(QWidget):
                 position = nodeInstance.getWidgetAbsolutePosition()
                 
                 newNodeInstance = nodeInstance.__class__(robotId, self.ui.canvasContainer, self, position)
+                newNodeInstance.setSpecificsData(nodeInstance.getSpecificsData())
                 newNodeInstances.append(newNodeInstance)
                 newAffectations[nodeInstance] = newNodeInstance
+                
+                nodeInstance.setMasterMultiRobotsDisplay()
             
             # connect
             for nodeInstance in newAffectations.keys():
@@ -251,14 +257,15 @@ class Canvas(QWidget):
                     newNodeInstance = newAffectations[nodeInstance]
                     newNodeInstanceInputWidgets = newNodeInstance.getInputsWidgets()
                     if link.connectedToInstance is not None:
-                        newNodeInstanceInputWidgets[linkIndex].connectedToInstance = newAffectations[link.connectedToInstance]
+                        DiagramNode.connectToInstance(newNodeInstanceInputWidgets[linkIndex], newAffectations[link.connectedToInstance])
+                        
                         if linkIndex >= len(newNodeInstanceInputWidgets) - 1 and len(newNodeInstanceInputWidgets) < newNodeInstance.__class__.maxInputs:
                             newNodeInstance.addEmptyInput()
                         
                     linkIndex += 1
             
-            for newNodeInstance in newAffectations.values():
-                newNodeInstance.setMultiRobotsDisplay(i)
+            for nodeInstance, newNodeInstance in newAffectations.items():
+                newNodeInstance.setMultiRobotsDisplay(i, nodeInstance)
             
             i += 1
         

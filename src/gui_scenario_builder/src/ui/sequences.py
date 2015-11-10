@@ -20,7 +20,8 @@ class Sequences():
         
         self.listClearing = True
         self.ui.sequences_list.currentItemChanged.connect(self.handleSequencesListCurrentItemChanged)
-        self.ui.addSequence_button.clicked.connect(self.handleAddSequenceButtonClicked)
+        self.ui.addSequenceBefore_button.clicked.connect(self.handleAddSequenceBeforeButtonClicked)
+        self.ui.addSequenceAfter_button.clicked.connect(self.handleAddSequenceAfterButtonClicked)
         self.ui.removeSequence_button.clicked.connect(self.handleRemoveSequenceButtonClicked)
         
         self.handleSequencesListCurrentItemChanged()
@@ -44,9 +45,9 @@ class Sequences():
             item = self.ui.sequences_list.itemWidget(self.ui.sequences_list.item(i))
             if item is not None:
                 spinBoxesLayout = item.layout()
-                backwardValue = spinBoxesLayout.itemAt(0).widget().isChecked()
-                timeValue = spinBoxesLayout.itemAt(1).widget().value()
-                positionValue = spinBoxesLayout.itemAt(2).widget().value()
+                timeValue = spinBoxesLayout.itemAt(0).widget().value()
+                positionValue = spinBoxesLayout.itemAt(1).widget().value()
+                backwardValue = spinBoxesLayout.itemAt(2).widget().isChecked()
                 newSequence = Sequence(timeValue, positionValue, backwardValue, self.ui.sequences_list.currentRow() == i)
                 self.canvas.currentRobot.sequences.append(newSequence)
         
@@ -60,14 +61,25 @@ class Sequences():
         
         
     def handleSequencesListCurrentItemChanged(self, *args):
-        self.ui.removeSequence_button.setEnabled(self.ui.sequences_list.currentItem() is not None)
+        currentItem = self.ui.sequences_list.currentItem()
+        self.ui.removeSequence_button.setEnabled(currentItem is not None)
         
         if not self.listClearing:
             self.updateData()
         
+        # set timeline at this time
+        if currentItem is not None:
+            widget = self.ui.sequences_list.itemWidget(currentItem)
+            timeValue = widget.layout().itemAt(0).widget().value()
+            self.temporalization.setTimelineTime(timeValue * 1000)
         
-    def handleAddSequenceButtonClicked(self, *args):
-        self.addSequenceToList((math.floor((self.canvas.currentTimelinePosition * self.temporalization.fullDuration) * 10)) / 10., self.canvas.currentRobot.sequences[-1].position if len(self.canvas.currentRobot.sequences) > 0 else 0)
+        
+    def handleAddSequenceBeforeButtonClicked(self, *args):
+        self.addSequenceToList(True, (math.floor((self.canvas.currentTimelinePosition * self.temporalization.fullDuration) * 10)) / 10., self.canvas.currentRobot.sequences[-1].position if len(self.canvas.currentRobot.sequences) > 0 else 0)
+        
+        
+    def handleAddSequenceAfterButtonClicked(self, *args):
+        self.addSequenceToList(False, (math.floor((self.canvas.currentTimelinePosition * self.temporalization.fullDuration) * 10)) / 10., self.canvas.currentRobot.sequences[-1].position if len(self.canvas.currentRobot.sequences) > 0 else 0)
         
         
     def handleRemoveSequenceButtonClicked(self, *args):
@@ -80,16 +92,23 @@ class Sequences():
         self.updateData()
         
     
-    def addSequenceToList(self, timePosition, position, backward = False):
-        sequenceIndex = self.ui.sequences_list.count()
-        self.ui.sequences_list.addItem("")
+    def addSequenceToList(self, before, timePosition, position, backward = False):
+        if self.ui.sequences_list.currentRow() >= 0:
+            sequenceIndex = 0
+            if self.ui.sequences_list.count() > 0:
+                sequenceIndex = self.ui.sequences_list.currentRow()
+                if not before:
+                    sequenceIndex += 1
+        
+            self.ui.sequences_list.insertItem(sequenceIndex, "")
+        else:
+            sequenceIndex = self.ui.sequences_list.count()
+            self.ui.sequences_list.addItem("")
+            
+            
         sequenceWidget = QWidget()
         sequenceWidget.setLayout(QHBoxLayout())
-        
-        backwardCheckbox = QCheckBox()
-        backwardCheckbox.setChecked(backward)
-        backwardCheckbox.toggled.connect(partial(self.handleValueChanged, sequenceIndex))
-        sequenceWidget.layout().addWidget(backwardCheckbox)
+        sequenceWidget.layout().setContentsMargins(9, 2, 2, 2)
         
         timeSpinBox = QDoubleSpinBox()
         timeSpinBox.valueChanged.connect(partial(self.handleValueChanged, sequenceIndex))
@@ -97,6 +116,7 @@ class Sequences():
         timeSpinBox.setMinimum(0)
         timeSpinBox.setMaximum(99999999)
         timeSpinBox.setValue(timePosition)
+        timeSpinBox.setFocusPolicy(Qt.NoFocus)
         sequenceWidget.layout().addWidget(timeSpinBox)
         
         positionSpinBox = QSpinBox()
@@ -104,10 +124,17 @@ class Sequences():
         positionSpinBox.setMinimum(0)
         positionSpinBox.setMaximum(99999999)
         positionSpinBox.setValue(position)
+        positionSpinBox.setFocusPolicy(Qt.NoFocus)
         sequenceWidget.layout().addWidget(positionSpinBox)
         
+        backwardCheckbox = QCheckBox(u"en arrière")
+        backwardCheckbox.setChecked(backward)
+        backwardCheckbox.toggled.connect(partial(self.handleValueChanged, sequenceIndex))
+        backwardCheckbox.setFocusPolicy(Qt.NoFocus)
+        sequenceWidget.layout().addWidget(backwardCheckbox)
+        
         listWidget = self.ui.sequences_list.item(sequenceIndex)
-        listWidget.setSizeHint(QSize(0, 40))
+        listWidget.setSizeHint(QSize(0, 27))
         self.ui.sequences_list.setItemWidget(listWidget, sequenceWidget)
         
         self.updateData()
