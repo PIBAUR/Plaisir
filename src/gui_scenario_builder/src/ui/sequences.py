@@ -34,7 +34,7 @@ class Sequences():
         self.ui.sequences_list.clear()
         
         for sequence in self.canvas.currentRobot.sequences:
-            self.addSequenceToList(float(sequence.timePosition), float(sequence.position), float(sequence.backward))
+            self.addSequenceToList(False, float(sequence.timePosition), float(sequence.position), float(sequence.backward))
             
         self.listClearing = False
         

@@ -10,6 +10,7 @@ import tf
 
 from geometry_msgs.msg import Pose2D as Pose2DMsg
 
+from src.scenario_lib.src.items.robot import Robot
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.nodes.travelScenarioNode import TravelScenarioNode
@@ -36,18 +37,23 @@ class CompleteScenarioNode(DiagramNode):
         self.updateCallback = updateRatioCallback
         
         inputs = self.getInputs()
-        
+
+        robotIndex = 0
+        for robotId in Robot.ROBOT_ID_LIST:
+            if self.robotId == robotId:
+                break
+            
+            robotIndex += 1
+                
         # get the position of the start of choregraphic scenario to reach this point with the travel scenario
         choregraphicScenario = inputs[1].output(args, None)
-        
-        ROBOT_ID_DIRTY_BEARK = 3
         
         if self.currentInputIndex == 0:
             # get scale
             scale = 1. / float(choregraphicScenario.gridSize)
             
             # get the line between the first point of the curve and the target
-            robot = choregraphicScenario.robots[ROBOT_ID_DIRTY_BEARK] #TODO: oulala !
+            robot = choregraphicScenario.robots[robotIndex]
             firstPoint = robot.points[0].anchor
             targetPoint = choregraphicScenario.targetPosition
             directionLineVector = ((targetPoint[0] - firstPoint.x()) * scale, (targetPoint[1] - firstPoint.y()) * scale)
@@ -66,7 +72,7 @@ class CompleteScenarioNode(DiagramNode):
             
             # transform the point depending on the orientation wanted
             transformOrientation = tf.transformations.quaternion_from_euler(0, 0, orientation)
-            scenarioMsg = choregraphicScenario.robots[ROBOT_ID_DIRTY_BEARK].getScenarioMsgWithParams((originPosition[0], originPosition[1], 0), scale, transformOrientation, True, True)
+            scenarioMsg = choregraphicScenario.robots[robotIndex].getScenarioMsgWithParams((originPosition[0], originPosition[1], 0), scale, transformOrientation, True, True)
             args["targetPosition"] = (scenarioMsg.bezier_paths.curves[0].anchor_1.x, scenarioMsg.bezier_paths.curves[0].anchor_1.y, 0)
             args["targetOrientation"] = orientation
             # store values for absolute coords for choregraphic scenario
