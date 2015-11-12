@@ -1,0 +1,22 @@
+<launch>
+	<arg name="robot"/>
+	<arg name="speed"/>
+	<arg name="step"/>
+	
+	<!-- Setting and loading params and args -->
+	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
+
+	<!-- MACHINES  -->
+	<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="true" 
+		env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
+	<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
+		env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+
+  	<!-- HARDWARE -->
+    <node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
+
+	<node pkg="speed_test" type="linear_speed" name="linear_speed">
+		<param name="speed_max" value="$(arg speed)"/>
+		<param name="speed_step" value="$(arg step)"/>
+	</node>				
+</launch>
