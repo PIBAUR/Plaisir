@@ -39,8 +39,9 @@ public:
 LinearSpeedTester::LinearSpeedTester(ros::NodeHandle nh):
     nh_(nh)
 {
-    ros::NodeHandle nh_private("~");
     cmd_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+
+    ros::NodeHandle nh_private("~");
     nh_private.param<double>("speed_max",speed_max_,SPEED_MAX);
     nh_private.param<double>("speed_step",speed_step_,SPEED_STEP);
     ROS_INFO_STREAM("Linear test from -"<<speed_max_<<"to"<<speed_max_<<" with step of "<<speed_step_);
@@ -54,7 +55,7 @@ LinearSpeedTester::LinearSpeedTester(ros::NodeHandle nh):
     file_name<<"20"<<ltm->tm_year-100<<"-"; //year
     file_name<<1 + ltm->tm_mon<<"-";        //month
     file_name<<ltm->tm_mday<<"_";           //day
-    file_name<<1+ltm->tm_hour<<"-";         //hours
+    file_name<<ltm->tm_hour<<"-";         //hours
     if(1+ltm->tm_min < 10)
         file_name<<"0"<<1+ltm->tm_min<<"-"; //minutes
     else
