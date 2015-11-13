@@ -69,7 +69,11 @@
 #define BATTERY_IN_VOLT         0.10    // 123 = 12.3 V
 #define COMMAND_METER           12.633  // Convert from m.s^-1 to increment : 1m.s^-1 = 127
 #define ROTATION_CORRECT        1.0     // Coefficient correcting rotation
-#define LOOP_RATE               60      // frenquence du noeud
+#define LOOP_RATE               50      // frenquence du noeud
+#define KP_DEFAULT              0.0     //P coefficient
+#define KI_DEFAULT              0.0     //I coefficient
+#define KD_DEFAULT              0.0     //D coefficient
+#define MAX_ERR_INTEGRAL        0.20
 
 class MD25
 {
@@ -87,6 +91,13 @@ private:
     double current[2];
     double speed[2];
     double accel;
+
+    /* PID */
+    double speed_encoder[2];
+    double speed_err[2];
+    double speed_err_d[2];
+    double speed_err_i[2];
+    double kp, kd, ki;
 
     /* ROS communication */
     ros::NodeHandle nh_;
@@ -126,6 +137,7 @@ public:
     ros::NodeHandle get_NodeHandled(){return nh_;}
     void stop();
     void get_battery_state();
+    void set_motor();
 
     ///----- PRIVATE METHODS -----///
 private :
@@ -137,7 +149,8 @@ private :
     void set_speed1(unsigned char speed);             // Set the speed of motor 1 (if mode 0 or 1) or linear twist (if mode 2 or 3).
     void set_speed2(unsigned char speed);             // Set the speed of motor 2 (if mode 0 or 1) or angular twist (if mode 2 or 3).
     void set_acceleration(unsigned char acceleration);// Set a desired acceleration rate.
-    void set_motor();
+
+    double pid_cmd(double const &cmd,int const &motor);
 
     void get_mode();                         // Get the current mode of operation.
     void get_encoder1();                     // Encoder 1 position.

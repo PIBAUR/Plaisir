@@ -66,6 +66,11 @@ MD25::MD25() :
     ROS_INFO_STREAM_NAMED("MD25_node","Robot semi axe : "<< semi_axe_length);
     ROS_INFO_STREAM_NAMED("MD25_node","Using port : "<< name_port);
 
+    ros::NodeHandle nh_private("~");
+    nh_private.param<double>("kp",kp,KP_DEFAULT);
+    nh_private.param<double>("kd",kd,KD_DEFAULT);
+    nh_private.param<double>("ki",ki,KI_DEFAULT);
+    ROS_INFO_STREAM("PID : Kp = "<<kp<<", Kd = "<<kd<<", Ki = "<<ki);
 
     /**** Initialisation du port ****/
     /* Open and config port */
@@ -569,16 +574,44 @@ void MD25::get_volt()
 void MD25::get_state()
 {
     last_time = current_time;
-    current_time = ros::Time::now();
+    //current_time = ros::Time::now();
     get_encoder1();
+    current_time = ros::Time::now();
     get_encoder2();
 }
 
 
+
+double MD25::pid_cmd(double const &cmd,int const &motor)
+{
+    speed_err_d[motor] = speed_err[motor];
+    /*
+    if(motor==0)
+        get_speed1();
+    else
+        get_speed2();
+    */
+    speed_err[motor] = speed_encoder[motor] + cmd;
+    speed_err_d[motor] = speed_err[motor] - speed_err_d[motor];
+    speed_err_i[motor] += speed_err[motor];
+
+    if(speed_err_i[motor] > MAX_ERR_INTEGRAL)
+        speed_err_i[motor] = MAX_ERR_INTEGRAL;
+    else if(speed_err_i[motor] < -MAX_ERR_INTEGRAL)
+        speed_err_i[motor] = -MAX_ERR_INTEGRAL;
+
+    double res = kp*speed_err[motor] + ki * speed_err_i[motor] + kd*speed_err_d[motor] + cmd;
+    ROS_DEBUG_STREAM("PID"<<motor<<" : speed = "<<speed_encoder[motor]<<" res = "<<res<<" cmd = "<<cmd<<" err = "<<speed_err[motor]
+                        <<" err_d = "<< speed_err_d[motor]<<" err_i = "<< speed_err_i[motor]);
+    return res;
+}
+
 void MD25::set_motor()
 {
-    double vit_1 = round(COMMAND_METER*(twist_linear-semi_axe_length*twist_angular)/wheel_diameter) + (double)SPD_NULL;
-    double vit_2 = round(COMMAND_METER*(twist_linear+semi_axe_length*twist_angular)/wheel_diameter) + (double)SPD_NULL;
+    double cmd_1 = pid_cmd((twist_linear-semi_axe_length*twist_angular), 0);
+    double cmd_2 = pid_cmd((twist_linear+semi_axe_length*twist_angular), 1);
+    double vit_1 = round(COMMAND_METER * cmd_1/wheel_diameter) + (double)SPD_NULL;
+    double vit_2 = round(COMMAND_METER * cmd_2/wheel_diameter) + (double)SPD_NULL;
 
     /* check speed */
     if(vit_1 < (double)SPD_MAX_REVERSE)
@@ -630,6 +663,8 @@ void MD25::publish()
     double dth = ROTATION_CORRECT*(de2-de1)/(2*semi_axe_length);
     double dt = current_time.toSec() - last_time.toSec();
 
+    speed_encoder[0] = -de1/dt;
+    speed_encoder[1] = -de2/dt;
 
     //calcul de la nouvelle posture
     x += du*cos(th);
@@ -701,6 +736,7 @@ int main(int argc, char **argv)
     loop_rate.sleep();
 // ecrire traitement des valeurs twist
     while(ros::ok()){
+        m.set_motor();
         m.get_state();
         m.publish();
         m.get_battery_state();
