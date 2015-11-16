@@ -80,6 +80,7 @@ void PathFollower::computeCmd(double &lin, double &ang)
     double dx, dy;
     double x_des, y_des;
     double alpha;
+    double delta_time;
 
     x_robot = tf_robot.getOrigin().x();
     y_robot =  tf_robot.getOrigin().y();
@@ -111,7 +112,22 @@ void PathFollower::computeCmd(double &lin, double &ang)
     }
     ROS_DEBUG_STREAM("du = "<< du_<< "  | ang " << ang);
     ang*=K_TH;
-    lin=linear_speed_;
+	lin=linear_speed_;
+§	/**
+	if(goal_time_ < ros::Time::now())
+	{
+	    //in past --> no time set
+	    lin = LINEAR_SPEED_DEFAULT;
+	}
+	else
+	{
+	    delta_time =  (goal_time_ - ros::Time::now()).toSec();
+        computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_].pose_index, delta_time);
+        lin=linear_speed_;
+	}
+    ROS_DEBUG_STREAM("Update speed to "<<lin<<" m/s. Time left : "<<delta_time<<"seconds.");
+	**/
+
 
     if(ang>ANGULAR_SPEED_MAX)
     {
@@ -142,7 +158,7 @@ void PathFollower::computeLastPointAngleCmd(double &lin, double &ang)
     try
     {
         //TODO: replace "map" by path.header.frame_id
-        tf_listener_.lookupTransform("/map", "base_link", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map", robot_frame_, ros::Time(0), tf_robot);
     }
     catch (tf::TransformException ex)
     {
@@ -250,13 +266,13 @@ void PathFollower::initNextGoal()
 {
     float delta_time;
 
-    delta_time = abs(time_at_poses_.time_at_poses[index_sequence_+1].time) - abs(time_at_poses_.time_at_poses[index_sequence_].time);
-
+    delta_time = time_at_poses_.time_at_poses[index_sequence_+1].time - time_at_poses_.time_at_poses[index_sequence_].time;
+	goal_time_ = ros::Time::now() + ros::Duration(delta_time);
     backward_ = time_at_poses_.time_at_poses[index_sequence_].backward;
     ROS_INFO_STREAM("Next goal : pose : "<< time_at_poses_.time_at_poses[index_sequence_+1].pose_index
                     <<"  duration : "<<delta_time<<" seconds.");
-
-    computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_+1].pose_index, delta_time);
+	//TODO : Enhancement : close loop due to time
+    //computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_+1].pose_index, delta_time);
     if(time_at_poses_.time_at_poses[index_sequence_+1].pose_index==time_at_poses_.time_at_poses[index_sequence_].pose_index)
     {
         ROS_INFO_STREAM("Idle for "<<delta_time<<" seconds.");
