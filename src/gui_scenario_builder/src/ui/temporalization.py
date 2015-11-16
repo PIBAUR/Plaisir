@@ -134,8 +134,6 @@ class Temporalization():
             if self.fullDuration != 0:
                 newTimelineValue = currentMediaStartTime / self.fullDuration + value * (self.robotMediaPlayer.currentMedia.duration / self.fullDuration)
                 newTimelineValue *= self.ui.timeline_slider.maximum()
-                if newTimelineValue == 0:
-                    print newTimelineValue
                 self.ui.timeline_slider.setValue(newTimelineValue)
                 
         self.timelineValueIsSetByCode = False
@@ -243,10 +241,10 @@ class Temporalization():
             else:
                 self.updateMedia()
         
-            # update canvas
-            self.canvas.currentTimelinePosition = value
-            self.ui.timeline_groupBox.setTitle("Timeline - " + str((float(math.floor(self.canvas.currentTimelinePosition * self.fullDuration * 100)) / 100)) + " s")
-            self.canvas.update()
+        # update canvas
+        self.canvas.currentTimelinePosition = value
+        self.ui.timeline_groupBox.setTitle("Timeline - " + str((float(math.floor(self.canvas.currentTimelinePosition * self.fullDuration * 100)) / 100)) + " s")
+        self.canvas.update()
         
     
     def handlePlaying(self):
@@ -282,21 +280,24 @@ class Temporalization():
             self.handlePlayPauseMediaButtonClicked()
         
         # move forward / backward
-        smallInterval = 1000. / 25
+        smallInterval = 2000. / 25
         bigInterval = smallInterval * 25
+        currentTime = (self.canvas.currentTimelinePosition * 1000.) * self.fullDuration
         if event.key() == Qt.Key_Left:
-            toSeek = int(self.getTimelineTime() - smallInterval)
+            toSeek = int(currentTime - smallInterval)
             if toSeek > 0:
-                self.setTimelineTime(toSeek)
+                self.robotMediaPlayer.seek(toSeek)
+                #self.setTimelineTime(toSeek)
         if event.key() == Qt.Key_Right:
-            toSeek = int(self.getTimelineTime() + smallInterval)
+            toSeek = int(currentTime + smallInterval)
             if toSeek < self.fullDuration * 1000:
-                self.setTimelineTime(toSeek)
+                #self.setTimelineTime(toSeek)
+                self.robotMediaPlayer.seek(toSeek)
         if event.key() == Qt.Key_PageDown:
-            toSeek = int(self.getTimelineTime() - bigInterval)
+            toSeek = int(currentTime - bigInterval)
             if toSeek > 0:
                 self.setTimelineTime(toSeek)
         if event.key() == Qt.Key_PageUp:
-            toSeek = int(self.getTimelineTime() + bigInterval)
+            toSeek = int(currentTime + bigInterval)
             if toSeek < self.fullDuration * 1000:
                 self.setTimelineTime(toSeek)

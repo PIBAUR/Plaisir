@@ -90,8 +90,11 @@ class RobotMediaPlayer():
         
         self.temporalization.setTimelineValueCurrentMedia(value)
         
+        # fix a player bug which plays forever
         if self.videoPlayer.isPlaying():
+            toSeekAfterPause = self.currentTime()
             self.pause()
+            self.seek(toSeekAfterPause)
         
         # update canvas
         self.sendMediaToCanvas()
