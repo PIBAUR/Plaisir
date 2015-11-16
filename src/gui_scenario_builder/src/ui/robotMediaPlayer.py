@@ -15,7 +15,6 @@ class RobotMediaPlayer():
         
         self.currentVideoMediaSource = None
         self.currentMedia = None
-        self.tryToPause = False
         
         #TODO: conditions depending on the type of media
         self.videoPlayer = Phonon.VideoPlayer()
@@ -55,7 +54,7 @@ class RobotMediaPlayer():
         return self.videoPlayer.totalTime()
     
     
-    def setCurrentMedia(self, media, tryToPause = True):
+    def setCurrentMedia(self, media):
         #TODO: conditions depending on the type of media
         if media is not None:
             self.currentVideoMediaSource = media.media
@@ -63,8 +62,6 @@ class RobotMediaPlayer():
             self.videoPlayer.load(media.media)
             self.play()
             # if was playing, don't try to pause
-            if tryToPause:
-                self.tryToPause = True
             self.ui.deleteMedia_button.setEnabled(True)
             self.ui.media_groupBox.setTitle(u"Vidéo (" + os.path.basename(media.niceName).decode("utf-8") + u")")
         else:
@@ -91,13 +88,10 @@ class RobotMediaPlayer():
     def handleMediaPlaying(self):
         value = float(self.videoPlayer.currentTime()) / self.videoPlayer.totalTime()
         
-        if self.videoPlayer.isPlaying():
-            self.temporalization.setTimelineValueCurrentMedia(value)
-            self.pause()
+        self.temporalization.setTimelineValueCurrentMedia(value)
         
-        if self.tryToPause:
+        if self.videoPlayer.isPlaying():
             self.pause()
-            self.tryToPause = False
         
         # update canvas
         self.sendMediaToCanvas()

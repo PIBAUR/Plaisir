@@ -101,7 +101,7 @@ class Temporalization():
         self.changeCallback()
     
 
-    def updateMedia(self, checkedMediaButton = None, tryToPause = True):
+    def updateMedia(self, checkedMediaButton = None):
         previousMedia = self.robotMediaPlayer.currentVideoMediaSource
         
         mediaToPlay = None
@@ -118,13 +118,12 @@ class Temporalization():
         
         if mediaToPlay is None or mediaToPlay.media != previousMedia:
             self.robotMediaPlayer.stop()
-            self.robotMediaPlayer.setCurrentMedia(mediaToPlay, tryToPause)
+            self.robotMediaPlayer.setCurrentMedia(mediaToPlay)
     
     
     def setTimelineValueCurrentMedia(self, value):
         self.timelineValueIsSetByCode = True
         if self.robotMediaPlayer.currentMedia is not None:
-            
             currentMediaStartTime = 0
             for media in self.canvas.currentRobot.medias:
                 if media == self.robotMediaPlayer.currentMedia:
@@ -135,7 +134,10 @@ class Temporalization():
             if self.fullDuration != 0:
                 newTimelineValue = currentMediaStartTime / self.fullDuration + value * (self.robotMediaPlayer.currentMedia.duration / self.fullDuration)
                 newTimelineValue *= self.ui.timeline_slider.maximum()
+                if newTimelineValue == 0:
+                    print newTimelineValue
                 self.ui.timeline_slider.setValue(newTimelineValue)
+                
         self.timelineValueIsSetByCode = False
         
     
@@ -146,9 +148,9 @@ class Temporalization():
             if currentMediaIndex < len(self.canvas.currentRobot.medias) - 1:
                 mediaButton = self.temporalizationSplitter.widget(currentMediaIndex + 1)
                 mediaButton.setChecked(True)
-                self.updateMedia(mediaButton, False)
+                self.updateMedia(mediaButton)
                 self.robotMediaPlayer.videoPlayer.seek(0)
-                self.robotMediaPlayer.play()
+                #self.robotMediaPlayer.play()
             else:
                 mediaButton = self.temporalizationSplitter.widget(0)
                 mediaButton.setChecked(True)
@@ -218,9 +220,10 @@ class Temporalization():
             value = self.ui.timeline_slider.value()
         
         value = float(value) / (self.ui.timeline_slider.maximum() + 1)
-        timelineValue = value * self.fullDuration
         
         if not self.timelineValueIsSetByCode:
+            timelineValue = value * self.fullDuration
+            
             if len(self.canvas.currentRobot.medias) > 0:
                 # set current media
                 currentDuration = 0
@@ -240,10 +243,10 @@ class Temporalization():
             else:
                 self.updateMedia()
         
-        # update canvas
-        self.canvas.currentTimelinePosition = value
-        self.ui.timeline_groupBox.setTitle("Timeline - " + str((float(math.floor(value * self.fullDuration * 100)) / 100)) + " s")
-        self.canvas.update()
+            # update canvas
+            self.canvas.currentTimelinePosition = value
+            self.ui.timeline_groupBox.setTitle("Timeline - " + str((float(math.floor(self.canvas.currentTimelinePosition * self.fullDuration * 100)) / 100)) + " s")
+            self.canvas.update()
         
     
     def handlePlaying(self):

@@ -438,13 +438,6 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="5">
-           <widget class="QPushButton" name="testOnPhysicalRobot_button">
-            <property name="text">
-             <string>Lancer</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="5">
            <widget class="QLabel" name="label_2">
             <property name="font">
@@ -455,6 +448,57 @@
             </property>
             <property name="text">
              <string>Test physique</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="5">
+           <widget class="QComboBox" name="robotId_comboBox">
+            <item>
+             <property name="text">
+              <string>/robot00</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>/robot01</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>/robot02</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>/robot03</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>/robot04</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>/robot05</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>/robot06</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>tous</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="5">
+           <widget class="QPushButton" name="testOnPhysicalRobot_button">
+            <property name="text">
+             <string>Lancer</string>
             </property>
            </widget>
           </item>
@@ -621,7 +665,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>572</width>
-                  <height>580</height>
+                  <height>575</height>
                  </rect>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_4"/>

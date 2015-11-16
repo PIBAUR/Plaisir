@@ -48,6 +48,9 @@ class CompleteScenarioNode(DiagramNode):
             scale = 1. / float(choregraphicScenario.gridSize)
             
             # get the line between the first point of the curve and the target
+            if robotIndex > len(choregraphicScenario.robots):
+                raise NodeException(self, u"Aucun point n'existe sur le scénario")
+                
             robot = choregraphicScenario.robots[robotIndex]
             firstPoint = robot.points[0].anchor
             targetPoint = choregraphicScenario.targetPosition

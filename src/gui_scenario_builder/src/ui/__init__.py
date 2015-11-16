@@ -24,6 +24,8 @@ from sequences import Sequences
 
 
 class ScenarioEdition():
+    ALL_LABEL = "tous"
+    
     def __init__(self, scenarioFilePath = None, saveCallback = None, closeCallback = None):
         self.currentScenario = None
         self.currentFilePath = None
@@ -79,8 +81,10 @@ class ScenarioEdition():
         
         # physical robot
         self.scenarioPublishers = {}
-        for robotIndex in range(self.numMaxRobots):
-            self.scenarioPublishers[robotIndex] = rospy.Publisher("/robot" + ("0" if robotIndex < 10 else "") + str(robotIndex) + "/scenario", ScenarioMsg)
+        for robotIndex in range(self.ui.robotId_comboBox.count()):
+            robotId = str(self.ui.robotId_comboBox.itemText(robotIndex))
+            if robotId != ScenarioEdition.ALL_LABEL:
+                self.scenarioPublishers[robotId] = rospy.Publisher(robotId + "/scenario", ScenarioMsg)
         
         # other buttons
         self.ui.showControls_button.clicked.connect(self.handleShowControlsButtonClicked)
@@ -372,10 +376,16 @@ class ScenarioEdition():
     
     
     def handleTestOnPhysicalRobot(self):
-        robotIndex = 0
-        for robot in self.currentScenario.robots:
-            scenarioMsg = robot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
+        robotId = str(self.ui.robotId_comboBox.currentText())
+        if robotId == ScenarioEdition.ALL_LABEL:
+            robotIndex = 0
+            for robot in self.currentScenario.robots:
+                robotId = "/robot" + ("0" if robotIndex < 10 else "") + str(robotIndex)
+                scenarioMsg = robot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
+                rospy.loginfo(str(scenarioMsg))
+                self.scenarioPublishers[robotId].publish(scenarioMsg)
+                robotIndex += 1
+        else:
+            scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
             rospy.loginfo(str(scenarioMsg))
-            self.scenarioPublishers[robotIndex].publish(scenarioMsg)
-            
-            robotIndex += 1
+            self.scenarioPublishers[robotId].publish(scenarioMsg)

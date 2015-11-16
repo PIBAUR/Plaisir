@@ -77,7 +77,7 @@ class PlayNode(DiagramNode):
         self.lookupTransformTimer = QTimer()
         self.lookupTransformTimer.setSingleShot(True)
         self.lookupTransformTimer.timeout.connect(partial(self.getRobotTransform))
-        self.lookupTransformTimer.start(2000)
+        self.lookupTransformTimer.start(200)
     
     
     def output(self):

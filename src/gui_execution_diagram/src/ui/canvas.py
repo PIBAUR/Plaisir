@@ -109,10 +109,16 @@ class Canvas(QWidget):
             self.nodeWidgetUnderMouse = None
         
         # draw line
+        if isinstance(target, QPoint):
+            for nodeInstance in self.nodesInstances:
+                if nodeInstance.widget == inputButton.parent().parent().parent():
+                    target = nodeInstance
+        
         linkColor = target.linkColor if not executingLink else target.executingLinkColor
         target.linkPen.setColor(linkColor)
         painter.setPen(target.linkPen)
         painter.drawLine(currentLinkStartPos, currentLinkEndPos)
+            
         # draw direction triangle
         linkLine = currentLinkEndPos - currentLinkStartPos
         lineCenter = currentLinkStartPos + linkLine / 2

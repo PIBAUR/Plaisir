@@ -13,49 +13,12 @@ from PyQt4 import uic
 from twistController import TwistController  # @UnresolvedImport
 from canvas import Canvas
         
-import occupancy_grid_utils
-import occupancy_grid_utils_python as gu
 import nav_msgs.msg as nm
 
 class GuiController(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         
-        
-        map_info = nm.MapMetaData()
-        map_info.resolution = 0.2
-        map_info.origin.position.x = 1
-        map_info.origin.position.y = 1
-        map_info.origin.orientation.w = 1
-        map_info.height = 20
-        map_info.width = 20
-        
-        """grid = nm.OccupancyGrid()
-        grid.info = map_info
-        gu.allocate_grid(grid)
-        
-        def occ(i, j):
-            gu.set_cell(grid, gu.Cell(i, j), gu.OCCUPIED)
-        
-        occ(1, 6)
-        occ(3, 4)
-        occ(3, 7)
-        occ(4, 4)
-        occ(4, 6)
-        occ(5, 4)
-        occ(7, 8)
-        """
-        """
-        scan_info = gu.LaserScan()
-        scan_info.angle_min = -math.pi/2
-        scan_info.angle_max = math.pi/2
-        scan_info.angle_increment = math.pi/4
-        scan_info.range_max = 1.0"""
-        
-        sp = gu.make_pose(1.7, 1.9, math.pi/2)
-        print sp
-        
-        return
         self.twistController = TwistController()
         
         try:
