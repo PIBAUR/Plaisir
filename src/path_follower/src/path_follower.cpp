@@ -142,7 +142,7 @@ void PathFollower::computeLastPointAngleCmd(double &lin, double &ang)
     try
     {
         //TODO: replace "map" by path.header.frame_id
-        tf_listener_.lookupTransform("/map", "base_link", ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform("/map", robot_frame_, ros::Time(0), tf_robot);
     }
     catch (tf::TransformException ex)
     {
