@@ -4,14 +4,14 @@ robot=$1
 user=$USER
 
 # to make a backup
-#ssh odroid@192.168.150.1$robot 'rm -rf ~/catkin_ws_backup_before_deployment'
-#ssh odroid@192.168.150.1$robot 'mv ~/catkin_ws ~/catkin_ws_backup_before_deployment'
+#ssh odroid@192.168.1.1$robot 'rm -rf ~/catkin_ws_backup_before_deployment'
+#ssh odroid@192.168.1.1$robot 'mv ~/catkin_ws ~/catkin_ws_backup_before_deployment'
 
 # to sync clock
 if [ "-p" = $2 ]; then
 	echo "no time sync because of arg -p"
 else
-	ssh odroid@192.168.150.1$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate 192.168.150.1'
+	ssh odroid@192.168.1.1$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate 192.168.1.1'
 fi
 
 rsync -r -avz --delete-after \
@@ -61,13 +61,13 @@ rsync -r -avz --delete-after \
 	--exclude '*.gitignore' \
 	--exclude '*.project' \
 	--exclude '*.pydevproject' \
-	~/catkin_ws odroid@192.168.150.1$robot:~/
+	~/catkin_ws odroid@192.168.1.1$robot:~/
 
 if [ "-p" = $2 ]; then
 	echo "no time sync because of arg -p"
 else
-	ssh odroid@192.168.150.1$robot 'cd ~/catkin_ws/;catkin_make'
-#ssh odroid@192.168.150.1$robot 'cd ~/catkin_ws/src/hector_navigation/;rm -rf ./*/build;rosmake'
+	ssh odroid@192.168.1.1$robot 'cd ~/catkin_ws/;catkin_make'
+#ssh odroid@192.168.1.1$robot 'cd ~/catkin_ws/src/hector_navigation/;rm -rf ./*/build;rosmake'
 fi
 
 echo "deployment done on robot $robot"

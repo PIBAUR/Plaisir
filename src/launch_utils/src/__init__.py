@@ -10,7 +10,7 @@ def launchRosNode(nodeName, launchFile):
     if os.path.exists(os.path.join(baseDir, ".SET_FAKE_ROS_ENV")):
         IP = "127.0.0.1"
     else:
-        IP = "192.168.150.1"
+        IP = "192.168.1.150"
     
     distro = "hydro"
     

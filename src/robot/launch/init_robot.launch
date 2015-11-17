@@ -2,9 +2,9 @@
     <arg name="robot"/>
 	
 	<!-- MACHINES  -->
-	<machine name="$(env USER)" address="192.168.150.1" user="$(env USER)" default="true" 
+	<machine name="$(env USER)" address="192.168.1.150" user="$(env USER)" default="true" 
 		env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
-	<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
+	<machine name="robot$(arg robot)" address="192.168.1.1$(arg robot)" user="odroid" default="false" 
 		env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
 	
 	<!--_____________ROBOT_____________-->
