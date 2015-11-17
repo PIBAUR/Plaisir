@@ -79,8 +79,6 @@ class RobotMediaPlayer():
         del snapshotPixmap
         
         
-        
-        
     def handleMediaPlaying(self):
         value = float(self.videoPlayer.currentTime()) / self.videoPlayer.totalTime()
         

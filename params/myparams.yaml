@@ -12,7 +12,7 @@ md25_serial_port: "/dev/md25"
 
 ## pas de discretisation des courbes de beziers
 #bezier_curve_step: 0.1    
-bezier_curve_step_in_meter: 0.05
+bezier_curve_step_in_meter: 0.01
 
 ## taille de l ecran (cm)
 monitor_screen_width: 35

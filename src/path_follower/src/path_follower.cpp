@@ -103,17 +103,19 @@ void PathFollower::computeCmd(double &lin, double &ang)
     while(ang>=PI)
         ang-=2*PI;
 
+    lin=linear_speed_;
+
     if(backward_)
     {
         if(ang<0)
             ang=PI-abs(ang);
         else
             ang=-(PI-abs(ang));
+        //lin=-linear_speed_;
     }
     ROS_DEBUG_STREAM("du = "<< du_<< "  | ang " << ang);
     ang*=K_TH;
-	lin=linear_speed_;
-§	/**
+	/**
 	if(goal_time_ < ros::Time::now())
 	{
 	    //in past --> no time set
@@ -132,12 +134,12 @@ void PathFollower::computeCmd(double &lin, double &ang)
     if(ang>ANGULAR_SPEED_MAX)
     {
     	ang = ANGULAR_SPEED_MAX;
-    	lin*=0.2;
+    	lin*=0.05;
     }
     else if(ang < (- ANGULAR_SPEED_MAX) )
     {
     	ang = -ANGULAR_SPEED_MAX;
-    	lin*=0.2;
+    	lin*=0.05;
     }
 
     if(lin>LINEAR_SPEED_MAX)
@@ -233,8 +235,8 @@ void PathFollower::computeAverageSpeed(size_t index_goal, float time)
         return;
     }
     float distance = distanceToGoal(index_goal);
-    linear_speed_ = distance / abs(time) ;
-    ROS_INFO_STREAM("Linear speed  = "<<linear_speed_<<"   for distance/time : "<<distance<<" / "<<time);
+    linear_speed_ = distance / time;
+    ROS_INFO_STREAM("Linear speed  = "<<linear_speed_<<"   for distance/time : "<<distance<<" / "<<time<<" = "<< distance / time);
     if(backward_)
     {
         linear_speed_ *= -1;
@@ -272,7 +274,7 @@ void PathFollower::initNextGoal()
     ROS_INFO_STREAM("Next goal : pose : "<< time_at_poses_.time_at_poses[index_sequence_+1].pose_index
                     <<"  duration : "<<delta_time<<" seconds.");
 	//TODO : Enhancement : close loop due to time
-    //computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_+1].pose_index, delta_time);
+    computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_+1].pose_index, delta_time);
     if(time_at_poses_.time_at_poses[index_sequence_+1].pose_index==time_at_poses_.time_at_poses[index_sequence_].pose_index)
     {
         ROS_INFO_STREAM("Idle for "<<delta_time<<" seconds.");
