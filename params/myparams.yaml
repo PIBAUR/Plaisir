@@ -24,8 +24,8 @@ monitor_screen_resolution_height: 720
 ## durée en secondes de la base temporelle des vidéos
 media_time_base: 2
 ## chemins
-scenario_db_path: "/home/artlab/.notrebonplaisir/scenarios"
-video_db_path: "/home/artlab/Bureau/films_notre_bon_plaisir"
+scenario_db_path: "~/.notrebonplaisir/scenarios"
+video_db_path: "~/Bureau/films_notre_bon_plaisir"
 robot_videos_path: "/home/odroid/.notrebonplaisir/videos"
 
 ## FRONT OBSTACLE

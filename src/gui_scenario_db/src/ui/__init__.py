@@ -28,7 +28,7 @@ class ScenarioDataBase():
         
         try:
             ui_file = os.path.join(rospkg.RosPack().get_path('gui_scenario_db'), 'resource', 'scenario_db.ui')
-            self.scenario_db_path = rospy.get_param("scenario_db_path")
+            self.scenario_db_path = rospy.get_param("scenario_db_path").replace("~", os.path.expanduser("~"))
         except Exception:
             ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_scenario_db/resource/scenario_db.ui"
             self.scenario_db_path = os.path.expanduser("~") + "/.notrebonplaisir/scenarios"
@@ -229,6 +229,7 @@ class ScenarioDataBase():
                 self.populateTable()
             except (OSError, IOError):
                 pass
+            
         
     
     def handleTableItemChanged(self, item):

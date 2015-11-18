@@ -39,7 +39,7 @@ class Robot():
         self.scenario = scenario
         
         try:
-            Robot.video_db_path = rospy.get_param("video_db_path")
+            Robot.video_db_path = rospy.get_param("video_db_path").replace("~", os.path.expanduser("~"))
             Robot.robot_videos_path = rospy.get_param("robot_videos_path")
         except:
             Robot.video_db_path = os.path.expanduser("~") + "/Bureau/films_notre_bon_plaisir"
