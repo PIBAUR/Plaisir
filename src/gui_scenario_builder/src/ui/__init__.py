@@ -97,7 +97,7 @@ class ScenarioEdition():
                 
                 # lookup transform initialization
                 self.lookupTransformTimers[robotId] = QTimer()
-                self.lookupTransformTimers[robotId].setSingleShot(True)
+                #self.lookupTransformTimers[robotId].setSingleShot(True)
                 self.lookupTransformTimers[robotId].timeout.connect(partial(self.getRobotTransform, robotId))
                 self.lookupTransformTimers[robotId].start(200)
         
@@ -310,7 +310,7 @@ class ScenarioEdition():
         
     def getRobotTransform(self, robotId):
         try:
-            self.transformPosition[robotId], self.transformOrientation[robotId] = self.transformListener.lookupTransform("/map", robotId + "/base_link", rospy.Time(0))
+            self.transformPositions[robotId], self.transformOrientations[robotId] = self.transformListener.lookupTransform("/map", robotId + "/base_link", rospy.Time(0))
         except Exception, e:
             rospy.logerr(e)
             
@@ -408,7 +408,7 @@ class ScenarioEdition():
                 else:
                     scenarioMsg = robot.getScenarioMsgWithParams(self.transformPositions[robotId], 1. / float(self.currentScenario.gridSize), self.transformOrientations[robotId], True, False)
                     
-                rospy.loginfo(str(scenarioMsg))
+                #rospy.loginfo(str(scenarioMsg))
                 self.scenarioPublishers[robotId].publish(scenarioMsg)
                 robotIndex += 1
         else:
@@ -417,5 +417,5 @@ class ScenarioEdition():
             else:
                 scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams(self.transformPositions[robotId], 1. / float(self.currentScenario.gridSize), self.transformOrientations[robotId], True, False)
                 
-            rospy.loginfo(str(scenarioMsg))
+            #rospy.loginfo(str(scenarioMsg))
             self.scenarioPublishers[robotId].publish(scenarioMsg)
