@@ -6,11 +6,7 @@
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
 	
 	<!-- MACHINES  -->
-<<<<<<< HEAD
 	<machine name="$(env USER)" address="$(env ROS_IP)" user="$(env USER)" default="true" 
-=======
-	<machine name="$(env USER)" address="192.168.1.150" user="$(env USER)" default="true" 
->>>>>>> branch 'master' of https://github.com/digitalarti/notre_bon_plaisir.git
 		env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	
 	<!--_____________SERVER_____________-->
@@ -43,13 +39,8 @@
 		<arg name="robot" value="$(arg robot)"/> 
 	</include>
 	-->
-<<<<<<< HEAD
 
 	<!--	
-=======
-	
-	<!--
->>>>>>> branch 'master' of https://github.com/digitalarti/notre_bon_plaisir.git
 	<include file="$(find robot)/launch/init_robot.launch"><arg name="robot" value="00"/></include>
 	<include file="$(find robot)/launch/init_robot.launch"><arg name="robot" value="01"/></include>
 	<include file="$(find robot)/launch/init_robot.launch"><arg name="robot" value="02"/></include>
