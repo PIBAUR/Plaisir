@@ -31,7 +31,7 @@ class VideoDatabase():
             self.monitorScreenHeight = rospy.get_param("monitor_screen_height")
         except Exception:
             ui_file = os.path.expanduser("~") + "/catkin_ws/src/gui_video_db/resource/video_db.ui"
-            self.videosBasePath = "/home/artlab/Bureau/films_notre_bon_plaisir"
+            self.videosBasePath = os.path.expanduser("~") + "/Bureau/films_notre_bon_plaisir"
             self.monitorScreenWidth = 16
             self.monitorScreenHeight = 10
         
