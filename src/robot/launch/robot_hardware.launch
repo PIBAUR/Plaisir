@@ -5,7 +5,11 @@
 	<param name="tf_prefix" value="robot$(arg robot)"/>
 	
 	<!-- MACHINES  -->
+<<<<<<< HEAD
 	<machine name="serveur" address="$(env ROS_IP)" user="$(env USER)" default="true" 
+=======
+	<machine name="serveur" address="192.168.1.1" user="$(env USER)" default="true" 
+>>>>>>> branch 'master' of https://github.com/digitalarti/notre_bon_plaisir.git
 		env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	<machine name="robot$(arg robot)" address="192.168.1.1$(arg robot)" user="odroid" default="false" 
 		env-loader="/home/odroid/catkin_ws/devel/env.sh"/>

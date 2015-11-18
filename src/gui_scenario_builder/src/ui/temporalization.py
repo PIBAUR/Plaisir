@@ -30,7 +30,7 @@ class Temporalization():
         self.ui.playPause_button.clicked.connect(self.handlePlayPauseMediaButtonClicked)
         
         self.playingTimer = QTimer()
-        self.playingTimer.setInterval(41)
+        self.playingTimer.setInterval(1000. / 25)
         self.playingTimer.timeout.connect(self.handlePlaying)
         self.playingTimer.start()
         
@@ -147,8 +147,8 @@ class Temporalization():
                 mediaButton = self.temporalizationSplitter.widget(currentMediaIndex + 1)
                 mediaButton.setChecked(True)
                 self.updateMedia(mediaButton)
-                self.robotMediaPlayer.videoPlayer.seek(0)
-                #self.robotMediaPlayer.play()
+                self.robotMediaPlayer.seek(0)
+                #self.play()
             else:
                 mediaButton = self.temporalizationSplitter.widget(0)
                 mediaButton.setChecked(True)
@@ -287,11 +287,9 @@ class Temporalization():
             toSeek = int(currentTime - smallInterval)
             if toSeek > 0:
                 self.robotMediaPlayer.seek(toSeek)
-                #self.setTimelineTime(toSeek)
         if event.key() == Qt.Key_Right:
             toSeek = int(currentTime + smallInterval)
             if toSeek < self.fullDuration * 1000:
-                #self.setTimelineTime(toSeek)
                 self.robotMediaPlayer.seek(toSeek)
         if event.key() == Qt.Key_PageDown:
             toSeek = int(currentTime - bigInterval)

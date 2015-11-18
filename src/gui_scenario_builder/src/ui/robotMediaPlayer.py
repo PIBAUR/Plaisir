@@ -13,6 +13,8 @@ class RobotMediaPlayer():
         self.canvas = canvas
         self.temporalization = None
         
+        self.currentTimeToMaintain = 0
+        
         self.currentVideoMediaSource = None
         self.currentMedia = None
         
@@ -29,21 +31,13 @@ class RobotMediaPlayer():
         self.mediaPlayingTimer.start()
     
     
-    def play(self):
-        if self.currentVideoMediaSource is not None:
-            self.videoPlayer.play()
-    
-    
-    def pause(self):
-        self.videoPlayer.pause()
-        
-    
     def stop(self):
         self.videoPlayer.stop()
     
     
     def seek(self, value):
-        self.videoPlayer.seek(value)
+        self.currentTimeToMaintain = value
+        self.videoPlayer.seek(self.currentTimeToMaintain)
     
     
     def currentTime(self):
@@ -60,7 +54,7 @@ class RobotMediaPlayer():
             self.currentVideoMediaSource = media.media
             self.currentMedia = media
             self.videoPlayer.load(media.media)
-            self.play()
+            self.videoPlayer.play()
             # if was playing, don't try to pause
             self.ui.deleteMedia_button.setEnabled(True)
             self.ui.media_groupBox.setTitle(u"Vidéo (" + os.path.basename(media.niceName).decode("utf-8") + u")")
@@ -90,11 +84,11 @@ class RobotMediaPlayer():
         
         self.temporalization.setTimelineValueCurrentMedia(value)
         
+        self.videoPlayer.pause()
+        
         # fix a player bug which plays forever
-        if self.videoPlayer.isPlaying():
-            toSeekAfterPause = self.currentTime()
-            self.pause()
-            self.seek(toSeekAfterPause)
+        if not self.temporalization.isPlaying:
+            self.videoPlayer.seek(self.currentTimeToMaintain)
         
         # update canvas
         self.sendMediaToCanvas()
