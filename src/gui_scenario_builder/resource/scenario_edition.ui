@@ -495,10 +495,17 @@
             </item>
            </widget>
           </item>
-          <item row="3" column="5">
+          <item row="4" column="5">
            <widget class="QPushButton" name="testOnPhysicalRobot_button">
             <property name="text">
              <string>Lancer</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="5">
+           <widget class="QCheckBox" name="backToStartingPoint_checkBox">
+            <property name="text">
+             <string>retour au début</string>
             </property>
            </widget>
           </item>

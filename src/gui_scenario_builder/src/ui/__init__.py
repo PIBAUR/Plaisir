@@ -6,6 +6,7 @@ import math
 
 import rospkg
 import rospy
+import tf
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -80,11 +81,25 @@ class ScenarioEdition():
         self.sequences = Sequences(self.ui, self.canvas, self.temporalization)
         
         # physical robot
+        self.transformListener = tf.TransformListener()
+        self.transformPositions = {}
+        self.transformOrientations = {}
+        self.lookupTransformTimers = {}
+        
         self.scenarioPublishers = {}
         for robotIndex in range(self.ui.robotId_comboBox.count()):
             robotId = str(self.ui.robotId_comboBox.itemText(robotIndex))
             if robotId != ScenarioEdition.ALL_LABEL:
                 self.scenarioPublishers[robotId] = rospy.Publisher(robotId + "/scenario", ScenarioMsg)
+                
+                self.transformPositions[robotId] = (0, 0, 0)
+                self.transformOrientations[robotId] = (0, 0, 0, 1)
+                
+                # lookup transform initialization
+                self.lookupTransformTimers[robotId] = QTimer()
+                self.lookupTransformTimers[robotId].setSingleShot(True)
+                self.lookupTransformTimers[robotId].timeout.connect(partial(self.getRobotTransform, robotId))
+                self.lookupTransformTimers[robotId].start(200)
         
         # other buttons
         self.ui.showControls_button.clicked.connect(self.handleShowControlsButtonClicked)
@@ -293,6 +308,13 @@ class ScenarioEdition():
         self.ui.robots_list.setCurrentRow(previousSelectedRow)
         
         
+    def getRobotTransform(self, robotId):
+        try:
+            self.transformPosition[robotId], self.transformOrientation[robotId] = self.transformListener.lookupTransform("/map", robotId + "/base_link", rospy.Time(0))
+        except Exception, e:
+            rospy.logerr(e)
+            
+            
     def closeEvent(self, event = None):
         if self.closeCallback is not None:
             self.closeCallback(self.currentFilePath)
@@ -381,11 +403,19 @@ class ScenarioEdition():
             robotIndex = 0
             for robot in self.currentScenario.robots:
                 robotId = "/robot" + ("0" if robotIndex < 10 else "") + str(robotIndex)
-                scenarioMsg = robot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
+                if self.ui.backToStartingPoint_checkBox.isChecked():
+                    scenarioMsg = robot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
+                else:
+                    scenarioMsg = robot.getScenarioMsgWithParams(self.transformPositions[robotId], 1. / float(self.currentScenario.gridSize), self.transformOrientations[robotId], True, False)
+                    
                 rospy.loginfo(str(scenarioMsg))
                 self.scenarioPublishers[robotId].publish(scenarioMsg)
                 robotIndex += 1
         else:
-            scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
+            if self.ui.backToStartingPoint_checkBox.isChecked():
+                scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
+            else:
+                scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams(self.transformPositions[robotId], 1. / float(self.currentScenario.gridSize), self.transformOrientations[robotId], True, False)
+                
             rospy.loginfo(str(scenarioMsg))
             self.scenarioPublishers[robotId].publish(scenarioMsg)
