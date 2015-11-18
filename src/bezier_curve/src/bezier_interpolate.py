@@ -11,7 +11,7 @@ from geometry_msgs.msg import Point as PointMsg
 from std_msgs.msg import Float64 as Float64Msg
 
 # consts
-DEFAULT_BEZIER_CURVE_STEP = .05
+DEFAULT_BEZIER_CURVE_STEP = .01
 step = 0
 stepInMeter = 0
 

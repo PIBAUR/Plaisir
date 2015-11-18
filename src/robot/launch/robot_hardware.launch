@@ -7,7 +7,7 @@
 	<!-- MACHINES  -->
 	<machine name="serveur" address="$(env ROS_IP)" user="$(env USER)" default="true" 
 		env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
-	<machine name="robot$(arg robot)" address="192.168.150.1$(arg robot)" user="odroid" default="false" 
+	<machine name="robot$(arg robot)" address="192.168.1.1$(arg robot)" user="odroid" default="false" 
 		env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
 	
 	<node pkg="tf" type="static_transform_publisher" name="laser_to_base" machine="robot$(arg robot)" respawn="true" 

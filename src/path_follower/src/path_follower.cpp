@@ -50,6 +50,7 @@ void PathFollower::pathCB(const scenario_msgs::Path &msg)
 		ROS_INFO_STREAM("New path received :   id = " << path_uid_ << "  |  size = " << size_path_ << "  |  goal = "
 						<< path_.poses.rbegin()->position.x << " ; " <<path_.poses.rbegin()->position.y
 						<<"  |  elements in sequences = " << time_at_poses_.time_at_poses.size());
+		goal_time_ = ros::Time::now() ;
 	}
     else
     {
@@ -111,7 +112,6 @@ void PathFollower::computeCmd(double &lin, double &ang)
             ang=PI-abs(ang);
         else
             ang=-(PI-abs(ang));
-        //lin=-linear_speed_;
     }
     ROS_DEBUG_STREAM("du = "<< du_<< "  | ang " << ang);
     ang*=K_TH;
@@ -237,15 +237,6 @@ void PathFollower::computeAverageSpeed(size_t index_goal, float time)
     float distance = distanceToGoal(index_goal);
     linear_speed_ = distance / time;
     ROS_INFO_STREAM("Linear speed  = "<<linear_speed_<<"   for distance/time : "<<distance<<" / "<<time<<" = "<< distance / time);
-    if(backward_)
-    {
-        linear_speed_ *= -1;
-        ROS_INFO("Going backward to next goal");
-    }
-    else
-    {
-        ROS_INFO("Going forward to next goal");
-    }
 
     if(abs(linear_speed_) >= LINEAR_SPEED_MAX)
     {
@@ -261,26 +252,46 @@ void PathFollower::computeAverageSpeed(size_t index_goal, float time)
     {
         ROS_INFO_STREAM("Average linear speed for next goal : "<<linear_speed_);
     }
+    if(backward_)
+    {
+        linear_speed_ *= -1;
+        ROS_INFO("Going backward to next goal");
+    }
+    else
+    {
+        ROS_INFO("Going forward to next goal");
+    }
 }
 
 
 void PathFollower::initNextGoal()
 {
-    float delta_time;
 
-    delta_time = time_at_poses_.time_at_poses[index_sequence_+1].time - time_at_poses_.time_at_poses[index_sequence_].time;
-	goal_time_ = ros::Time::now() + ros::Duration(delta_time);
+	//TODO : Enhancement : close loop due to time
+    // For now : none working with a global time, seems to work when goal time
+    // is define by section
+
+    // set new time_goal
+    float delta_time = time_at_poses_.time_at_poses[index_sequence_+1].time
+                        - time_at_poses_.time_at_poses[index_sequence_].time;
+    goal_time_ = ros::Time::now() + ros::Duration(delta_time);
+    //goal_time_ += ros::Duration(delta_time);
+    //delta_time = (goal_time_ - ros::Time::now()).toSec();
+
+    //set backward value
     backward_ = time_at_poses_.time_at_poses[index_sequence_].backward;
+
+    // compute average speed
+    computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_+1].pose_index, (goal_time_ - ros::Time::now()).toSec());
+
     ROS_INFO_STREAM("Next goal : pose : "<< time_at_poses_.time_at_poses[index_sequence_+1].pose_index
                     <<"  duration : "<<delta_time<<" seconds.");
-	//TODO : Enhancement : close loop due to time
-    computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_+1].pose_index, delta_time);
+    //check if idle
     if(time_at_poses_.time_at_poses[index_sequence_+1].pose_index==time_at_poses_.time_at_poses[index_sequence_].pose_index)
     {
         ROS_INFO_STREAM("Idle for "<<delta_time<<" seconds.");
-        end_idle_time_ = ros::Time::now() + ros::Duration(delta_time);
+        end_idle_time_ = goal_time_;
         idle_=true;
-
     }
     index_sequence_++;
 }
