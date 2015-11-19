@@ -46,7 +46,7 @@ def getPathAndDistanceFromMessage(msg, checkedChoregraphicPath):
                 distance += getBezierCurveLength(curve)
                 i = 0
                 step = 1.0 * stepInMeter / getBezierCurveLength(curve)
-                while i <= 1:  
+                while i <= 1.0:  
                     pose = PoseMsg()
                     
                     if msg.type == "choregraphic":
@@ -66,6 +66,15 @@ def getPathAndDistanceFromMessage(msg, checkedChoregraphicPath):
                         i += 2
                         
                     path.path.poses.append(pose)
+                if (i-step != 1.0):  
+                    pose = PoseMsg()
+                    
+                    if msg.type == "choregraphic":
+                        pose.position = getBezierCurveResult(1.0, curve)
+                        theta = getBezierCurveTangentResult(1.0, curve)
+                        pose.orientation.z = math.sin(theta / 2)
+                        pose.orientation.w = math.cos(theta / 2)
+                        path.path.poses.append(pose)
                     
             curveIndex += 1
     
