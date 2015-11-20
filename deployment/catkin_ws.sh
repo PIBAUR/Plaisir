@@ -4,16 +4,22 @@ robot=$1
 user=$USER
 
 # to make a backup
-#ssh odroid@192.168.1.1$robot 'rm -rf ~/catkin_ws_backup_before_deployment'
-#ssh odroid@192.168.1.1$robot 'mv ~/catkin_ws ~/catkin_ws_backup_before_deployment'
+#ssh odroid@$ROBOTS_BASE_IP$robot 'rm -rf ~/catkin_ws_backup_before_deployment'
+#ssh odroid@$ROBOTS_BASE_IP$robot 'mv ~/catkin_ws ~/catkin_ws_backup_before_deployment'
 
 # to sync clock
 if [ "-p" = $2 ]; then
 	echo "no time sync because of arg -p"
 else
-	ssh odroid@192.168.1.1$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate 192.168.1.1'
+	ssh odroid@$ROBOTS_BASE_IP$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate $ROS_MASTER_IP'
 fi
 
+# to set ros_master_uri IP
+source ~/catkin_ws/params/set_this_ip.sh
+rm ~/catkin_ws/params/master_ip.sh
+echo "export ROS_MASTER_IP=$THIS_IP" >> ~/catkin_ws/params/master_ip.sh
+
+# rsync
 rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/.git/' \
 	--exclude '/catkin_ws/.settings/' \
@@ -61,13 +67,13 @@ rsync -r -avz --delete-after \
 	--exclude '*.gitignore' \
 	--exclude '*.project' \
 	--exclude '*.pydevproject' \
-	~/catkin_ws odroid@192.168.1.1$robot:~/
+	~/catkin_ws odroid@$ROBOTS_BASE_IP$robot:~/
 
 if [ "-p" = $2 ]; then
 	echo "no time sync because of arg -p"
 else
-	ssh odroid@192.168.1.1$robot 'cd ~/catkin_ws/;catkin_make'
-#ssh odroid@192.168.1.1$robot 'cd ~/catkin_ws/src/hector_navigation/;rm -rf ./*/build;rosmake'
+	ssh odroid@$ROBOTS_BASE_IP$robot 'cd ~/catkin_ws/;catkin_make'
+#ssh odroid@$ROBOTS_BASE_IP$robot 'cd ~/catkin_ws/src/hector_navigation/;rm -rf ./*/build;rosmake'
 fi
 
 echo "deployment done on robot $robot"

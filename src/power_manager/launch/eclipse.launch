@@ -1,11 +1,11 @@
 <launch>
     <arg name="robot" value="02"/>
-    <machine name="neato" address="192.168.1.1$(arg robot)" user="odroid" default="false" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
-	<machine name="$(env USER)" address="192.168.1.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
+    <machine name="odroid" address="$(env ROBOTS_BASE_IP)$(arg robot)" user="odroid" default="false" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+	<machine name="$(env USER)" address="$(env ROS_MASTER_IP)" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	   
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
 
-	<node name="power_manager" pkg="power_manager" type="__init__.py" output="screen" machine="neato" args="-sever-debug" >
+	<node name="power_manager" pkg="power_manager" type="__init__.py" output="screen" machine="odroid" args="-sever-debug" >
 	
 	</node>
 </launch>

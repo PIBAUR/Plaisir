@@ -4,7 +4,7 @@
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
 	
 	<!-- Setting local machin and running graphique tools  -->
-	<machine name="$(env USER)" address="192.168.1.1" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
+	<machine name="$(env USER)" address="$(env ROS_MASTER_IP)" user="$(env USER)" default="true" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	
 	<node pkg="blob_detect" type="lasermap" name="lasermap" respawn="true">
 		<remap from="scan" to="/robot$(arg robot)/scan"/>

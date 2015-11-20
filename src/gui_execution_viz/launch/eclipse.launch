@@ -3,8 +3,8 @@
 	
 	<arg name="robot" value="01"/>
 	
-	<machine name="neato" address="192.168.1.101" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
-	<machine name="$(env USER)" address="192.168.1.1" user="$(env USER)" default="false" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
+	<machine name="odroid" address="$(env ROBOTS_BASE_IP)01" user="odroid" default="true" env-loader="/home/odroid/catkin_ws/devel/env.sh"/>
+	<machine name="$(env USER)" address="$(env ROS_MASTER_IP)" user="$(env USER)" default="false" env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
 	  
 	<node name="gui_execution_viz" pkg="gui_execution_viz" type="__init__.py" output="screen" machine="$(env USER)" args="-sever-debug">
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>

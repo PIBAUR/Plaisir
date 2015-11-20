@@ -20,7 +20,7 @@ int main(int argc, char **argv){
         case 0://fils : exec launch cartographie_pere
             sleep(1);
             printf("=================================================\n");
-            printf("===========NEATO LAUNCH CARTO FILS 1=============\n");
+            printf("===========ODROID LAUNCH CARTO FILS 1=============\n");
             printf("=================================================\n");
             char robot_arg[256];
             snprintf(robot_arg, sizeof robot_arg, "robot:=%s", argv[1]);
@@ -41,7 +41,7 @@ int main(int argc, char **argv){
                 case 0: //fils : exec launch cartographie_fils
                     sleep(10);
                     printf("=================================================\n");
-                    printf("==========NEATO LAUNCH CARTO FILS 2==============\n");
+                    printf("==========ODROID LAUNCH CARTO FILS 2==============\n");
                     printf("=================================================\n");
                     execlp("roslaunch", "roslaunch", "robot", "mapping_step_2.launch", NULL);
                     while(1){
