@@ -15,7 +15,8 @@ from scenario_msgs.msg import ObstacleArray as ObstacleArrayMsg
 class TopicRouter():
     def __init__(self):
         self.clickedPointSubscriber = rospy.Subscriber('/clicked_point', PointStampedMsg, self.clickedPointCB)
-        self.clickedPointSubscriber = rospy.Subscriber('path', PathMsg, self.pathCB)
+        self.pathTravelSubscriber = rospy.Subscriber('path_travel', PathMsg, self.pathCB)
+        self.pathChoregraphicSubscriber = rospy.Subscriber('path_choregraphic', PathMsg, self.pathCB)
         self.obstaclesPublisher = rospy.Publisher('/obstacles', ObstacleArrayMsg)
         
         self.pathVizPublisher = rospy.Publisher('path_viz', PoseArrayMsg)

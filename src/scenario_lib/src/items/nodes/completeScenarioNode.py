@@ -52,6 +52,13 @@ class CompleteScenarioNode(DiagramNode):
                 raise NodeException(self, u"Aucun point n'existe sur le scénario")
                 
             robot = choregraphicScenario.robots[robotIndex]
+            
+            if len(robot.points) <= 0:
+                # don't execute this node
+                self.stopExecution()
+                self.updateCallback(1, True)
+                return None
+            
             firstPoint = robot.points[0].anchor
             targetPoint = choregraphicScenario.targetPosition
             directionLineVector = ((targetPoint[0] - firstPoint.x()) * scale, (targetPoint[1] - firstPoint.y()) * scale)

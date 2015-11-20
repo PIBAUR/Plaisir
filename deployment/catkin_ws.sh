@@ -1,7 +1,10 @@
 #!/bin/bash
 
 robot=$1
-user=$USER
+if [ -z $robot ]; then
+	echo "robot arg must be set (ex: command.sh 01)"
+	exit 1
+fi
 
 # to make a backup
 #ssh odroid@$ROBOTS_BASE_IP$robot 'rm -rf ~/catkin_ws_backup_before_deployment'
@@ -16,8 +19,8 @@ fi
 
 # to set ros_master_uri IP
 source ~/catkin_ws/params/set_this_ip.sh
-rm ~/catkin_ws/params/master_ip.sh
-echo "export ROS_MASTER_IP=$THIS_IP" >> ~/catkin_ws/params/master_ip.sh
+rm ~/catkin_ws/params/set_master_ip.sh
+echo "export ROS_MASTER_IP=$THIS_IP" >> ~/catkin_ws/params/set_master_ip.sh
 
 # rsync
 rsync -r -avz --delete-after \

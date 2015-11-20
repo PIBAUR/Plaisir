@@ -1,6 +1,10 @@
 #!/bin/bash
 
 robot=$1
+if [ -z $robot ]; then
+	echo "robot arg must be set (ex: command.sh 01)"
+	exit 1
+fi
 
 server_folder=$(cat ~/catkin_ws/params/myparams.yaml | grep video_db_path)
 server_folder=`echo $server_folder| cut -d'"' -f 2`

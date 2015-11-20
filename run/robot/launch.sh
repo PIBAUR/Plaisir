@@ -1,7 +1,5 @@
 #!/bin/bash
 
-user=$USER
-
 ROS_MASTER_IP=${ROS_MASTER_URI:7:13}
 
 #set time on odroid
