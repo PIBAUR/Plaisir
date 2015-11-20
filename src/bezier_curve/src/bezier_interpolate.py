@@ -3,7 +3,7 @@
 import math
 import rospy
 from scenario_msgs.msg import Scenario as ScenarioMsg
-from scenario_msgs.msg import Path as PathMsg
+from scenario_msgs.msg import PathTravel as PathMsg
 from scenario_msgs.msg import TimeAtPose as TimeAtPoseMsg
 from scenario_msgs.msg import TimeAtPoseArray as TimeAtPoseArrayMsg
 from geometry_msgs.msg import Pose as PoseMsg
@@ -92,12 +92,15 @@ def scenarioCallback(msg):
         duration += media.duration
         
     rospy.loginfo("""new """ + msg.type + """ scenario: 
-- """ + str(len(msg.bezier_paths.curves)) + """ curves
-- distance of """ + (str(distance) if distance is not None else "???") + """
-- """ + str(path.path.poses) + """ poses
-- media (""" + str(len(msg.medias.medias)) + """) duration of """ + str(duration) + """s""")
+    - """ + str(len(msg.bezier_paths.curves)) + """ curves
+    - distance of """ + (str(distance) if distance is not None else "???") + """
+    - """ + str(path.path.poses) + """ poses
+    - media (""" + str(len(msg.medias.medias)) + """) duration of """ + str(duration) + """s""")
     
-    pathPublisher.publish(path)
+    if msg.type == "travel" :
+        pathTravelPublisher.publish(path)
+    if msg.type == "choregraphic" :
+        pathChoregraphicPublisher.publish(path)
 
 
 """ method to calculate the value of a point of a bezier curve 
@@ -186,6 +189,7 @@ if __name__ == "__main__":
     
     rospy.Subscriber("scenario", ScenarioMsg, scenarioCallback)
     
-    pathPublisher = rospy.Publisher("path", PathMsg)
+    pathTravelPublisher = rospy.Publisher("path_travel", PathMsg)
+    pathChoregraphicPublisher = rospy.Publisher("path_choregraphic", PathMsg)
     
     rospy.spin()

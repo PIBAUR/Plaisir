@@ -10,7 +10,7 @@ from functools import partial
 from std_msgs.msg import String as StringMsg
 from std_msgs.msg import Header as HeaderMsg
 from std_msgs.msg import Bool as BoolMsg
-from scenario_msgs.msg import Path as PathMsg
+from scenario_msgs.msg import PathTravel as PathMsg
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from scenario_msgs.msg import BezierPath as BezierPathMsg
 from scenario_msgs.msg import BezierCurve as BezierCurveMsg
