@@ -34,7 +34,7 @@ PathFollower::PathFollower(ros::NodeHandle nh):
 
 
 
-void PathFollower::pathCB(const scenario_msgs::Path &msg)
+void PathFollower::pathCB(const scenario_msgs::PathTravel &msg)
 {
 	path_uid_ = msg.uid;
     path_ = msg.path;
@@ -63,12 +63,18 @@ void PathFollower::pathCB(const scenario_msgs::Path &msg)
 
 void PathFollower::computeCmd(double &lin, double &ang)
 {
-	tf::StampedTransform tf_robot;
+    /***
+     *Angular command can be improved with a PID...
+     ***/
+    double dx, dy, dth;
+    double x_des, y_des;
+    double delta_time;
 
+    //get robot pose
+    tf::StampedTransform tf_robot;
     try
     {
-        //TODO: replace "map" by path.header.frame_id
-        tf_listener_.lookupTransform("/map", robot_frame_, ros::Time(0), tf_robot);
+        tf_listener_.lookupTransform(path_.header.frame_id, robot_frame_, ros::Time(0), tf_robot);
     }
     catch (tf::TransformException ex)
     {
@@ -77,76 +83,90 @@ void PathFollower::computeCmd(double &lin, double &ang)
         return;
     }
 
-    double x_robot, y_robot, theta_robot;
-    double dx, dy;
-    double x_des, y_des;
-    double alpha;
-    double delta_time;
-
-    x_robot = tf_robot.getOrigin().x();
-    y_robot =  tf_robot.getOrigin().y();
-    theta_robot = tf::getYaw(tf_robot.getRotation());
-
-    x_des =  path_.poses[index_path_].position.x;
-    y_des =  path_.poses[index_path_].position.y;
-    //theta_des = tf::getYaw(path.poses[index_path].orientation);
-
-    dx = x_des - x_robot;
-    dy = y_des - y_robot;
+    // compute distance and direction to next point
+    dx = path_.poses[index_path_].position.x - tf_robot.getOrigin().x();
+    dy = path_.poses[index_path_].position.y - tf_robot.getOrigin().y();
     if(du_ == INIT_DU)
-        first_du_ = du_;
+        first_du_ = du_; //for feedback
     du_=sqrt(dx*dx+dy*dy);
 
-    alpha = atan2(dy,dx);
-    ang = alpha-theta_robot;
-    while(ang<-PI)
-        ang+=2*PI;
-    while(ang>=PI)
-        ang-=2*PI;
+    //dx = path_.poses[index_path_+1].position.x - tf_robot.getOrigin().x();
+    //dy = path_.poses[index_path_+1].position.y - tf_robot.getOrigin().y();
+    dth = atan2(dy,dx) - tf::getYaw(tf_robot.getRotation());
+    while(dth<-PI)
+        dth+=2.0*PI;
+    while(dth>PI)
+        dth-=2.0*PI;
+    if(fabs(dth) < PI/6.0)
+    {
+        dth = tf::getYaw( path_.poses[index_path_].orientation) - tf::getYaw(tf_robot.getRotation());
+        while(dth<-PI)
+            dth+=2.0*PI;
+        while(dth>PI)
+            dth-=2.0*PI;
+    }
 
-    lin=linear_speed_;
+    ROS_DEBUG_STREAM("du = "<< du_<< "  | dth " << dth);
 
+    //backward angle
     if(backward_)
     {
-        if(ang<0)
-            ang=PI-abs(ang);
+        if(dth < 0.0)
+            dth=PI-fabs(dth);
         else
-            ang=-(PI-abs(ang));
+            dth=-(PI-fabs(dth));
     }
-    ROS_DEBUG_STREAM("du = "<< du_<< "  | ang " << ang);
-    ang*=K_TH;
-	/**
+
+    //compute speed
+    /*
 	if(goal_time_ < ros::Time::now())
 	{
 	    //in past --> no time set
 	    lin = LINEAR_SPEED_DEFAULT;
+	    if(backward_)
+	        lin *= -1.0;
 	}
 	else
 	{
 	    delta_time =  (goal_time_ - ros::Time::now()).toSec();
-        computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_].pose_index, delta_time);
-        lin=linear_speed_;
+        //computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_].pose_index, delta_time);
+        lin=average_linear_speed_;
 	}
+	*/
+	lin=average_linear_speed_;
     ROS_DEBUG_STREAM("Update speed to "<<lin<<" m/s. Time left : "<<delta_time<<"seconds.");
-	**/
 
+    // limitiation for average speed
+    if(lin > 0.0 && lin > average_linear_speed_+0.10)
+        lin = average_linear_speed_+0.10;
+    else if(lin < 0.0 && lin < average_linear_speed_-0.10)
+        lin = average_linear_speed_-0.10;
 
-    if(ang>ANGULAR_SPEED_MAX)
+    // limitation for max speed
+    if(lin > LINEAR_SPEED_MAX)
     {
-    	ang = ANGULAR_SPEED_MAX;
-    	lin*=0.05;
-    }
-    else if(ang < (- ANGULAR_SPEED_MAX) )
-    {
-    	ang = -ANGULAR_SPEED_MAX;
-    	lin*=0.05;
-    }
-
-    if(lin>LINEAR_SPEED_MAX)
 		lin = LINEAR_SPEED_MAX;
-	else if(lin < (- LINEAR_SPEED_MAX) )
+		ROS_DEBUG("lin > SPEED MAX");
+    }
+	else if(lin < -LINEAR_SPEED_MAX)
+	{
 		lin = -LINEAR_SPEED_MAX;
+		ROS_DEBUG("lin < SPEED MAX");
+	}
 
+    // limitation for dth
+
+	if(fabs(dth) > ANGLE_THRESH_HIGH)
+        lin*=0.01;
+    else if(fabs(dth) > ANGLE_THRESH_LOW )
+        lin*=0.10;
+    //lin *=(1 - std::min( (dth*dth*dth*dth/2.0*PI), 1.0));
+    // angular limitation
+    ang = dth*K_TH*(1.0+fabs(lin));
+    if(ang > ANGULAR_SPEED_MAX)
+        ang = ANGULAR_SPEED_MAX;
+    else if(ang < -ANGULAR_SPEED_MAX)
+        ang = -ANGULAR_SPEED_MAX;
 }
 
 
@@ -175,16 +195,24 @@ void PathFollower::computeLastPointAngleCmd(double &lin, double &ang)
     theta_robot = tf::getYaw(tf_robot.getRotation());
     theta_des = tf::getYaw(path_.poses[index_path_].orientation);
     dth_ = theta_des-theta_robot;
-    while(ang<-PI)
+
+    while(dth_<-PI)
         dth_+=2*PI;
-    while(ang>=PI)
+    while(dth_>=PI)
         dth_-=2*PI;
 
-    ang = dth_;
-    ang*=K_TH;
-    if(ang>ANGULAR_SPEED_MAX)
+    if(backward_)
+    {
+        if(dth_<0)
+            dth_=PI-fabs(dth_);
+        else
+            dth_=-(PI-fabs(dth_));
+    }
+
+    ang = dth_*K_TH/2.0;
+    if(ang > ANGULAR_SPEED_MAX)
         ang = ANGULAR_SPEED_MAX;
-    else if(ang < (- ANGULAR_SPEED_MAX) )
+    else if(ang < -ANGULAR_SPEED_MAX)
         ang = -ANGULAR_SPEED_MAX;
 
     lin=0.0;
@@ -238,15 +266,15 @@ void PathFollower::computeAverageSpeed(size_t index_goal, float time)
     linear_speed_ = distance / time;
     ROS_INFO_STREAM("Linear speed  = "<<linear_speed_<<"   for distance/time : "<<distance<<" / "<<time<<" = "<< distance / time);
 
-    if(abs(linear_speed_) >= LINEAR_SPEED_MAX)
+    if(fabs(linear_speed_) >= LINEAR_SPEED_MAX)
     {
         ROS_WARN_STREAM("Linear speed (asbolute) is too high : "<<linear_speed_<<" . Value set to max : "<<LINEAR_SPEED_MAX);
         linear_speed_ = LINEAR_SPEED_MAX;
     }
-    else if(abs(linear_speed_) >= float(LINEAR_SPEED_MAX/2.0))
+    else if(fabs(linear_speed_) >= float(LINEAR_SPEED_MAX/2.0))
     {
         ROS_WARN_STREAM("Linear speed (asbolute) is high : "<<linear_speed_<<" . May not be able to turn");
-        linear_speed_ = LINEAR_SPEED_MAX;
+        //linear_speed_ = LINEAR_SPEED_MAX;
     }
     else
     {
@@ -283,7 +311,7 @@ void PathFollower::initNextGoal()
 
     // compute average speed
     computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_+1].pose_index, (goal_time_ - ros::Time::now()).toSec());
-
+    average_linear_speed_ = linear_speed_;
     ROS_INFO_STREAM("Next goal : pose : "<< time_at_poses_.time_at_poses[index_sequence_+1].pose_index
                     <<"  duration : "<<delta_time<<" seconds.");
     //check if idle
@@ -392,7 +420,7 @@ int main(int argc, char** argv)
 	ros::init(argc, argv, "path_follower_node");
 	ros::NodeHandle nh;
 	PathFollower pf(nh);
-	ros::Subscriber path_sub = nh.subscribe("path", 1, &PathFollower::pathCB, &pf);
+	ros::Subscriber path_sub = nh.subscribe("path_travel", 1, &PathFollower::pathCB, &pf);
 	ros::Rate loop(LOOP_RATE);
 
 	while(ros::ok())
