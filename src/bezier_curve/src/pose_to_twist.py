@@ -45,7 +45,11 @@ def getAngle(pose1, pose2):
     th1 = e1[2]
     th2 = e2[2]
     return (th2-th1)
-    
+
+def getDistance(pose1, pose2):
+    dx = pose2.position.x - pose1.position.x
+    dy = pose2.position.y - pose1.position.y
+    return math.sqrt(dx*dx+dy*dy)
 
 def createPathChoregraphic(msg):
     pathMsg = PathChoregraphicMsg()
@@ -53,13 +57,13 @@ def createPathChoregraphic(msg):
     
     path = msg.path
     
-    startTime = rospy.Time()
+    startTime = rospy.Time.now() + rospy.Duration.from_sec(10.0)
     #TODO : Uncomment after update of "scenario publisher"
-    startTime.secs = msg.start_timestamp.secs
-    startTime.nsecs = msg.start_timestamp.nsecs
+    #startTime.secs = msg.start_timestamp.secs
+    #startTime.nsecs = msg.start_timestamp.nsecs
     #pathMsg.start_timestamp = startTime
-    pathMsg.start_timestamp.secs = msg.start_timestamp.secs
-    pathMsg.start_timestamp.nsecs = msg.start_timestamp.nsecs
+    pathMsg.start_timestamp.secs = startTime.secs
+    pathMsg.start_timestamp.nsecs = startTime.nsecs
     
     rospy.loginfo(str(startTime))
     nb_point = 0
@@ -67,6 +71,10 @@ def createPathChoregraphic(msg):
     
     for s in range(len(sequences)-1):
         seq = {}
+        if sequences[s].backward == 1:
+            seq["backward"] = -1.0
+        else :
+            seq["backward"] = 1.0
         seq["start time"] = startTime + rospy.Duration(sequences[s].time) 
         seq["duration"] = getSequenceTime(sequences, s, s+1)
         seq["nb poses"] = sequences[s+1].pose_index - sequences[s].pose_index +1
@@ -77,31 +85,49 @@ def createPathChoregraphic(msg):
                       " : start time = " + str(seq["start time"].secs) + " duration = " + str(seq["duration"]) +\
                       " nb poses = " + str(seq["nb poses"]) + " time step = " + str(seq["time step"]) +\
                       " distance = " + str(seq["distance"]) )
-        for i in range(seq["nb poses"]-2):
+        
+        if seq["nb poses"] == 1 :
             ts = TwistStampedMsg()
             #header
             ts.header.frame_id = path.header.frame_id
-            ts.header.stamp =  seq["start time"] + rospy.Duration(seq["time step"] * i)
-            #ts.header.stamp.secs =  rospy.Time(seq["start time"] + rospy.Duration(seq["time step"] * i)).secs
-            #ts.header.stamp.nsecs =  rospy.Time(seq["start time"] + seq["time step"] * i).nsecs
+            ts.header.stamp.nsecs =  (seq["start time"] + rospy.Duration(seq["time step"])).nsecs
+            ts.header.stamp.secs =  (seq["start time"] + rospy.Duration(seq["time step"])).secs
             #twist
             ts.twist.angular.x = 0.0
             ts.twist.angular.y = 0.0
-            ts.twist.angular.z = getAngle(path.poses[sequences[s].pose_index + i], path.poses[sequences[s].pose_index+i+1]) / seq["time step"]
-            ts.twist.linear.x = seq["distance"]/seq["duration"]
+            ts.twist.angular.z = 0.0
+            ts.twist.linear.x = 0.0
             ts.twist.linear.y = 0.0
             ts.twist.linear.z = 0.0
             pathMsg.path.twists.append(ts)
             nb_point += 1
+        else :
+            for i in range(seq["nb poses"]-2):
+                ts = TwistStampedMsg()
+                #header
+                ts.header.frame_id = path.header.frame_id
+                ts.header.stamp.nsecs =  (seq["start time"] + rospy.Duration(seq["time step"] * i)).nsecs
+                ts.header.stamp.secs =  (seq["start time"] + rospy.Duration(seq["time step"] * i)).secs
+                #ts.header.stamp.secs =  rospy.Time(seq["start time"] + rospy.Duration(seq["time step"] * i)).secs
+                #ts.header.stamp.nsecs =  rospy.Time(seq["start time"] + seq["time step"] * i).nsecs
+                #twist
+                ts.twist.angular.x = 0.0
+                ts.twist.angular.y = 0.0
+                ts.twist.angular.z = getAngle(path.poses[sequences[s].pose_index + i], path.poses[sequences[s].pose_index+i+1]) / seq["time step"]
+                ts.twist.linear.x = seq["backward"]*getDistance(path.poses[sequences[s].pose_index + i], path.poses[sequences[s].pose_index+i+1])/seq["time step"]
+                ts.twist.linear.y = 0.0
+                ts.twist.linear.z = 0.0
+                pathMsg.path.twists.append(ts)
+                nb_point += 1
     
-    rospy.loginfo("Create path with " + str(nb_point) + " poses, start at " + str(pathMsg.start_timestamp)) 
+    rospy.loginfo("Create path with " + str(nb_point) + " poses, start at " + str(pathMsg.start_timestamp.secs)) 
     return pathMsg
 
 
 
 
 if __name__ == "__main__":
-    rospy.init_node('bezier_interpolate', anonymous = True)
+    rospy.init_node('pose_to_twist', anonymous = False)
     
     rospy.Subscriber("path_choregraphic", PathTravelMsg, pathCallback)
     
