@@ -11,7 +11,7 @@ source ~/catkin_ws/params/set_master_ip.sh
 
 if [ $ROS_MASTER_IP = $THIS_IP ];then
 	echo "- copy .bashrc"
-	scp ~/catkin_ws/odroid_setup/.bashrc odroid@$ROBOTS_BASE_IP$robot:~/.bashrc
+	scp ~/catkin_ws/odroid_setup/.bashrc odroid@$ROBOTS_BASE_IP$robot:.bashrc
 	
 	echo "- deploy catkin_ws"
 	bash ~/catkin_ws/deployment/catkin_ws.sh $robot

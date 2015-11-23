@@ -1,10 +1,12 @@
 #!/bin/bash
 
-ROS_MASTER_IP=${ROS_MASTER_URI:7:13}
-
-#set time on odroid
-echo "Sync time robot 01"
-ssh odroid@$ROBOTS_BASE_IP"01" 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate $ROS_MASTER_IP'
+#bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 00
+bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 01
+#bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 02
+#bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 03
+#bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 04
+#bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 05
+#bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 06
 
 #launch robot
 roslaunch robot init_global.launch
