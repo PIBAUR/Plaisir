@@ -97,8 +97,9 @@ def scenarioCallback(msg):
     - """ + str(path.path.poses) + """ poses
     - media (""" + str(len(msg.medias.medias)) + """) duration of """ + str(duration) + """s""")
     
-    if msg.type == "travel" :
-        pathTravelPublisher.publish(path)
+    #if msg.type == "travel" :
+    #    pathTravelPublisher.publish(path)
+    pathTravelPublisher.publish(path)
     if msg.type == "choregraphic" :
         pathChoregraphicPublisher.publish(path)
 
