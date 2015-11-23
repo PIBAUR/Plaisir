@@ -187,6 +187,8 @@ class Canvas(QWidget):
         
         self.updateBounds()
         
+        self.main.uncheckActionButtons()
+        
         
     def mouseMoveEvent(self, event):
         mouseX = float(event.x())
@@ -241,7 +243,7 @@ class Canvas(QWidget):
     
     
     def wheelEvent(self, event):
-        self.canvasZoom += event.delta() * .01
+        self.canvasZoom += event.delta() * .03
         
     
     def getGridSize(self):

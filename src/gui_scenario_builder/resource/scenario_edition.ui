@@ -418,19 +418,6 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="4">
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item row="1" column="3" rowspan="4">
            <widget class="Line" name="line_2">
             <property name="orientation">
@@ -438,7 +425,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="5">
+          <item row="1" column="6">
            <widget class="QLabel" name="label_2">
             <property name="font">
              <font>
@@ -451,7 +438,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="5">
+          <item row="2" column="6">
            <widget class="QComboBox" name="robotId_comboBox">
             <item>
              <property name="text">
@@ -495,17 +482,67 @@
             </item>
            </widget>
           </item>
-          <item row="4" column="5">
+          <item row="4" column="6">
            <widget class="QPushButton" name="testOnPhysicalRobot_button">
             <property name="text">
              <string>Lancer</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="5">
+          <item row="3" column="6">
            <widget class="QCheckBox" name="backToStartingPoint_checkBox">
             <property name="text">
              <string>retour au début</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4">
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QLineEdit" name="audioFile_lineEdit">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="audioFileBrowse_button">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>25</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="4">
+           <widget class="QLabel" name="label_4">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Fichier audio</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5" rowspan="4">
+           <widget class="Line" name="line_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
             </property>
            </widget>
           </item>
@@ -672,7 +709,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>572</width>
-                  <height>575</height>
+                  <height>573</height>
                  </rect>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_4"/>

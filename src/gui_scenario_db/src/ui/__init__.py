@@ -46,7 +46,7 @@ class ScenarioDataBase():
         
         self.ui.scenario_db_table.itemChanged.connect(self.handleTableItemChanged)
         self.ui.scenario_db_table.verticalHeader().setVisible(False)
-        columns = [("Nom", 160), ("Robots", 80), (u"Durée", 80), ("Comportement", 160), (u"Définitif", 80), ("Action", 80)]
+        columns = [("Nom", 160), ("Robots", 80), (u"Durée", 80), ("Comportement", 160), (u"Définitif", 80), (u"Fichier audio", 100), ("Action", 80)]
         for i in range(len(columns)):
             self.ui.scenario_db_table.insertColumn(i)
             self.ui.scenario_db_table.setColumnWidth(i, columns[i][1])
@@ -71,6 +71,8 @@ class ScenarioDataBase():
         self.comportementFilterComboBox.addItems(["Tous", "Calme", "Furieux", u"Enervé"])
         self.definitifFilterCheckBox = QCheckBox()
         self.definitifFilterCheckBox.setTristate(True)
+        self.audioFilterCheckBox = QCheckBox()
+        self.audioFilterCheckBox.setTristate(True)
         
         definitifCheckBoxContainer = QWidget()
         definitifCheckBoxContainer.setContentsMargins(0, -10, 0, -10)
@@ -79,13 +81,22 @@ class ScenarioDataBase():
         definitifCheckBoxLayout.addWidget(self.definitifFilterCheckBox)
         definitifCheckBoxContainer.setLayout(definitifCheckBoxLayout)
         
+        audioCheckBoxContainer = QWidget()
+        audioCheckBoxContainer.setContentsMargins(0, -10, 0, -10)
+        audioCheckBoxLayout = QHBoxLayout()
+        audioCheckBoxLayout.setAlignment(Qt.AlignCenter)
+        audioCheckBoxLayout.addWidget(self.audioFilterCheckBox)
+        audioCheckBoxContainer.setLayout(audioCheckBoxLayout)
+        
         self.ui.scenario_db_table.setCellWidget(0, 0, self.nameFilterLineEdit)
         self.ui.scenario_db_table.setCellWidget(0, 3, self.comportementFilterComboBox)
         self.ui.scenario_db_table.setCellWidget(0, 4, definitifCheckBoxContainer)
+        self.ui.scenario_db_table.setCellWidget(0, 5, audioCheckBoxContainer)
         
         self.nameFilterLineEdit.textChanged.connect(self.populateTable)
         self.comportementFilterComboBox.currentIndexChanged.connect(self.populateTable)
         self.definitifFilterCheckBox.stateChanged.connect(self.populateTable)
+        self.audioFilterCheckBox.stateChanged.connect(self.populateTable)
         
         self.populateTable()
     
@@ -105,6 +116,7 @@ class ScenarioDataBase():
         nameFilterValue = self.nameFilterLineEdit.text()
         comportementFilterValue = str(self.comportementFilterComboBox.currentText().toUtf8())
         definitifFilterValue = self.definitifFilterCheckBox.checkState()
+        audioFilterValue = self.audioFilterCheckBox.checkState()
         
         for scenarioFile in scenarioFiles:
             if scenarioFile.endswith(".sce"):
@@ -116,8 +128,9 @@ class ScenarioDataBase():
                     
                     if comportementFilterValue == "Tous" or ("comportement" in scenario.attributes.keys() and str(scenario.attributes["comportement"].encode("utf-8")) == comportementFilterValue):
                         if definitifFilterValue == 0 or ("definitif" in scenario.attributes.keys() and scenario.attributes["definitif"] == (definitifFilterValue == 2)):
-                            # inser
-                            self.insertRow(self.ui.scenario_db_table.rowCount(), scenarioFilePath, scenario)
+                            if audioFilterValue == 0 or ("definitif" in scenario.attributes.keys() and scenario.attributes["audio_file"] == ""):
+                                # inser
+                                self.insertRow(self.ui.scenario_db_table.rowCount(), scenarioFilePath, scenario)
             
         self.acceptTableItemChanged = True
         
@@ -141,10 +154,14 @@ class ScenarioDataBase():
         definitifItem = QTableWidgetItem()
         definitifItem.setTextAlignment(Qt.AlignCenter)
         definitifItem.setFlags(definitifItem.flags() ^ Qt.ItemIsEditable)
+        audioItem = QTableWidgetItem()
+        audioItem.setTextAlignment(Qt.AlignCenter)
+        audioItem.setFlags(audioItem.flags() ^ Qt.ItemIsEditable)
         self.ui.scenario_db_table.setItem(index, 1, robotsItem)
         self.ui.scenario_db_table.setItem(index, 2, durationItem)
         self.ui.scenario_db_table.setItem(index, 3, comportementItem)
         self.ui.scenario_db_table.setItem(index, 4, definitifItem)
+        self.ui.scenario_db_table.setItem(index, 5, audioItem)
         
         self.setCellsForScenario(scenario, index)
         
@@ -163,10 +180,10 @@ class ScenarioDataBase():
             deleteButton.clicked.connect(partial(self.handleDeleteButtonClicked, index))
             executeButton = QPushButton(u"Exécuter")
             actionButtonsContainer.layout().addWidget(editButton)
-            actionButtonsContainer.layout().addWidget(deleteButton)
+            #actionButtonsContainer.layout().addWidget(deleteButton)
             actionButtonsContainer.layout().addWidget(executeButton)
             
-        self.ui.scenario_db_table.setCellWidget(index, 5, actionButtonsContainer)
+        self.ui.scenario_db_table.setCellWidget(index, 6, actionButtonsContainer)
         
         if scenarioFilePath in self.editingScenarios:
             self.setRowEnabled(index, False)
@@ -186,6 +203,7 @@ class ScenarioDataBase():
         definitif = "-"
         if "definitif" in scenario.attributes.keys():
             definitif = "X" if scenario.attributes["definitif"] else "O"
+        audio_file = "X" if ("audio_file" in scenario.attributes.keys() and scenario.attributes["audio_file"] != "") else "O"
         
         try:
             self.ui.scenario_db_table.item(rowIndex, 3).setText(comportement.decode("utf-8"))
@@ -193,6 +211,7 @@ class ScenarioDataBase():
             self.ui.scenario_db_table.item(rowIndex, 3).setText(comportement)
             
         self.ui.scenario_db_table.item(rowIndex, 4).setText(definitif)
+        self.ui.scenario_db_table.item(rowIndex, 5).setText(audio_file)
     
     
     def getRowFromScenarioFilePath(self, scenarioFilePath):

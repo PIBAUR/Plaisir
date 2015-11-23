@@ -63,9 +63,7 @@ class ScenarioEdition():
         # toggle points for editing
         self.actionButtons = {self.ui.addPoint_button: Canvas.ADD_ACTION, self.ui.removePoint_button: Canvas.REMOVE_ACTION}
         
-        self.toggledActionButton = self.ui.addPoint_button
-        self.canvas.currentAction = self.actionButtons[self.toggledActionButton]
-        self.toggledActionButton.setChecked(True)
+        self.uncheckActionButtons()
         
         for actionButton in self.actionButtons.keys():
             actionButton.clicked.connect(partial(self.handleActionButtonClicked, actionButton))
@@ -126,6 +124,8 @@ class ScenarioEdition():
         self.ui.furieux_radioButton.toggled.connect(partial(self.changeCallback))
         self.ui.definitif_checkbox.stateChanged.connect(partial(self.changeCallback))
         
+        self.ui.audioFileBrowse_button.clicked.connect(partial(self.handleAudioFileBrowseButtonClicked))
+        
         # menu
         self.ui.actionNew.triggered.connect(partial(self.newScenario))
         self.ui.actionOpen.triggered.connect(partial(self.openScenario))
@@ -136,7 +136,7 @@ class ScenarioEdition():
         self.ui.actionSave.setShortcut('Ctrl+S')
         self.ui.actionSaveAs.setShortcut('Ctrl+Shift+S')
         
-        # load datasé
+        # load data
         if scenarioFilePath is not None:
             self.currentFilePath = scenarioFilePath
             self.lastChangesSaved = True
@@ -228,6 +228,14 @@ class ScenarioEdition():
         #self.currentScenario.gridSize = self.canvas.getGridSize()
     
     
+    def handleAudioFileBrowseButtonClicked(self):
+        fileName = QFileDialog.getOpenFileName(None, 'Fichier Audio', os.path.expanduser("~"))
+        if fileName is not None:
+            self.ui.audioFile_lineEdit.setText(fileName)
+            self.lastChangesSaved = False
+            self.updateWindowTitle()
+        
+    
     def updateWindowTitle(self):
         if self.currentFilePath is not None:
             currentFilePath = self.currentFilePath.decode("utf-8")
@@ -240,6 +248,7 @@ class ScenarioEdition():
         result = {}
         result["comportement"] = str(self.comportementButtonGroup.checkedButton().text().toUtf8())
         result["definitif"] = self.ui.definitif_checkbox.isChecked()
+        result["fichier_audio"] = str(self.ui.audioFile_lineEdit.text())
         return result
         
     
@@ -250,6 +259,8 @@ class ScenarioEdition():
             self.comportementButtonGroup.buttons()[0].setChecked(True)
         if "definitif" in attributes:
             self.ui.definitif_checkbox.setChecked(attributes["definitif"])
+        if "fichier_audio" in attributes:
+            self.ui.audioFile_lineEdit.setText(attributes["fichier_audio"])
         else:
             self.ui.definitif_checkbox.setChecked(False)
         
@@ -339,6 +350,12 @@ class ScenarioEdition():
     
     
     # buttons
+    def uncheckActionButtons(self):
+        self.canvas.currentAction = -1
+        self.ui.addPoint_button.setChecked(False)
+        self.ui.removePoint_button.setChecked(False)
+        
+        
     def handleActionButtonClicked(self, button):
         if button.isChecked():
             for actionButton in self.actionButtons.keys():
