@@ -19,7 +19,7 @@ fi
 
 # to set ros_master_uri IP
 source ~/catkin_ws/params/set_this_ip.sh
-rm ~/catkin_ws/params/set_master_ip.sh
+rm ~/catkin_ws/params/set_master_ip.sh -f
 echo "export ROS_MASTER_IP=$THIS_IP" >> ~/catkin_ws/params/set_master_ip.sh
 
 # rsync
