@@ -63,15 +63,8 @@ void PathFollower::pathCB(const scenario_msgs::PathTravel &msg)
 
 void PathFollower::computeCmd(double &lin, double &ang)
 {
-    /***
-     *Angular command can be improved with a PID...
-     ***/
-    double dx, dy, dth;
-    double x_des, y_des;
-    double delta_time;
+	tf::StampedTransform tf_robot;
 
-    //get robot pose
-    tf::StampedTransform tf_robot;
     try
     {
         tf_listener_.lookupTransform(path_.header.frame_id, robot_frame_, ros::Time(0), tf_robot);
@@ -83,90 +76,59 @@ void PathFollower::computeCmd(double &lin, double &ang)
         return;
     }
 
-    // compute distance and direction to next point
-    dx = path_.poses[index_path_].position.x - tf_robot.getOrigin().x();
-    dy = path_.poses[index_path_].position.y - tf_robot.getOrigin().y();
+    double x_robot, y_robot, theta_robot;
+    double dx, dy;
+    double x_des, y_des;
+    double alpha;
+
+    x_robot = tf_robot.getOrigin().x();
+    y_robot =  tf_robot.getOrigin().y();
+    theta_robot = tf::getYaw(tf_robot.getRotation());
+
+    x_des =  path_.poses[index_path_].position.x;
+    y_des =  path_.poses[index_path_].position.y;
+    //theta_des = tf::getYaw(path.poses[index_path].orientation);
+
+    dx = x_des - x_robot;
+    dy = y_des - y_robot;
     if(du_ == INIT_DU)
-        first_du_ = du_; //for feedback
+        first_du_ = du_;
     du_=sqrt(dx*dx+dy*dy);
 
-    //dx = path_.poses[index_path_+1].position.x - tf_robot.getOrigin().x();
-    //dy = path_.poses[index_path_+1].position.y - tf_robot.getOrigin().y();
-    dth = atan2(dy,dx) - tf::getYaw(tf_robot.getRotation());
-    while(dth<-PI)
-        dth+=2.0*PI;
-    while(dth>PI)
-        dth-=2.0*PI;
-    if(fabs(dth) < PI/6.0)
-    {
-        dth = tf::getYaw( path_.poses[index_path_].orientation) - tf::getYaw(tf_robot.getRotation());
-        while(dth<-PI)
-            dth+=2.0*PI;
-        while(dth>PI)
-            dth-=2.0*PI;
-    }
+    alpha = atan2(dy,dx);
+    ang = alpha-theta_robot;
+    while(ang<-PI)
+        ang+=2*PI;
+    while(ang>=PI)
+        ang-=2*PI;
 
-    ROS_DEBUG_STREAM("du = "<< du_<< "  | dth " << dth);
-
-    //backward angle
     if(backward_)
     {
-        if(dth < 0.0)
-            dth=PI-fabs(dth);
+        if(ang<0)
+            ang=PI-abs(ang);
         else
-            dth=-(PI-fabs(dth));
+            ang=-(PI-abs(ang));
     }
+    ROS_DEBUG_STREAM("du = "<< du_<< "  | ang " << ang);
+    ang*=K_TH;
+    lin=linear_speed_;
 
-    //compute speed
-    /*
-	if(goal_time_ < ros::Time::now())
-	{
-	    //in past --> no time set
-	    lin = LINEAR_SPEED_DEFAULT;
-	    if(backward_)
-	        lin *= -1.0;
-	}
-	else
-	{
-	    delta_time =  (goal_time_ - ros::Time::now()).toSec();
-        //computeAverageSpeed(time_at_poses_.time_at_poses[index_sequence_].pose_index, delta_time);
-        lin=average_linear_speed_;
-	}
-	*/
-	lin=average_linear_speed_;
-    ROS_DEBUG_STREAM("Update speed to "<<lin<<" m/s. Time left : "<<delta_time<<"seconds.");
-
-    // limitiation for average speed
-    if(lin > 0.0 && lin > average_linear_speed_+0.10)
-        lin = average_linear_speed_+0.10;
-    else if(lin < 0.0 && lin < average_linear_speed_-0.10)
-        lin = average_linear_speed_-0.10;
-
-    // limitation for max speed
-    if(lin > LINEAR_SPEED_MAX)
+    if(ang>ANGULAR_SPEED_MAX)
     {
-		lin = LINEAR_SPEED_MAX;
-		ROS_DEBUG("lin > SPEED MAX");
+    	ang = ANGULAR_SPEED_MAX;
+    	lin*=0.2;
     }
-	else if(lin < -LINEAR_SPEED_MAX)
-	{
+    else if(ang < (- ANGULAR_SPEED_MAX) )
+    {
+    	ang = -ANGULAR_SPEED_MAX;
+    	lin*=0.2;
+    }
+
+    if(lin>LINEAR_SPEED_MAX)
+		lin = LINEAR_SPEED_MAX;
+	else if(lin < (- LINEAR_SPEED_MAX) )
 		lin = -LINEAR_SPEED_MAX;
-		ROS_DEBUG("lin < SPEED MAX");
-	}
 
-    // limitation for dth
-
-	if(fabs(dth) > ANGLE_THRESH_HIGH)
-        lin*=0.01;
-    else if(fabs(dth) > ANGLE_THRESH_LOW )
-        lin*=0.10;
-    //lin *=(1 - std::min( (dth*dth*dth*dth/2.0*PI), 1.0));
-    // angular limitation
-    ang = dth*K_TH*(1.0+fabs(lin));
-    if(ang > ANGULAR_SPEED_MAX)
-        ang = ANGULAR_SPEED_MAX;
-    else if(ang < -ANGULAR_SPEED_MAX)
-        ang = -ANGULAR_SPEED_MAX;
 }
 
 
@@ -201,18 +163,11 @@ void PathFollower::computeLastPointAngleCmd(double &lin, double &ang)
     while(dth_>=PI)
         dth_-=2*PI;
 
-    if(backward_)
-    {
-        if(dth_<0)
-            dth_=PI-fabs(dth_);
-        else
-            dth_=-(PI-fabs(dth_));
-    }
-
-    ang = dth_*K_TH/2.0;
-    if(ang > ANGULAR_SPEED_MAX)
+    ang = dth_;
+    ang*=K_TH;
+    if(ang>ANGULAR_SPEED_MAX)
         ang = ANGULAR_SPEED_MAX;
-    else if(ang < -ANGULAR_SPEED_MAX)
+    else if(ang < (- ANGULAR_SPEED_MAX) )
         ang = -ANGULAR_SPEED_MAX;
 
     lin=0.0;
@@ -294,14 +249,11 @@ void PathFollower::computeAverageSpeed(size_t index_goal, float time)
 
 void PathFollower::initNextGoal()
 {
+    float delta_time;
 
-	//TODO : Enhancement : close loop due to time
-    // For now : none working with a global time, seems to work when goal time
-    // is define by section
+    delta_time = fabs(time_at_poses_.time_at_poses[index_sequence_+1].time) - abs(time_at_poses_.time_at_poses[index_sequence_].time);
 
     // set new time_goal
-    float delta_time = time_at_poses_.time_at_poses[index_sequence_+1].time
-                        - time_at_poses_.time_at_poses[index_sequence_].time;
     goal_time_ = ros::Time::now() + ros::Duration(delta_time);
     //goal_time_ += ros::Duration(delta_time);
     //delta_time = (goal_time_ - ros::Time::now()).toSec();
