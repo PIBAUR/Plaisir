@@ -8,7 +8,7 @@ from geometry_msgs.msg import PointStamped as PointStampedMsg
 from geometry_msgs.msg import Pose2D as Pose2DMsg
 from geometry_msgs.msg import PoseArray as PoseArrayMsg
 from scenario_msgs.msg import Scenario as ScenarioMsg
-from scenario_msgs.msg import PathTravel as PathMsg
+from scenario_msgs.msg import Path as PathMsg
 from scenario_msgs.msg import Obstacle as ObstacleMsg
 from scenario_msgs.msg import ObstacleArray as ObstacleArrayMsg
 
