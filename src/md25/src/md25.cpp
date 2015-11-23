@@ -646,12 +646,6 @@ void MD25::twistCb(const geometry_msgs::Twist& msg)
 {
     twist_linear = -msg.linear.x;
     twist_angular = msg.angular.z;
-    speed_err[0] = 0.0;
-    speed_err[1] = 0.0;
-    speed_err_d[0] = 0.0;
-    speed_err_d[1] = 0.0;
-    speed_err_i[0] = 0.0;
-    speed_err_i[1] = 0.0;
     set_motor();
 }
 

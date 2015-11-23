@@ -66,7 +66,6 @@ def getPathAndDistanceFromMessage(msg, checkedChoregraphicPath):
                         i += 2
                         
                     path.path.poses.append(pose)
-                """
                 if (i-step != 1.0):  
                     pose = PoseMsg()
                     
@@ -76,7 +75,7 @@ def getPathAndDistanceFromMessage(msg, checkedChoregraphicPath):
                         pose.orientation.z = math.sin(theta / 2)
                         pose.orientation.w = math.cos(theta / 2)
                         path.path.poses.append(pose)
-                """    
+                    
             curveIndex += 1
     
     return path, distance
