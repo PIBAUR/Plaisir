@@ -18,10 +18,6 @@
 
 	<node name="path_checker" pkg="path_checker" type="path_checker_node" respawn="true"/>
 	
-	<!-- DEBUG TOOLS -->
-	<node pkg="topic_router" name="robot_model" type="robot_model" respawn="true"/>
-	
-	
 	<!-- GUI TOOLS -->
 	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init_global.rviz" />

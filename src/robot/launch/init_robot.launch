@@ -11,8 +11,9 @@
 	
 	
 	<group ns="robot$(arg robot)" clear_params="false">
-		<node pkg="topic_router" type="__init__.py" name="path_viz_pub" respawn="true">
-		</node>
+		<!-- DEBUG TOOLS -->
+		<node pkg="topic_router" type="__init__.py" name="path_viz_pub" respawn="true"/>
+		
     	<!-- HARDWARE -->
         <include file="$(find robot)/launch/robot_hardware.launch">
 			<arg name="robot" value="$(arg robot)"/> 
