@@ -134,7 +134,7 @@ class Temporalization():
             if self.fullDuration != 0:
                 newTimelineValue = currentMediaStartTime / self.fullDuration + value * (self.robotMediaPlayer.currentMedia.duration / self.fullDuration)
                 newTimelineValue *= self.ui.timeline_slider.maximum()
-                self.ui.timeline_slider.setValue(newTimelineValue)
+                self.ui.timeline_slider.setValue(int(newTimelineValue))
                 
         self.timelineValueIsSetByCode = False
         

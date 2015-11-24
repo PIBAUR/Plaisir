@@ -19,7 +19,6 @@ def pathCallback(msg):
     rospy.loginfo("Receive path with " + str(len(msg.path.poses)) + " poses, start at " + str(msg.start_timestamp)\
                    + " with " + str(len(msg.time_at_poses.time_at_poses)) )
     pathMsg = createPathChoregraphic(msg)
-    #rospy.loginfo(str(pathMsg))
     pathChoregraphicPublisher.publish(pathMsg)
 
 
@@ -37,6 +36,7 @@ def getSequenceLength(path, start, end):
 def getSequenceTime(timeAtPoses, start, end):
     return timeAtPoses[end].time - timeAtPoses[start].time
 
+
 def getAngle(pose1, pose2):
     q1 = (pose1.orientation.x, pose1.orientation.y, pose1.orientation.z, pose1.orientation.w)
     q2 = (pose2.orientation.x, pose2.orientation.y, pose2.orientation.z, pose2.orientation.w)
@@ -46,10 +46,12 @@ def getAngle(pose1, pose2):
     th2 = e2[2]
     return (th2-th1)
 
+
 def getDistance(pose1, pose2):
     dx = pose2.position.x - pose1.position.x
     dy = pose2.position.y - pose1.position.y
     return math.sqrt(dx*dx+dy*dy)
+
 
 def createPathChoregraphic(msg):
     pathMsg = PathChoregraphicMsg()
@@ -57,15 +59,8 @@ def createPathChoregraphic(msg):
     
     path = msg.path
     
-    startTime = rospy.Time.now()# + rospy.Duration.from_sec(10.0)
-    #TODO : Uncomment after update of "scenario publisher"
-    #startTime.secs = msg.start_timestamp.secs
-    #startTime.nsecs = msg.start_timestamp.nsecs
-    #pathMsg.start_timestamp = startTime
-    pathMsg.start_timestamp.secs = startTime.secs
-    pathMsg.start_timestamp.nsecs = startTime.nsecs
+    startTime = pathMsg.start_timestamp = msg.start_timestamp
     
-    rospy.loginfo(str(startTime))
     nb_point = 0
     total_time = 0.0
     
@@ -73,7 +68,7 @@ def createPathChoregraphic(msg):
         seq = {}
         if sequences[s].backward == 1:
             seq["backward"] = -1.0
-        else :
+        else:
             seq["backward"] = 1.0
         seq["start time"] = startTime + rospy.Duration(sequences[s].time) 
         seq["duration"] = getSequenceTime(sequences, s, s+1)
@@ -122,8 +117,6 @@ def createPathChoregraphic(msg):
     
     rospy.loginfo("Create path with " + str(nb_point) + " poses, start at " + str(pathMsg.start_timestamp.secs)) 
     return pathMsg
-
-
 
 
 if __name__ == "__main__":

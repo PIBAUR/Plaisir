@@ -181,7 +181,7 @@ class ScenarioDataBase():
             executeButton = QPushButton(u"Exécuter")
             actionButtonsContainer.layout().addWidget(editButton)
             #actionButtonsContainer.layout().addWidget(deleteButton)
-            actionButtonsContainer.layout().addWidget(executeButton)
+            #actionButtonsContainer.layout().addWidget(executeButton)
             
         self.ui.scenario_db_table.setCellWidget(index, 6, actionButtonsContainer)
         

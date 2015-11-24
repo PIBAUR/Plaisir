@@ -6,6 +6,7 @@ import os
 import subprocess
 from threading import Thread
 import signal
+import time
 
 import rospy
 
@@ -46,6 +47,13 @@ class MediaPlayer():
 
     def mediaCB(self, data):
         if self.mediaPlayerClientInitialized:
+            # wait to play media
+            while True:
+                if rospy.Time.now().to_nsec() >= data.start_timestamp.to_nsec():
+                    break
+                else:
+                    time.sleep(.005)
+            
             self.videoMedias = [mediaData for mediaData in data.medias.medias if mediaData.type == "video"]
             
             mediaPaths = [videoMediaData.path for videoMediaData in self.videoMedias]
@@ -74,8 +82,9 @@ if __name__ == '__main__':
     
     # ros node
     rospy.init_node('media_player', log_level = rospy.INFO)
+    
     rospy.Subscriber('scenario', ScenarioMsg, mediaPlayer.mediaCB)
-    rospy.Subscriber('path_feedback', PathFeedbackMsg, mediaPlayer.pathFeedbackCB)
+    #rospy.Subscriber('path_feedback', PathFeedbackMsg, mediaPlayer.pathFeedbackCB)
     
     duration = rospy.Duration(.1)
     while not rospy.is_shutdown():

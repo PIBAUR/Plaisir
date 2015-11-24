@@ -28,7 +28,7 @@ from point import Point
 from src.bezier_curve.src import bezier_interpolate
 
 class Robot():
-    ROBOT_ID_LIST = ["robot00", "robot01"]
+    ROBOT_ID_LIST = ["robot00", "robot03"]
     
     currentColorIndex = 0
     
@@ -97,10 +97,10 @@ class Robot():
             media.loadVideo()
     
     
-    def getScenarioMsgWithParams(self, transformPosition, scale, transformOrientation, interpolation, rotateFromTarget):
+    def getScenarioMsgWithParams(self, transformPosition, scale, transformOrientation, interpolation, rotateFromTarget, waitAfterStartTime = 3.):
         scenarioMsg = ScenarioMsg()
         
-        self.setHeaderAndVideosForScenarioMsg(scenarioMsg)
+        self.setHeaderAndVideosForScenarioMsg(scenarioMsg, waitAfterStartTime)
         
         transformationMatrix = self.getTransformationMatrix(scale, transformOrientation)
         
@@ -138,7 +138,7 @@ class Robot():
         return scenarioMsg
         
         
-    def setHeaderAndVideosForScenarioMsg(self, scenarioMsg):
+    def setHeaderAndVideosForScenarioMsg(self, scenarioMsg, waitAfterStartTime):
         headerMsg = HeaderMsg()
         scenarioMsg.bezier_paths = BezierPathMsg()
         
@@ -171,6 +171,8 @@ class Robot():
         headerMsg.frame_id = "/map"
         headerMsg.stamp = rospy.Time.now()
         scenarioMsg.bezier_paths.header = headerMsg
+        
+        scenarioMsg.start_timestamp = rospy.Time.now() + rospy.Duration.from_sec(waitAfterStartTime)
     
     
     def getTransformationMatrix(self, scale, transformOrientation):

@@ -439,62 +439,7 @@
            </widget>
           </item>
           <item row="2" column="6">
-           <widget class="QComboBox" name="robotId_comboBox">
-            <item>
-             <property name="text">
-              <string>/robot00</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>/robot01</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>/robot02</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>/robot03</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>/robot04</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>/robot05</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>/robot06</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>tous</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="4" column="6">
-           <widget class="QPushButton" name="testOnPhysicalRobot_button">
-            <property name="text">
-             <string>Lancer</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="6">
-           <widget class="QCheckBox" name="backToStartingPoint_checkBox">
-            <property name="text">
-             <string>retour au début</string>
-            </property>
-           </widget>
+           <widget class="QComboBox" name="robotId_comboBox"/>
           </item>
           <item row="2" column="4">
            <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -545,6 +490,42 @@
              <enum>Qt::Vertical</enum>
             </property>
            </widget>
+          </item>
+          <item row="4" column="6">
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QPushButton" name="testOnPhysicalRobot_button">
+              <property name="text">
+               <string>Lancer</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="stopPhysicalRobot_button">
+              <property name="text">
+               <string>Stop</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="6">
+           <layout class="QHBoxLayout" name="horizontalLayout_13">
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>attente (s)</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="waitAfterStartTime_spinBox">
+              <property name="value">
+               <number>3</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -709,7 +690,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>572</width>
-                  <height>573</height>
+                  <height>564</height>
                  </rect>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_4"/>

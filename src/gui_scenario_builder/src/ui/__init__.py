@@ -12,6 +12,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4 import uic
 
+from src.robot.src import utils
+from std_msgs.msg import Bool as BoolMsg
 from scenario_msgs.msg import Scenario as ScenarioMsg
 from src.scenario_lib.src.items.robot import Robot
 from src.scenario_lib.src.items.media import Media
@@ -78,27 +80,37 @@ class ScenarioEdition():
         # sequences
         self.sequences = Sequences(self.ui, self.canvas, self.temporalization)
         
-        # physical robot
+        # physical robots
         self.transformListener = tf.TransformListener()
         self.transformPositions = {}
         self.transformOrientations = {}
         self.lookupTransformTimers = {}
         
         self.scenarioPublishers = {}
-        for robotIndex in range(self.ui.robotId_comboBox.count()):
-            robotId = str(self.ui.robotId_comboBox.itemText(robotIndex))
-            if robotId != ScenarioEdition.ALL_LABEL:
-                self.scenarioPublishers[robotId] = rospy.Publisher(robotId + "/scenario", ScenarioMsg)
-                
-                self.transformPositions[robotId] = (0, 0, 0)
-                self.transformOrientations[robotId] = (0, 0, 0, 1)
-                
-                # lookup transform initialization
-                self.lookupTransformTimers[robotId] = QTimer()
-                #self.lookupTransformTimers[robotId].setSingleShot(True)
-                self.lookupTransformTimers[robotId].timeout.connect(partial(self.getRobotTransform, robotId))
-                self.lookupTransformTimers[robotId].start(200)
+        self.freezePublishers = {}
         
+        self.launchedRobots = utils.getLaunchedRobots()
+        for launchedRobot in self.launchedRobots:
+            robotId = "/" + launchedRobot
+            self.ui.robotId_comboBox.addItem(robotId)
+            
+            self.scenarioPublishers[robotId] = rospy.Publisher(robotId + "/scenario", ScenarioMsg)
+            self.freezePublishers[robotId] = rospy.Publisher(robotId + "/freeze", BoolMsg)
+            
+            self.transformPositions[robotId] = (0, 0, 0)
+            self.transformOrientations[robotId] = (0, 0, 0, 1)
+            
+            # lookup transform initialization
+            self.lookupTransformTimers[robotId] = QTimer()
+            #self.lookupTransformTimers[robotId].setSingleShot(True)
+            self.lookupTransformTimers[robotId].timeout.connect(partial(self.getRobotTransform, robotId))
+            self.lookupTransformTimers[robotId].start(200)
+            
+        if len(self.launchedRobots) > 1:
+            self.ui.robotId_comboBox.addItem(ScenarioEdition.ALL_LABEL)
+        elif len(self.launchedRobots) <= 0:
+            self.ui.testOnPhysicalRobot_button.setEnabled(False)
+            
         # other buttons
         self.ui.showControls_button.clicked.connect(self.handleShowControlsButtonClicked)
         self.handleShowControlsButtonClicked(False)
@@ -111,6 +123,7 @@ class ScenarioEdition():
         self.ui.addRobot_button.clicked.connect(self.handleAddRobotButtonClicked)
         
         self.ui.testOnPhysicalRobot_button.clicked.connect(self.handleTestOnPhysicalRobot)
+        self.ui.stopPhysicalRobot_button.clicked.connect(self.handleStopPhysicalRobot)
         
         # button groups
         self.comportementButtonGroup = QButtonGroup()
@@ -416,23 +429,39 @@ class ScenarioEdition():
     
     def handleTestOnPhysicalRobot(self):
         robotId = str(self.ui.robotId_comboBox.currentText())
+        
+        waitAfterStartTime = self.ui.waitAfterStartTime_spinBox.value()
+        
         if robotId == ScenarioEdition.ALL_LABEL:
-            robotIndex = 0
-            for robot in self.currentScenario.robots:
-                robotId = "/robot" + ("0" if robotIndex < 10 else "") + str(robotIndex)
-                if self.ui.backToStartingPoint_checkBox.isChecked():
-                    scenarioMsg = robot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
-                else:
-                    scenarioMsg = robot.getScenarioMsgWithParams(self.transformPositions[robotId], 1. / float(self.currentScenario.gridSize), self.transformOrientations[robotId], True, False)
+            scenarioRobotIndex = 0
+            
+            for launchedRobot in self.launchedRobots:
+                robotId = "/" + launchedRobot
+                robot = self.currentScenario.robots[scenarioRobotIndex]
+                
+                scenarioMsg = robot.getScenarioMsgWithParams(self.transformPositions[robotId], 1. / float(self.currentScenario.gridSize), self.transformOrientations[robotId], True, False, waitAfterStartTime)
                     
                 #rospy.loginfo(str(scenarioMsg))
                 self.scenarioPublishers[robotId].publish(scenarioMsg)
-                robotIndex += 1
+                
+                scenarioRobotIndex += 1
+                if scenarioRobotIndex >= len(self.currentScenario.robots):
+                    break
         else:
-            if self.ui.backToStartingPoint_checkBox.isChecked():
-                scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams((0, 0, 0), 1. / float(self.currentScenario.gridSize), (1, 0, 0, 0), True, False)
-            else:
-                scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams(self.transformPositions[robotId], 1. / float(self.currentScenario.gridSize), self.transformOrientations[robotId], True, False)
+            scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams(self.transformPositions[robotId], 1. / float(self.currentScenario.gridSize), self.transformOrientations[robotId], True, False, waitAfterStartTime)
                 
             #rospy.loginfo(str(scenarioMsg))
             self.scenarioPublishers[robotId].publish(scenarioMsg)
+
+    def handleStopPhysicalRobot(self):
+        freezeMsg = BoolMsg()
+        freezeMsg.data = True
+        
+        robotId = str(self.ui.robotId_comboBox.currentText())
+        if robotId == ScenarioEdition.ALL_LABEL:
+            for launchedRobot in self.launchedRobots:
+                robotId = "/" + launchedRobot
+                self.freezePublishers[robotId].publish(freezeMsg)
+        else:
+            self.freezePublishers[robotId].publish(freezeMsg)
+            

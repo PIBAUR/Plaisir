@@ -98,9 +98,9 @@ void ChoregrahicPathFollower::getNewTwist()
     angular_speed_ = twist_array_.twists[index_path_].twist.angular.z;
     next_twist_time_.nsec = twist_array_.twists[index_path_].header.stamp.nsec;
     next_twist_time_.sec = twist_array_.twists[index_path_].header.stamp.sec;
-    ROS_INFO_STREAM("New speed #"<<index_path_<<"/"<<size_path_<<" :linear = "
+    /*ROS_INFO_STREAM("New speed #"<<index_path_<<"/"<<size_path_<<" :linear = "
                      <<linear_speed_<<" and angular = "<<angular_speed_<<" rad/s for "
-                     << (next_twist_time_-ros::Time::now()).sec);
+                     << (next_twist_time_-ros::Time::now()).sec);*/
 
     if(fabs(linear_speed_) > LINEAR_SPEED_MAX/2.0)
 		ROS_WARN("Linear speed may be to high...");

@@ -22,7 +22,6 @@ def execute():
         result = result.replace("\r", "").replace("\n", "")
         result = float(result)/40.95 #conversion in percent
         battery_percent = result % rospy.get_time()
-        rospy.loginfo(battery_percent)
         pub.publish(battery_percent)
         rate.sleep()
  

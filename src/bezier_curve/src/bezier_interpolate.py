@@ -91,14 +91,16 @@ def scenarioCallback(msg):
     duration = 0
     for media in msg.medias.medias:
         duration += media.duration
+    
+    path.start_timestamp = msg.start_timestamp
         
     rospy.loginfo("""new """ + msg.type + """ scenario: 
+    - startime: """ + str(path.start_timestamp) + """ poses
     - """ + str(len(msg.bezier_paths.curves)) + """ curves
     - distance of """ + (str(distance) if distance is not None else "???") + """
     - """ + str(path.path.poses) + """ poses
     - media (""" + str(len(msg.medias.medias)) + """) duration of """ + str(duration) + """s""")
     
-    #pathTravelPublisher.publish(path)
     if msg.type == "travel" :
         pathTravelPublisher.publish(path)
     if msg.type == "choregraphic" :
@@ -192,6 +194,6 @@ if __name__ == "__main__":
     rospy.Subscriber("scenario", ScenarioMsg, scenarioCallback)
     
     pathTravelPublisher = rospy.Publisher("path_travel", PathMsg)
-    pathChoregraphicPublisher = rospy.Publisher("path_choregraphic", PathMsg)
     
+    pathChoregraphicPublisher = rospy.Publisher("path_choregraphic", PathMsg)
     rospy.spin()

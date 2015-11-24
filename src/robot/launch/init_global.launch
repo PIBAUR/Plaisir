@@ -36,13 +36,11 @@
 	</include>
 	-->
 
-	<include file="$(find robot)/launch/init_robot.launch"><arg name="robot" value="03"/></include>
-	<!--	
-	<include file="$(find robot)/launch/init_robot.launch"><arg name="robot" value="00"/></include>
-	<include file="$(find robot)/launch/init_robot.launch"><arg name="robot" value="01"/></include>
-	<include file="$(find robot)/launch/init_robot.launch"><arg name="robot" value="02"/></include>
-	<include file="$(find robot)/launch/init_robot.launch"><arg name="robot" value="04"/></include>
-	<include file="$(find robot)/launch/init_robot.launch"><arg name="robot" value="05"/></include>
-	<include file="$(find robot)/launch/init_robot.launch"><arg name="robot" value="06"/></include>
-	-->
+	<include file="$(find robot)/launch/init_robot.launch" if="$(env LAUNCH_ROBOT00)"><arg name="robot" value="00"/></include>
+	<include file="$(find robot)/launch/init_robot.launch" if="$(env LAUNCH_ROBOT01)"><arg name="robot" value="01"/></include>
+	<include file="$(find robot)/launch/init_robot.launch" if="$(env LAUNCH_ROBOT02)"><arg name="robot" value="02"/></include>
+	<include file="$(find robot)/launch/init_robot.launch" if="$(env LAUNCH_ROBOT03)"><arg name="robot" value="03"/></include>
+	<include file="$(find robot)/launch/init_robot.launch" if="$(env LAUNCH_ROBOT04)"><arg name="robot" value="04"/></include>
+	<include file="$(find robot)/launch/init_robot.launch" if="$(env LAUNCH_ROBOT05)"><arg name="robot" value="05"/></include>
+	<include file="$(find robot)/launch/init_robot.launch" if="$(env LAUNCH_ROBOT06)"><arg name="robot" value="06"/></include>
 </launch>
