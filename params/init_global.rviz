@@ -4,7 +4,15 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Robot00/LaserScan1
+        - /Robot03/ParticulesAMCL1
+        - /Robot03/TF1/Frames1
+        - /Robot03/TF1/Frames1/robot03/base_laser_link1
+        - /Robot03/TF1/Frames1/robot03/base_link1
+        - /Robot03/TF1/Frames1/robot03/odom1
+        - /Robot03/TF1/Tree1
+        - /Robot03/TF1/Tree1/map1
+        - /Robot03/TF1/Tree1/map1/robot03/odom1
+        - /Robot03/TF1/Tree1/map1/robot03/odom1/robot03/base_link1
       Splitter Ratio: 0.652866
     Tree Height: 775
   - Class: rviz/Selection
@@ -25,7 +33,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Robot00/LaserScan
+    SyncSource: Robot03/LaserScan
 Visualization Manager:
   Class: ""
   Displays:
@@ -66,80 +74,27 @@ Visualization Manager:
       Value: true
     - Angle Tolerance: 0.05
       Class: rviz/Odometry
-      Color: 255; 25; 0
-      Enabled: true
-      Keep: 300
-      Length: 0.3
-      Name: Robot00/Odom
-      Position Tolerance: 0.05
-      Topic: /robot00/odom
-      Value: true
-    - Arrow Length: 0.3
-      Class: rviz/PoseArray
-      Color: 255; 85; 127
-      Enabled: false
-      Name: Robot00/ParticulesAMCL
-      Topic: /robot00/particlecloud
-      Value: false
-    - Arrow Length: 0.3
-      Class: rviz/PoseArray
-      Color: 85; 0; 255
-      Enabled: true
-      Name: Robot00/Path
-      Topic: /robot01/path_viz
-      Value: true
-    - Alpha: 0.7
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/LaserScan
-      Color: 255; 0; 0
-      Color Transformer: FlatColor
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 45
-      Min Color: 0; 0; 0
-      Min Intensity: 9
-      Name: Robot00/LaserScan
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.03
-      Style: Spheres
-      Topic: /robot01/scan
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
-    - Angle Tolerance: 0.05
-      Class: rviz/Odometry
       Color: 0; 170; 0
       Enabled: true
       Keep: 300
       Length: 0.3
       Name: Robot03/Odom
       Position Tolerance: 0.05
-      Topic: /robot01/odom
+      Topic: /robot03/odom
       Value: true
     - Arrow Length: 0.3
       Class: rviz/PoseArray
       Color: 85; 85; 0
       Enabled: true
       Name: Robot03/ParticulesAMCL
-      Topic: /robot01/particlecloud
+      Topic: /robot03/particlecloud
       Value: true
     - Arrow Length: 0.3
       Class: rviz/PoseArray
       Color: 255; 170; 127
       Enabled: true
       Name: Robot03/Path
-      Topic: /robot01/path_viz
+      Topic: /robot03/path_viz
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
@@ -166,7 +121,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.05
       Style: Spheres
-      Topic: /robot01/scan
+      Topic: /robot03/scan
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
@@ -177,22 +132,22 @@ Visualization Manager:
         All Enabled: true
         map:
           Value: true
-        robot01/base_laser_link:
+        robot03/base_laser_link:
           Value: true
-        robot01/base_link:
+        robot03/base_link:
           Value: true
-        robot01/odom:
+        robot03/odom:
           Value: true
       Marker Scale: 1
-      Name: TF
+      Name: Robot03/TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
         map:
-          robot01/odom:
-            robot01/base_link:
-              robot01/base_laser_link:
+          robot03/odom:
+            robot03/base_link:
+              robot03/base_laser_link:
                 {}
       Update Interval: 0
       Value: true
