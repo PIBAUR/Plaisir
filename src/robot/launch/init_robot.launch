@@ -23,6 +23,7 @@
 		<!-- SCENARIO -->
 		<node name="robot_manager" pkg="robot" type="__init__.py" machine="robot$(arg robot)" respawn="true"/>
 		<node name="bezier_interpolate" pkg="bezier_curve" type="bezier_interpolate.py" machine="robot$(arg robot)" respawn="true"/>
+		<node name="pose_to_twist" pkg="bezier_curve" type="pose_to_twist.py" machine="robot$(arg robot)" respawn="true"/>
 		
 		<!-- MEDIA PLAYER -->
 		<env name="DISPLAY" value=":0"/>
@@ -30,6 +31,7 @@
 		
 		<!-- MOVING AND OBSTACLES -->
 		<node name="path_follower" pkg="path_follower" type="path_follower_node" machine="robot$(arg robot)" respawn="true"/>
+		<node name="path_follower_choregraphic" pkg="path_follower" type="path_follower_choregraphic_node" machine="robot$(arg robot)" respawn="true"/>
 		<!--
 		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node" machine="robot$(arg robot)" respawn="true"/>
 		-->
