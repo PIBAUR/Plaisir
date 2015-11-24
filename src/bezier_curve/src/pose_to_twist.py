@@ -57,7 +57,7 @@ def createPathChoregraphic(msg):
     
     path = msg.path
     
-    startTime = rospy.Time.now() + rospy.Duration.from_sec(10.0)
+    startTime = rospy.Time.now()# + rospy.Duration.from_sec(10.0)
     #TODO : Uncomment after update of "scenario publisher"
     #startTime.secs = msg.start_timestamp.secs
     #startTime.nsecs = msg.start_timestamp.nsecs

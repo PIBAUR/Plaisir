@@ -167,7 +167,7 @@ void ChoregrahicPathFollower::spinOnce()
 
 int main(int argc, char** argv)
 {
-	ros::init(argc, argv, "choregraphic_path_follwer");
+	ros::init(argc, argv, "path_follower_choregraphic_node");
 	ros::NodeHandle nh;
 	ChoregrahicPathFollower cpf(nh);
 	ros::Subscriber path_sub = nh.subscribe("twist_path", 1, &ChoregrahicPathFollower::pathCB, &cpf);

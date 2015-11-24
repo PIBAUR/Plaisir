@@ -97,11 +97,12 @@ def scenarioCallback(msg):
     - distance of """ + (str(distance) if distance is not None else "???") + """
     - """ + str(path.path.poses) + """ poses
     - media (""" + str(len(msg.medias.medias)) + """) duration of """ + str(duration) + """s""")
-    pathTravelPublisher.publish(path)
-    #if msg.type == "travel" :
-    #    pathTravelPublisher.publish(path)
-    #if msg.type == "choregraphic" :
-    #    pathChoregraphicPublisher.publish(path)
+    
+    #pathTravelPublisher.publish(path)
+    if msg.type == "travel" :
+        pathTravelPublisher.publish(path)
+    if msg.type == "choregraphic" :
+        pathChoregraphicPublisher.publish(path)
 
 
 """ method to calculate the value of a point of a bezier curve 
