@@ -14,7 +14,8 @@ fi
 if [ "-p" = $2 ]; then
 	echo "no time sync because of arg -p"
 else
-	ssh odroid@$ROBOTS_BASE_IP$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate $ROS_MASTER_IP'
+	echo ""
+	#ssh odroid@$ROBOTS_BASE_IP$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate $ROS_MASTER_IP'
 fi
 
 # to set ros_master_uri IP

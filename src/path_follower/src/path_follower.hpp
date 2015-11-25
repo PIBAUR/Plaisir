@@ -6,7 +6,7 @@
 #include <std_msgs/Bool.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/PoseArray.h>
-#include <scenario_msgs/PathTravel.h>
+#include <scenario_msgs/PathPosition.h>
 #include <scenario_msgs/PathFeedback.h>
 #include <scenario_msgs/TimeAtPoseArray.h>
 
@@ -62,7 +62,7 @@ public:
     PathFollower(ros::NodeHandle nh);
     ~PathFollower(){};
 
-    void pathCB(const scenario_msgs::PathTravel &msg);
+    void pathCB(const scenario_msgs::PathPosition &msg);
     void computeCmd(double &lin, double &ang);
     void computeLastPointAngleCmd(double &lin, double &ang);
     float distanceToGoal(size_t index_goal);

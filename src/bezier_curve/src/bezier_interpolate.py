@@ -3,12 +3,11 @@
 import math
 import rospy
 from scenario_msgs.msg import Scenario as ScenarioMsg
-from scenario_msgs.msg import PathTravel as PathMsg
+from scenario_msgs.msg import PathPosition as PathPositionMsg
 from scenario_msgs.msg import TimeAtPose as TimeAtPoseMsg
 from scenario_msgs.msg import TimeAtPoseArray as TimeAtPoseArrayMsg
 from geometry_msgs.msg import Pose as PoseMsg
 from geometry_msgs.msg import Point as PointMsg
-from std_msgs.msg import Float64 as Float64Msg
 
 # consts
 DEFAULT_BEZIER_CURVE_STEP = .01
@@ -19,7 +18,7 @@ step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
 stepInMeter = rospy.get_param("bezier_curve_step_in_meter", DEFAULT_BEZIER_CURVE_STEP)
 
 def getPathAndDistanceFromMessage(msg, checkedChoregraphicPath):
-    path = PathMsg()
+    path = PathPositionMsg()
     
     path.uid = msg.uid
     path.path.poses = []
@@ -193,7 +192,7 @@ if __name__ == "__main__":
     
     rospy.Subscriber("scenario", ScenarioMsg, scenarioCallback)
     
-    pathTravelPublisher = rospy.Publisher("path_travel", PathMsg)
+    pathTravelPublisher = rospy.Publisher("path_travel", PathPositionMsg)
     
-    pathChoregraphicPublisher = rospy.Publisher("path_choregraphic", PathMsg)
+    pathChoregraphicPublisher = rospy.Publisher("path_choregraphic", PathPositionMsg)
     rospy.spin()

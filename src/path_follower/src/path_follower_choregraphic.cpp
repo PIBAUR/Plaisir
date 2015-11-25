@@ -1,6 +1,6 @@
 ///---ROS---////
 #include <ros/ros.h>
-#include <scenario_msgs/PathChoregraphic.h>
+#include <scenario_msgs/PathSpeed.h>
 #include <scenario_msgs/TwistStampedArray.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/Twist.h>
@@ -39,7 +39,7 @@ public:
     ChoregrahicPathFollower(ros::NodeHandle nh);
     ~ChoregrahicPathFollower(){};
 
-    void pathCB(const scenario_msgs::PathChoregraphic &msg);
+    void pathCB(const scenario_msgs::PathSpeed &msg);
     void getNewTwist();
     void publishRatio();
     void spinOnce();
@@ -64,7 +64,7 @@ ChoregrahicPathFollower::ChoregrahicPathFollower(ros::NodeHandle nh):
 
 
 
-void ChoregrahicPathFollower::pathCB(const scenario_msgs::PathChoregraphic &msg)
+void ChoregrahicPathFollower::pathCB(const scenario_msgs::PathSpeed &msg)
 {
 
     path_uid_ = msg.uid;
@@ -141,11 +141,23 @@ void ChoregrahicPathFollower::spinOnce()
         cmd.linear.x=linear_speed_;
         cmd.angular.z=angular_speed_;
         cmd_pub_.publish(cmd);
+
+		// publish ratio
+		if(cpt_>RATIO_PUBLISH_RATE_DIVIDOR)
+		{
+			publishRatio();
+			cpt_=0;
+		}
+		cpt_++;
     }
     else if(size_path_ > 0 && index_path_>=size_path_)
     {
         cmd_pub_.publish(cmd);
+
+		publishRatio();
+
         size_path_=-1;
+
 		ROS_INFO_STREAM("Path follower ended");
     }
     else if(size_path_ ==0)
@@ -154,14 +166,6 @@ void ChoregrahicPathFollower::spinOnce()
         size_path_=-1;
 		ROS_INFO_STREAM("Path follower received 0 sized path");
     }
-
-    // publish ratio
-	if(cpt_>RATIO_PUBLISH_RATE_DIVIDOR)
-	{
-		publishRatio();
-		cpt_=0;
-	}
-    cpt_++;
 }
 
 
@@ -170,7 +174,7 @@ int main(int argc, char** argv)
 	ros::init(argc, argv, "path_follower_choregraphic_node");
 	ros::NodeHandle nh;
 	ChoregrahicPathFollower cpf(nh);
-	ros::Subscriber path_sub = nh.subscribe("twist_path", 1, &ChoregrahicPathFollower::pathCB, &cpf);
+	ros::Subscriber path_sub = nh.subscribe("path_twist", 1, &ChoregrahicPathFollower::pathCB, &cpf);
 	ros::Rate loop(LOOP_RATE);
 
 	while(ros::ok())

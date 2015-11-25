@@ -3,8 +3,8 @@
 import math
 import rospy
 import tf
-from scenario_msgs.msg import PathTravel as PathTravelMsg
-from scenario_msgs.msg import PathChoregraphic as PathChoregraphicMsg
+from scenario_msgs.msg import PathPosition as PathPositionMsg
+from scenario_msgs.msg import PathSpeed as PathSpeedMsg
 from scenario_msgs.msg import TimeAtPose as TimeAtPoseMsg
 from scenario_msgs.msg import TimeAtPoseArray as TimeAtPoseArrayMsg
 from geometry_msgs.msg import Pose as PoseMsg
@@ -54,11 +54,12 @@ def getDistance(pose1, pose2):
 
 
 def createPathChoregraphic(msg):
-    pathMsg = PathChoregraphicMsg()
+    pathMsg = PathSpeedMsg()
     sequences = msg.time_at_poses.time_at_poses
     
     path = msg.path
     
+    pathMsg.uid = msg.uid
     startTime = pathMsg.start_timestamp = msg.start_timestamp
     
     nb_point = 0
@@ -122,8 +123,8 @@ def createPathChoregraphic(msg):
 if __name__ == "__main__":
     rospy.init_node('pose_to_twist', anonymous = False)
     
-    rospy.Subscriber("path_choregraphic", PathTravelMsg, pathCallback)
+    rospy.Subscriber("path_choregraphic", PathPositionMsg, pathCallback)
     
-    pathChoregraphicPublisher = rospy.Publisher("twist_path", PathChoregraphicMsg)
+    pathChoregraphicPublisher = rospy.Publisher("path_twist", PathSpeedMsg)
     
     rospy.spin()

@@ -34,7 +34,7 @@ PathFollower::PathFollower(ros::NodeHandle nh):
 
 
 
-void PathFollower::pathCB(const scenario_msgs::PathTravel &msg)
+void PathFollower::pathCB(const scenario_msgs::PathPosition &msg)
 {
 	path_uid_ = msg.uid;
     path_ = msg.path;
@@ -337,17 +337,28 @@ void PathFollower::spinOnce()
                 }
             }
         }
+
+        // publish ratio
+    	if(cpt_ > RATIO_PUBLISH_RATE_DIVIDOR)
+    	{
+    		publishRatio();
+    		cpt_=0;
+    	}
+		cpt_++;
     }
     else if(size_path_ > 0 && index_path_>=size_path_)
     {
         cmd.linear.x = 0;
         cmd.angular.z = 0;
         cmd_pub_.publish(cmd);
-        size_path_=-1;
+
+        publishRatio();
+
+        size_path_ = -1;
 
 		ROS_INFO_STREAM("Path follower ended");
     }
-    else if(size_path_ ==0)
+    else if(size_path_ == 0)
     {
         cmd.linear.x = 0;
         cmd.angular.z = 0;
@@ -356,14 +367,6 @@ void PathFollower::spinOnce()
 
 		ROS_INFO_STREAM("Path follower received 0 sized path");
     }
-
-    // publish ratio
-	if(cpt_>RATIO_PUBLISH_RATE_DIVIDOR)
-	{
-		publishRatio();
-		cpt_=0;
-	}
-    cpt_++;
 }
 
 

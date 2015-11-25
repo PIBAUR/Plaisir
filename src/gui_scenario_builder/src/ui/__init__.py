@@ -28,6 +28,7 @@ from sequences import Sequences
 
 class ScenarioEdition():
     ALL_LABEL = "tous"
+    scenarioUid = 0
     
     def __init__(self, scenarioFilePath = None, saveCallback = None, closeCallback = None):
         self.currentScenario = None
@@ -440,7 +441,10 @@ class ScenarioEdition():
                 robot = self.currentScenario.robots[scenarioRobotIndex]
                 
                 scenarioMsg = robot.getScenarioMsgWithParams(self.transformPositions[robotId], 1. / float(self.currentScenario.gridSize), self.transformOrientations[robotId], True, False, waitAfterStartTime)
-                    
+                
+                scenarioMsg.uid = ScenarioEdition.scenarioUid
+                ScenarioEdition.scenarioUid += 1
+                
                 #rospy.loginfo(str(scenarioMsg))
                 self.scenarioPublishers[robotId].publish(scenarioMsg)
                 
@@ -449,6 +453,9 @@ class ScenarioEdition():
                     break
         else:
             scenarioMsg = self.canvas.currentRobot.getScenarioMsgWithParams(self.transformPositions[robotId], 1. / float(self.currentScenario.gridSize), self.transformOrientations[robotId], True, False, waitAfterStartTime)
+            
+            scenarioMsg.uid = ScenarioEdition.scenarioUid
+            ScenarioEdition.scenarioUid += 1
                 
             #rospy.loginfo(str(scenarioMsg))
             self.scenarioPublishers[robotId].publish(scenarioMsg)

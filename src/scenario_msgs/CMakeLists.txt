@@ -56,14 +56,14 @@ add_message_files(
   Pose2DArray.msg
   Obstacle.msg
   ObstacleArray.msg
-  PathTravel.msg
+  PathPosition.msg
   PathFeedback.msg
   Sequence.msg
   SequenceArray.msg
   TimeAtPose.msg
   TimeAtPoseArray.msg
   TwistStampedArray.msg
-  PathChoregraphic.msg
+  PathSpeed.msg
 )
 
 
