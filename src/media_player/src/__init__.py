@@ -48,11 +48,12 @@ class MediaPlayer():
     def mediaCB(self, data):
         if self.mediaPlayerClientInitialized:
             # wait to play media
-            while True:
-                if rospy.Time.now().to_nsec() >= data.start_timestamp.to_nsec():
-                    break
-                else:
-                    time.sleep(.005)
+            if data.type == "choregraphic":
+                while True:
+                    if rospy.Time.now().to_nsec() >= data.start_timestamp.to_nsec():
+                        break
+                    else:
+                        time.sleep(.005)
             
             self.videoMedias = [mediaData for mediaData in data.medias.medias if mediaData.type == "video"]
             
@@ -66,6 +67,9 @@ class MediaPlayer():
                         rospy.logerr("Media '" + mediaPath + "' does not exist in the robot")
                 
                 self.browser.sendMedias(mediaPaths)
+            else:
+                rospy.loginfo("Pause video")
+                self.browser.sendPause()
         
     
     def pathFeedbackCB(self, data):

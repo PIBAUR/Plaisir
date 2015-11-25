@@ -102,7 +102,10 @@ def scenarioCallback(msg):
     
     if msg.type == "travel" :
         pathTravelPublisher.publish(path)
-    if msg.type == "choregraphic" :
+    elif msg.type == "choregraphic" :
+        pathChoregraphicPublisher.publish(path)
+    elif msg.type == "stop" :
+        pathTravelPublisher.publish(path)
         pathChoregraphicPublisher.publish(path)
 
 
@@ -193,6 +196,6 @@ if __name__ == "__main__":
     rospy.Subscriber("scenario", ScenarioMsg, scenarioCallback)
     
     pathTravelPublisher = rospy.Publisher("path_travel", PathPositionMsg)
-    
     pathChoregraphicPublisher = rospy.Publisher("path_choregraphic", PathPositionMsg)
+    
     rospy.spin()

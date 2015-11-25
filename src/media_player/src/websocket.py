@@ -13,6 +13,10 @@ class StreamingWebSocketServer(WebSocket):
         self.sendMessage("medias:" + ";;;".join(mediaPaths))
     
     
+    def sendPause(self):
+        self.sendMessage("pause")
+    
+    
     def executeScript(self, script):
         self.sendMessage("javascript:" + script)
     

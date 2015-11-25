@@ -18,6 +18,7 @@ class RobotManager():
         self.statePublisher = rospy.Publisher('state', StringMsg)
         self.stopPathFollowerPublisher = rospy.Publisher('scenario', ScenarioMsg)
         self.stopPathFollowerMsg = ScenarioMsg()
+        self.stopPathFollowerMsg.type = "stop"
         
         # states
         self.hasObstacle = False

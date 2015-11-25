@@ -21,8 +21,8 @@
 	<!-- GUI TOOLS -->
 	<!-- 
 	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init_global.rviz" />
 	 -->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init_global.rviz" />
 	
 	<!--
 	<node name="gui_scenario_db" pkg="gui_scenario_db" type="__init__.py" machine="$(env USER)"/>

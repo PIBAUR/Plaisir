@@ -91,6 +91,11 @@
 		document.getElementById(getOtherPlayer()).pause();
 	}
 	
+	function pauseCurrentVideo() {
+		var player = document.getElementById(currentPlayer);
+		player.pause();
+	}
+	
 	function getOtherPlayer() {
 		return currentPlayer == "video_0" ? "video_1" : "video_0";
 	}
@@ -122,10 +127,12 @@
 			if (message.indexOf("javascript:") == 0) {
 				log(message.substring(11));
 				eval(message.substring(11));
-			}
-			if (message.indexOf("medias:") == 0) {
+			} else if (message.indexOf("medias:") == 0) {
 				log(message.substring(7));
 				playVideos(message.substring(7).split(";;;"));
+			} else if (message == "pause") {
+				log("pause");
+				pauseCurrentVideo();
 			}
 		};
 		

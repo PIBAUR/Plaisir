@@ -1,7 +1,7 @@
 # uid
 int32 uid
 
-#timestamp pour le depart synchro des robots
+#timestamp pour le depart synchro des robots, uniquement pour les scenarios choregraphiques
 time start_timestamp
 
 # path
