@@ -300,7 +300,8 @@ class ScenarioDataBase():
     def handleScenarioEditionCloseEvent(self, scenarioFilePath):
         # enable row of closed scenario
         row = self.getRowFromScenarioFilePath(scenarioFilePath)
-        self.editingScenarios.remove(scenarioFilePath)
+        if scenarioFilePath in self.editingScenarios:
+            self.editingScenarios.remove(scenarioFilePath)
         self.setRowEnabled(row, True)
         
     

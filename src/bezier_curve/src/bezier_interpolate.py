@@ -10,11 +10,9 @@ from geometry_msgs.msg import Pose as PoseMsg
 from geometry_msgs.msg import Point as PointMsg
 
 # consts
-DEFAULT_BEZIER_CURVE_STEP = .01
-step = 0
+DEFAULT_BEZIER_CURVE_STEP = .001
 stepInMeter = 0
 
-step = rospy.get_param("bezier_curve_step", DEFAULT_BEZIER_CURVE_STEP)
 stepInMeter = rospy.get_param("bezier_curve_step_in_meter", DEFAULT_BEZIER_CURVE_STEP)
 
 def getPathAndDistanceFromMessage(msg, checkedChoregraphicPath):

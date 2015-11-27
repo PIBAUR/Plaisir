@@ -299,7 +299,7 @@ class Canvas(QWidget):
                 for nodeClass in nodesDict[nodeCategory]:
                     if nodeClass.nodeName != "":
                         menuAction = menu.addAction(nodeClass.nodeName)
-                        menuAction.triggered.connect(partial(self.handleMenuActionTriggered, nodeClass, "robot00", position))
+                        menuAction.triggered.connect(partial(self.handleMenuActionTriggered, nodeClass, Robot.DEFAULT_ROBOT_ID, position))
         
         menu.exec_(self.mapToGlobal(position))
     

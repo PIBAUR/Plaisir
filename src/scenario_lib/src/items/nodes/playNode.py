@@ -8,15 +8,11 @@ import tf
 from functools import partial
 
 from std_msgs.msg import String as StringMsg
-from std_msgs.msg import Header as HeaderMsg
 from std_msgs.msg import Bool as BoolMsg
-from scenario_msgs.msg import Path as PathMsg
 from scenario_msgs.msg import Scenario as ScenarioMsg
-from scenario_msgs.msg import BezierPath as BezierPathMsg
-from scenario_msgs.msg import BezierCurve as BezierCurveMsg
 
+from src.scenario_lib.src.items.robot import Robot
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
-from src.scenario_lib.src.items.nodes.choregraphicScenarioNode import ChoregraphicScenarioNode
 from src.scenario_lib.src.items.nodes.scenarioNode import ScenarioNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from PyQt4.Qt import QTimer
@@ -43,8 +39,13 @@ class PlayNode(DiagramNode):
         self.transformOrientation = (0, 0, 0, 1)
         
         # set ROS scenarioPublisher to publish scenarios
-        self.scenarioPublisher = rospy.Publisher("/" + self.robotId + "/scenario", ScenarioMsg)
-        self.freezePublisher = rospy.Publisher("/" + self.robotId + "/freeze", BoolMsg)
+        robotId = self.getNoDefaultRobotId()
+        if robotId is not None:
+            self.scenarioPublisher = rospy.Publisher("/" + robotId + "/scenario", ScenarioMsg)
+            self.freezePublisher = rospy.Publisher("/" + robotId + "/freeze", BoolMsg)
+        else:
+            self.scenarioPublisher = None
+            self.freezePublisher = None
         
         # set ROS subscriber to get informations from the robot
         if PlayNode.transformListener is None:
@@ -78,6 +79,8 @@ class PlayNode(DiagramNode):
         self.lookupTransformTimer.setSingleShot(True)
         self.lookupTransformTimer.timeout.connect(partial(self.getRobotTransform))
         self.lookupTransformTimer.start(200)
+    
+        #self.playButton.setEnabled(robotId is not None)
     
     
     def output(self):
@@ -117,10 +120,13 @@ class PlayNode(DiagramNode):
         
         
     def getRobotTransform(self):
-        try:
-            self.transformPosition, self.transformOrientation = self.transformListener.lookupTransform("/map", "/" + self.robotId + "/base_link", rospy.Time(0))
-        except Exception, e:
-            rospy.logerr(e)
+        robotId = self.getNoDefaultRobotId()
+        
+        if robotId is not None:
+            try:
+                self.transformPosition, self.transformOrientation = self.transformListener.lookupTransform("/map", "/" + robotId + "/base_link", rospy.Time(0))
+            except Exception, e:
+                rospy.logerr(e)
         
     
     def stop(self, withoutSendingFreeze = False):
@@ -128,7 +134,8 @@ class PlayNode(DiagramNode):
             # stop the robot
             freezeMsg = BoolMsg()
             freezeMsg.data = True
-            self.freezePublisher.publish(freezeMsg)
+            if self.freezePublisher is not None:
+                self.freezePublisher.publish(freezeMsg)
         
         super(PlayNode, self).stop()
         
@@ -186,7 +193,9 @@ class PlayNode(DiagramNode):
                 scenarioMsg.type = self.playingScenario.scenarioType
                 if self.playingScenario.checkedChoregraphicPath is not None:
                     scenarioMsg.checkedChoregraphicPath = self.playingScenario.checkedChoregraphicPath
-                self.scenarioPublisher.publish(scenarioMsg)
+                    
+                if self.scenarioPublisher is not None:
+                    self.scenarioPublisher.publish(scenarioMsg)
         except NodeException as error:
             self.playButton.setEnabled(True)
             self.stopButton.setEnabled(False)
@@ -196,6 +205,23 @@ class PlayNode(DiagramNode):
             error.nodeCausingErrror.widget.central_widget.setStyleSheet("#central_widget { background: #ff4c4c; }")
             
             self.stopAllScenarios()
+    
+    
+    def changeDefaultRobot(self):
+        if self.scenarioPublisher is not None:
+            self.scenarioPublisher.unregister()
+        
+        if self.freezePublisher is not None:
+            self.freezePublisher.unregister()
+        
+        robotId = self.getNoDefaultRobotId()
+        
+        self.playButton.setEnabled(False)
+        
+        if robotId is not None:
+            self.scenarioPublisher = rospy.Publisher("/" + robotId + "/scenario", ScenarioMsg)
+            self.freezePublisher = rospy.Publisher("/" + robotId + "/freeze", BoolMsg)
+            self.playButton.setEnabled(True)
     
     
     def handleThreadSafeTimer(self):

@@ -31,8 +31,8 @@ class ExecutionDiagram():
         self.canvas = Canvas(self.ui, self.changeCallback)
         self.ui.canvasContainer.layout().addWidget(self.canvas)
         
-        self.ui.switchToMultiRobots_button.clicked.connect(self.handleSwitchToMultiRobotsButtonClicked)
-        
+        self.ui.switchToMultiRobots_button.clicked.connect(partial(self.handleSwitchToMultiRobotsButtonClicked))
+        self.ui.defaultRobot_comboBox.currentIndexChanged.connect(partial(self.handleDefaultRobotComboBoxChanged))
         # menu
         self.ui.actionNew.triggered.connect(self.newDiagram)
         self.ui.actionOpen.triggered.connect(self.openDiagram)
@@ -56,6 +56,8 @@ class ExecutionDiagram():
         #self.loadDiagram(diagramToOpen)
         #self.lastChangesSaved = True
         #self.updateWindowTitle()
+        
+        self.handleDefaultRobotComboBoxChanged()
         
     
     # menu actions
@@ -119,9 +121,13 @@ class ExecutionDiagram():
         self.ui.setWindowTitle(u"Diagramme d'exécution - " + ("*" if not self.lastChangesSaved else "") + (self.currentFilePath if self.currentFilePath is not None else u"nouveau diagramme"))
         
     
-    def handleSwitchToMultiRobotsButtonClicked(self, *args):
+    def handleSwitchToMultiRobotsButtonClicked(self):
         self.canvas.switchToMultiRobots()
         
+        
+    def handleDefaultRobotComboBoxChanged(self):
+        for nodeInstance in self.canvas.nodesInstances:
+            nodeInstance.changeDefaultRobot()
         
     def resizeEvent(self, event = None):
         # canvas

@@ -16,23 +16,54 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout">
       <property name="topMargin">
        <number>0</number>
       </property>
       <item>
-       <widget class="QPushButton" name="switchToSingleRobot_button">
-        <property name="text">
-         <string>switch to single robot</string>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="topMargin">
+         <number>0</number>
         </property>
-       </widget>
+        <item>
+         <widget class="QPushButton" name="switchToSingleRobot_button">
+          <property name="text">
+           <string>switch to single robot</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="switchToMultiRobots_button">
+          <property name="text">
+           <string>switch to multi robots</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="switchToMultiRobots_button">
-        <property name="text">
-         <string>switch to multi robots</string>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="topMargin">
+         <number>0</number>
         </property>
-       </widget>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Robot test</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="defaultRobot_comboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -47,7 +78,7 @@
          <x>0</x>
          <y>0</y>
          <width>964</width>
-         <height>665</height>
+         <height>628</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout">

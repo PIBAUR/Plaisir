@@ -45,7 +45,7 @@ MD25::MD25() :
     odom_msg.twist.twist.angular.x = 0.0;
     odom_msg.twist.twist.angular.y = 0.0;
     publish_odom= nh_.advertise<nav_msgs::Odometry> ("odom", 50);
-    publish_batt= nh_.advertise<geometry_msgs::Vector3> ("md25_input_power", 1);
+    publish_batt= nh_.advertise<geometry_msgs::Vector3> ("md25_input_power", 10);
 
     /* tf */
     odom_tf.header.frame_id = frame_odom.str();
@@ -721,14 +721,16 @@ void MD25::stop()
 
 void MD25::get_battery_state()
 {
-    void get_current1();                     // Returns the current through motor 1.
-    void get_current2();                     // Returns the current through motor 2.
-    void get_volt();                         // Returns the input battery voltage level.
+    get_current1();                     // Returns the current through motor 1.
+    get_current2();                     // Returns the current through motor 2.
+    get_volt();                         // Returns the input battery voltage level.
 
     geometry_msgs::Vector3 battery_msg;
     battery_msg.x = volt;
     battery_msg.y = current[0];
     battery_msg.z = current[1];
+
+    publish_batt.publish(battery_msg);
 }
 
 

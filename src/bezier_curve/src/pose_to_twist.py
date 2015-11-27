@@ -5,14 +5,7 @@ import rospy
 import tf
 from scenario_msgs.msg import PathPosition as PathPositionMsg
 from scenario_msgs.msg import PathSpeed as PathSpeedMsg
-from scenario_msgs.msg import TimeAtPose as TimeAtPoseMsg
-from scenario_msgs.msg import TimeAtPoseArray as TimeAtPoseArrayMsg
-from geometry_msgs.msg import Pose as PoseMsg
 from geometry_msgs.msg import TwistStamped as TwistStampedMsg
-from geometry_msgs.msg import Point as PointMsg
-from std_msgs.msg import Float64 as Float64Msg
-from geometry_msgs.msg import Quaternion
-from scenario_msgs.msg import TwistStampedArray as TwistStampedArrayMsg
 
 
 def pathCallback(msg):

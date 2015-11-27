@@ -13,6 +13,7 @@ from PyQt4 import uic
 
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.robot import Robot
+from _mysql import result
 
 class DiagramNode(object):
     currentNodeId = 0
@@ -77,7 +78,7 @@ class DiagramNode(object):
         self.widget.title_label.mouseMoveEvent = self.titleMouseMoveEvent
         self.widget.title_label.mouseReleaseEvent = self.titleMouseReleaseEvent
         
-        self.widget.title_label.setText(self.robotId + " - " + self.__class__.nodeName)
+        self.widget.title_label.setText(self.__class__.nodeName)
         
         self.setTimelineValue(0)
         
@@ -153,7 +154,7 @@ class DiagramNode(object):
         self.isMasterMultiRobotsDisplay = True
         if type(self) != PlayNode:
             self.widget.central_widget.setEnabled(False)
-        self.widget.title_label.setText(self.widget.title_label.text().replace(self.robotId + " - ", ""))
+        self.widget.title_label.setText(self.widget.title_label.text())
         
         
     def stop(self):
@@ -337,7 +338,7 @@ class DiagramNode(object):
     def getDataFromInstance(self):
         nodeData = {}
         nodeData["id"] = self.id
-        nodeData["robotId"] = self.robotId
+        nodeData["robotId"] = Robot.DEFAULT_ROBOT_ID
         nodeData["class"] = self.__class__.__name__
         position = self.getWidgetAbsolutePosition()
         nodeData["position"] = (position.x(), position.y())
@@ -388,6 +389,21 @@ class DiagramNode(object):
     
     def getColorSet(self, inputIndex):
         return [Robot.getColor(inputIndex), Robot.getColor(inputIndex, 180)]
+        
+    
+    def getNoDefaultRobotId(self):
+        result = None
+        if False:#self.robotId == Robot.DEFAULT_ROBOT_ID:
+            if self.canvas.ui.defaultRobot_comboBox.currentIndex() >= 0:
+                result = self.canvas.ui.defaultRobot_comboBox.currentText()
+        else:
+            result = self.robotId
+        
+        return result
+    
+    
+    def changeDefaultRobot(self):
+        pass
         
         
     @staticmethod
