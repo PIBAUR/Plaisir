@@ -69,24 +69,24 @@ distance_obstacle_detection: 12
 
 ####################### PATH_FOLLOWER #######################
 # speed param (double)
-linear_speed_default: 0.20
-#angular_speed_max:
+linear_speed_default: 0.20 #m/s
+#angular_speed_max: #rad/s
 
-# coefficient for angular speed command : angular_speed_command = k_th * d_th
+# coefficient for angular speed command : angular_speed_command = k_th * angular_error
 #k_th: 3.0
 
-## if thresh_low < angular_command < thresh_hgih --> linear *= 0.2 (double)
+## if thresh_low < angular_error < thresh_hgih --> linear *= 0.2 (double)
 ## else if angular_command > thresh_hgih --> linear *= 0.0 
-#angle_thresh_low: 
-#angle_thresh_high:
+#angle_thresh_low: #radian
+#angle_thresh_high: #radian
 
 # linear distance thresh for going to next point (double)
-#next_point_distance_thresh
-#last_point_distance_thresh
+#next_point_distance_thresh: #meter
+#last_point_distance_thresh: #meter
 
 # angular distance thresh for last point only (double)
-#last_point_angle_thresh
-#k_th: 3.0
+last_point_angle_thresh: 0.034 #radian
+
 
 
 
