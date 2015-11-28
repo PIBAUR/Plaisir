@@ -9,10 +9,10 @@
 
 ///---CONSTANTS---///
 #define PI 3.14159265359
-#define LOOP_RATE 100.0
+#define LOOP_RATE 200.0
 #define ANGULAR_SPEED_MAX (PI)
 #define LINEAR_SPEED_MAX (1.0)
-#define RATIO_PUBLISH_RATE_DIVIDOR (6.0)
+#define RATIO_PUBLISH_RATE_DIVIDOR (20.0)
 
 class ChoregrahicPathFollower
 {
@@ -135,9 +135,16 @@ void ChoregrahicPathFollower::spinOnce()
 
     if(size_path_ > 0 && index_path_<size_path_)
     {
-        //while(next_twist_time_ < ros::Time::now() && index_path_<size_path_ && ros::ok())
-        if(next_twist_time_ < ros::Time::now())
-            getNewTwist();
+        for(int i_try = 0; i_try<10 ;i_try++)
+        {
+        	if(next_twist_time_ < ros::Time::now())
+        		getNewTwist();
+        	else
+        		break;
+        }
+    	//while(next_twist_time_ < ros::Time::now() && index_path_<size_path_ && ros::ok())
+        //if(next_twist_time_ < ros::Time::now())
+            //getNewTwist();
         cmd.linear.x=linear_speed_;
         cmd.angular.z=angular_speed_;
         cmd_pub_.publish(cmd);
