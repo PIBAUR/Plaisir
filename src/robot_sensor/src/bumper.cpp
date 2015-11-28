@@ -29,7 +29,7 @@ struct GPIO_TABLE{
 		std::map<int,int> m;
 		m[13]=309;
 		m[14]=316; // none working...?
-		m[15]=306;
+		m[15]=306;VDD_IO(1.8V)
 		m[16]=304;
 		m[17]=310;
 		m[18]=307;
@@ -266,10 +266,10 @@ int main (int argc, char** argv)
     ros::NodeHandle nh;
 
     std::vector<unsigned int> pins;
-    pins.push_back(26);
-    pins.push_back(24);
-    pins.push_back(23);
-    pins.push_back(22);
+    pins.push_back(13);
+    //pins.push_back(24);
+    //pins.push_back(23);
+    //pins.push_back(22);
     Bumpers bumpers_sensor(pins);
     bumpers_sensor.spin();
 
