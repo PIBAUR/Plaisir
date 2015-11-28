@@ -214,14 +214,14 @@ bool PathFinding::serviceCB(path_finding::PathFinding::Request  &req,
         res.path.poses.push_back(p);
     }
 
-    // Add a point if path size == 1
-    if(path_bis.size()==1)
+    // Add target pose to path
+    if(path_bis.size()>0)
     {
-    	 geometry_msgs::Pose2D p2;
-         p2.x =   req.target.x ; // convert pixel in meter
-         p2.y =  req.target.y ;
-         p2.theta=theta_robot_des;
-         res.path.poses.push_back(p2);
+   		geometry_msgs::Pose2D p2;
+	    p2.x = req.target.x ; // convert pixel in meter
+    	p2.y = req.target.y ;
+	    p2.theta = req.target.theta;
+    	res.path.poses.push_back(p2);
     }
     time=(ros::Time::now()-second).toSec();
     ROS_INFO_STREAM("Path_finding duration :"<<" "<<time);

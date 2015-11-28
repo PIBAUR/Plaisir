@@ -20,10 +20,10 @@
 #define ANGLE_THRESH_LOW (PI/10.0)
 #define ANGLE_THRESH_HIGH (PI/4.0)
 #define LINEAR_SPEED_DEFAULT (0.20)
-#define INIT_DU 10.0
 #define NEXT_POINT_DISTANCE_THRESH 0.05
 #define LAST_POINT_DISTANCE_THRESH 0.05
 #define LAST_POINT_ANGLE_THRESH (PI/36.0) // PI/36 rad = 5°
+#define INIT_DU 10.0
 #define RATIO_PUBLISH_RATE_DIVIDOR (6.0)
 
 class PathFollower
@@ -42,7 +42,7 @@ protected:
     int size_path_;
 
     double first_du_;
-    double du_;
+    double du_;a point if path size == 1
     double dth_;
 
     double linear_speed_default_;

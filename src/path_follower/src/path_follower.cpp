@@ -95,7 +95,7 @@ void PathFollower::computeCmd(double &lin, double &ang)
     dx = x_des - x_robot;
     dy = y_des - y_robot;
 
-    if(du_ == INIT_DU)
+    if(du_ == INIT_DU)a point if path size == 1
         first_du_ = du_;
     du_=sqrt(dx*dx+dy*dy);
     alpha = atan2(dy,dx);
@@ -156,7 +156,7 @@ void PathFollower::computeLastPointAngleCmd(double &lin, double &ang)
     while(dth_>=PI)
         dth_-=2*PI;
 
-    ang = dth_ * K_TH / 2.0;
+    ang = dth_ / 2.0;
     if(ang > angular_speed_max_)
         ang = angular_speed_max_;
     else if(ang < -angular_speed_max_)
