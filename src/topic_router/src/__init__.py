@@ -23,7 +23,20 @@ class TopicRouter():
 
     def pathCB(self, msg):
         self.pathVizPublisher.publish(PoseArrayMsg(header = HeaderMsg(frame_id = "/map"), poses = msg.path.poses))
-        
+        #TODO: remove some pose in path if size(path) > SIZE_MAX
+        """
+        size_array = len(msg.path.poses)
+        if size_array<250 :
+            self.pathVizPublisher.publish(PoseArrayMsg(header = HeaderMsg(frame_id = "/map"), poses = msg.path.poses))
+        else:
+            poseArray = PoseArrayMsg()
+            for i in range(250):
+                index = int(round(float(i*size_array)/250.0))
+                if index < 250 :
+                    poseArray.poses.append(msg.path.poses[index])
+            
+            self.pathVizPublisher.publish(PoseArrayMsg(header = HeaderMsg(frame_id = "/map"), poses = poseArray.poses))
+        """
         
     def clickedPointCB(self, msg):
         obstacleArrayMsg = ObstacleArrayMsg()
