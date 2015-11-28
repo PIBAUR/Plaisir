@@ -95,7 +95,7 @@ void PathFollower::computeCmd(double &lin, double &ang)
     dx = x_des - x_robot;
     dy = y_des - y_robot;
 
-    if(du_ == INIT_DU)a point if path size == 1
+    if(du_ == INIT_DU)
         first_du_ = du_;
     du_=sqrt(dx*dx+dy*dy);
     alpha = atan2(dy,dx);

@@ -42,7 +42,7 @@ protected:
     int size_path_;
 
     double first_du_;
-    double du_;a point if path size == 1
+    double du_;
     double dth_;
 
     double linear_speed_default_;
