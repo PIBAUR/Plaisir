@@ -12,6 +12,25 @@ PathFollower::PathFollower(ros::NodeHandle nh):
     cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
     ratio_pub_ = nh_.advertise<scenario_msgs::PathFeedback>("path_feedback", 1);
 
+    /*** get rosparam ***/
+	nh_.param<double>("/linear_speed_default", linear_speed_default_, LINEAR_SPEED_DEFAULT);
+	nh_.param<double>("/angular_speed_max", angular_speed_max_, ANGULAR_SPEED_MAX);
+	nh_.param<double>("/angle_thresh_low", angle_thresh_low_, ANGLE_THRESH_LOW);
+	nh_.param<double>("/angle_thresh_high", angle_thresh_high_, ANGLE_THRESH_HIGH);
+	nh_.param<double>("/next_point_distance_thresh", next_point_distance_thresh_, NEXT_POINT_DISTANCE_THRESH);
+	nh_.param<double>("/last_point_distance_thresh", last_point_distance_thresh_, LAST_POINT_DISTANCE_THRESH);
+	nh_.param<double>("/last_point_angle_thresh", last_point_angle_thresh_, LAST_POINT_ANGLE_THRESH);
+	nh_.param<double>("/k_th", k_th_, K_TH);
+	ROS_INFO_STREAM("Init path_follower with param :\n"
+					<<"\t linear_speed_default = "<<linear_speed_default_<<"\n"
+					<<"\t angular_speed_max = "<<angular_speed_max_<<"\n"
+					<<"\t angle_thresh_low = "<<angle_thresh_low_<<"\n"
+					<<"\t angle_thresh_high = "<<angle_thresh_high_<<"\n"
+					<<"\t next_point_distance_thresh = "<<next_point_distance_thresh_<<"\n"
+					<<"\t last_point_distance_thresh = "<<last_point_distance_thresh_<<"\n"
+					<<"\t last_point_angle_thresh = "<<last_point_angle_thresh_
+					<<"\t k_th = "<<k_th_);
+
     std::string tf_prefix;
     std::stringstream frame;
 
@@ -89,24 +108,23 @@ void PathFollower::computeCmd(double &lin, double &ang)
 	while(dth>=PI)
 		dth-=2*PI;
 
-	ang=dth*K_TH;
-	lin=LINEAR_SPEED_DEFAULT;
+	ang=dth*k_th_;
+	lin=linear_speed_default_;
 
 
 
-	if(fabs(dth) > ANGLE_THRESH_HIGH)
+	if(fabs(dth) > angle_thresh_high_)
 		lin *= 0.00;
-	else if(fabs(dth) > ANGLE_THRESH_LOW)
+	else if(fabs(dth) > angle_thresh_low_)
 		lin *= 0.2;
 
-	if(ang>ANGULAR_SPEED_MAX)
-		ang = ANGULAR_SPEED_MAX;
-	else if(ang < -ANGULAR_SPEED_MAX)
-		ang = -ANGULAR_SPEED_MAX;
+	if(ang>angular_speed_max_)
+		ang = angular_speed_max_;
+	else if(ang < -angular_speed_max_)
+		ang = -angular_speed_max_;
 
 	ROS_DEBUG_STREAM("du = "<< du_<< "  | dth " << dth<< "  | alpha " << alpha
 						<< "  | index_path_ " << index_path_ << "  | ang " << ang);
-	//lin = 0.0;
 }
 
 
@@ -139,10 +157,10 @@ void PathFollower::computeLastPointAngleCmd(double &lin, double &ang)
         dth_-=2*PI;
 
     ang = dth_ * K_TH / 2.0;
-    if(ang > ANGULAR_SPEED_MAX)
-        ang = ANGULAR_SPEED_MAX;
-    else if(ang < -ANGULAR_SPEED_MAX)
-        ang = -ANGULAR_SPEED_MAX;
+    if(ang > angular_speed_max_)
+        ang = angular_speed_max_;
+    else if(ang < -angular_speed_max_)
+        ang = -angular_speed_max_;
 
     lin=0.0;
 }
@@ -150,7 +168,7 @@ void PathFollower::computeLastPointAngleCmd(double &lin, double &ang)
 
 void PathFollower::publishRatio()
 {
-	double ratio_to_next = (du_ - NEXT_POINT_DISTANCE_THRESH) / (first_du_ - NEXT_POINT_DISTANCE_THRESH);
+	double ratio_to_next = (du_ - next_point_distance_thresh_) / (first_du_ - next_point_distance_thresh_);
 
 	scenario_msgs::PathFeedback pathFeedback;
 	pathFeedback.uid = path_uid_;
@@ -171,13 +189,13 @@ void PathFollower::spinOnce()
 	{
 		if(index_path_ == size_path_-1)
 		{
-			if(du_ > LAST_POINT_DISTANCE_THRESH)
+			if(du_ > last_point_distance_thresh_)
 				computeCmd(cmd.linear.x, cmd.angular.z);
-			else if(dth_ > LAST_POINT_ANGLE_THRESH)
+			else if(dth_ > last_point_angle_thresh_)
 				computeLastPointAngleCmd(cmd.linear.x, cmd.angular.z);
 			cmd_pub_.publish(cmd);
 		}
-		else if( du_ > NEXT_POINT_DISTANCE_THRESH)
+		else if( du_ > next_point_distance_thresh_)
 		{
 			computeCmd(cmd.linear.x, cmd.angular.z);
 			cmd_pub_.publish(cmd);

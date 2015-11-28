@@ -19,8 +19,6 @@
 #define ANGULAR_SPEED_MAX (PI/2.0)
 #define ANGLE_THRESH_LOW (PI/10.0)
 #define ANGLE_THRESH_HIGH (PI/4.0)
-#define LINEAR_SPEED_MAX (0.5)
-#define LINEAR_SPEED_MIN (0.01)
 #define LINEAR_SPEED_DEFAULT (0.20)
 #define INIT_DU 10.0
 #define NEXT_POINT_DISTANCE_THRESH 0.05
@@ -46,6 +44,15 @@ protected:
     double first_du_;
     double du_;
     double dth_;
+
+    double linear_speed_default_;
+    double angular_speed_max_;
+    double angle_thresh_low_;
+    double angle_thresh_high_;
+    double next_point_distance_thresh_;
+    double last_point_distance_thresh_;
+    double last_point_angle_thresh_;
+    double k_th_;
 
     int cpt_;
 

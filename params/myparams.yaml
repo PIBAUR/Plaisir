@@ -66,3 +66,27 @@ diametre_robot: 60
 ## distance de détection de l'obstacle en centimètres à partir de la largeur du robot
 distance_obstacle_detection: 12
 
+
+####################### PATH_FOLLOWER #######################
+# speed param (double)
+linear_speed_default: 0.20
+#angular_speed_max:
+
+# coefficient for angular speed command : angular_speed_command = k_th * d_th
+#k_th: 3.0
+
+## if thresh_low < angular_command < thresh_hgih --> linear *= 0.2 (double)
+## else if angular_command > thresh_hgih --> linear *= 0.0 
+#angle_thresh_low: 
+#angle_thresh_high:
+
+# linear distance thresh for going to next point (double)
+#next_point_distance_thresh
+#last_point_distance_thresh
+
+# angular distance thresh for last point only (double)
+#last_point_angle_thresh
+#k_th: 3.0
+
+
+
