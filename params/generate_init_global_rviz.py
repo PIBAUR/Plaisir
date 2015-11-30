@@ -1,10 +1,22 @@
-Panels:
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+
+robots = sys.argv[1:]
+
+config = """Panels:
   - Class: rviz/Displays
     Help Height: 78
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /robot011
+      Expanded:"""
+
+for robot in robots:
+    config += "\n        - /" + robot + "1"
+    
+config += """
       Splitter Ratio: 0.652866
     Tree Height: 775
   - Class: rviz/Selection
@@ -63,7 +75,10 @@ Visualization Manager:
       Enabled: true
       Name: Map
       Topic: /map
-      Value: true
+      Value: true"""
+
+for robot in robots:
+    config += """
     - Class: rviz/Group
       Displays:
         - Angle Tolerance: 0.05
@@ -72,23 +87,23 @@ Visualization Manager:
           Enabled: true
           Keep: 300
           Length: 0.1
-          Name: robot01/Odom
+          Name: """ + robot + """/Odom
           Position Tolerance: 0.05
-          Topic: /robot01/odom
+          Topic: /""" + robot + """/odom
           Value: true
         - Arrow Length: 0.3
           Class: rviz/PoseArray
           Color: 0; 255; 255
           Enabled: true
-          Name: robot01/ParticulesAMCL
-          Topic: /robot01/particlecloud
+          Name: """ + robot + """/ParticulesAMCL
+          Topic: /""" + robot + """/particlecloud
           Value: true
         - Arrow Length: 0.2
           Class: rviz/PoseArray
           Color: 170; 0; 255
           Enabled: true
-          Name: robot01/Path
-          Topic: /robot01/path_viz
+          Name: """ + robot + """/Path
+          Topic: /""" + robot + """/path_viz
           Value: true
         - Alpha: 1
           Autocompute Intensity Bounds: true
@@ -108,14 +123,14 @@ Visualization Manager:
           Max Intensity: 46
           Min Color: 0; 0; 0
           Min Intensity: 9
-          Name: robot01/LaserScan
+          Name: """ + robot + """/LaserScan
           Position Transformer: XYZ
           Queue Size: 10
           Selectable: true
           Size (Pixels): 3
           Size (m): 0.05
           Style: Spheres
-          Topic: /robot01/scan
+          Topic: /""" + robot + """/scan
           Use Fixed Frame: true
           Use rainbow: true
           Value: true
@@ -126,27 +141,29 @@ Visualization Manager:
             All Enabled: true
             map:
               Value: true
-            robot01/base_laser_link:
+            """ + robot + """/base_laser_link:
               Value: true
-            robot01/base_link:
+            """ + robot + """/base_link:
               Value: true
-            robot01/odom:
+            """ + robot + """/odom:
               Value: true
           Marker Scale: 1
-          Name: robot01/TF
+          Name: """ + robot + """/TF
           Show Arrows: true
           Show Axes: true
           Show Names: true
           Tree:
             map:
-              robot01/odom:
-                robot01/base_link:
-                  robot01/base_laser_link:
+              """ + robot + """/odom:
+                """ + robot + """/base_link:
+                  """ + robot + """/base_laser_link:
                     {}
           Update Interval: 0
           Value: true
       Enabled: true
-      Name: robot01
+      Name: """ + robot + """"""
+      
+config += """
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -203,3 +220,9 @@ Window Geometry:
   Width: 1920
   X: 1913
   Y: 24
+"""
+
+if __name__ == "__main__":
+    configFile = open(os.path.expanduser("~") + "/catkin_ws/params/init_global.rviz", "w")
+    configFile.write(config)
+    configFile.close()

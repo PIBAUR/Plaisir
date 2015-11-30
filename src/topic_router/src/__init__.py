@@ -1,64 +1,68 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+""" --------------------------------------------------------------------
+    TO CHANGE DEPENDING ON THE PACKAGE:
+    DON'T FORGET TO CREATE AN launch/eclipse.launch WITH THE CORRECT PACKAGE
+"""
+NODE_NAME = "topic_router"
+""" -------------------------------------------------------------------- """
+
+import sys
+import os
+import signal
+
+import rospkg
+from rospkg.common import ResourceNotFound
+try:
+    packagePath = rospkg.RosPack().get_path(NODE_NAME)
+    pathToAdd = packagePath.split(os.path.sep)[0:-2]
+    sys.path.append(os.path.sep.join(pathToAdd))
+except ResourceNotFound:
+    pass
+
 import rospy
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 
-from std_msgs.msg import Header as HeaderMsg
-from geometry_msgs.msg import PointStamped as PointStampedMsg
-from geometry_msgs.msg import Pose2D as Pose2DMsg
-from geometry_msgs.msg import PoseArray as PoseArrayMsg
-from scenario_msgs.msg import Scenario as ScenarioMsg
-from scenario_msgs.msg import PathPosition as PathPositionMsg
-from scenario_msgs.msg import Obstacle as ObstacleMsg
-from scenario_msgs.msg import ObstacleArray as ObstacleArrayMsg
 
-class TopicRouter():
-    def __init__(self):
-        self.clickedPointSubscriber = rospy.Subscriber('/clicked_point', PointStampedMsg, self.clickedPointCB)
-        self.pathTravelSubscriber = rospy.Subscriber('path_travel', PathPositionMsg, self.pathCB)
-        self.pathChoregraphicSubscriber = rospy.Subscriber('path_choregraphic', PathPositionMsg, self.pathCB)
-        self.obstaclesPublisher = rospy.Publisher('/obstacles', ObstacleArrayMsg)
-        
-        self.pathVizPublisher = rospy.Publisher('path_viz', PoseArrayMsg)
+DEBUG_WITH_ROS = True
+DEBUG_SERVER = "-sever-debug" in sys.argv
 
-    def pathCB(self, msg):
-        self.pathVizPublisher.publish(PoseArrayMsg(header = HeaderMsg(frame_id = "/map"), poses = msg.path.poses))
-        #TODO: remove some pose in path if size(path) > SIZE_MAX
-        """
-        size_array = len(msg.path.poses)
-        if size_array<250 :
-            self.pathVizPublisher.publish(PoseArrayMsg(header = HeaderMsg(frame_id = "/map"), poses = msg.path.poses))
-        else:
-            poseArray = PoseArrayMsg()
-            for i in range(250):
-                index = int(round(float(i*size_array)/250.0))
-                if index < 250 :
-                    poseArray.poses.append(msg.path.poses[index])
-            
-            self.pathVizPublisher.publish(PoseArrayMsg(header = HeaderMsg(frame_id = "/map"), poses = poseArray.poses))
-        """
-        
-    def clickedPointCB(self, msg):
-        obstacleArrayMsg = ObstacleArrayMsg()
-        obstacleArrayMsg.header.frame_id = "/map"
-        
-        if msg.header.frame_id == "null":
-            rospy.loginfo("Received remove clicked point")
-        else:
-            rospy.loginfo("Received clicked point")
-            obstacleMsg = ObstacleMsg(id = 54, x = msg.point.x, y = msg.point.y, radius = .3)
-            obstacleArrayMsg.header.frame_id = "/map"
-            obstacleArrayMsg.obstacles = [obstacleMsg]
-        
-        rospy.loginfo(obstacleArrayMsg)
-        self.obstaclesPublisher.publish(obstacleArrayMsg)
-            
-        
-                 
+def sigintHandler(*args):
+    """ Handler for the SIGINT signal. """
+    sys.stderr.write('\r')
+    QApplication.quit()
+    
+    
 if __name__ == '__main__':
-    # ros node
-    rospy.init_node('topic_router', log_level = rospy.INFO)
+    # debug
+    if DEBUG_WITH_ROS:
+        import src.launch_utils.src as launch_utils
+        if "-eclipse-debug" in sys.argv:
+            launch_utils.launchRosNode(NODE_NAME, "eclipse.launch")
+        else:
+            if DEBUG_SERVER:
+                launch_utils.launchDebug()
     
-    TopicRouter()
+    # run
+    signal.signal(signal.SIGINT, sigintHandler)
     
-    rospy.spin()
+    try:
+        if DEBUG_WITH_ROS:
+            rospy.init_node(NODE_NAME, anonymous = True)
+        
+        app = QApplication(sys.argv)
+        
+        """ -----------------------------------
+        TO CHANGE DEPENDING ON THE PACKAGE:
+        """
+        from topicRouter import TopicRouter
+        
+        main = TopicRouter()
+        rospy.spin()
+        """ ----------------------------------- """
+        
+        sys.exit(app.exec_())
+    except rospy.ROSInterruptException:
+        pass
