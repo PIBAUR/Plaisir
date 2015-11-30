@@ -1,0 +1,8 @@
+<launch>
+	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
+	
+	<!-- 
+	<node name="topic_router" pkg="topic_router" type="__init__.py" output="screen" args="-sever-debug route_type:=PointStampedMsg_to_ObstacleArrayMsg route_topic_from:=/clicked_points route_topic_to:=/obstacles"/>
+	 -->
+	<node name="topic_router" pkg="topic_router" type="__init__.py" output="screen" args="-sever-debug route_type:=ScenarioMsg_to_PoseArrayMsg route_topic_from:=/robot01/scenario route_topic_to:=/robot01/path_viz"/>
+</launch>

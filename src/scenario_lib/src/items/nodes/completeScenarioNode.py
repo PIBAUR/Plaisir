@@ -104,7 +104,7 @@ class CompleteScenarioNode(DiagramNode):
                 args["targetOrientation"] = tf.transformations.euler_from_quaternion([firstCheckedPathPose.orientation.x, firstCheckedPathPose.orientation.y, firstCheckedPathPose.orientation.z, firstCheckedPathPose.orientation.w])[-1]
                 
                 # store checked path to execute it for choregraphic one
-                self.checkedChoregraphicPath = checkResult.path_result
+                self.checkedChoregraphicPath = checkResult.path_result#TODO: n'envoyer que s'il y a eu un changement
             else:
                 # don't execute this node
                 self.stopExecution()
