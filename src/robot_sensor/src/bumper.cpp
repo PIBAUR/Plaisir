@@ -29,7 +29,7 @@ struct GPIO_TABLE{
 		std::map<int,int> m;
 		m[13]=309;
 		m[14]=316; // none working...?
-		m[15]=306;VDD_IO(1.8V)
+		m[15]=306;
 		m[16]=304;
 		m[17]=310;
 		m[18]=307;
