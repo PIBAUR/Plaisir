@@ -18,6 +18,26 @@ from scenario_msgs.msg import Scenario as ScenarioMsg
 from scenario_msgs.msg import PathFeedback as PathFeedbackMsg
 
 
+class CheckMediaSyncThread(Thread):
+    def __init__(self, checkMediaSyncCallback):
+        super(CheckMediaSyncThread, self).__init__()
+        self.toKill = False
+        self.checkMediaSyncCallback = checkMediaSyncCallback
+        
+    
+    def kill(self):
+        self.toKill = True
+        
+        
+    def run(self):
+        while True:
+            if self.toKill:
+                break
+            
+            self.checkMediaSyncCallback()
+            time.sleep(.5)
+        
+    
 class MediaPlayer():
     def __init__(self):
         self.currentPlayer = "video_0"
@@ -27,6 +47,7 @@ class MediaPlayer():
         self.mediaPlayerClientInitialized = False
         
         self.browser = None
+        self.startTimestamp = None
         
         # load html file
         mediaPlayerUrl = "file://" + os.path.split(os.path.abspath(__file__))[0] + "/media_player.html"
@@ -37,7 +58,18 @@ class MediaPlayer():
         self.webSocketServer = SimpleWebSocketServer("127.0.0.1", 9001, StreamingWebSocketServer, self.handleBrowserMessageReceived)
         Thread(target = self.webSocketServer.serveforever).start()
         
+        self.checkMediaSyncThread = CheckMediaSyncThread(self.checkMediaSync)
+        self.checkMediaSyncThread.start()
+        
     
+    def checkMediaSync(self):
+        if self.startTimestamp is not None:
+            if self.browser is not None:
+                playerTime = (rospy.Time.now().to_nsec() - self.startTimestamp.to_nsec()) / 1000000000.
+                if playerTime > 0:
+                    self.browser.sendRosTime(playerTime)
+        
+        
     def handleBrowserMessageReceived(self, message, browser = None):
         if message == "media_player_client_initialized":
             self.mediaPlayerClientInitialized = True
@@ -49,12 +81,16 @@ class MediaPlayer():
         if self.mediaPlayerClientInitialized:
             # wait to play media
             if data.type == "choregraphic":
+                self.startTimestamp = data.start_timestamp
+                
                 while True:
-                    if rospy.Time.now().to_nsec() >= data.start_timestamp.to_nsec():
+                    if rospy.Time.now().to_nsec() >= self.startTimestamp.to_nsec():
                         break
                     else:
                         time.sleep(.005)
-            
+            else:
+                self.startTimestamp = None
+                
             self.videoMedias = [mediaData for mediaData in data.medias.medias if mediaData.type == "video"]
             
             mediaPaths = [videoMediaData.path for videoMediaData in self.videoMedias]
@@ -79,6 +115,7 @@ class MediaPlayer():
     
     def destroy(self):
         self.webSocketServer.close()
+        self.checkMediaSyncThread.kill()
                 
     
 if __name__ == '__main__':

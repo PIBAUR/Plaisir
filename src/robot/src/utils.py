@@ -6,17 +6,18 @@ import sys
 
 def setROSEnv():
     baseDir = os.path.expanduser('~')
-    IP = "192.168.1.150"
+    
+    ip = os.popen("bash ~/catkin_ws/params/echo_this_ip.sh").read().replace("\n", "").replace("\\n", "")
     distro = "hydro"
     
     os.environ["PYTHONPATH"] = baseDir + "/catkin_ws/devel/lib/python2.7/dist-packages:/opt/ros/" + distro + "/lib/python2.7/dist-packages"
     os.environ["ROS_DISTRO"] = distro
     os.environ["ROS_ETC_DIR"] = "/opt/ros/" + distro + "/etc/ros"
     os.environ["ROS_HOME"] = baseDir + "/.ros"
-    os.environ["ROS_HOSTNAME"] = IP
-    os.environ["ROS_IP"] = IP
+    os.environ["ROS_HOSTNAME"] = ip
+    os.environ["ROS_IP"] = ip
     os.environ["ROS_LOG_DIR"] = baseDir + "/.ros/log"
-    os.environ["ROS_MASTER_URI"] = "http://" + IP + ":11311"
+    os.environ["ROS_MASTER_URI"] = "http://" + ip + ":11311"
     os.environ["ROS_PACKAGE_PATH"] = baseDir + "/catkin_ws/src:/opt/ros/" + distro + "/share:/opt/ros/" + distro + "/stacks"
     os.environ["ROS_ROOT"] = "/opt/ros/" + distro + "/share/ros"
     os.environ["ROS_TEST_RESULTS_DIR"] = baseDir + "/catkin_ws/build/test_results"

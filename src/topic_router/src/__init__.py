@@ -22,8 +22,6 @@ except ResourceNotFound:
     pass
 
 import rospy
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 
 
 DEBUG_WITH_ROS = True
@@ -32,7 +30,6 @@ DEBUG_SERVER = "-sever-debug" in sys.argv
 def sigintHandler(*args):
     """ Handler for the SIGINT signal. """
     sys.stderr.write('\r')
-    QApplication.quit()
     
     
 if __name__ == '__main__':
@@ -52,8 +49,6 @@ if __name__ == '__main__':
         if DEBUG_WITH_ROS:
             rospy.init_node(NODE_NAME, anonymous = True)
         
-        app = QApplication(sys.argv)
-        
         """ -----------------------------------
         TO CHANGE DEPENDING ON THE PACKAGE:
         """
@@ -61,8 +56,7 @@ if __name__ == '__main__':
         
         main = TopicRouter()
         rospy.spin()
+            
         """ ----------------------------------- """
-        
-        sys.exit(app.exec_())
     except rospy.ROSInterruptException:
         pass
