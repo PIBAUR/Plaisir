@@ -83,7 +83,10 @@ class Media():
     
     @staticmethod
     def getDurationOfVideo(filePath):
-        return float(os.popen("ffprobe " + filePath + " -show_format -v quiet | sed -n 's/duration=//p'").read())
+        try:
+            return float(os.popen("ffprobe " + filePath + " -show_format -v quiet | sed -n 's/duration=//p'").read())
+        except:
+            return -1
     
     
     @staticmethod

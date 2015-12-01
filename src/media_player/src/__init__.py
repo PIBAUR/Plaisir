@@ -84,7 +84,7 @@ class MediaPlayer():
                 self.startTimestamp = data.start_timestamp
                 
                 while True:
-                    if rospy.Time.now().to_nsec() >= self.startTimestamp.to_nsec():
+                    if self.startTimestamp is not None and rospy.Time.now().to_nsec() >= self.startTimestamp.to_nsec():
                         break
                     else:
                         time.sleep(.005)

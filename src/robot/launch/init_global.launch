@@ -18,14 +18,14 @@
 	
 	<!-- GUI TOOLS -->
 	<!-- 
-	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
 	
 	<node name="gui_execution_diagram" pkg="gui_execution_diagram" type="__init__.py" machine="$(env USER)">
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
 		<remap from="scenario" to="robot$(arg robot)/scenario"/>
 	</node>
-	-->
 	<node name="gui_scenario_db" pkg="gui_scenario_db" type="__init__.py" machine="$(env USER)"/>
+	-->
+	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>	
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/catkin_ws/params/init_global.rviz" />
 	
     <!-- SIMULATION ENVIRONMENT -->
@@ -36,7 +36,7 @@
 	-->
 	
 	<!-- DEBUG TOOLS -->
-   	<node name="topic_router" pkg="topic_router" type="__init__.py" output="screen" args="-sever-debug route_type:=PointStampedMsg_to_ObstacleArrayMsg route_topic_from:=/clicked_points route_topic_to:=/obstacles"/>
+   	<node name="topic_router" pkg="topic_router" type="__init__.py" output="screen" args="route_type:=PointStampedMsg_to_ObstacleArrayMsg route_topic_from:=/clicked_point route_topic_to:=/obstacles"/>
    	
 	<!-- ROBOTS -->
 	<include file="$(find robot)/launch/init_robot.launch" if="$(env LAUNCH_ROBOT00)"><arg name="robot" value="00"/></include>

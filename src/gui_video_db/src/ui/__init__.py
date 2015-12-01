@@ -134,7 +134,8 @@ class VideoDatabase():
                                     videoDuration = str(Media.getDurationOfVideo(video["path"]))
                                     self.videoDurations[videoFilePath] = videoDuration
                                 videoDurationSplitted = videoDuration.split(".")
-                                videoDuration = videoDurationSplitted[0] + "," + videoDurationSplitted[1][:2] + " s"
+                                if len(videoDurationSplitted) > 1:
+                                    videoDuration = videoDurationSplitted[0] + "," + videoDurationSplitted[1][:2] + " s"
                                 video["duration"] = videoDuration
                             else:
                                 video["duration"] = "?"

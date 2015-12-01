@@ -59,8 +59,8 @@ class VisitorNode(DiagramNode):
     def updateRatio(self, inputRatio, paused):
         if inputRatio >= 1 or paused:
             # reset visitor once finished
-            if self.visitor is not None and self.inputIndex == 0:
-                self.handleObstaclesReceived(None)
+            #if self.visitor is not None and self.inputIndex == 0:
+            #    self.handleObstaclesReceived(None)
             
             self.stopExecution()
             self.updateCallback(inputRatio, True)

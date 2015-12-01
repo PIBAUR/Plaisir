@@ -66,7 +66,7 @@ int main(int argc, char **argv){
                             printf("=================================================\n");
                             printf("==========SIMPLE EXPLORATION CONTROLLER========\n");
                             printf("=================================================\n");
-                            execlp("rosrun", "rosrun", "hector_exploration_controller", "simple_exploration_controller", NULL);
+                            //execlp("rosrun", "rosrun", "hector_exploration_controller", "simple_exploration_controller", NULL);
                             printf("fils 3 running...\n");
                             while(1){
                                 printf("fils 3 running...\n");

@@ -3,8 +3,6 @@ from functools import partial
 import math
 
 import rospkg
-import roslib
-roslib.load_manifest('occupancy_grid_utils')
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *

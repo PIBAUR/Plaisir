@@ -79,29 +79,37 @@ class CompleteScenarioNode(DiagramNode):
             transformOrientation = tf.transformations.quaternion_from_euler(0, 0, orientation)
             scenarioMsg = choregraphicScenario.robots[robotIndex].getScenarioMsgWithParams((originPosition[0], originPosition[1], 0), scale, transformOrientation, True, True)
             args["targetPosition"] = (scenarioMsg.bezier_paths.curves[0].anchor_1.x, scenarioMsg.bezier_paths.curves[0].anchor_1.y, 0)
-            args["targetOrientation"] = orientation
+            #scenarioStartOrientation = bezier_interpolate.getBezierCurveTangentResult(0, scenarioMsg.bezier_paths.curves[0])
+            args["targetOrientation"] = orientation#TODO: set the correct orientation
+            
+            #print "scenarioStartOrientation"
+            #print (scenarioStartOrientation / math.pi) * 180.
+            
             # store values for absolute coords for choregraphic scenario
             self.targetOrientation = transformOrientation
             self.targetPosition = args["targetPosition"]
             
             path, distance = bezier_interpolate.getPathAndDistanceFromMessage(scenarioMsg, None)
             # check path with service
-            print "try to check path"
+            rospy.loginfo("try to check path")
             rospy.wait_for_service('path_checker')
             pathChecker = rospy.ServiceProxy('path_checker', PathCheckerReq)
             target = Pose2DMsg(choregraphicScenarioTargetPosition[0], choregraphicScenarioTargetPosition[1], args["targetOrientation"])
             try:
                 checkResult = pathChecker(path.path, target)
-                print "check result: " + str(checkResult.is_possible)
+                rospy.loginfo("check result: " + str(checkResult.is_possible))
                 hasCheckResult = checkResult.is_possible
-            except rospy.service.ServiceException:
+            except rospy.service.ServiceException, e:
                 hasCheckResult = False
+                rospy.logerr(e.message)
             
             if hasCheckResult:
                 # define the first point of path finding with the new path checked
                 firstCheckedPathPose = checkResult.path_result.poses[0]
                 args["targetPosition"] = (firstCheckedPathPose.position.x, firstCheckedPathPose.position.y, 0)
                 args["targetOrientation"] = tf.transformations.euler_from_quaternion([firstCheckedPathPose.orientation.x, firstCheckedPathPose.orientation.y, firstCheckedPathPose.orientation.z, firstCheckedPathPose.orientation.w])[-1]
+                print "hasCheckResult"
+                print (args["targetOrientation"] / math.pi) * 180.
                 
                 # store checked path to execute it for choregraphic one
                 self.checkedChoregraphicPath = checkResult.path_result#TODO: n'envoyer que s'il y a eu un changement

@@ -1,4 +1,4 @@
 make:
-	gcc -o ../../bin/mapping mapping_auto.c
+	gcc -o ~/catkin_ws/run/mapping/mapping mapping_auto.c
 clean:
-	rm ../../bin/mapping
+	rm ~/catkin_ws/run/mapping/mapping

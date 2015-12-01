@@ -192,7 +192,7 @@ class PlayNode(DiagramNode):
                 scenarioMsg.uid = self.playingScenario.uid
                 scenarioMsg.type = self.playingScenario.scenarioType
                 if self.playingScenario.checkedChoregraphicPath is not None:
-                    scenarioMsg.checkedChoregraphicPath = self.playingScenario.checkedChoregraphicPath
+                    pass#scenarioMsg.checkedChoregraphicPath = self.playingScenario.checkedChoregraphicPath
                     
                 if self.scenarioPublisher is not None:
                     self.scenarioPublisher.publish(scenarioMsg)

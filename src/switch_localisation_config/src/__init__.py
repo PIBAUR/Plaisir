@@ -56,5 +56,6 @@ def execute():
 
 if __name__=='__main__':
     execute()
-    while not rospy.is_shutdown() :
-        rospy.sleep(5)
+    
+    #while not rospy.is_shutdown() :
+    #    rospy.sleep(5)

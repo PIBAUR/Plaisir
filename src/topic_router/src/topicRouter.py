@@ -39,14 +39,17 @@ class TopicRouter():
     def scenarioCB(self, msg):
         result = PoseArrayMsg(header = HeaderMsg(frame_id = "/map"))
         if len(msg.checkedChoregraphicPath.poses) > 0:
-            result = msg.checkedChoregraphicPath.poses
+            result.poses = []
+            for i in range(int(len(result.poses) / 100)):
+                result.poses.append(msg.checkedChoregraphicPath.poses[i * 100])
+            result.poses.append(msg.checkedChoregraphicPath.poses[-1])
         else:
             result.poses = []
             for curve in msg.bezier_paths.curves:
                 pose = PoseMsg()
                 pose.position.x = curve.anchor_1.x
                 pose.position.y = curve.anchor_1.y
-                orientation = math.atan2(curve.control_1.y - curve.anchor_1.y, curve.control_1.x - curve.anchor_1.x)
+                orientation = math.atan2(curve.anchor_1.y - curve.control_1.y, curve.anchor_1.x - curve.control_1.x)
                 quaternion = tf.transformations.quaternion_from_euler(0, 0, orientation)
                 pose.orientation.x = quaternion[0]
                 pose.orientation.y = quaternion[1]

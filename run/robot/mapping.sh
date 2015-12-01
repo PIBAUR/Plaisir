@@ -6,9 +6,13 @@ if [ -z $robot ]; then
 	exit 1
 fi
 
-cd ~/catkin_ws/run/mapping && make clean; make
+cd ~/catkin_ws/run/mapping
+make clean
+make
 
+source ~/catkin_ws/params/set_robots_base_ip.sh
 #set time on odroid
 ssh odroid@$ROBOTS_BASE_IP$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate $ROS_MASTER_IP'
 
-cd ~/catkin_ws/bin/ && ./mapping $robot
+cd ~/catkin_ws/run/mapping/
+./mapping $robot

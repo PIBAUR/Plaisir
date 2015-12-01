@@ -19,8 +19,11 @@ from src.scenario_lib.src.items.point import Point
 from src.gui_scenario_db.src.ui import ScenarioDataBase
 
 from path_finding.srv import PathFinding as PathFindingSrv
+from src.bezier_curve.src import bezier_interpolate
 
 class TravelScenarioNode(ScenarioNode):
+    LINEAR_SPEED_DEFAULT = rospy.get_param("linear_speed_default", .2)
+    
     nodeName = u"Sc. dépl."
     
     def __init__(self, robotId, parent, canvas, position):
@@ -48,9 +51,18 @@ class TravelScenarioNode(ScenarioNode):
         self.currentScenario.scenarioType = "travel"
         self.currentScenario.gridSize = 1
         
+        pathLength = 0
+        previousPose = None
         for pose in pathResult.path.poses:
             curvePoint = CurvePoint(Point(pose.x, pose.y, pose.theta))
             self.currentScenario.robots[0].points.append(curvePoint)
+            
+            if previousPose is not None:
+                pathLength += math.sqrt(math.pow(previousPose.x - pose.x, 2) + math.pow(previousPose.y - pose.y, 2))
+            previousPose = pose
+        
+        print "LAAAAAAAAAAAAAAAA"
+        print str(pathLength / TravelScenarioNode.LINEAR_SPEED_DEFAULT) + " s"
         
         self.currentScenario.name = "-> " + str(math.floor(targetPosition[0] * 10) / 10) + ";" + str(math.floor(targetPosition[1] * 10) / 10)
         

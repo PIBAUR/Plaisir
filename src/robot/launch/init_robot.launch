@@ -29,22 +29,24 @@
 		<!-- MOVING AND OBSTACLES -->
 		<node name="path_follower" pkg="path_follower" type="path_follower_node" machine="robot$(arg robot)" respawn="true"/>
 		<node name="path_follower_choregraphic" pkg="path_follower" type="path_follower_choregraphic_node" machine="robot$(arg robot)" respawn="true"/>
-		<!--
 		<node name="obstacle_laserscan" pkg="obstacle_laserscan" type="obstacle_laserscan_node" machine="robot$(arg robot)" respawn="true"/>
-		-->
 
+		<!-- WATCH DOG -->
+		<node name="rplidar_watch_dog" pkg="rplidar_watch_dog" type="__init__.py" machine="robot$(arg robot)" respawn="true"/>
+		
 		<!-- LOCALISATION -->
 		<!-- TO BYPASS LOCALISATION -->
+		<!-- 
 		<node pkg="tf" type="static_transform_publisher" name="odom_to_map" machine="robot$(arg robot)" respawn="true" 
 			args="0 0 0  0 0 0 /map /robot$(arg robot)/odom 100"/>
+		 -->
 		<!-- END TO BYPASS LOCALISATION -->
-		<!-- 
 		<include file="$(find robot)/launch/server_localisation.launch">
 			<arg name="robot" value="$(arg robot)"/>
-			<arg name='init_done' value="false"/>
+			<arg name="init_done" value="false"/>
 		</include>
-		<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" respawn="false">
-   		</node>
+		<!-- 
+		<node name="switch_localisation_config" pkg="switch_localisation_config" type="__init__.py" output="screen" respawn="false"/>
 		 -->
 	</group>
 </launch>

@@ -58,12 +58,25 @@
 	}
 	
 	function updateRosTime(rosTime) {
-		/*if (this.currentTime < this.duration && this.currentTime < this.duration - 1 && this.currentTime > .5) {
-			//log("currentTime:" + currentVideosIndex.toString() + ";" + (this.currentTime + passedCurrentTime).toString());
+		var player = document.getElementById(currentPlayer);
+		if (player.currentTime < player.duration - 1 && player.currentTime > .5) {
+			var timeOffset = rosTime - (player.currentTime + passedCurrentTime);
 			
-			log(rosTime);
-		}*/
-		//TODO: CONTINUER ICI
+			     if (timeOffset > 0.2  ) playbackRatio = 1.2;
+			else if (timeOffset < -0.2 ) playbackRatio = 0.8;
+			else if (timeOffset > 0.1  ) playbackRatio = 1.15;
+			else if (timeOffset < -0.1 ) playbackRatio = 0.85;
+			else if (timeOffset > 0.05 ) playbackRatio = 1.05;
+			else if (timeOffset < -0.05) playbackRatio = 0.95;
+			else 						 playbackRatio = 1;
+			
+			var thisPlayer = document.getElementById(currentPlayer);
+			thisPlayer.playbackRate = thisPlayer.defaultPlaybackRate * playbackRatio;
+			var otherPlayer = document.getElementById(getOtherPlayer());
+			otherPlayer.playbackRate = otherPlayer.defaultPlaybackRate * playbackRatio;
+			
+			log(timeOffset.toString() + " ; " + thisPlayer.playbackRate.toString());
+		}
 	}
 	
 	function switchPlayersVisibility() {
@@ -138,7 +151,7 @@
 		
 		socket.onmessage = function (event) {
 			message = event.data
-			log('received: ' + message);
+			//log('received: ' + message);
 			if (message.indexOf("javascript:") == 0) {
 				log(message.substring(11));
 				eval(message.substring(11));
@@ -183,7 +196,7 @@
 </head>
 
 <body onload="javascript: init();">
-	<div id="log" style="background: red;"></div>
+	<div id="log" style="background: red; display: none;"></div>
 	<div id="videoContainer">
 		<video id="video_0" width="100%" height="100%" type="video/mp4">
 		</video>

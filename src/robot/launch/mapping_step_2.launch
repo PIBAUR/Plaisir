@@ -39,8 +39,13 @@
     <node pkg="hector_map_server" type="hector_map_server" name="hector_map_server" output="screen" respawn="true"/>
 
     <!-- Run exploration planner stuff -->
+    <!-- 
     <node pkg="hector_exploration_node" type="exploration_planner_node" name="hector_exploration_node" respawn="true" output="screen">
       <rosparam file="$(find hector_exploration_node)/config/costmap.yaml" command="load" />
     </node>
-
+     -->
+     
+	<node name="gui_controller" pkg="gui_controller" type="__init__.py" output="screen"/>
+	
+	<!-- to save map: "rosrun map_server map_saver -f /home/artlab/catkin_ws/maps/int" -->
 </launch>

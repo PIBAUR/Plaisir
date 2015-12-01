@@ -8,6 +8,7 @@ fi
 
 source ~/catkin_ws/params/set_this_ip.sh
 source ~/catkin_ws/params/set_master_ip.sh
+source ~/catkin_ws/params/set_robots_base_ip.sh
 
 if [ $ROS_MASTER_IP = $THIS_IP ];then
 	echo "- copy .bashrc"

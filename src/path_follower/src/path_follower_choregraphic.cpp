@@ -103,9 +103,9 @@ void ChoregrahicPathFollower::getNewTwist()
                      << (next_twist_time_-ros::Time::now()).sec);*/
 
     if(fabs(linear_speed_) > LINEAR_SPEED_MAX/2.0)
-		ROS_WARN("Linear speed may be to high...");
+		ROS_DEBUG("Linear speed may be to high...");
     if(fabs(angular_speed_) > ANGULAR_SPEED_MAX/2.0)
-        ROS_WARN("Linear speed may be to high...");
+        ROS_DEBUG("Linear speed may be to high...");
 
     index_path_++;
 }
