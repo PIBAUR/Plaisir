@@ -10,11 +10,13 @@
 		env-loader="$(env HOME)/catkin_ws/devel/env.sh"/>
     
     <!-- MAP -->	
+    <!-- 
     <node name="map_server" type="map_server" pkg="map_server" args="$(env HOME)/catkin_ws/maps/$(arg map).yaml" output="screen"/>
 	
 	<node name="path_finding" pkg="path_finding" type="path_finding_server" respawn="true"/>
 
 	<node name="path_checker" pkg="path_checker" type="path_checker_node" respawn="true"/>
+     -->
 	
 	<!-- GUI TOOLS -->
 	<!-- 

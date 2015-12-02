@@ -4,7 +4,7 @@
 import os
 import sys
 
-robots = sys.argv[1:]
+robots = [robot for robot in sys.argv[1:] if robot != "-p"]
 
 config = """Panels:
   - Class: rviz/Displays

@@ -445,7 +445,7 @@ class ScenarioEdition():
                 scenarioMsg.uid = ScenarioEdition.scenarioUid
                 ScenarioEdition.scenarioUid += 1
                 
-                #rospy.loginfo(str(scenarioMsg))
+                rospy.loginfo(str(scenarioMsg))
                 self.scenarioPublishers[robotId].publish(scenarioMsg)
                 
                 scenarioRobotIndex += 1
@@ -457,7 +457,7 @@ class ScenarioEdition():
             scenarioMsg.uid = ScenarioEdition.scenarioUid
             ScenarioEdition.scenarioUid += 1
                 
-            #rospy.loginfo(str(scenarioMsg))
+            rospy.loginfo(str(scenarioMsg))
             self.scenarioPublishers[robotId].publish(scenarioMsg)
 
     def handleStopPhysicalRobot(self):

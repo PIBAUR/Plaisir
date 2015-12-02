@@ -20,7 +20,7 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 00
 		fi
-		robots="$robot robot00"
+		robots="$robots robot00"
     fi
     
     if [ "$var" = 01 ]; then
@@ -30,7 +30,7 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 01
 		fi
-		robots="$robot robot01"
+		robots="$robots robot01"
     fi
     
     if [ "$var" = 02 ]; then
@@ -40,7 +40,7 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 02
 		fi
-		robots="$robot robot02"
+		robots="$robots robot02"
     fi
     
     if [ "$var" = 03 ]; then
@@ -50,7 +50,7 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 03
 		fi
-		robots="$robot robot03"
+		robots="$robots robot03"
     fi
     
     if [ "$var" = 04 ]; then
@@ -60,7 +60,7 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 04
 		fi
-		robots="$robot robot04"
+		robots="$robots robot04"
     fi
     
     if [ "$var" = 05 ]; then
@@ -70,7 +70,7 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 05
 		fi
-		robots="$robot robot05"
+		robots="$robots robot05"
     fi
     
     if [ "$var" = 06 ]; then
@@ -80,11 +80,12 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 06
 		fi
-		robots="$robot robot06"
+		robots="$robots robot06"
     fi
 done
 
 # generate .rviz
+echo "generate .rviz for robots $robots"
 python ~/catkin_ws/params/generate_init_global_rviz.py $robots
 
 #launch robot

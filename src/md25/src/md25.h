@@ -75,6 +75,7 @@
 #define KD_DEFAULT              0.0     //D coefficient
 #define MAX_ERR_INTEGRAL        0.20
 
+
 class MD25
 {
 private:

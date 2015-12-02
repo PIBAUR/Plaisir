@@ -117,8 +117,8 @@
 	}
 	
 	function pauseCurrentVideo() {
-		var player = document.getElementById(currentPlayer);
-		player.pause();
+		/*var player = document.getElementById(currentPlayer);
+		player.pause();*/
 	}
 	
 	function getOtherPlayer() {
@@ -160,7 +160,7 @@
 				playVideos(message.substring(7).split(";;;"));
 			} else if (message == "pause") {
 				log("pause");
-				pauseCurrentVideo();
+				//pauseCurrentVideo();
 			} else if (message.indexOf("rosTime:") == 0) {
 				updateRosTime(parseFloat(message.substring(8)));
 			}
@@ -196,7 +196,7 @@
 </head>
 
 <body onload="javascript: init();">
-	<div id="log" style="background: red; display: none;"></div>
+	<div id="log" style="background: red;"></div>
 	<div id="videoContainer">
 		<video id="video_0" width="100%" height="100%" type="video/mp4">
 		</video>
