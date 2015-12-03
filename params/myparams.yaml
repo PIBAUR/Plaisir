@@ -36,7 +36,7 @@ front_angle: 80
 ## distance minimale de détection d'obstacle à l'avant du robot (en mètre)
 distance_obstacle_min: 0.35
 ## distance maximale de détection d'obstacle à l'avant du robot (en mètre)
-distance_obstacle_max: 0.80
+distance_obstacle_max: 1.00
 
 ## PATH FINDING
 ## nombre d'itérations algorithme RRT

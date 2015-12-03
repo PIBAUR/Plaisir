@@ -29,14 +29,22 @@ class ScenarioNode(DiagramNode):
     uid = 0
     
     simulation = False
+    lastPathFeedbackUpdateByRobot = {}
+    
+    masterPlaying = False #DIRTY DIRTY BEARK BEARK
     
     def __init__(self, robotId, parent, canvas, position):
         super(ScenarioNode, self).__init__(robotId, parent, canvas, position)
         
+        if not self.robotId in ScenarioNode.lastPathFeedbackUpdateByRobot:
+            ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] = time.time()
+                
         self.scenarioRunningOnRobotUid = -1
         self.currentScenario = None
         self.pathFeedbackValue = 0.
         self.pathFeedbackSubscriber = None
+        
+        self.lastFeedbackTime = time.time()
         
         # set uiTimer for update graphics, because they must not be executed by the ROS callback thread
         self.uiTimer = QTimer(self.widget)
@@ -101,6 +109,14 @@ class ScenarioNode(DiagramNode):
     
     
     def handleUITimer(self, firstTime = False):
+        if ScenarioNode.masterPlaying and time.time() - ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] > 5:
+            # time out ! to relaunch
+            print "pathFeedback timeout for " + self.robotId
+            for nodeInstance in self.canvas.nodesInstances:
+                if nodeInstance.__class__.nodeName == "Play" and nodeInstance.isPlaying and nodeInstance.robotId == self.robotId: #BEARK BEARK BEARK !
+                    print "replay PlayNode"
+                    nodeInstance.playScenario()
+            ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] = time.time()
         if self.executing:
             if self.pathFeedbackValue >= 1:
                 self.stopExecution()
@@ -119,6 +135,7 @@ class ScenarioNode(DiagramNode):
     
     
     def handlePathFeedbackReceived(self, msg):
+        ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] = time.time()
         if msg is None or math.isnan(msg.ratio):
             self.pathFeedbackValue = 0
         else:

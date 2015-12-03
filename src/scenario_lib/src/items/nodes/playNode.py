@@ -153,7 +153,6 @@ class PlayNode(DiagramNode):
     
     
     def playScenario(self):
-        print "wanna publish on " + self.robotId
         #DEBUG: remove exception handler
         try:
             # reset error
@@ -202,7 +201,6 @@ class PlayNode(DiagramNode):
                 
             if self.scenarioPublisher is not None:
                 self.scenarioPublisher.publish(scenarioMsg)
-                print self.robotId + ": published"
         except NodeException as error:
             self.playButton.setEnabled(True)
             self.stopButton.setEnabled(False)
@@ -265,6 +263,8 @@ class PlayNode(DiagramNode):
     
     def handlePlayButtonClicked(self, event):
         self.isPlaying = True
+        if self.robotId == Robot.DEFAULT_ROBOT_ID:
+            ScenarioNode.masterPlaying = True
         
         self.playButton.setEnabled(False)
         self.stopButton.setEnabled(True)
@@ -275,6 +275,8 @@ class PlayNode(DiagramNode):
         
     def handleSimulateButtonClicked(self, event):
         self.isPlaying = True
+        if self.robotId == Robot.DEFAULT_ROBOT_ID:
+            ScenarioNode.masterPlaying = True
         
         self.playButton.setEnabled(False)
         self.stopButton.setEnabled(True)
@@ -285,6 +287,8 @@ class PlayNode(DiagramNode):
         
     def handleStopButtonClicked(self, event):
         self.isPlaying = False
+        if self.robotId == Robot.DEFAULT_ROBOT_ID:
+            ScenarioNode.masterPlaying = False
         
         self.playButton.setEnabled(True)
         self.stopButton.setEnabled(False)
