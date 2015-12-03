@@ -26,9 +26,14 @@ from sequence import Sequence
 from curvePoint import CurvePoint
 from point import Point
 from src.bezier_curve.src import bezier_interpolate
+from src.robot.src import utils
 
 class Robot():
-    ROBOT_ID_LIST = ["robot01"]#, "robot01"]#[DEFAULT_ROBOT_ID, "robot01"]
+    launchedRobots = utils.getLaunchedRobots()
+    if len(launchedRobots) == 0:
+        launchedRobots = ["robot01"]
+    ROBOT_ID_LIST = launchedRobots#, "robot01"]#[DEFAULT_ROBOT_ID, "robot01"]
+    print ROBOT_ID_LIST
     DEFAULT_ROBOT_ID = ROBOT_ID_LIST[0]#"robot01"#"default"
     
     currentColorIndex = 0

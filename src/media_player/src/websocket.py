@@ -9,6 +9,10 @@ class StreamingWebSocketServer(WebSocket):
         self.receivedMessageCallback = receivedMessageCallback
     
     
+    def play(self):
+        self.sendMessage("play")
+    
+    
     def sendMedias(self, mediaPaths):
         self.sendMessage("medias:" + ";;;".join(mediaPaths))
     

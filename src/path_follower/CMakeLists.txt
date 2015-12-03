@@ -4,7 +4,7 @@ project(path_follower)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS  geometry_msgs scenario_msgs  roscpp  tf)
+find_package(catkin REQUIRED COMPONENTS  std_msgs geometry_msgs scenario_msgs  roscpp  tf)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -63,6 +63,7 @@ find_package(catkin REQUIRED COMPONENTS  geometry_msgs scenario_msgs  roscpp  tf
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
+#   std_msgs
 #   geometry_msgs
 # )
 

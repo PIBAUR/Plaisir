@@ -51,11 +51,12 @@ class ExecutionDiagram():
         self.resizeEvent()
         
         #DEBUG: open default
-        """self.currentFilePath = os.path.expanduser("~") + "/.ros/test_multi_robot.dge" 
-        diagramToOpen = self.canvas.load(self.currentFilePath)
-        self.loadDiagram(diagramToOpen)
-        self.lastChangesSaved = True
-        self.updateWindowTitle()"""
+        self.currentFilePath = os.path.expanduser("~") + "/.ros/explore_01.dge" 
+        if os.path.exists(self.currentFilePath):
+            diagramToOpen = self.canvas.load(self.currentFilePath)
+            self.loadDiagram(diagramToOpen)
+            self.lastChangesSaved = True
+            self.updateWindowTitle()
         #END_DEBUG
         
         self.handleDefaultRobotComboBoxChanged()
@@ -127,8 +128,8 @@ class ExecutionDiagram():
         
         
     def handleDefaultRobotComboBoxChanged(self):
-        for nodeInstance in self.canvas.nodesInstances:
-            nodeInstance.changeDefaultRobot()
+        pass#for nodeInstance in self.canvas.nodesInstances:
+        #    nodeInstance.changeDefaultRobot()
         
     def resizeEvent(self, event = None):
         # canvas

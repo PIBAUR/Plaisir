@@ -410,7 +410,9 @@ class DiagramNode(object):
     def createInstanceFromData(canvas, nodeData):
         nodeClass = eval(nodeData["class"])
         position = QPoint(nodeData["position"][0], nodeData["position"][1]) + (canvas.mapToGlobal(QPoint(canvas.pos())) - canvas.mapToGlobal(QPoint()))
-        nodeInstance = nodeClass(nodeData["robotId"], canvas.ui.canvasContainer, canvas, position)
+        #robotId = nodeData["robotId"]
+        robotId = Robot.DEFAULT_ROBOT_ID# bypass, to take on static
+        nodeInstance = nodeClass(robotId, canvas.ui.canvasContainer, canvas, position)
         nodeInstance.id = nodeData["id"]
         while len(nodeInstance.getInputsWidgets()) < len(nodeData["links"]):
             nodeInstance.addEmptyInput()

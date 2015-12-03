@@ -4,6 +4,7 @@
 #include <scenario_msgs/TwistStampedArray.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/String.h>
 #include <scenario_msgs/PathFeedback.h>
 
 
@@ -21,6 +22,7 @@ protected:
 
     ros::Publisher cmd_pub_;
     ros::Publisher ratio_pub_;
+    ros::Publisher interrupted_pub_;
 
     scenario_msgs::TwistStampedArray twist_array_;
     int path_uid_;
@@ -59,6 +61,7 @@ ChoregrahicPathFollower::ChoregrahicPathFollower(ros::NodeHandle nh):
 {
     cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
     ratio_pub_ = nh_.advertise<scenario_msgs::PathFeedback>("path_feedback", 1);
+    interrupted_pub_   = nh_.advertise<std_msgs::String>("state", 1);
 }
 
 
@@ -172,6 +175,10 @@ void ChoregrahicPathFollower::spinOnce()
         cmd_pub_.publish(cmd);
         size_path_=-1;
 		ROS_INFO_STREAM("Path follower received 0 sized path");
+
+		/*std_msgs::String interrupted_msg;
+		interrupted_msg.data = "INTERRUPTED_STATE";
+		interrupted_pub_.publish(interrupted_msg);*/
     }
 }
 

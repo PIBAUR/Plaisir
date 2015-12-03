@@ -12,11 +12,11 @@ from std_msgs.msg import Bool as BoolMsg
 from scenario_msgs.msg import Scenario as ScenarioMsg
 
 class RobotManager():
-    INTERRUPTED_STATE = "INTERRUPTED_STATE"
+    INTERRUPTING_STATE = "INTERRUPTING_STATE"
     
     def __init__(self):
         self.statePublisher = rospy.Publisher('state', StringMsg)
-        self.stopPathFollowerPublisher = rospy.Publisher('scenario', ScenarioMsg)
+        self.stopPathFollowerPublisher = rospy.Publisher("scenario", ScenarioMsg)
         self.stopPathFollowerMsg = ScenarioMsg()
         self.stopPathFollowerMsg.type = "stop"
         
@@ -35,7 +35,8 @@ class RobotManager():
             rospy.loginfo("Received new obstacle")
             self.stopPathFollowerPublisher.publish(self.stopPathFollowerMsg)
             # state
-            self.statePublisher.publish(StringMsg(RobotManager.INTERRUPTED_STATE))
+            #did that, but better that path_follower_choregraphic does that, because of latency 
+            self.statePublisher.publish(StringMsg(RobotManager.INTERRUPTING_STATE))
             
         self.hasObstacle = msg.data
     

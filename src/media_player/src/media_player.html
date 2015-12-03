@@ -80,8 +80,8 @@
 	}
 	
 	function switchPlayersVisibility() {
-		$('#' + currentPlayer).css('display', 'block');
 		$('#' + getOtherPlayer()).css('display', 'none');
+		$('#' + currentPlayer).css('display', 'block');
 	}
 	
 	function playVideos(videos) {
@@ -91,7 +91,6 @@
 		currentVideos = videos;
 		
 		loadVideo(0);
-		playCurrentVideo();
 	}
 	
 	function loadVideo(videosIndex) {
@@ -104,16 +103,18 @@
 	}
 	
 	function playCurrentVideo() {
+		document.getElementById(getOtherPlayer()).pause();
+        
 		if (currentVideosIndex != -1) {
 			var player = document.getElementById(currentPlayer);
+			//setTimeout(function() {
 			player.play();
+			//}, 100);
 			
 			if (! newVideosSended) {
 				switchPlayersVisibility();
 			}
         }
-        
-		document.getElementById(getOtherPlayer()).pause();
 	}
 	
 	function pauseCurrentVideo() {
@@ -130,7 +131,7 @@
 	}
 	
 	function log(message) {
-		document.getElementById("log").innerHTML = message;
+		document.getElementById("log").innerHTML = message + "<br />" + document.getElementById("log").innerHTML;
 	}
 	
 	function connect() {
@@ -151,16 +152,19 @@
 		
 		socket.onmessage = function (event) {
 			message = event.data
-			//log('received: ' + message);
+			log('received: ' + message);
 			if (message.indexOf("javascript:") == 0) {
 				log(message.substring(11));
 				eval(message.substring(11));
 			} else if (message.indexOf("medias:") == 0) {
 				log(message.substring(7));
 				playVideos(message.substring(7).split(";;;"));
+			} else if (message == "play") {
+				log("play");
+				playCurrentVideo();
 			} else if (message == "pause") {
 				log("pause");
-				//pauseCurrentVideo();
+				pauseCurrentVideo();
 			} else if (message.indexOf("rosTime:") == 0) {
 				updateRosTime(parseFloat(message.substring(8)));
 			}
@@ -196,7 +200,7 @@
 </head>
 
 <body onload="javascript: init();">
-	<div id="log" style="background: red;"></div>
+	<div id="log" style="color: red; position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: None;"></div>
 	<div id="videoContainer">
 		<video id="video_0" width="100%" height="100%" type="video/mp4">
 		</video>

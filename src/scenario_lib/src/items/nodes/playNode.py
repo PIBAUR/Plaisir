@@ -18,10 +18,8 @@ from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from PyQt4.Qt import QTimer
 
 class PlayNode(DiagramNode):
+    INTERRUPTING_STATE = "INTERRUPTING_STATE"
     INTERRUPTED_STATE = "INTERRUPTED_STATE"
-    
-    transformListener = None
-    actionClient = None
     
     nodeName = "Play"
     nodeCategory = ""
@@ -32,6 +30,8 @@ class PlayNode(DiagramNode):
     
     def __init__(self, robotId, parent, canvas, position):
         super(PlayNode, self).__init__(robotId, parent, canvas, position)
+        
+        self.transformListener = None
         
         self.isPlaying = False
         self.playingScenario = None
@@ -48,14 +48,15 @@ class PlayNode(DiagramNode):
             self.freezePublisher = None
         
         # set ROS subscriber to get informations from the robot
-        if PlayNode.transformListener is None:
-            PlayNode.transformListener = tf.TransformListener()
+        if self.transformListener is None:
+            self.transformListener = tf.TransformListener()
         
         # state
         self.stateSubscriber = rospy.Subscriber("/" + self.robotId + "/state", StringMsg, self.handleStateReceived)
         
         # timer to not execute play or stop in an other thread
         self.hasToRestart = False
+        self.prepareToRestart = False
         self.threadSafeTimer = QTimer()
         self.threadSafeTimer.timeout.connect(partial(self.handleThreadSafeTimer))
         self.threadSafeTimer.start(20)
@@ -152,6 +153,7 @@ class PlayNode(DiagramNode):
     
     
     def playScenario(self):
+        print "wanna publish on " + self.robotId
         #DEBUG: remove exception handler
         try:
             # reset error
@@ -176,26 +178,31 @@ class PlayNode(DiagramNode):
                 interpolation = False
                 robotIndex = 0
             
+            #TODO: redefinir l'id du robot en fonction de s'il y en a deja sur ce scenario
             if robotIndex < len(self.playingScenario.robots):
                 robot = self.playingScenario.robots[robotIndex]
-                if self.playingScenario.startPosition is not None:
-                    transformPosition = self.playingScenario.startPosition
-                else:
-                    transformPosition = self.transformPosition
-                    
-                if self.playingScenario.startOrientation is not None:
-                    transformOrientation = self.playingScenario.startOrientation
-                else:
-                    transformOrientation = self.transformOrientation
+            else:
+                robot = self.playingScenario.robots[len(self.playingScenario.robots) - 1]
                 
-                scenarioMsg = robot.getScenarioMsgWithParams(transformPosition, scale, transformOrientation, interpolation, False)
-                scenarioMsg.uid = self.playingScenario.uid
-                scenarioMsg.type = self.playingScenario.scenarioType
-                if self.playingScenario.checkedChoregraphicPath is not None:
-                    pass#scenarioMsg.checkedChoregraphicPath = self.playingScenario.checkedChoregraphicPath
-                    
-                if self.scenarioPublisher is not None:
-                    self.scenarioPublisher.publish(scenarioMsg)
+            if self.playingScenario.startPosition is not None:
+                transformPosition = self.playingScenario.startPosition
+            else:
+                transformPosition = self.transformPosition
+                
+            if self.playingScenario.startOrientation is not None:
+                transformOrientation = self.playingScenario.startOrientation
+            else:
+                transformOrientation = self.transformOrientation
+            
+            scenarioMsg = robot.getScenarioMsgWithParams(transformPosition, scale, transformOrientation, interpolation, False)
+            scenarioMsg.uid = self.playingScenario.uid
+            scenarioMsg.type = self.playingScenario.scenarioType
+            if self.playingScenario.checkedChoregraphicPath is not None:
+                pass#scenarioMsg.checkedChoregraphicPath = self.playingScenario.checkedChoregraphicPath
+                
+            if self.scenarioPublisher is not None:
+                self.scenarioPublisher.publish(scenarioMsg)
+                print self.robotId + ": published"
         except NodeException as error:
             self.playButton.setEnabled(True)
             self.stopButton.setEnabled(False)
@@ -228,7 +235,7 @@ class PlayNode(DiagramNode):
         if self.hasToRestart:
             self.hasToRestart = False
             if self.isPlaying:
-                self.stopAllScenarios(True)
+                self.stopAllScenarios(self.robotId, True)
                 self.playScenario()
                 
         # refresh ui
@@ -237,17 +244,23 @@ class PlayNode(DiagramNode):
         
     def handleStateReceived(self, msg):
         state = msg.data
-        
-        if state == PlayNode.INTERRUPTED_STATE:
+        if state == PlayNode.INTERRUPTING_STATE:
             self.hasToRestart = True
+            #self.prepareToRestart = True
+        """if state == PlayNode.INTERRUPTED_STATE:
+            #if self.prepareToRestart:
+            rospy.loginfo("has to restart")
+            self.prepareToRestart = False
+            """
     
     
-    def stopAllScenarios(self, withoutSendingFreeze = False):
+    def stopAllScenarios(self, robotId = None, withoutSendingFreeze = False):
         for nodeInstance in self.canvas.nodesInstances:
-            if self == nodeInstance:
-                nodeInstance.stop(withoutSendingFreeze)
-            else:  
-                nodeInstance.stop()
+            if robotId is None or robotId == nodeInstance.robotId:
+                if self == nodeInstance:
+                    nodeInstance.stop(withoutSendingFreeze)
+                else:  
+                    nodeInstance.stop()
         
     
     def handlePlayButtonClicked(self, event):
