@@ -27,8 +27,8 @@ class RandomChoiceNode(DiagramNode):
         
         inputs = self.getInputs()
         
-        if self.randomIndex == -1:
-            self.randomIndex = random.randint(0, len(inputs) - 1)
+        #if self.randomIndex == -1:
+        self.randomIndex = random.randint(0, len(inputs) - 1)
         
         inputItem = inputs[self.randomIndex]
         
@@ -42,8 +42,8 @@ class RandomChoiceNode(DiagramNode):
     def updateRatio(self, inputRatio, paused):
         if inputRatio >= 1 or paused:
             # if input is complete, change random
-            if inputRatio >= 1:
-                self.randomIndex = -1
+            #if inputRatio >= 1:
+                #self.randomIndex = -1
             
             self.stopExecution()
             self.updateCallback(inputRatio, True)

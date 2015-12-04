@@ -31,7 +31,8 @@ class SequenceNode(DiagramNode):
         inputs = self.getInputs()
         self.numInputs = len(inputs)
         
-        if self.currentInputIndex > len(inputs) - 1: # in case of intended index has been removed
+        self.currentInputIndex += 1
+        if self.currentInputIndex >= len(inputs): # in case of intended index has been removed
             self.currentInputIndex = 0
         inputItem = inputs[self.currentInputIndex]
         
@@ -50,7 +51,6 @@ class SequenceNode(DiagramNode):
         
         if inputRatio >= 1:
             # reset index
-            self.currentInputIndex += 1
             if self.currentInputIndex >= self.numInputs:
                 self.currentInputIndex = 0
         
@@ -75,7 +75,7 @@ class SequenceNode(DiagramNode):
     def stop(self):
         super(SequenceNode, self).stop()
         
-        self.currentInputIndex = 0
+        #self.currentInputIndex = 0
     
     
     def getSpecificsData(self):
