@@ -36,6 +36,7 @@ class DiagramNode(object):
     def __init__(self, robotId, parent, canvas, position):
         # vars
         self.id = DiagramNode.currentNodeId
+        self.masterId = -1
         DiagramNode.currentNodeId += 1
         
         self.updateCallback = None
@@ -450,4 +451,5 @@ from src.scenario_lib.src.items.nodes.sequenceNode import SequenceNode
 from src.scenario_lib.src.items.nodes.randomChoiceNode import RandomChoiceNode
 from src.scenario_lib.src.items.nodes.visitorNode import VisitorNode
 from src.scenario_lib.src.items.nodes.obstacleNode import ObstacleNode
+from src.scenario_lib.src.items.nodes.masteringNode import MasteringNode
 from src.scenario_lib.src.items.nodes.batteryStateNode import BatteryStateNode

@@ -109,7 +109,7 @@ class ScenarioNode(DiagramNode):
     
     
     def handleUITimer(self, firstTime = False):
-        if ScenarioNode.masterPlaying and time.time() - ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] > 5:
+        if ScenarioNode.masterPlaying and time.time() - ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] > 10:
             # time out ! to relaunch
             print "pathFeedback timeout for " + self.robotId
             for nodeInstance in self.canvas.nodesInstances:

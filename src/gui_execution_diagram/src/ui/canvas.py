@@ -250,6 +250,7 @@ class Canvas(QWidget):
                 position = nodeInstance.getWidgetAbsolutePosition()
                 
                 newNodeInstance = nodeInstance.__class__(robotId, self.ui.canvasContainer, self, position)
+                newNodeInstance.masterId = nodeInstance.id
                 newNodeInstance.setSpecificsData(nodeInstance.getSpecificsData())
                 newNodeInstances.append(newNodeInstance)
                 newAffectations[nodeInstance] = newNodeInstance

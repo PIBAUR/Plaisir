@@ -84,20 +84,21 @@ class PlayNode(DiagramNode):
         #self.playButton.setEnabled(robotId is not None)
     
     
-    def output(self):
+    def output(self, isMastering = False):
         self.stopExecution()
         
         inputs = self.getInputs()
         
         self.startExecution(0)
         
-        return inputs[0].output(self.getArgs(), self.updateRatio)
+        return inputs[0].output(self.getArgs(isMastering), self.updateRatio)
     
     
-    def getArgs(self):
+    def getArgs(self, isMastering = False):
         return {
                 "robotPosition": self.transformPosition, 
-                "robotOrientation": self.transformOrientation
+                "robotOrientation": self.transformOrientation,
+                "isMastering": isMastering
                 }
     
     
@@ -152,7 +153,7 @@ class PlayNode(DiagramNode):
         pass
     
     
-    def playScenario(self):
+    def playScenario(self, isMastering = False):
         #DEBUG: remove exception handler
         try:
             # reset error
@@ -162,7 +163,7 @@ class PlayNode(DiagramNode):
                 
             # do play while there is not a scenario
             while True:
-                self.playingScenario = self.output()
+                self.playingScenario = self.output(isMastering)
                 if self.playingScenario is not None:
                     break
             self.playingScenarioLabel.setText(self.playingScenario.niceName())

@@ -160,7 +160,7 @@ for robot in robots:
                     {}
           Update Interval: 0
           Value: true
-      Enabled: true
+      Enabled: false
       Name: """ + robot + """"""
       
 config += """

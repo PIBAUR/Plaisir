@@ -57,9 +57,11 @@ class ExecutionDiagram():
             self.loadDiagram(diagramToOpen)
             self.lastChangesSaved = True
             self.updateWindowTitle()
+        
+        self.canvas.switchToMultiRobots()
         #END_DEBUG
         
-        self.handleDefaultRobotComboBoxChanged()
+        #self.handleDefaultRobotComboBoxChanged()
         
     
     # menu actions

@@ -112,7 +112,11 @@ class Scenario():
             
     
     @staticmethod
-    def loadFile(filePath, loadWithVideos = True):
+    def loadFile(data, loadWithVideos = True):
+        if type(data) == list or type(data) == tuple:
+            filePath = data[0]
+        else:
+            filePath = data
         outfile = open(filePath)
         data = json.loads(outfile.read())
         scenario = Scenario(loadWithVideos)

@@ -1,15 +1,17 @@
 #!/bin/bash
 
+if [ -z $1 ]; then
+	echo "robot arg must be set (ex: command.sh 01)"
+	exit 1
+fi
+
 export LAUNCH_ROBOT00=false
-export launch_robot00=false
 export LAUNCH_ROBOT01=false
 export LAUNCH_ROBOT02=false
 export LAUNCH_ROBOT03=false
 export LAUNCH_ROBOT04=false
 export LAUNCH_ROBOT05=false
 export LAUNCH_ROBOT06=false
-
-robots=""
 
 for var in "$@"
 do
@@ -20,7 +22,6 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 00
 		fi
-		robots="$robots robot00"
     fi
     
     if [ "$var" = 01 ]; then
@@ -30,7 +31,6 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 01
 		fi
-		robots="$robots robot01"
     fi
     
     if [ "$var" = 02 ]; then
@@ -40,7 +40,6 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 02
 		fi
-		robots="$robots robot02"
     fi
     
     if [ "$var" = 03 ]; then
@@ -50,7 +49,6 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 03
 		fi
-		robots="$robots robot03"
     fi
     
     if [ "$var" = 04 ]; then
@@ -60,7 +58,6 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 04
 		fi
-		robots="$robots robot04"
     fi
     
     if [ "$var" = 05 ]; then
@@ -70,7 +67,6 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 05
 		fi
-		robots="$robots robot05"
     fi
     
     if [ "$var" = 06 ]; then
@@ -80,13 +76,7 @@ do
 		else
 			bash ~/catkin_ws/run/robot/script_before_launch_for_robot.sh 06
 		fi
-		robots="$robots robot06"
     fi
 done
 
-# generate .rviz
-echo "generate .rviz for robots $robots"
-python ~/catkin_ws/params/generate_init_global_rviz.py $robots
-
-#launch robot
-roslaunch robot init_global.launch
+roslaunch robot init_robots.launch

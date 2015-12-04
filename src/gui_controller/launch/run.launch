@@ -1,7 +1,7 @@
 <launch>
 	<rosparam command="load" file="$(env HOME)/catkin_ws/params/myparams.yaml"/>
 	
-	<arg name="robot" value="01"/>
+	<arg name="robot"/>
 	
 	<node name="gui_controller" pkg="gui_controller" type="__init__.py" output="screen">
 		<remap from="cmd_vel" to="robot$(arg robot)/cmd_vel"/>
