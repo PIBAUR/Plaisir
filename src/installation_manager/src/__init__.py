@@ -76,9 +76,21 @@ if __name__ == '__main__':
         robotId = "0" * (2 - len(str(i))) + str(i)
         processes[robotId] = None
     
+    firstTime = True
     while not rospy.is_shutdown():
         execute()
         rospy.sleep(10.)
+        
+        """
+        if firstTime:
+            firstTime = False
+            
+            process = subprocess.Popen(["python", os.path.expanduser("~") + "/catkin_ws/src/gui_execution_diagram/src/__init__.py", os.path.expanduser("~") + "/catkin_ws/params/default.dge", "--switch-to-multi-robots", "--start"], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+            
+            stdoutLogProcessThread = LogProcessThread("[INFO] [ gui_execution_diagram ]: ", iter(process.stdout.readline, ""))
+            stdoutLogProcessThread.start()
+            stderrLogProcessThread = LogProcessThread("[ERROR] [ gui_execution_diagram ]: ", iter(process.stderr.readline, ""))
+            stderrLogProcessThread.start()"""
     
     # kill for end
     for process in processes.values():

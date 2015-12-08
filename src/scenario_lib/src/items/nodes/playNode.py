@@ -128,7 +128,7 @@ class PlayNode(DiagramNode):
             try:
                 self.transformPosition, self.transformOrientation = self.transformListener.lookupTransform("/map", "/" + robotId + "/base_link", rospy.Time(0))
             except Exception, e:
-                rospy.logerr(e)
+                pass#rospy.logerr(e)
         
     
     def stop(self, withoutSendingFreeze = False):

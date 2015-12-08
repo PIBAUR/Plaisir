@@ -11,8 +11,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4 import uic
 
-from canvas import Canvas
 from src.scenario_lib.src.items.nodes.playNode import PlayNode
+from canvas import Canvas
 
 
 class ExecutionDiagram():
@@ -62,10 +62,10 @@ class ExecutionDiagram():
         if switchToMultiRobots:
             self.canvas.switchToMultiRobots()
             
-        """if start:
+        if start:
             for nodeInstance in self.canvas.nodesInstances:
                 if type(nodeInstance) == PlayNode:
-                    nodeInstance.handlePlayButtonClicked(None)"""
+                    nodeInstance.handlePlayButtonClicked(None)
         
         #self.handleDefaultRobotComboBoxChanged()
         
