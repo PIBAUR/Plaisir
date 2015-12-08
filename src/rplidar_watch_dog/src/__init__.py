@@ -51,7 +51,7 @@ def execute(tfPrefix):
             floodCmdVelThread.flooding = False
     
     
-def laserScanCB(self):
+def laserScanCB(msg):
     global lastUpdate
     
     lastUpdate = time.time()

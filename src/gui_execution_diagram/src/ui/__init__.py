@@ -12,10 +12,11 @@ from PyQt4.QtCore import *
 from PyQt4 import uic
 
 from canvas import Canvas
+from src.scenario_lib.src.items.nodes.playNode import PlayNode
 
 
 class ExecutionDiagram():
-    def __init__(self):
+    def __init__(self, fileToOpen = None, switchToMultiRobots = False, start = False):
         self.currentFilePath = None
         self.lastChangesSaved = True
         
@@ -50,16 +51,21 @@ class ExecutionDiagram():
         self.ui.show()
         self.resizeEvent()
         
-        #DEBUG: open default
-        self.currentFilePath = os.path.expanduser("~") + "/.ros/explore_01.dge" 
-        if os.path.exists(self.currentFilePath):
-            diagramToOpen = self.canvas.load(self.currentFilePath)
-            self.loadDiagram(diagramToOpen)
-            self.lastChangesSaved = True
-            self.updateWindowTitle()
+        if fileToOpen is not None:
+            self.currentFilePath = fileToOpen
+            if os.path.exists(self.currentFilePath):
+                diagramToOpen = self.canvas.load(self.currentFilePath)
+                self.loadDiagram(diagramToOpen)
+                self.lastChangesSaved = True
+                self.updateWindowTitle()
         
-        self.canvas.switchToMultiRobots()
-        #END_DEBUG
+        if switchToMultiRobots:
+            self.canvas.switchToMultiRobots()
+            
+        """if start:
+            for nodeInstance in self.canvas.nodesInstances:
+                if type(nodeInstance) == PlayNode:
+                    nodeInstance.handlePlayButtonClicked(None)"""
         
         #self.handleDefaultRobotComboBoxChanged()
         

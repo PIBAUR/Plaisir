@@ -75,6 +75,7 @@ MD25::MD25() :
     /**** Initialisation du port ****/
     /* Open and config port */
     port_opened = open((char*)name_port.c_str(), O_RDWR | O_NOCTTY );
+    kill_request = false;
 
     /* Print if could not open the port */
     ROS_ERROR_STREAM_COND_NAMED(port_opened < 0, "MD25_node", "Unable to open " << name_port);
@@ -171,6 +172,7 @@ void MD25::set_mode(unsigned char m)
         if (write(port_opened, command, 3) == -1)
         {
             ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+            kill_request = true;
         }
         /* Set mode variable */
         this->mode = m;
@@ -189,6 +191,7 @@ void MD25::get_mode()
 
     if(write(port_opened, command, 2) == -1){
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return;
     }
 
@@ -196,6 +199,7 @@ void MD25::get_mode()
     {
 
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
     }
 
     return ;
@@ -216,6 +220,7 @@ void MD25::get_encoder1()
     if (write(port_opened, command, 2) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
@@ -223,6 +228,7 @@ void MD25::get_encoder1()
     if (read(port_opened, &data[0], 4) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
@@ -258,6 +264,7 @@ void MD25::get_encoder2()
     if (write(port_opened, command, 2) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
@@ -265,6 +272,7 @@ void MD25::get_encoder2()
     if (read(port_opened, &data[0], 4) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
@@ -295,6 +303,7 @@ void MD25::reset_encoders()
     if (write(port_opened, command, 2) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
     }
     return ;
 }
@@ -313,12 +322,14 @@ void MD25::get_current1()
     if (write(port_opened, command, 2) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
     if (read(port_opened, &data, 1) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
     current[0]= data*CURRENT_IN_AMP;
@@ -341,12 +352,14 @@ void MD25::get_current2()
     if (write(port_opened, command, 2) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
     if (read(port_opened, &data, 1) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
     current[1]= data*CURRENT_IN_AMP;
@@ -379,6 +392,7 @@ void MD25::set_timeout(bool enabled)
     if (write(port_opened, command, 2) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
     }
     return ;
 }
@@ -397,12 +411,14 @@ void MD25::get_speed1()
     if (write(port_opened, command, 2) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
     if (read(port_opened, &data, 1) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
@@ -425,12 +441,14 @@ void MD25::get_speed2()
     if (write(port_opened, command, 2) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
     if (read(port_opened, &data, 1) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
@@ -453,6 +471,7 @@ void MD25::set_speed1(unsigned char speed)
     if (write(port_opened, command, 3) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
     }
 
     return ;
@@ -471,6 +490,7 @@ void MD25::set_speed2(unsigned char speed)
     if (write(port_opened, command, 3) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
     }
 
     return ;
@@ -501,6 +521,7 @@ void MD25::set_acceleration(unsigned char acceleration)
     if (write(port_opened, command, 3) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
     }
 
     return;
@@ -530,12 +551,14 @@ void MD25::get_acceleration()
     if (write(port_opened, command, 2) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
     if (read(port_opened, &data, 1) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
     accel = data;
@@ -557,12 +580,14 @@ void MD25::get_volt()
     if (write(port_opened, command, 2) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
 
     if (read(port_opened, &data, 1) == -1)
     {
         ROS_ERROR_STREAM_NAMED("MD25_node", "cannot write/read port" << name_port);
+        kill_request = true;
         return ;
     }
     volt = data*BATTERY_IN_VOLT;
@@ -743,7 +768,7 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(LOOP_RATE);
     loop_rate.sleep();
 // ecrire traitement des valeurs twist
-    while(ros::ok()){
+    while(ros::ok() && ! m.kill_request){
         m.set_motor();
         m.get_state();
         m.publish();
@@ -752,10 +777,5 @@ int main(int argc, char **argv)
         loop_rate.sleep();
     }
     m.stop();
-    ros::spin();
     return 0;
 }
-
-
-
-

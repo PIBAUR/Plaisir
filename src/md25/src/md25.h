@@ -127,6 +127,8 @@ private:
 
     ///----- CONSTRUCTOR/DESCTRUCTOR -----///
 public:
+    bool kill_request;
+
     /* Constructor and Destructor */
     MD25();
     ~MD25(){close(port_opened);}

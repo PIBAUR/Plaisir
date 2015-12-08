@@ -101,7 +101,7 @@ class CompleteScenarioNode(DiagramNode):
                 hasCheckResult = checkResult.is_possible
             except rospy.service.ServiceException, e:
                 hasCheckResult = False
-                rospy.logerr(e.message)
+                #rospy.logerr(e.message)
             
             if hasCheckResult:
                 # define the first point of path finding with the new path checked

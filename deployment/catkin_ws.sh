@@ -37,6 +37,7 @@ rsync -r -avz --delete-after \
 	--exclude '/catkin_ws/src/occupancy_grid_utils' \
 	--exclude '/catkin_ws/src/python_bindings_tutorial' \
 	--exclude '/catkin_ws/src/hector_navigation' \
+	--exclude '/catkin_ws/src/installation_manager' \
 	--exclude '/catkin_ws/src/launch_utils' \
 	--exclude '/catkin_ws/src/local_path' \
 	--exclude '/catkin_ws/src/obstacle_avoidance_test' \

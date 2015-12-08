@@ -7,8 +7,7 @@ if [ -z $robot ]; then
 fi
 
 echo "Sync time robot $robot"
-ssh odroid@$ROBOTS_BASE_IP$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate $ROS_MASTER_IP'
-
 echo "prevent screen to shutdown $robot and move mouse to right bottom corner"
-ssh odroid@$ROBOTS_BASE_IP$robot 'export DISPLAY=:0;xset s off -dpms;xdotool mousemove 1920 1080'
+echo "clean log"
+ssh odroid@$ROBOTS_BASE_IP$robot 'echo odroid|sudo -S service ntp stop; echo odroid|sudo -S ntpdate $ROS_MASTER_IP;export DISPLAY=:0;xset s off -dpms;xdotool mousemove 1920 1080;rm -rf /home/odroid/.ros/log'
 

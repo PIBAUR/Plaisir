@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# clean log
+rm -rf /home/artlab/.ros/log
+
 # generate .rviz
 echo "generate .rviz for robots $robots"
 python ~/catkin_ws/params/generate_init_global_rviz.py 00 01 02 03 04 05 06

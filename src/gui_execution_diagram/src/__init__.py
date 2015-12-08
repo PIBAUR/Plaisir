@@ -58,7 +58,18 @@ if __name__ == '__main__':
         TO CHANGE DEPENDING ON THE PACKAGE:
         """
         from ui import ExecutionDiagram
-        main = ExecutionDiagram()
+        args = sys.argv[1:]
+        fileToOpen = None
+        switchToMultiRobots = False
+        start = False
+        for arg in args:
+            if os.path.exists(arg):
+                fileToOpen = arg
+            if arg == "--switch-to-multi-robots":
+                switchToMultiRobots = True
+            if arg == "--start":
+                start = True
+        main = ExecutionDiagram(fileToOpen, switchToMultiRobots, start)
         """ ----------------------------------- """
         
         sys.exit(app.exec_())

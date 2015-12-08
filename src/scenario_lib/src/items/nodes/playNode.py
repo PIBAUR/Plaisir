@@ -59,7 +59,7 @@ class PlayNode(DiagramNode):
         self.prepareToRestart = False
         self.threadSafeTimer = QTimer()
         self.threadSafeTimer.timeout.connect(partial(self.handleThreadSafeTimer))
-        self.threadSafeTimer.start(20)
+        self.threadSafeTimer.start(30)
         
         # ui
         self.playButton = QPushButton("Play")

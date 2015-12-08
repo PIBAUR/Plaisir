@@ -49,7 +49,7 @@ class ScenarioNode(DiagramNode):
         # set uiTimer for update graphics, because they must not be executed by the ROS callback thread
         self.uiTimer = QTimer(self.widget)
         self.uiTimer.timeout.connect(self.handleUITimer)
-        self.uiTimer.setInterval(10)
+        self.uiTimer.setInterval(100)
         self.uiTimer.start()
         
         # set uiTimer to simulate
@@ -109,7 +109,7 @@ class ScenarioNode(DiagramNode):
     
     
     def handleUITimer(self, firstTime = False):
-        if ScenarioNode.masterPlaying and time.time() - ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] > 10:
+        if ScenarioNode.masterPlaying and time.time() - ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] > 60:
             # time out ! to relaunch
             print "pathFeedback timeout for " + self.robotId
             for nodeInstance in self.canvas.nodesInstances:
