@@ -13,6 +13,7 @@
 /plop.yaml
 /plap.pgm
 *.pyc
+*.history
 /src.backup
 /notrebonplaisir.c
 /devel/

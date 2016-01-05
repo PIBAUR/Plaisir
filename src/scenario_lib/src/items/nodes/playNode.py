@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt4.QtGui import *
-
+import time
 import rospy
 import tf
 from functools import partial
@@ -80,25 +80,31 @@ class PlayNode(DiagramNode):
         self.lookupTransformTimer.setSingleShot(True)
         self.lookupTransformTimer.timeout.connect(partial(self.getRobotTransform))
         self.lookupTransformTimer.start(200)
-    
+        """ 
+        WILSON MODIF
+        #wait X seceonds before auto play        
+        
+        time.sleep(10)
+        self.handleStopButtonClicked(None)
+        time.sleep(1)
+        self.handlePlayButtonClicked(None)
         #self.playButton.setEnabled(robotId is not None)
+        """
     
-    
-    def output(self, isMastering = False):
+    def output(self):
         self.stopExecution()
         
         inputs = self.getInputs()
         
         self.startExecution(0)
         
-        return inputs[0].output(self.getArgs(isMastering), self.updateRatio)
+        return inputs[0].output(self.getArgs(), self.updateRatio)
     
     
-    def getArgs(self, isMastering = False):
+    def getArgs(self):
         return {
                 "robotPosition": self.transformPosition, 
                 "robotOrientation": self.transformOrientation,
-                "isMastering": isMastering
                 }
     
     
@@ -153,7 +159,7 @@ class PlayNode(DiagramNode):
         pass
     
     
-    def playScenario(self, isMastering = False):
+    def playScenario(self):
         #DEBUG: remove exception handler
         try:
             # reset error
@@ -163,7 +169,7 @@ class PlayNode(DiagramNode):
                 
             # do play while there is not a scenario
             while True:
-                self.playingScenario = self.output(isMastering)
+                self.playingScenario = self.output()
                 if self.playingScenario is not None:
                     break
             self.playingScenarioLabel.setText(self.playingScenario.niceName())

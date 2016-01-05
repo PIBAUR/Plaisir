@@ -30,13 +30,22 @@ scenario_db_path: "~/.notrebonplaisir/scenarios"
 video_db_path: "~/Bureau/films_notre_bon_plaisir"
 robot_videos_path: "/home/odroid/.notrebonplaisir/videos"
 
-## FRONT OBSTACLE
+##### OBSTACLE
+##Front :
 ## angle de détection d'obsatcle à l'avant du robot (en degré)
 front_angle: 80
 ## distance minimale de détection d'obstacle à l'avant du robot (en mètre)
-distance_obstacle_min: 0.35
+front_distance_obstacle_min: 0.35
 ## distance maximale de détection d'obstacle à l'avant du robot (en mètre)
-distance_obstacle_max: 1.00
+front_distance_obstacle_max: 0.80
+
+##Back :
+## angle de détection d'obsatcle à l'avant du robot (en degré)
+back_angle: 80
+## distance minimale de détection d'obstacle à l'avant du robot (en mètre)
+back_distance_obstacle_min: 0.10
+## distance maximale de détection d'obstacle à l'avant du robot (en mètre)
+back_distance_obstacle_max: 0.40
 
 ## PATH FINDING
 ## nombre d'itérations algorithme RRT

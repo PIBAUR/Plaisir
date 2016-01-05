@@ -92,7 +92,7 @@ def scenarioCallback(msg):
     path.start_timestamp = msg.start_timestamp
         
     rospy.loginfo("""new """ + msg.type + """ scenario: 
-    - startime: """ + str(path.start_timestamp) + """ poses
+    - startime: """ + str(path.start_timestamp) + """ 
     - """ + str(len(msg.bezier_paths.curves)) + """ curves
     - distance of """ + (str(distance) if distance is not None else "???") + """
     - """ + str(path.path.poses) + """ poses

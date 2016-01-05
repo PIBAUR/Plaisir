@@ -10,6 +10,7 @@ PathFollower::PathFollower(ros::NodeHandle nh):
     cpt_(0)
 {
     cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+    wanted_cmd_pub_ = nh_.advertise<geometry_msgs::Twist>("wanted_cmd_vel", 1);
     ratio_pub_ = nh_.advertise<scenario_msgs::PathFeedback>("path_feedback", 1);
 
     /*** get rosparam ***/
@@ -63,6 +64,10 @@ void PathFollower::pathCB(const scenario_msgs::PathPosition &msg)
 		ROS_INFO_STREAM("New path received :   id = " << path_uid_ << "  |  size = empty.");
 }
 
+
+void PathFollower::freezePathCB(const std_msgs::Bool &msg) {
+	path_follower_frozen = msg.data;
+}
 
 
 void PathFollower::computeCmd(double &lin, double &ang)
@@ -193,12 +198,16 @@ void PathFollower::spinOnce()
 				computeCmd(cmd.linear.x, cmd.angular.z);
 			else if(dth_ > last_point_angle_thresh_)
 				computeLastPointAngleCmd(cmd.linear.x, cmd.angular.z);
-			cmd_pub_.publish(cmd);
+			if (! path_follower_frozen)
+				cmd_pub_.publish(cmd);
+			wanted_cmd_pub_.publish(cmd);
 		}
 		else if( du_ > next_point_distance_thresh_)
 		{
 			computeCmd(cmd.linear.x, cmd.angular.z);
-			cmd_pub_.publish(cmd);
+			if (! path_follower_frozen)
+				cmd_pub_.publish(cmd);
+			wanted_cmd_pub_.publish(cmd);
 		}
 		else
 		{
@@ -220,7 +229,9 @@ void PathFollower::spinOnce()
 	{
 		cmd.linear.x = 0;
 		cmd.angular.z = 0;
-		cmd_pub_.publish(cmd);
+		if (! path_follower_frozen)
+			cmd_pub_.publish(cmd);
+		wanted_cmd_pub_.publish(cmd);
 		publishRatio();
 		size_path_ = -1;
 		ROS_INFO_STREAM("Path follower ended");
@@ -229,7 +240,9 @@ void PathFollower::spinOnce()
 	{
 		cmd.linear.x = 0;
 		cmd.angular.z = 0;
-		cmd_pub_.publish(cmd);
+		if (! path_follower_frozen)
+			cmd_pub_.publish(cmd);
+		wanted_cmd_pub_.publish(cmd);
 		size_path_=-1;
 		ROS_INFO_STREAM("Path follower received 0 sized path");
 	}
@@ -242,6 +255,7 @@ int main(int argc, char** argv)
 	ros::NodeHandle nh;
 	PathFollower pf(nh);
 	ros::Subscriber path_sub = nh.subscribe("path_travel", 1, &PathFollower::pathCB, &pf);
+	ros::Subscriber freeze_path_follower_sub = nh.subscribe("freeze_path_follower", 1, &PathFollower::freezePathCB, &pf);
 	ros::Rate loop(LOOP_RATE);
 
 	while(ros::ok())

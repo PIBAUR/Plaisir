@@ -23,6 +23,10 @@ class StreamingWebSocketServer(WebSocket):
     
     def sendPause(self):
         self.sendMessage("pause")
+
+    
+    def sendRefresh(self):
+        self.sendMessage("refresh")
         
         
     def executeScript(self, script):

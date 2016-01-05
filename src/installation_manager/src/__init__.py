@@ -20,6 +20,7 @@ class LogProcessThread(threading.Thread):
         for line in self.iterator:
             print self.prefix + line
         print self.prefix + "log process ended"
+        
 
 
 def execute():
@@ -47,6 +48,17 @@ def execute():
                 
                 processes[robotId] = (process, stdoutLogProcessThread, stderrLogProcessThread)
                 
+                processesChanged = True
+            elif processes[robotId][0].poll() != None :
+                #TODO: Check this
+                """ 
+                Add to check if process still alive
+                May need review !!!
+                """
+                #process has terminated
+                print "/robot" + robotId + " process PID  " + str(processes[robotId][0].pid) + " has terminated..."
+                #processes[robotId][0].kill()
+                processes[robotId] = None
                 processesChanged = True
         else:
             #print "fault"
@@ -79,7 +91,7 @@ if __name__ == '__main__':
     firstTime = True
     while not rospy.is_shutdown():
         execute()
-        rospy.sleep(10.)
+        rospy.sleep(5.)
         
         """
         if firstTime:

@@ -43,7 +43,7 @@ def getLaunchedRobots():
     launchedNodes = os.popen("/opt/ros/hydro/bin/rosnode list").read().split("\n")
     for launchedNode in launchedNodes:
         splittedLaunchedNode = launchedNode.split("/")
-        if launchedNode.startswith("/robot") and len(splittedLaunchedNode) > 2:
+        if launchedNode.startswith("/robot") and launchedNode.endswith("/MD25") and len(splittedLaunchedNode) > 2:
             robotId = splittedLaunchedNode[1]
             if robotId not in result:
                 result.append(robotId)

@@ -9,10 +9,10 @@ from geometry_msgs.msg import TwistStamped as TwistStampedMsg
 
 
 def pathCallback(msg):
-    rospy.loginfo("Receive path with " + str(len(msg.path.poses)) + " poses, start at " + str(msg.start_timestamp)\
-                   + " with " + str(len(msg.time_at_poses.time_at_poses)) )
+    rospy.loginfo("Received path with " + str(len(msg.path.poses)) + " poses, start at " + str(msg.start_timestamp) + " with " + str(len(msg.time_at_poses.time_at_poses)) + "sequences")
     pathMsg = createPathChoregraphic(msg)
     pathChoregraphicPublisher.publish(pathMsg)
+    rospy.loginfo("Published twists path with " + str(len(pathMsg.path.twists)) + " twists")
 
 
 def getSequenceLength(path, start, end):
@@ -70,10 +70,10 @@ def createPathChoregraphic(msg):
         seq["time step"] = seq["duration"]/seq["nb poses"]
         seq["distance"] = getSequenceLength(path, sequences[s].pose_index, sequences[s+1].pose_index)
         total_time += seq["duration"] 
-        rospy.loginfo("Sequence #" + str(s) + "/" + str(len(sequences)-1) +\
-                      " : start time = " + str(seq["start time"].secs) + " duration = " + str(seq["duration"]) +\
-                      " nb poses = " + str(seq["nb poses"]) + " time step = " + str(seq["time step"]) +\
-                      " distance = " + str(seq["distance"]) )
+        #rospy.loginfo("Sequence #" + str(s) + "/" + str(len(sequences)-1) +\
+        #              " : start time = " + str(seq["start time"].secs) + " duration = " + str(seq["duration"]) +\
+        #              " nb poses = " + str(seq["nb poses"]) + " time step = " + str(seq["time step"]) +\
+        #              " distance = " + str(seq["distance"]) )
         
         if seq["nb poses"] == 1 :
             ts = TwistStampedMsg()
@@ -109,7 +109,6 @@ def createPathChoregraphic(msg):
                 pathMsg.path.twists.append(ts)
                 nb_point += 1
     
-    rospy.loginfo("Create path with " + str(nb_point) + " poses, start at " + str(pathMsg.start_timestamp.secs)) 
     return pathMsg
 
 
@@ -120,4 +119,9 @@ if __name__ == "__main__":
     
     pathChoregraphicPublisher = rospy.Publisher("path_twist", PathSpeedMsg)
     
-    rospy.spin()
+    #rospy.spin()
+    while not rospy.is_shutdown():
+        #rospy.loginfo("still alive")
+        rospy.sleep(.5)
+    
+    

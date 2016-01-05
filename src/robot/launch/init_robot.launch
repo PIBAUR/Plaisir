@@ -35,6 +35,9 @@
 
 		<!-- WATCH DOG -->
 		<node name="rplidar_watch_dog" pkg="rplidar_watch_dog" type="__init__.py" machine="robot$(arg robot)" respawn="true"/>
+		<!-- 
+		<node name="tf_watch_dog" pkg="watch_dog" type="tf_watch_dog.py" machine="$(env USER)" required="true"/>
+		 -->
 		
 		<!-- LOCALISATION -->
 		<!-- TO BYPASS LOCALISATION -->

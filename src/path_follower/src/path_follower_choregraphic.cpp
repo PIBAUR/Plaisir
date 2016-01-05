@@ -4,6 +4,7 @@
 #include <scenario_msgs/TwistStampedArray.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
 #include <scenario_msgs/PathFeedback.h>
 
@@ -21,8 +22,8 @@ protected:
     ros::NodeHandle nh_;
 
     ros::Publisher cmd_pub_;
+    ros::Publisher wanted_cmd_pub_;
     ros::Publisher ratio_pub_;
-    ros::Publisher interrupted_pub_;
 
     scenario_msgs::TwistStampedArray twist_array_;
     int path_uid_;
@@ -34,6 +35,8 @@ protected:
     float linear_speed_;
     float angular_speed_;
 
+    bool path_follower_frozen;
+
     int cpt_;
 
 
@@ -42,6 +45,7 @@ public:
     ~ChoregrahicPathFollower(){};
 
     void pathCB(const scenario_msgs::PathSpeed &msg);
+    void freezePathCB(const std_msgs::Bool &msg);
     void getNewTwist();
     void publishRatio();
     void spinOnce();
@@ -60,8 +64,8 @@ ChoregrahicPathFollower::ChoregrahicPathFollower(ros::NodeHandle nh):
     angular_speed_(0.0)
 {
     cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+    wanted_cmd_pub_   = nh_.advertise<geometry_msgs::Twist>("wanted_cmd_vel", 1);
     ratio_pub_ = nh_.advertise<scenario_msgs::PathFeedback>("path_feedback", 1);
-    interrupted_pub_   = nh_.advertise<std_msgs::String>("state", 1);
 }
 
 
@@ -83,6 +87,11 @@ void ChoregrahicPathFollower::pathCB(const scenario_msgs::PathSpeed &msg)
     ROS_INFO_STREAM("New path received :   id = " << path_uid_ << "  |  size = " << size_path_ );
 }
 
+
+
+void ChoregrahicPathFollower::freezePathCB(const std_msgs::Bool &msg) {
+	path_follower_frozen = msg.data;
+}
 
 
 
@@ -150,7 +159,9 @@ void ChoregrahicPathFollower::spinOnce()
             //getNewTwist();
         cmd.linear.x=linear_speed_;
         cmd.angular.z=angular_speed_;
-        cmd_pub_.publish(cmd);
+        if (! path_follower_frozen)
+        	cmd_pub_.publish(cmd);
+        wanted_cmd_pub_.publish(cmd);
 
 		// publish ratio
 		if(cpt_>RATIO_PUBLISH_RATE_DIVIDOR)
@@ -162,7 +173,9 @@ void ChoregrahicPathFollower::spinOnce()
     }
     else if(size_path_ > 0 && index_path_>=size_path_)
     {
-        cmd_pub_.publish(cmd);
+        if (! path_follower_frozen)
+        	cmd_pub_.publish(cmd);
+        wanted_cmd_pub_.publish(cmd);
 
 		publishRatio();
 
@@ -172,13 +185,11 @@ void ChoregrahicPathFollower::spinOnce()
     }
     else if(size_path_ ==0)
     {
-        cmd_pub_.publish(cmd);
+        if (! path_follower_frozen)
+        	cmd_pub_.publish(cmd);
+        wanted_cmd_pub_.publish(cmd);
         size_path_=-1;
 		ROS_INFO_STREAM("Path follower received 0 sized path");
-
-		/*std_msgs::String interrupted_msg;
-		interrupted_msg.data = "INTERRUPTED_STATE";
-		interrupted_pub_.publish(interrupted_msg);*/
     }
 }
 
@@ -189,6 +200,7 @@ int main(int argc, char** argv)
 	ros::NodeHandle nh;
 	ChoregrahicPathFollower cpf(nh);
 	ros::Subscriber path_sub = nh.subscribe("path_twist", 1, &ChoregrahicPathFollower::pathCB, &cpf);
+	ros::Subscriber freeze_path_follower_sub = nh.subscribe("freeze_path_follower", 1, &ChoregrahicPathFollower::freezePathCB, &cpf);
 	ros::Rate loop(LOOP_RATE);
 
 	while(ros::ok())

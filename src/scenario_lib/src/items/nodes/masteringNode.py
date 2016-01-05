@@ -6,7 +6,10 @@ import random
 from PyQt4.QtGui import *
 
 from src.scenario_lib.src.items.nodes.diagramNode import DiagramNode
+from src.scenario_lib.src.items.nodes.choregraphicScenarioNode import ChoregraphicScenarioNode
+from src.scenario_lib.src.items.nodes.playNode import PlayNode
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
+from src.scenario_lib.src.items.robot import Robot
 
 class MasteringNode(DiagramNode):
     nodeName = u"Mastering"
@@ -26,14 +29,21 @@ class MasteringNode(DiagramNode):
         inputs = self.getInputs()
         
         indexOutput = 0
-        i = 0
-        if args["isMastering"] is not None and args["isMastering"] != False:
-            for inputNode in inputs:
-                if args["isMastering"] == inputNode.masterId and inputNode.robotId == self.robotId:
-                    indexOutput = i
+        
+        # first index if nobody is mastering, else the same node
+        if self.robotId != Robot.DEFAULT_ROBOT_ID:
+            # get mastering scenarios
+            for nodeInstance in self.canvas.nodesInstances:
+                if type(nodeInstance) == PlayNode and nodeInstance.robotId == Robot.DEFAULT_ROBOT_ID:
+                    if nodeInstance.playingScenario is not None and type(nodeInstance.playingScenario.originNode) == ChoregraphicScenarioNode and nodeInstance.playingScenario.originNode.isMastering:
+                        i = 0
+                        for newNodeInstance in inputs:
+                            if newNodeInstance.masterId == nodeInstance.playingScenario.originNode.id:
+                                indexOutput = i
+                                break
+                            i += 1
+                if indexOutput != 0:
                     break
-                
-                i += 1
         
         inputItem = inputs[indexOutput]
         

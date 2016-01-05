@@ -46,13 +46,15 @@ class MediaPlayer():
         self.waitingForVideoEndThread = None
         self.mediaPlayerClientInitialized = False
         
+        self.iterationsWithoutRefreshing = 0
+        
         self.browser = None
         self.startTimestamp = None
         
         # load html file
         mediaPlayerUrl = "file://" + os.path.split(os.path.abspath(__file__))[0] + "/media_player.html"
         self.process = subprocess.Popen(['chromium-browser', "--disable-session-crashed-bubble", "--disable-infobars", "--kiosk", mediaPlayerUrl])
-        #subprocess.Popen(['chromium-browser', mediaPlayerUrl])
+        #self.process = subprocess.Popen(['chromium-browser', "--disable-session-crashed-bubble", "--disable-infobars", mediaPlayerUrl])
         
         # start communication
         self.webSocketServer = SimpleWebSocketServer("127.0.0.1", 9001, StreamingWebSocketServer, self.handleBrowserMessageReceived)
@@ -94,7 +96,14 @@ class MediaPlayer():
                     if not os.path.exists(mediaPath):
                         rospy.logerr("Media '" + mediaPath + "' does not exist in the robot")
                 
+                #TODO: c'est pas terrible, mais c'est une solution pour vider la RAM de temps en temps
+                if self.iterationsWithoutRefreshing > 5:
+                    self.iterationsWithoutRefreshing = 0
+                    self.browser.sendRefresh()
+                    time.sleep(.8)
+                
                 self.browser.sendMedias(mediaPaths)
+                self.iterationsWithoutRefreshing += 1
                 
                 if data.type == "choregraphic":
                     self.startTimestamp = data.start_timestamp

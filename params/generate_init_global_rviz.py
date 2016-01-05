@@ -89,21 +89,21 @@ for robot in robots:
           Length: 0.1
           Name: """ + robot + """/Odom
           Position Tolerance: 0.05
-          Topic: /""" + robot + """/odom
+          Topic: /robot""" + robot + """/odom
           Value: true
         - Arrow Length: 0.3
           Class: rviz/PoseArray
           Color: 0; 255; 255
           Enabled: true
           Name: """ + robot + """/ParticulesAMCL
-          Topic: /""" + robot + """/particlecloud
+          Topic: /robot""" + robot + """/particlecloud
           Value: true
         - Arrow Length: 0.2
           Class: rviz/PoseArray
           Color: 170; 0; 255
           Enabled: true
           Name: """ + robot + """/Path
-          Topic: /""" + robot + """/path_viz
+          Topic: /robot""" + robot + """/path_viz
           Value: true
         - Alpha: 1
           Autocompute Intensity Bounds: true
@@ -130,7 +130,7 @@ for robot in robots:
           Size (Pixels): 3
           Size (m): 0.05
           Style: Spheres
-          Topic: /""" + robot + """/scan
+          Topic: /robot""" + robot + """/scan
           Use Fixed Frame: true
           Use rainbow: true
           Value: true

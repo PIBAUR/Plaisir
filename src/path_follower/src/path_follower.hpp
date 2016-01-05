@@ -32,6 +32,7 @@ protected:
     ros::NodeHandle nh_;
 
     ros::Publisher cmd_pub_;
+    ros::Publisher wanted_cmd_pub_;
     ros::Publisher ratio_pub_;
     tf::TransformListener tf_listener_;
     std::string robot_frame_;
@@ -54,6 +55,8 @@ protected:
     double last_point_angle_thresh_;
     double k_th_;
 
+    bool path_follower_frozen;
+
     int cpt_;
 
 
@@ -62,6 +65,7 @@ public:
     ~PathFollower(){};
 
     void pathCB(const scenario_msgs::PathPosition &msg);
+    void freezePathCB(const std_msgs::Bool &msg);
     void computeCmd(double &lin, double &ang);
     void computeLastPointAngleCmd(double &lin, double &ang);
     void publishRatio();

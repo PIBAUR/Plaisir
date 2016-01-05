@@ -87,6 +87,8 @@ class ScenarioNode(DiagramNode):
             self.currentScenario.startPosition = None
             self.currentScenario.startOrientation = None
             
+            self.currentScenario.originNode = self
+            
             return self.currentScenario
     
     
@@ -95,7 +97,10 @@ class ScenarioNode(DiagramNode):
         
         if not ScenarioNode.simulation:
             if self.pathFeedbackSubscriber is not None:
-                self.pathFeedbackSubscriber.unregister()
+                try:
+                    self.pathFeedbackSubscriber.unregister()
+                except:
+                    pass
         else:
             self.simulationTimer.stop()
         
@@ -109,14 +114,18 @@ class ScenarioNode(DiagramNode):
     
     
     def handleUITimer(self, firstTime = False):
-        if ScenarioNode.masterPlaying and time.time() - ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] > 60:
+        """
+        if ScenarioNode.masterPlaying and time.time() - ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] > 10:
             # time out ! to relaunch
             print "pathFeedback timeout for " + self.robotId
             for nodeInstance in self.canvas.nodesInstances:
                 if nodeInstance.__class__.nodeName == "Play" and nodeInstance.isPlaying and nodeInstance.robotId == self.robotId: #BEARK BEARK BEARK !
                     print "replay PlayNode"
-                    nodeInstance.playScenario()
-            ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] = time.time()
+                    nodeInstance.handleStopButtonClicked(None)
+                    time.sleep(1)
+                    nodeInstance.handlePlayButtonClicked(None)
+            ScenarioNode.lastPathFeedbackUpdateByRobot[self.robotId] = time.time()"""
+        
         if self.executing:
             if self.pathFeedbackValue >= 1:
                 self.stopExecution()

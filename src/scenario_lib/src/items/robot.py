@@ -29,12 +29,12 @@ from src.bezier_curve.src import bezier_interpolate
 from src.robot.src import utils
 
 class Robot():
-    """launchedRobots = utils.getLaunchedRobots()
+    launchedRobots = sorted(utils.getLaunchedRobots())
     if len(launchedRobots) == 0:
-        launchedRobots = ["robot01"]"""
-    ROBOT_ID_LIST = ["robot00", "robot01", "robot02", "robot03", "robot04", "robot05", "robot06"]#launchedRobots#, "robot01"]#[DEFAULT_ROBOT_ID, "robot01"]
-    #print ROBOT_ID_LIST
-    DEFAULT_ROBOT_ID = ROBOT_ID_LIST[0]#"robot01"#"default"
+        launchedRobots = ["robot01"]
+    ROBOT_ID_LIST = launchedRobots#["robot00", "robot01", "robot02", "robot03", "robot04", "robot05", "robot06"]
+    print ROBOT_ID_LIST
+    DEFAULT_ROBOT_ID = ROBOT_ID_LIST[0]
     
     currentColorIndex = 0
     

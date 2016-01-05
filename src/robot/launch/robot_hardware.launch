@@ -14,7 +14,9 @@
 		args="-0.080 0 0.045  0 0 3.14159265359 /robot$(arg robot)/base_link /robot$(arg robot)/base_laser_link 100"/>
 		
 	<!-- HARDWARE -->
-	<node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
+	<!-- 
+	 <node name="MD25" pkg="md25" type="md25_node" output="screen" machine="robot$(arg robot)" respawn="true"/>
+	 -->
 	<node name="rplidar" pkg="rplidar_ros" type="rplidarNode" output="screen" machine="robot$(arg robot)" respawn="true">
 		<param name="serial_port" type="string" value="/dev/rplidar"/>  
 	</node>

@@ -80,8 +80,10 @@
 	}
 	
 	function switchPlayersVisibility() {
-		$('#' + getOtherPlayer()).css('display', 'none');
 		$('#' + currentPlayer).css('display', 'block');
+		$('#' + getOtherPlayer()).css('display', 'none');
+		
+		//document.getElementById(getOtherPlayer()).load();
 	}
 	
 	function playVideos(videos) {
@@ -165,6 +167,9 @@
 			} else if (message == "pause") {
 				log("pause");
 				pauseCurrentVideo();
+			} else if (message == "refresh") {
+				log("refresh");
+				window.location.reload();
 			} else if (message.indexOf("rosTime:") == 0) {
 				updateRosTime(parseFloat(message.substring(8)));
 			}
@@ -200,11 +205,12 @@
 </head>
 
 <body onload="javascript: init();">
-	<div id="log" style="color: red; position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: None;"></div>
+	<div style="background: url('dbs.jpg') no-repeat; position: absolute; left: 0; right: 0; top: 0; bottom: 0;"></div>
+	<div id="log" style="color: red; position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: none;"></div>
 	<div id="videoContainer">
-		<video id="video_0" width="100%" height="100%" type="video/mp4">
+		<video id="video_0" width="100%" height="100%" style="position: absolute; left: 0; right: 0; top: 0; bottom: 0;" type="video/mp4">
 		</video>
-		<video id="video_1" width="100%" height="100%" style="display: none;" type="video/mp4">
+		<video id="video_1" width="100%" height="100%" style="display: none; position: absolute; left: 0; right: 0; top: 0; bottom: 0;" type="video/mp4">
 		</video>
 	</div>
 </body>

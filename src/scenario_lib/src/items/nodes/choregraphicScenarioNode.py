@@ -41,7 +41,7 @@ class ChoregraphicScenarioNode(ScenarioNode):
         self.isMastering = self.mastering_checkBox.isChecked()
         
         
-    def output(self, args, updateRatioCallback):
+    """def output(self, args, updateRatioCallback):
         result = ScenarioNode.output(self, args, updateRatioCallback)
         
         if self.isMastering and self.robotId == Robot.DEFAULT_ROBOT_ID:
@@ -50,7 +50,7 @@ class ChoregraphicScenarioNode(ScenarioNode):
                     nodeInstance.playScenario(self.id)
                     
         
-        return result
+        return result"""
     
     
     def getSpecificsData(self):
