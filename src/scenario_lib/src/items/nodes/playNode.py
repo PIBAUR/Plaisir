@@ -251,12 +251,6 @@ class PlayNode(DiagramNode):
         state = msg.data
         if state == PlayNode.INTERRUPTING_STATE:
             self.hasToRestart = True
-            #self.prepareToRestart = True
-        """if state == PlayNode.INTERRUPTED_STATE:
-            #if self.prepareToRestart:
-            rospy.loginfo("has to restart")
-            self.prepareToRestart = False
-            """
     
     
     def stopAllScenarios(self, robotId = None, withoutSendingFreeze = False):

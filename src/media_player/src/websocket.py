@@ -19,6 +19,10 @@ class StreamingWebSocketServer(WebSocket):
     
     def sendRosTime(self, rosTime):
         self.sendMessage("rosTime:" + str(rosTime))
+    
+    
+    def sendSeek(self, offset):
+        self.sendMessage("seek:" + str(offset))
 
     
     def sendPause(self):

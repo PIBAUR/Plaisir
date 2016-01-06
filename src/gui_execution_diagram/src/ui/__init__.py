@@ -60,20 +60,15 @@ class ExecutionDiagram():
                 self.lastChangesSaved = True
                 self.updateWindowTitle()
             
-        """nodeInstanceToPlay = None
-        if start:
-            for nodeInstance in self.canvas.nodesInstances:
-                if type(nodeInstance) == PlayNode:
-                    nodeInstanceToPlay = nodeInstance"""
         
         if switchToMultiRobots:
             self.canvas.switchToMultiRobots()
         
-        """if nodeInstanceToPlay is not None:
-            nodeInstanceToPlay.handlePlayButtonClicked(None)"""
+        if start:
+            for nodeInstance in self.canvas.nodesInstances:
+                if type(nodeInstance) == PlayNode:
+                    nodeInstance.handlePlayButtonClicked(None)
             
-        #self.handleDefaultRobotComboBoxChanged()
-        
     
     # menu actions
     def newDiagram(self):

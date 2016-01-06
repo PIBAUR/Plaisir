@@ -86,6 +86,11 @@
 		//document.getElementById(getOtherPlayer()).load();
 	}
 	
+	function seek(offset) {
+		var player = document.getElementById(currentPlayer);
+		player.currentTime += offset;
+	}
+	
 	function playVideos(videos) {
 		newVideosSended = true;
 		passedCurrentTime = 0.;
@@ -170,6 +175,8 @@
 			} else if (message == "refresh") {
 				log("refresh");
 				window.location.reload();
+			} else if (message.indexOf("seek:") == 0) {
+				seek(parseFloat(message.substring(5)));
 			} else if (message.indexOf("rosTime:") == 0) {
 				updateRosTime(parseFloat(message.substring(8)));
 			}

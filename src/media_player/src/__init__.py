@@ -47,10 +47,18 @@ class MediaPlayer():
         self.mediaPlayerClientInitialized = False
         
         self.iterationsWithoutRefreshing = 0
+        self.iterationsWithoutRelaunching = 0
         
         self.browser = None
         self.startTimestamp = None
         
+        self.launchBrowser()
+        
+        self.checkMediaSyncThread = CheckMediaSyncThread(self.checkMediaSync)
+        self.checkMediaSyncThread.start()
+    
+    
+    def launchBrowser(self):
         # load html file
         mediaPlayerUrl = "file://" + os.path.split(os.path.abspath(__file__))[0] + "/media_player.html"
         self.process = subprocess.Popen(['chromium-browser', "--disable-session-crashed-bubble", "--disable-infobars", "--kiosk", mediaPlayerUrl])
@@ -60,10 +68,15 @@ class MediaPlayer():
         self.webSocketServer = SimpleWebSocketServer("127.0.0.1", 9001, StreamingWebSocketServer, self.handleBrowserMessageReceived)
         Thread(target = self.webSocketServer.serveforever).start()
         
-        self.checkMediaSyncThread = CheckMediaSyncThread(self.checkMediaSync)
-        self.checkMediaSyncThread.start()
-        
     
+    def killBrowser(self):
+        self.webSocketServer.close()
+        os.system("kill -9 " + str(self.process.pid))
+        
+        self.browser = None
+        self.mediaPlayerClientInitialized = False
+        
+        
     def checkMediaSync(self):
         if self.startTimestamp is not None:
             if self.browser is not None:
@@ -97,13 +110,34 @@ class MediaPlayer():
                         rospy.logerr("Media '" + mediaPath + "' does not exist in the robot")
                 
                 #TODO: c'est pas terrible, mais c'est une solution pour vider la RAM de temps en temps
-                if self.iterationsWithoutRefreshing > 5:
+                if self.iterationsWithoutRelaunching >= 15:
+                    now = time.time()
+                    self.iterationsWithoutRelaunching = 0
                     self.iterationsWithoutRefreshing = 0
+                    
+                    rospy.loginfo("Restart browser to reinit RAM")
+                    self.killBrowser()
+                    time.sleep(2)
+                    self.launchBrowser()
+                    # wait for a new browser
+                    while self.browser is None:
+                        time.sleep(.001)
+                    self.browser.sendSeek(4.7)
+                    rospy.loginfo("Restart browser took " + str(time.time() - now) + "s")
+                        
+                if self.iterationsWithoutRefreshing >= 5:
+                    self.iterationsWithoutRefreshing = 0
+                    
+                    rospy.loginfo("Refresh browser to reinit RAM")
                     self.browser.sendRefresh()
                     time.sleep(.8)
                 
                 self.browser.sendMedias(mediaPaths)
                 self.iterationsWithoutRefreshing += 1
+                self.iterationsWithoutRelaunching += 1
+                
+                rospy.loginfo("iterationsWithoutRefreshing: " + str(self.iterationsWithoutRefreshing))
+                rospy.loginfo("iterationsWithoutRelaunching: " + str(self.iterationsWithoutRelaunching))
                 
                 if data.type == "choregraphic":
                     self.startTimestamp = data.start_timestamp
@@ -128,9 +162,8 @@ class MediaPlayer():
     
     
     def destroy(self):
-        self.webSocketServer.close()
         self.checkMediaSyncThread.kill()
-        os.system("kill -9 " + str(self.process.pid))
+        self.killBrowser()
         
                 
     
