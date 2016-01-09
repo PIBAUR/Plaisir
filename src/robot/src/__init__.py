@@ -17,6 +17,15 @@ from scenario_msgs.msg import Scenario as ScenarioMsg
 from geometry_msgs.msg import Twist as TwistMsg
 from geometry_msgs.msg import Vector3 as Vector3Msg
 
+
+
+
+K_LINEAR = rospy.get_param("robot_manager_k_linear", 0.5)
+KL_ANGULAR = rospy.get_param("robot_manager_kl_angular", 2.0)
+KA_ANGULAR = rospy.get_param("robot_manager_ka_angular", 1.0)
+rospy.loginfo("Coefficient for K_LINEAR, KL_ANGULAR, KA_ANGULAR : " + 
+              str(K_LINEAR) + "\t" + str(KL_ANGULAR) + "\t" + str(KA_ANGULAR) + "\t")
+
 class TurnThread(threading.Thread):
     def __init__(self):
         super(TurnThread, self).__init__()
@@ -34,7 +43,12 @@ class TurnThread(threading.Thread):
         while True:
             if self.turnState:
                 if self.currentCmdVel is not None:
-                    self.turnMsg.angular.z = (1 if self.turnLeft else -1) * (abs(self.currentCmdVel.linear.x) * 2 + abs(self.currentCmdVel.angular.z))
+                    self.turnMsg.angular.z = (1 if self.turnLeft else -1) * (abs(self.currentCmdVel.linear.x) * KL_ANGULAR +
+                                                                              abs(self.currentCmdVel.angular.z) * KA_ANGULAR)
+                    """
+                    Add linear.x so the robot can move backward while turning
+                    """
+                    self.turnMsg.linear.x = (-abs(self.currentCmdVel.linear.x) * K_LINEAR)
                 else:
                     self.turnMsg.angular.z = .2
                     
@@ -93,7 +107,7 @@ class RobotManager():
         if msg.data and not self.hasObstacle:
             rospy.loginfo("Received new obstacle")
             self.freezePathFollowerPublisher.publish(BoolMsg(True))
-            self.turnThread.turn(random.random() > .5)
+            self.turnThread.turn(random.random() > .5) # <----- Holy shit! That's smart! Nice found! 
             #self.stopPathFollowerPublisher.publish(self.stopPathFollowerMsg)
             # state
             #did that, but better that path_follower_choregraphic does that, because of latency 
@@ -117,6 +131,11 @@ if __name__ == "__main__":
     rospy.Subscriber("wanted_cmd_vel", TwistMsg, robotManager.wantedCmdVelCB)
     rospy.Subscriber("freeze", BoolMsg, robotManager.freezeCB)
     rospy.Subscriber("front_obstacle", BoolMsg, robotManager.frontObstacleCB)
+    K_LINEAR = rospy.get_param("robot_manager_k_linear", 0.5)
+    KL_ANGULAR = rospy.get_param("robot_manager_kl_angular", 2.0)
+    KA_ANGULAR = rospy.get_param("robot_manager_ka_angular", 1.0)
+    rospy.loginfo("Coefficient for K_LINEAR, KL_ANGULAR, KA_ANGULAR : " + 
+                  str(K_LINEAR) + "\t" + str(KL_ANGULAR) + "\t" + str(KA_ANGULAR) + "\t")
     rospy.spin()
     
     robotManager.destroy()

@@ -97,5 +97,8 @@ linear_speed_default: 0.20 #m/s
 last_point_angle_thresh: 0.034 #radian
 
 
-
+###################### ROBOT MANAGER ##########################
+robot_manager_k_linear: 0.4
+robot_manager_kl_angular: 2.0
+robot_manager_ka_angular: 1.0
 
