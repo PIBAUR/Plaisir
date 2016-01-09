@@ -4,6 +4,7 @@
 import os
 import subprocess
 import threading
+import time
 
 import rospy
 
@@ -24,9 +25,7 @@ class LogProcessThread(threading.Thread):
 
 
 def execute():
-    global processes
-    
-    processesChanged = False
+    global processes, numRobotsChanged, numRobotsIncreased
     
     for robotId in processes.keys():
         robotIp = robotsBaseIp + robotId
@@ -48,7 +47,8 @@ def execute():
                 
                 processes[robotId] = (process, stdoutLogProcessThread, stderrLogProcessThread)
                 
-                processesChanged = True
+                numRobotsIncreased = True
+                numRobotsChanged = True
             elif processes[robotId][0].poll() != None :
                 #TODO: Check this
                 """ 
@@ -59,7 +59,8 @@ def execute():
                 print "/robot" + robotId + " process PID  " + str(processes[robotId][0].pid) + " has terminated..."
                 #processes[robotId][0].kill()
                 processes[robotId] = None
-                processesChanged = True
+                
+                numRobotsChanged = True
         else:
             #print "fault"
             if processes[robotId] is not None:
@@ -68,16 +69,26 @@ def execute():
                 
                 processes[robotId] = None
                 
-                processesChanged = True
+                numRobotsChanged = True
     
-    print "------------- RUNNING ROBOTS -------------------"
-    for processKey, processValue in processes.items():
-        if processValue is not None:
-            print "--      /robot" + processKey + ": PID " + str(processValue[0].pid)
-    print "------------------------------------------------"
+    if numRobotsIncreased:
+        print "------------- RUNNING ROBOTS -------------------"
+        for processKey, processValue in processes.items():
+            if processValue is not None:
+                print "--      /robot" + processKey + ": PID " + str(processValue[0].pid)
+        print "------------------------------------------------"
     
     
 if __name__ == '__main__':
+    numRobotsIncreased = False
+    numRobotsChanged = False
+    
+    print "launch roscore"
+    roscoreProcess = subprocess.Popen("roscore")
+    
+    time.sleep(5)
+    
+    print "launch installation"
     rospy.init_node("installation_manager_node", log_level = rospy.INFO)
     
     numRobots = rospy.get_param("num_robots", 7)
@@ -88,22 +99,21 @@ if __name__ == '__main__':
         robotId = "0" * (2 - len(str(i))) + str(i)
         processes[robotId] = None
     
-    firstTime = True
+    executionDiagramProcess = None
+    now = time.time()
     while not rospy.is_shutdown():
+        if time.time() - now > 120 and numRobotsIncreased:
+            numRobotsIncreased = False
+            
+            now = time.time()
+            if executionDiagramProcess is not None:
+                executionDiagramProcess.kill()
+                time.sleep(10)
+            print "launch execution_diagram"
+            executionDiagramProcess = subprocess.Popen(["python", "/home/artlab/catkin_ws/src/gui_execution_diagram/src/__init__.py", "/home/artlab/catkin_ws/params/default.dge", "--switch-to-multi-robots", "--start"])
         execute()
         rospy.sleep(5.)
         
-        """
-        if firstTime:
-            firstTime = False
-            
-            process = subprocess.Popen(["python", os.path.expanduser("~") + "/catkin_ws/src/gui_execution_diagram/src/__init__.py", os.path.expanduser("~") + "/catkin_ws/params/default.dge", "--switch-to-multi-robots", "--start"], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-            
-            stdoutLogProcessThread = LogProcessThread("[INFO] [ gui_execution_diagram ]: ", iter(process.stdout.readline, ""))
-            stdoutLogProcessThread.start()
-            stderrLogProcessThread = LogProcessThread("[ERROR] [ gui_execution_diagram ]: ", iter(process.stderr.readline, ""))
-            stderrLogProcessThread.start()"""
-    
     # kill for end
     for process in processes.values():
         if process is not None:
