@@ -13,7 +13,6 @@ from PyQt4 import uic
 
 from src.scenario_lib.src.items.nodes.nodeException import NodeException
 from src.scenario_lib.src.items.robot import Robot
-from _mysql import result
 
 class DiagramNode(object):
     currentNodeId = 0
