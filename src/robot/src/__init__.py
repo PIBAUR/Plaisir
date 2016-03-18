@@ -18,14 +18,6 @@ from geometry_msgs.msg import Twist as TwistMsg
 from geometry_msgs.msg import Vector3 as Vector3Msg
 
 
-
-
-K_LINEAR = rospy.get_param("robot_manager_k_linear", 0.5)
-KL_ANGULAR = rospy.get_param("robot_manager_kl_angular", 2.0)
-KA_ANGULAR = rospy.get_param("robot_manager_ka_angular", 1.0)
-rospy.loginfo("Coefficient for K_LINEAR, KL_ANGULAR, KA_ANGULAR : " + 
-              str(K_LINEAR) + "\t" + str(KL_ANGULAR) + "\t" + str(KA_ANGULAR) + "\t")
-
 class TurnThread(threading.Thread):
     def __init__(self):
         super(TurnThread, self).__init__()
